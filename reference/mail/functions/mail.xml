@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.13 Maintainer: cortesi Status: ready -->
+<!-- EN-Revision: 1.26 Maintainer: cortesi Status: ready -->
 <!-- splitted from ./it/functions/mail.xml, last change in rev 1.3 -->
   <refentry id="function.mail">
    <refnamediv>
@@ -25,17 +25,17 @@
      contenuto possono essere spedite usando questa funzione. Questo è
      possibile tramite la codifica MIME. Per maggiori informazioni, fare riferimento a
      <ulink url="&url.email.mime.zend;">
-     un articolo Zend</ulink> o alle <ulink url="&url.email.mime.pear;">
+     un articolo Zend</ulink> o alle <ulink url="&url.pear.package;Mail_Mime">
      Classi Mime del PEAR</ulink>.
     </simpara>
     <simpara>
      Le seguenti RFC possono essere di aiuto:
-     <ulink url="&url.rfc1896;">RFC 1896</ulink>,
-     <ulink url="&url.rfc2045;">RFC 2045</ulink>,
-     <ulink url="&url.rfc2046;">RFC 2046</ulink>,
-     <ulink url="&url.rfc2047;">RFC 2047</ulink>,
-     <ulink url="&url.rfc2048;">RFC 2048</ulink> e
-     <ulink url="&url.rfc2049;">RFC 2049</ulink>.
+     <ulink url="&url.rfc;1896">RFC 1896</ulink>,
+     <ulink url="&url.rfc;2045">RFC 2045</ulink>,
+     <ulink url="&url.rfc;2046">RFC 2046</ulink>,
+     <ulink url="&url.rfc;2047">RFC 2047</ulink>,
+     <ulink url="&url.rfc;2048">RFC 2048</ulink> e
+     <ulink url="&url.rfc;2049">RFC 2049</ulink>.
     </simpara>
     <para>
      <function>mail</function> restituisce &true; se la mail è stata accettata per
@@ -61,9 +61,11 @@
     <para>
      <example>
       <title>Inviare mail.</title>
-      <programlisting>
+      <programlisting role="php">
 <![CDATA[
+<?php
 mail("pippo@example.com", "Oggetto", "Linea 1\nLinea 2\nLinea 3");
+?>
 ]]>
       </programlisting>
      </example>
@@ -84,12 +86,14 @@ mail("pippo@example.com", "Oggetto", "Linea 1\nLinea 2\nLinea 3");
     <para>
      <example>
       <title>Invio di mail con intestazioni supplementari.</title>
-      <programlisting>
+      <programlisting role="php">
 <![CDATA[
+<?php
 mail("nessuno@example.com", "oggetto", $messaggio,
-     "From: webmaster@$SERVER_NAME\r\n"
-    ."Reply-To: webmaster@$SERVER_NAME\r\n"
-    ."X-Mailer: PHP/" . phpversion());
+     "From: webmaster@{$_SERVER['SERVER_NAME']}\r\n" .
+     "Reply-To: webmaster@{$_SERVER['SERVER_NAME']}\r\n" .
+     "X-Mailer: PHP/" . phpversion());
+?>
 ]]>
       </programlisting>
      </example>
@@ -99,16 +103,18 @@ mail("nessuno@example.com", "oggetto", $messaggio,
      è possibile impostare un parametro addizionale a linea di comando per 
      il programma configurato per inviare mail usando <literal>sendmail_path</literal>. 
      Per esempio si può impostare il corretto valore per envelope sender di
-     sendmail. Potrebbe essere necessario aggiungere l'utente che ha in esecuzione il server web
+     sendmail con l'opzione <literal>-f</literal> di sendmail. Potrebbe essere necessario aggiungere l'utente che ha in esecuzione il server web
      alla configurazione di sendmail per prevenire l'aggiunta
      dell'intestazione 'X-Warning' quando si imposta envelope sender
      in questo modo. 
      <example>
       <title>Invio di mail con intestazioni supplementari e impostazione dei parametri addizionali a linea di comando.</title>
-      <programlisting>
+      <programlisting role="php">
 <![CDATA[
+<?php
 mail("nessuno@example.com", "oggetto", $messaggio,
-     "From: webmaster@$SERVER_NAME", "-fwebmaster@$SERVER_NAME");
+     "From: webmaster@{$_SERVER['SERVER_NAME']}", "-fwebmaster@{$_SERVER['SERVER_NAME']}");
+?>
 ]]>
       </programlisting>
      </example>
@@ -126,8 +132,9 @@ mail("nessuno@example.com", "oggetto", $messaggio,
      concatenazione delle stringhe. 
      <example>
       <title>Invio di mail complessa.</title>
-      <programlisting>
+      <programlisting role="php">
 <![CDATA[
+<?php
 /* destinatari */
 $destinatari  = "Maria <maria@example.com>" . ", " ; // notare la virgola
 $destinatari .= "Enrica <enrica@example.com>";
@@ -163,13 +170,14 @@ $intestazioni  = "MIME-Version: 1.0\r\n";
 $intestazioni .= "Content-type: text/html; charset=iso-8859-1\r\n";
 
 /* intestazioni addizionali */
+$intestazioni .= "To: Mary <mary@example.com>, Kelly <kelly@example.com>\r\n";
 $intestazioni .= "From: Promemoria Compleanni <compleanni@example.com>\r\n";
-
 $intestazioni .= "Cc: archiviocompleanni@example.com\r\n";
 $intestazioni .= "Bcc: controllocompleanni@example.com\r\n";
 
 /* ed infine l'invio */
 mail($destinatari, $oggetto, $messaggio, $intestazioni);
+?>
 ]]>
       </programlisting>
      </example>
@@ -186,7 +194,7 @@ mail($destinatari, $oggetto, $messaggio, $intestazioni);
       Il parametro <parameter>a</parameter> non può essere un indirizzo nella
       forma &quot;Qualcosa &lt;qualcuno@example.com&gt;&quot;. Il comando di 
       mail non sarebbe in grado di effettuare correttamente il parsing mentre dialoga
-      con il MTA.
+      con il MTA (in particolare sotto Windows).
      </para>
     </note>
     <para>

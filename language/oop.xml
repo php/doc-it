@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.33 Maintainer: alan_dangelo  Status: ready -->
+<!-- EN-Revision: 1.43 Maintainer: alan_dangelo  Status: ready -->
  <chapter id="language.oop">
   <title>Classi e Oggetti</title>
 
@@ -8,7 +8,8 @@
    <para>
     Una classe è una collezione di variabili e funzioni che utilizzano
     queste variabili. Una classe si definisce usando la seguente sintassi:
- 
+   </para>
+   <para> 
     <informalexample>
      <programlisting role="php">
 <![CDATA[
@@ -48,17 +49,43 @@ class Cart
     per aggiungere e rimuovere gli articoli dal carrello stesso.
    </para>
 
-   <caution>
+   <warning>
     <simpara>
-     Le seguenti note cautelari sono valide per PHP 4.
+     <emphasis>NON</emphasis> spezzate una definizione di classe in
+     più file o in più blocchi PHP. Il seguente codice non funziona:
     </simpara>
+    <para>
+     <informalexample>
+      <programlisting>
+<![CDATA[
+<?php
+class test {
+?>
+<?php
+    function test() {
+        print 'OK';
+    }
+}
+?>
+]]>
+      </programlisting>
+     </informalexample>
+    </para>
+   </warning>
+
+   <simpara>
+    Le seguenti note cautelative sono valide per PHP 4.
+   </simpara>
     
+   <caution>
     <simpara>
      Il nome <literal>stdClass</literal> è usato esclusivamente da
      Zend ed è riservato. Non è quindi possibile creare una classe chiamata
      <literal>stdClass</literal> in PHP.
     </simpara>
+   </caution>
     
+   <caution>
     <simpara>
       I nomi di funzione <literal>__sleep</literal> e
       <literal>__wakeup</literal> sono riservati e magici nelle classi PHP.
@@ -66,7 +93,9 @@ class Cart
       dall'utente, a meno che non sia desiderata la funzionalità magica connessa
       a questi nomi. Si veda sotto per avere più informazioni.
     </simpara>
+   </caution>
     
+   <caution>
     <simpara>
       PHP riserva tutti i nomi di funzione che iniziano con __ a
       funzioni magiche. Si suggerisce di non usare nomi di funzioni che utilizzano
@@ -74,7 +103,6 @@ class Cart
     </simpara>
    </caution>
 
-   <note>
     <simpara>
      In PHP 4, sono permesse inizializzazioni di variabili con valori costanti solamente 
      grazie all'uso di <literal>var</literal>. Per inizializzare variabili con valori 
@@ -110,10 +138,10 @@ class Cart
         /* etc ... */
     }
 }
+?>
 ]]>
      </programlisting>
     </informalexample>
-   </note>
 
    <para>
     Le classi sono tipi del linguaggio, e sono modelli per
@@ -130,6 +158,7 @@ $cart->add_item("10", 1);
 
 $another_cart = new Cart;
 $another_cart->add_item("0815", 3);
+?>
 ]]>
     </programlisting>
    </informalexample>
@@ -163,7 +192,8 @@ $another_cart->add_item("0815", 3);
    <informalexample>
     <programlisting role="php">
 <![CDATA[
-// corretto, con un simbolo $
+<?php
+// corretto con un singolo $
 $cart->items = array("10" => 1); 
 
 // non valido, perchè $cart->$items diventa $cart->""
@@ -173,6 +203,7 @@ $cart->$items = array("10" => 1);
 // $cart->$myvar diventa $cart->items
 $myvar = 'items';
 $cart->$myvar = array("10" => 1);  
+?>
 ]]>
     </programlisting>
    </informalexample>
@@ -222,6 +253,7 @@ $cart->$myvar = array("10" => 1);
    <informalexample>
     <programlisting role="php">
 <![CDATA[
+<?php
 class Named_Cart extends Cart
 {
     var $owner;
@@ -231,6 +263,7 @@ class Named_Cart extends Cart
         $this->owner = $name;
     }
 }
+?>
 ]]>
     </programlisting>
    </informalexample>
@@ -246,14 +279,35 @@ class Named_Cart extends Cart
    <informalexample>
     <programlisting role="php">
 <![CDATA[
+<?php
 $ncart = new Named_Cart;    // Crea un carrello con nome
 $ncart->set_owner("kris");  // Assegna il nome al carrello
 print $ncart->owner;        // stampa il nome del proprietario
 $ncart->add_item("10", 1);  // (funzionalità ereditata da Cart)
+?>
 ]]>
     </programlisting>
    </informalexample>
 
+   <para>
+    La relazione mostrata è chiamata relazione "genitore-figlio". Si crea una classe
+    di base, poi utilizzando <literal>extends</literal> si crea una nuova classe
+    <emphasis>basata</emphasis> sulla classe genitore: la classe figlia. Successivamente
+    si può usare la classe figlia come classe base per un'altra
+    classe.
+   </para>
+   <note>
+    <para>
+     Una classe deve essere definita prima di essere utilizzata! Se si vuole la classe
+     <literal>Named_Cart</literal> che estende la classe
+     <literal>Cart</literal>, bisogna definire una classe
+     <literal>Cart</literal> prima. Se si vuole creare un'altra classe chiamata
+     <literal>Yellow_named_cart</literal> basata sulla classe
+     <literal>Named_Cart</literal> bisogna definire la classe
+     <literal>Named_Cart</literal> prima. Per farla breve: l'ordine di
+     definizione delle classi è importante.
+    </para>
+   </note>
   </sect1>
 
   <sect1 id="language.oop.constructor">
@@ -279,6 +333,7 @@ $ncart->add_item("10", 1);  // (funzionalità ereditata da Cart)
    <informalexample>
     <programlisting role="php">
 <![CDATA[
+<?php
 // Funziona in PHP 3 e PHP 4.
 class Auto_Cart extends Cart
 {
@@ -287,6 +342,7 @@ class Auto_Cart extends Cart
         $this->add_item ("10", 1);
     }
 }
+?>
 ]]>
     </programlisting>
    </informalexample>
@@ -304,7 +360,8 @@ class Auto_Cart extends Cart
    <informalexample>
     <programlisting role="php">
 <![CDATA[
-// Funziona in PHP 3 e PHP 4.
+<?php
+// Funziona in PHP 3 and PHP 4.
 class Constructor_Cart extends Cart
 {
     function Constructor_Cart($item = "10", $num = 1)
@@ -320,9 +377,16 @@ $default_cart = new Constructor_Cart;
 // Un carrello nuovo ...
  
 $different_cart = new Constructor_Cart("20", 17);
+?>
 ]]>
     </programlisting>
    </informalexample>
+
+   <para>
+    E possibile utilizzare l'operatore <literal>@</literal> per
+    <emphasis>inibire</emphasis> gli errori provocati dal costruttore, es:
+    <literal>@new</literal>.
+   </para>
 
    <caution>
     <simpara>
@@ -335,6 +399,7 @@ $different_cart = new Constructor_Cart("20", 17);
    <informalexample>
     <programlisting role="php">
 <![CDATA[
+<?php
 class A
 {
     function A()
@@ -353,6 +418,7 @@ class B extends A
 
 // nessun costruttore è chiamato in PHP 3.
 $b = new B;
+?>
 ]]>
     </programlisting>
    </informalexample>
@@ -374,6 +440,7 @@ $b = new B;
    <informalexample>
     <programlisting role="php">
 <![CDATA[
+<?php
 class A
 {
     function A()
@@ -398,6 +465,7 @@ class B extends A
 
 // This will call B() as a constructor.
 $b = new B;
+?>
 ]]>
     </programlisting>
    </informalexample>
@@ -462,6 +530,7 @@ $b = new B;
    <informalexample>
     <programlisting role="php">
 <![CDATA[
+<?php
 class A
 {
     function example()
@@ -491,6 +560,7 @@ $b = new B;
 //   Sono la funzione ridefinita B::example().<br>
 //   Sono la funzione originale A::example().<br>
 $b->example();
+?>
 ]]>
     </programlisting>
    </informalexample>
@@ -555,6 +625,7 @@ $b->example();
   <informalexample>
    <programlisting role="php">
 <![CDATA[
+<?php
 class A
 {
     function example()
@@ -576,6 +647,7 @@ $b = new B;
 
 // Il codice chiama B::example(), che a sua volta chiama A::example().
 $b->example();
+?>
 ]]>
    </programlisting>
   </informalexample>
@@ -626,7 +698,9 @@ $b->example();
   <informalexample>
    <programlisting role="php">
 <![CDATA[
-classa.inc:
+<?php
+// classa.inc:
+  
   class A 
   {
       var $one = 1;
@@ -637,17 +711,18 @@ classa.inc:
       }
   }
   
-page1.php:
+// page1.php:
   include("classa.inc");
   
   $a = new A;
   $s = serialize($a);
-  // memorizzare $s in qualche luogo della page2.
+  // memorizzare $s in qualche posto della page2.
   $fp = fopen("store", "w");
   fputs($fp, $s);
   fclose($fp);
 
-page2.php:
+// page2.php:
+
   // questo è necessario perchè unserialize() funzioni correttamente.
   include("classa.inc");
 
@@ -656,6 +731,7 @@ page2.php:
 
   // ora usiamo la function show_one() dell'oggetto $a.  
   $a->show_one();
+?>
 ]]>
    </programlisting>
   </informalexample>
@@ -731,6 +807,7 @@ page2.php:
     <informalexample>
      <programlisting role="php">
 <![CDATA[
+<?php
 class Foo
 {
     function Foo($name)
@@ -754,6 +831,7 @@ class Foo
         $this->name = $name;
     }
 }
+?>
 ]]>
     </programlisting>
    </informalexample>
@@ -769,6 +847,7 @@ class Foo
     <informalexample>
      <programlisting role="php">
 <![CDATA[
+<?php
 $bar1 = new Foo('set in constructor');
 $bar1->echoName();
 $globalref[0]->echoName();
@@ -786,6 +865,7 @@ $globalref[1]->echoName();
 imposta nel costruttore
 imposta nel costruttore
 imposta nel costruttore */
+?>
 ]]>
      </programlisting>
     </informalexample>
@@ -813,6 +893,7 @@ imposta nel costruttore */
     <informalexample>
      <programlisting role="php">
 <![CDATA[
+<?php
 // ora cambieremo il nome che cosa vi aspettate?
 // potreste prevedere che $bar e $globalref[0] cambino i loro nomi ...
 $bar1->setName('set from outside');
@@ -836,6 +917,7 @@ $globalref[1]->echoName();
 /* output:
 set from outside
 set from outside */
+?>
 ]]>
      </programlisting>
     </informalexample>   
@@ -846,6 +928,7 @@ set from outside */
     <informalexample>
      <programlisting role="php">
 <![CDATA[
+<?php
 class A
 {
     function A($i)
@@ -904,9 +987,262 @@ class A: 11
 class B: 11
 class B: 11
 */
+?>
 ]]>
      </programlisting>
     </informalexample>
+   </para>
+  </sect1>
+
+  <sect1 id="language.oop.object-comparison-php4">
+   <title>Confronto di oggetti in PHP 4</title>
+  <para>
+   In PHP 4, gli oggetti sono confrontati semplicemente, cioè: due istanze
+   di oggetto sono uguali se hanno gli stessi attributi e valori, e sono
+   istanze della stessa classe. Questa regola regola è applicata anche nel confronto
+   di due oggetti utilizzando l'operatore di identità (<literal>===</literal>).
+  </para>
+  <para>
+   Eseguendo il codice seguente:
+   <example>
+    <title>Esempio di confronto di oggetti in PHP 4</title>
+    <programlisting role='php'>
+<![CDATA[
+<?php
+function bool2str($bool) {
+    if ($bool === false) {
+            return 'FALSE';
+    } else {
+            return 'TRUE';
+    }
+}
+
+function compareObjects(&$o1, &$o2) {
+    echo 'o1 == o2 : '.bool2str($o1 == $o2)."\n";
+    echo 'o1 != o2 : '.bool2str($o1 != $o2)."\n";
+    echo 'o1 === o2 : '.bool2str($o1 === $o2)."\n";
+    echo 'o1 !== o2 : '.bool2str($o1 !== $o2)."\n";
+}
+
+class Flag {
+    var $flag;
+
+    function Flag($flag=true) {
+            $this->flag = $flag;
+    }
+}
+
+class SwitchableFlag extends Flag {
+
+    function turnOn() {
+        $this->flag = true;
+    }
+
+    function turnOff() {
+        $this->flag = false;
+    }
+}
+
+$o = new Flag();
+$p = new Flag(false);
+$q = new Flag();
+
+$r = new SwitchableFlag();
+
+echo "Confronto di istanze create con gli stessi parametri\n";
+compareObjects($o, $q);
+
+echo "\nConfronto di istanze create con parametri diversi\n";
+compareObjects($o, $p);
+
+echo "\nConfronto di un'istanza della classe genitore con una sottoclasse\n";
+compareObjects($o, $r);
+?>
+]]>
+    </programlisting>
+   </example>
+   Si ha:
+   <screen>
+Confronto di istanze create con gli stessi parametri
+o1 == o2 : TRUE
+o1 != o2 : FALSE
+o1 === o2 : TRUE
+o1 !== o2 : FALSE
+
+Confronto di istanze create con parametri diversi
+o1 == o2 : FALSE
+o1 != o2 : TRUE
+o1 === o2 : FALSE
+o1 !== o2 : TRUE
+
+Confronto di un'istanza della classe genitore con una sottoclasse
+o1 == o2 : FALSE
+o1 != o2 : TRUE
+o1 === o2 : FALSE
+o1 !== o2 : TRUE
+   </screen>
+   Questo è l'output che si ottiene secondo le regole di confronto
+   descritte sopra. Solo le istanze con gli stessi valori per gli attributi e derivanti dalla stessa
+   classe sono considerate uguali ed identiche.
+  </para>
+  <para>
+   Anche nei casi in cui l'oggetto è composto si applicano le stesse regole
+   di confronto. Nell'esempio seguente creiamo una classe contenitore che archivia
+   nell'array associativo <classname>Flag</classname> altri oggetti.
+   <example>
+    <title>Confronto di oggetti composti in PHP 4</title>
+    <programlisting role='php'>
+<![CDATA[
+<?php
+class FlagSet {
+    var $set;
+
+    function FlagSet($flagArr = array()) {
+        $this->set = $flagArr;
+    }
+
+    function addFlag($name, $flag) {
+        $this->set[$name] = $flag;
+    }
+
+    function removeFlag($name) {
+        if (array_key_exists($name, $this->set)) {
+            unset($this->set[$name]);
+        }
+    }
+}
+
+
+$u = new FlagSet();
+$u->addFlag('flag1', $o);
+$u->addFlag('flag2', $p);
+$v = new FlagSet(array('flag1'=>$q, 'flag2'=>$p));
+$w = new FlagSet(array('flag1'=>$q));
+
+echo "\nOggetti composti u(o,p) e v(q,p)\n";
+compareObjects($u, $v);
+
+echo "\nu(o,p) and w(q)\n";
+compareObjects($u, $w);
+?>     
+]]>
+    </programlisting>
+   </example>
+   L'output previsto è:
+   <screen>
+Oggetti composti u(o,p) e v(q,p)
+o1 == o2 : TRUE
+o1 != o2 : FALSE
+o1 === o2 : TRUE
+o1 !== o2 : FALSE
+
+u(o,p) and w(q)
+o1 == o2 : FALSE
+o1 != o2 : TRUE
+o1 === o2 : FALSE
+o1 !== o2 : TRUE
+   </screen>
+  </para>
+ </sect1>
+
+  <sect1 id="language.oop.object-comparison-php5">
+   <title>Confronto di oggetti in PHP 5</title>
+   &warn.experimental;
+   <para>
+    In PHP 5, il confronto tra oggetti è più complicato che in PHP 4, ed è in armonia
+    con quello che ci si può aspettare da un linguaggio orientato agli oggetti
+    (non che PHP 5 lo sia veramente).
+   </para>
+   <para>
+    Quando si usa l'operatore di confronto (<literal>==</literal>), 
+    le variabili oggetto sono confrontate in modo semplice, cioè: due istanze
+    di oggetto sono uguali se hanno gli stessi attributi e valori, e sono
+    istanze della stessa classe, definita nello stesso spazio dei nomi.
+   </para>
+   <para>
+    Diversamente, quando usiamo l'operatore di identità (<literal>===</literal>),
+    le variabili oggetto sono identiche se e solo se si riferiscono alla stessa
+    istanza della stessa classe (in un particolare spazio dei nomi).
+   </para>
+   <para>
+    Un esempio chiarirà questa regola.
+    <example>
+     <title>Esempio di confronto di oggetti in PHP 5</title>
+     <programlisting role='php'>
+<![CDATA[
+<?php
+function bool2str($bool) {
+    if ($bool === false) {
+            return 'FALSE';
+    } else {
+            return 'TRUE';
+    }
+}
+
+function compareObjects(&$o1, &$o2) {
+    echo 'o1 == o2 : '.bool2str($o1 == $o2)."\n";
+    echo 'o1 != o2 : '.bool2str($o1 != $o2)."\n";
+    echo 'o1 === o2 : '.bool2str($o1 === $o2)."\n";
+    echo 'o1 !== o2 : '.bool2str($o1 !== $o2)."\n";
+}
+
+class Flag {
+    var $flag;
+
+    function Flag($flag=true) {
+            $this->flag = $flag;
+    }
+}
+
+namespace Other {
+
+    class Flag {
+        var $flag;
+
+        function Flag($flag=true) {
+                $this->flag = $flag;
+        }
+    }
+
+}
+
+$o = new Flag();
+$p = new Flag();
+$q = $o;
+$r = new Other::Flag();
+
+echo "Due istanze della stessa classe\n";
+compareObjects($o, $p);
+
+echo "\nDue riferimenti alla stessa istanza\n";
+compareObjects($o, $q);
+
+echo "\nIstanze di classi di diversi spazi dei nomi e simili nomi di classe\n";
+compareObjects($o, $r);
+?>
+]]>
+     </programlisting>
+    </example>
+    L'esempio stampa:
+    <screen>
+Due istanze della stessa classe
+o1 == o2 : TRUE
+o1 != o2 : FALSE
+o1 === o2 : FALSE
+o1 !== o2 : TRUE
+
+Due riferimenti alla stessa istanza
+o1 == o2 : TRUE
+o1 != o2 : FALSE
+o1 === o2 : TRUE
+o1 !== o2 : FALSE
+
+Istanze di classi di diversi spazi dei nomi e simili nomi di classe
+o1 == o2 : FALSE
+o1 != o2 : TRUE
+o1 === o2 : FALSE
+o1 !== o2 : TRUE
+    </screen>
    </para>
   </sect1>
  </chapter>

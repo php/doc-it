@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- splitted from ./it/functions/pcre.xml, last change in rev 1.1 -->
+<!-- last change to 'preg-match-all' in en/ tree in rev 1.2 -->
+<!-- EN-Revision: 1.1 Maintainer: darvina Status: ready -->
+<!-- OLD-Revision: 1.78/EN.1.2 -->
+  <refentry id="function.preg-match-all">
+   <refnamediv>
+    <refname>preg_match_all</refname>
+    <refpurpose>Esegue un riconoscimento globale con le espressioni regolari</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int </type><methodname>preg_match_all</methodname> 
+      <methodparam><type>string </type><parameter>espressione_regolare</parameter></methodparam>
+      <methodparam><type>string </type><parameter>testo</parameter></methodparam>
+      <methodparam><type>array </type><parameter>TestiRiconosciuti</parameter></methodparam>
+      <methodparam choice="opt"><type>int </type><parameter>ordine</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     La funzione ricerca tutte le espressioni regolari passate nel parametro <parameter>espressione_regolare</parameter> all'interno 
+     della stringa <parameter>testo</parameter>. I testi riconosciuti sono posti all'interno
+     della matrice <parameter>TestiRiconosciuti</parameter>, nell'ordine specificato da 
+     <parameter>ordine</parameter>.
+    </para>
+    <para>
+     Dopo avere riconosciuto il primo segmento di testo, le ricerche seguenti
+     saranno effettuate a partire dall'ultima ricerca specificata.
+    </para>
+    <para>
+     <parameter>ordine</parameter> può assumere uno dei due valori seguenti:
+     <variablelist>
+      <varlistentry>
+       <term>PREG_PATTERN_ORDER</term>
+       <listitem>
+	<para>
+         I testi riconosciuti saranno organizzati in modo tale da avere
+         in $TestiRiconosciuti[0] la matrice di tutti i testi riconosciuti,
+         in $TestiRiconosciuti[1] la matrice di tutti i testi che soddisfano 
+         il primo criterio di riconoscimento posto tra parentesi tonde, in 
+         $TestiRiconosciuti[2] si avranno i testi che soddisfano il secondo 
+         criterio e cosi via.
+	 <informalexample>
+	  <programlisting role="php">
+<![CDATA[
+preg_match_all ("|<[^>]+>(.*)</[^>]+>|U", 
+    "<b>example: </b><div align=left>this is a test</div>", 
+    $out, PREG_PATTERN_ORDER);
+print $out[0][0].", ".$out[0][1]."\n";
+print $out[1][0].", ".$out[1][1]."\n";
+]]>
+          </programlisting>
+          <para>
+           Questo esempio produrrà:
+           <screen>
+<![CDATA[
+<b>example: </b>, <div align=left>this is a test</div>
+example: , this is a test
+]]>
+           </screen>
+           Nell'esempio, $out[0] contiene la matrice di tutte le stringhe
+           che soddisfano i criteri impostati, $out[1] contiene la matrice
+           dei testi delimitati dai tag.
+          </para>
+         </informalexample>
+	</para>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>PREG_SET_ORDER</term>
+       <listitem>
+	<para>
+         Usando questo parametro come ordine dei riconoscimenti, si 
+         avrà in $TestiRiconosciuti[0] una matrice con il primo set
+         di testi riconosciuti, in $TestiRiconosciuti[1], la matrice 
+         con il secondo set di testi riconosciuti e così via.
+	 <informalexample>
+	  <programlisting role="php">
+<![CDATA[
+preg_match_all ("|<[^>]+>(.*)</[^>]+>|U", 
+    "<b>example: </b><div align=left>this is a test</div>", 
+    $out, PREG_SET_ORDER);
+print $out[0][0].", ".$out[0][1]."\n";
+print $out[1][0].", ".$out[1][1]."\n";
+]]>
+	  </programlisting>
+	 </informalexample>
+	 Questo esempio visualizzerà:
+	 <informalexample>
+	  <programlisting role="php">
+<![CDATA[
+<b>example: </b>, example: 
+<div align=left>this is a test</div>, this is a test
+]]>
+	  </programlisting>
+	 </informalexample>
+         In questo esempio $out[0] è la matrice del primo set di testi
+         riconosciuti. Nel dettaglio $out[0][0] conterrà il testo che incrocia
+         l'intero criterio impostato, $out[0][1] conterrà il testo riconosciuto
+         tramite il prima regola di riconoscimento presente nel criterio globale.
+         Analogo discorso si può fare per $out[1]. In questo caso il ragionamento
+         verrà svolto su un secondo segmento della stringa che soddisfi le
+         condizioni poste dal criterio di riconoscimento.
+	</para>
+       </listitem>
+      </varlistentry>
+     </variablelist>
+    </para>
+    <para>
+     Qualora non si specifichi il parametro <parameter>ordine</parameter>,
+     si assume per default il valore PREG_PATTERN_ORDER.
+    </para>
+    <para>
+     La funzione restituisce il numero dei riconoscimenti completi
+     svolti, oppure &false; se non si hanno testi riconosciuti, o
+     se si verificano degli errori.
+    </para>
+    <para>
+     <example>
+      <title>Esempio di come ottenere tutti i numeri di telefono da un testo.</title>
+      <programlisting role="php">
+<![CDATA[
+preg_match_all ("/\(?  (\d{3})?  \)?  (?(1)  [\-\s] ) \d{3}-\d{4}/x",
+                "Call 555-1212 or 1-800-555-1212", $numeri);
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     <example>
+      <title>Ricerca di tag HTML</title>
+      <programlisting role="php">
+<![CDATA[
+// Il parametro \\2 è un esempio di riferimento all'indietro. Questo dato informa la 
+// libreria pcre che deve considerare il secondo set di parentesi tonde (in questo 
+// caso il testo "([\w]+)"). Il backslash (\) aggiuntivo è reso obbligatorio dall'uso
+// dei doppi apici.
+$html = "<b>bold text</b><a href=howdy.html>click me</a>;
+
+preg_match_all ("/(<([\w]+)[^>]*>)(.*)(<\/\\2>)/", $html, $matches);
+
+for ($i=0; $i< count($matches[0]); $i++) {
+   echo "intero criterio: ".$matches[0][$i]."\n";
+   echo "parte 1: ".$matches[1][$i]."\n";
+   echo "parte 2: ".$matches[3][$i]."\n";
+   echo "parte 3: ".$matches[4][$i]."\n\n";
+}
+]]>
+      </programlisting>
+     </example>
+     Questo esempio visualizzerà:
+     <programlisting>
+<![CDATA[
+intero criterio: <b>bold text</b>
+parte 1: <b>
+parte 2: bold text
+parte 3: </b>
+
+intero criterio: <a href=howdy.html>click me</a>
+parte 1: <a href=howdy.html>
+parte 2: click me
+parte 3: </a>
+]]>
+     </programlisting>
+    </para>
+    <simpara>
+     Vedere anche <function>preg_match</function>,
+     <function>preg_replace</function>
+     e <function>preg_split</function>.
+    </simpara>
+   </refsect1>
+  </refentry>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- splitted from ./it/functions/regex.xml, last change in rev 1.1 -->
+<!-- last change to 'ereg-replace' in en/ tree in rev 1.2 -->
+<!-- EN-Revision: 1.1 Maintainer: darvina Status: ready -->
+<!-- OLD-Revision: 1.42/EN.1.2 -->
+  <refentry id="function.ereg-replace">
+   <refnamediv>
+    <refname>ereg_replace</refname>
+    <refpurpose>Sostituzioni con espressioni regolari</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>string</type><methodname>ereg_replace</methodname>
+      <methodparam><type>string</type><parameter>espressione_regolare</parameter></methodparam>
+      <methodparam><type>string</type><parameter>testo_sostitutivo</parameter></methodparam>
+      <methodparam><type>string</type><parameter>stringa</parameter></methodparam>
+     </methodsynopsis>
+    <note>
+     <para>
+      Poichè utilizza espressioni regolari con sintassi compatibile 
+      con Perl, <function>preg_replace</function>, è spesso una alternativa
+      più veloce a <function>ereg_replace</function>.
+     </para>
+    </note>
+    <simpara>
+     La funzione ricerca all'interno del parametro <parameter>stringa</parameter>
+     sottostringhe che incrocino con le condizioni specificate in <parameter>
+     espressione_regolare</parameter>. Quando sono trovate, queste vengono sostituite
+     con il testo specificato in <parameter>testo_sostitutivo</parameter>.
+    </simpara>
+    <simpara>
+     La funzione restituisce la stringa modificata. (Ciò implica
+     che se non ci sono sottostringhe che soddisfino l' espressione
+     regolare, la funzione restituisce la stringa originaria).
+    </simpara>
+    <simpara>
+     Se in <parameter>espressione_regolare</parameter> si specificano
+     delle sottostringhe utilizzando le parentesi, anche nel campo
+     <parameter>testo_sostitutivo</parameter> si possono specificare delle
+     sottostringhe di formato <literal>\\<replaceable>digit</replaceable>
+     </literal>, che saranno sostituite dalle stringhe soddisfacenti
+     la digit'esima condizione posta tra parentesi; <literal>\\0</literal>
+     indica l'intera stringa. La funzione prevede che si possano utlizzare
+     fino a nove sottostringhe. E' previsto che le parentesi siano 
+     nidificate, in questo caso il conteggio si basa sulle parentesi aperte.
+    </simpara>  
+    <simpara>
+     Se nessuna parte di <parameter>stringa</parameter> viene riconosciuta,
+     il parametro viene restituito invariato.
+    </simpara>
+    <para>
+     Come esempio il seguente frammento di codice visualizzerà la frase
+     "Questo fu un test" tre volte:
+     <example>
+      <title><function>ereg_replace</function> Esempio</title>
+      <programlisting>
+<![CDATA[
+$stringa = "Questo è un test";
+echo ereg_replace (" è", " fu", $stringa);
+echo ereg_replace ("( )è", "\\1fu", $stringa);
+echo ereg_replace ("(( )è)", "\\2fu", $stringa);
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Un aspetto a cui occorre prestare attenzione riguarda l'uso di 
+     numero intero per il parametro <parameter>testo_sostitutivo</parameter>,
+     si potrebbero ottenere risultati diversi da quanto atteso.
+     Questo accade perchè la funzione <function>ereg_replace</function> 
+     interpreta il numero come posizione ordinale di un carattere 
+     comportandosi di conseguenza. Ad esempio:
+     <example>
+      <title><function>ereg_replace</function> Esempio</title>
+      <programlisting>
+<![CDATA[
+<?php
+/* Questo non si comporta come atteso. */
+$num = 4;
+$stringa = "Questa stringa ha quattro parole.";
+$stringa = ereg_replace('quattro', $num, $stringa);
+echo $stringa;   /* Risultato: 'Questa stringa ha   parole.' */
+
+/* Questo funziona. */
+$num = '4';
+$stringa = "Questa stringa ha quattro parole.";
+$stringa = ereg_replace('quattro', $num, $stringa);
+echo $stringa;   /* Risultato: 'Questa stringa ha 4 parole' */
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     <example>
+      <title>Sostituzione di URL</title>
+      <programlisting role="php">
+<![CDATA[
+$testo = ereg_replace("[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]",
+                     "<a href=\"\\0\">\\0</a>", $testo);
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <simpara>
+     Vedere anche <function>ereg</function>, <function>eregi</function>,
+     <function>eregi_replace</function>, <function>str_replace</function>
+     e <function>preg_match</function>.
+    </simpara>
+   </refsect1>
+  </refentry>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

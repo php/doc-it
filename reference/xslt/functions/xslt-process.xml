@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- splitted from ./it/functions/xslt.xml, last change in rev 1.1 -->
+<!-- last change to 'xslt-process' in en/ tree in rev 1.3 -->
+<!-- EN-Revision: 1.1 Maintainer: curcio_it Status: ready -->
+<!-- OLD-Revision: 1.32/EN.1.3 -->
+  <refentry id="function.xslt-process">
+   <refnamediv>
+    <refname>xslt_process</refname>
+    <refpurpose>Esegue una trasformazione XSLT</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>mixed</type><methodname>xslt_process</methodname>
+       <methodparam><type>resource</type><parameter>xh</parameter></methodparam>
+       <methodparam><type>string</type><parameter>xml</parameter></methodparam>
+       <methodparam><type>string</type><parameter>xsl</parameter></methodparam>
+       <methodparam choice="opt"><type>string</type><parameter>result</parameter></methodparam>
+       <methodparam choice="opt"><type>array</type><parameter>arguments</parameter></methodparam>
+       <methodparam choice="opt"><type>array</type><parameter>parameters</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     La funzione xslt_process() è una delle più importanti della nuova estensione XSLT.
+     Permette di eseguire una trasformazione XSLT usando quasi ogni tipo di
+     fonte di input. Questa è un completamente attraverso l'uso dell'argomento
+     buffers -- un concetto proso dal processore XSLT Sablotron
+     (attualmente l'unico processore XSLT che questa estensione supporta).
+    </para>
+    <para>
+     Il più semplice tipo di trasformazione con la funzione <function>xslt_process()</function>
+     è la trasformazione di un file XML con un file XSLT, mettendo il
+     risultato in un terzo file contenente un nuovo documento XML (o HTML).
+     Fare questo con sablotron è davvero molto semplice...
+    </para>
+    <example>
+     <title>Uso di <function>xslt_process</function> per trasformare un file XML e un file XSL
+     in un nuovo file XML</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+// Allocate a new XSLT processor
+$xh = xslt_create();
+
+// Process the document
+if (xslt_process($xh, 'sample.xml', 'sample.xsl', 'result.xml')) {
+    print "SUCCESS, sample.xml was transformed by sample.xsl into result.xml";
+    print ", result.xml has the following contents\n<br>\n";
+    print "<pre>\n";
+    readfile('result.xml');
+    print "</pre>\n";
+}
+else {
+    print "Sorry, sample.xml could not be transformed by sample.xsl into";
+    print "  result.xml the reason is that " . xslt_error($xh) . " and the ";
+    print "error code is " . xslt_errno($xh);
+}
+
+xslt_free($xh);
+
+?>
+]]>
+     </programlisting>
+    </example>
+    <para>
+     Mentre questa funzionalità è importante, a volte, specialmente in un ambiente web, si vorrebbe
+     avere la possibilità di stampare a video il risultato direttamente. Quindi, se si omette il terzo argomento
+     alla funzione <function>xslt_process</function> (o inserire il valore NULL oer l'argomento), lo script 
+     restituirà automaticamente il valore della trasformazione dell'XSLT, invece di scriverlo in un
+     file...
+    </para>
+    <para>
+     <example>
+     <title>Uso di <function>xslt_process</function> per trasformare un file XML e uno XSL 
+     in una variabile contenente i dati XML restituiti</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+// Allocate a new XSLT processor
+$xh = xslt_create();
+
+// Process the document, returning the result into the $result variable
+$result = xslt_process($xh, 'sample.xml', 'sample.xsl');
+if ($result) {
+    print "SUCCESS, sample.xml was transformed by sample.xsl into the \$result";
+    print " variable, the \$result variable has the following contents\n<br>\n";
+    print "<pre>\n";
+    print $result;
+    print "</pre>\n";
+}
+else {
+    print "Sorry, sample.xml could not be transformed by sample.xsl into";
+    print "  the \$result variable the reason is that " . xslt_error($xh) . 
+    print " and the error code is " . xslt_errno($xh);
+}
+
+xslt_free($xh);
+
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     I due casi sopra sono i due casi più semplici che ci sono quando c'è una trasformazione XSLT
+     e c'è da dire che dovreste essere per la maggior parte delle volte in questi casi, ma, a volte, puoi prendere il tuo
+     codice XML e XSLT da fonti esterne, come database e socket. In questi casi, avrai
+     i dati XML e/o XSLT in una variabile -- e nella produzione di applicazioni l'overhead per scaricare
+     questo codice al file potrebbere essere eccessivo. Questo è dove la sintassi &quot;argument&quot; dell'XSLT, viene al 
+     salvataggio. Invece dei file come argomenti XML e XSLT alla funzione <function>xslt_process</function>,
+     puoi specificare l' &quot;argument place holders&quot; il quale è poi sostituito dal valore
+     dato nell'argomento dell'array (il quinto parametro della funzione <function>xslt_process</function>).  
+     Di seguito c'è un esempio del processo di inserimento di codice XML e XSLT senza 
+     l'ausilio di file.
+    </para>
+    <para>
+     <example>
+     <title>Uso di <function>xslt_process</function> per trasformare una variabile contenente dati XML 
+     e una variabile contenente dati XSL in una variabile contenente i dati XML risultati</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+// $xml and $xsl contain the XML and XSL data
+
+$arguments = array(
+     '/_xml' => $xml,
+     '/_xsl' => $xsl
+);
+
+// Allocate a new XSLT processor
+$xh = xslt_create();
+
+// Process the document
+$result = xslt_process($xh, 'arg:/_xml', 'arg:/_xsl', NULL, $arguments); 
+if ($result) {
+    print "SUCCESS, sample.xml was transformed by sample.xsl into the \$result";
+    print " variable, the \$result variable has the following contents\n<br>\n";
+    print "<pre>\n";
+    print $result;
+    print "</pre>\n";
+}
+else {
+    print "Sorry, sample.xml could not be transformed by sample.xsl into";
+    print "  the \$result variable the reason is that " . xslt_error($xh) . 
+    print " and the error code is " . xslt_errno($xh);
+}
+xslt_free($xh);
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Finalmente, l'ultimo argomento della funzione <function>xslt_process</function> è dei parametri
+     che vuoi passare al documento XSLT. Questi parametri possono poi essere acceduti con
+     i tuoi files XSL usando l'istruzione &lt;xsl:param name=&quot;parameter_name&quot;&gt;.
+    </para>
+   </refsect1>
+  </refentry>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

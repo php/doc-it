@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+ <reference id="ref.zip">
+  <title>Funzioni per File Zip (Accesso di Sola Lettura)</title>
+  <titleabbrev>Zip</titleabbrev>
+  <partintro>
+   <para>
+    Questo modulo usa le funzioni <ulink
+    url="&url.zziplib;">ZZIPlib</ulink> della libreria di Guido Draheim per
+    leggere archivi ZIP compressi e i file in essi 
+    contenuti.
+   </para>
+   <para>
+    Notare che ZZIPlib rende disponbili solo un sottogruppo di quelle funzioni
+    disponibili in una implementazione completa dell'algoritmo di compressione ZIP
+    e può solamente leggere i file in formato ZIP. Una normale utility ZIP è
+    richiesta per creare i file ZIP letti da questa libreria.
+   </para>
+   <para>
+    Il supporto Zip all'interno di PHP non è abilitato di default. Sarà necessario usare
+    l'opzione di configurazione <link
+    linkend="install.configure.with-zip">--with-zip</link>
+    durante la compilazione di PHP per abilitare tale
+    supporto. Questo modulo richiede ZZIPlib versione &gt;= 0.10.6.
+   </para>
+   <note>
+    <para>
+     Il supporto Zip precedentemente alla versione 4.1.0 di PHP è sperimentale. Questa sezione
+     riflette l'estensione Zip così come essa esiste in PHP 4.1.0 e successivi.
+    </para>
+   </note>
+
+   <section id="zip-example">
+    <title>Esempio di Utilizzo</title>
+    <para>
+     Questo esempio apre un archivio ZIP, legge tutti i file presenti
+     nell'archivio e stampa il contenuto. L'archivio
+     <filename>test2.zip</filename> usato in questo esempio è
+     uno degli archivi dimostrativi presenti nella distribuzione di ZZIPlib.
+    </para>
+    <example>
+     <title>Esempio di Utilizzo Zip</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+$zip = zip_open("/tmp/test2.zip");
+
+if ($zip) {
+
+    while ($zip_entry = zip_read($zip)) {
+        echo "Nome:                    " . zip_entry_name($zip_entry) . "\n";
+        echo "Dimensione File:         " . zip_entry_filesize($zip_entry) . "\n";
+        echo "Dimensione Compressa:    " . zip_entry_compressedsize($zip_entry) . "\n";
+        echo "Metodo di Compressione:  " . zip_entry_compressionmethod($zip_entry) . "\n";
+
+        if (zip_entry_open($zip, $zip_entry, "r")) {
+            echo "Contenuto File:\n";
+            $buf = zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
+            echo "$buf\n";
+
+            zip_entry_close($zip_entry);
+        }
+        echo "\n";
+
+    }
+
+    zip_close($zip);
+
+}
+
+?>
+]]>
+     </programlisting>
+    </example>
+   </section>
+  </partintro>
+
+
+
+
+
+
+
+
+
+
+  
+&reference.zip.functions;
+
+ </reference>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

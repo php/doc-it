@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- splitted from ./it/functions/fbsql.xml, last change in rev 1.1 -->
+<!-- last change to 'fbsql-data-seek' in en/ tree in rev 1.1 -->
+<!-- EN-Revision: 1.1 Maintainer: calandra Status: working -->
+<!-- OLD-Revision: 1.38/EN.1.1 -->
+  <refentry id="function.fbsql-data-seek">
+   <refnamediv>
+    <refname>fbsql_data_seek</refname>
+    <refpurpose>Sposta il puntatore del risultato interno.</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>bool</type><methodname>fbsql_data_seek</methodname>
+      <methodparam><type>resource</type><parameter>result_identifier</parameter></methodparam>
+      <methodparam><type>int</type><parameter>row_number</parameter></methodparam>
+     </methodsynopsis>
+    <para> 
+     Restituisce: &true; in caso di successo, &false; in caso di fallimento.
+    </para>
+    <para> 
+     <function>fbsql_data_seek</function> sposta il 
+     puntatore interno al risultato FrontBase associato con 
+     uno specificato indice in modo che punti ad un numero di riga 
+     specificata . La chiamata successiva alla funzione<function>fbsql_fetch_row</function> restituirà la 
+     riga richiesta. 
+    </para>
+    <para>
+     <parameter>Row_number</parameter> comincia a contare da 0. 
+    </para>
+    <example>
+     <title><function>fbsql_data_seek</function></title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+    $link = fbsql_pconnect ("localhost", "_SYSTEM", "secret")
+        or die ("Could not connect");
+
+    fbsql_select_db ("samp_db")
+        or die ("Could not select database");
+
+    $query = "SELECT last_name, first_name FROM friends;";
+    $result = fbsql_query ($query)
+        or die ("Query failed");
+
+    # fetch rows in reverse order
+
+    for ($i = fbsql_num_rows ($result) - 1; $i >=0; $i--) {
+        if (!fbsql_data_seek ($result, $i)) {
+            printf ("Cannot seek to row %d\n", $i);
+            continue;
+        }
+
+        if(!($row = fbsql_fetch_object ($result)))
+            continue;
+
+        printf("%s %s<BR>\n", $row->last_name, $row->first_name);
+    }
+
+    fbsql_free_result ($result);
+?>
+]]>
+     </programlisting>
+    </example>
+   </refsect1>
+  </refentry>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

@@ -78,7 +78,7 @@ echo "connect result is ".$ds."&lt;p>";
 if ($ds) { 
     echo "Binding ..."; 
     $r=ldap_bind($ds);     // this is an "anonymous" bind, typically
-                           // read-only access echo "Bind result is
+                           // read-only access
     echo "Bind result is ".$r."&lt;p>";
 
     echo "Searching for (sn=S*) ...";
@@ -113,7 +113,7 @@ if ($ds) {
      <para>
       You will need to get and compile LDAP client libraries from
       either the University of Michigan ldap-3.3 package or the
-      Netscape Directory SDK.  You will also need to recompile PHP
+      Netscape Directory SDK 3.0.  You will also need to recompile PHP
       with LDAP support enabled before PHP's LDAP calls will work.
      </para><para>
       Before you can use the LDAP calls you will need to know ..
@@ -256,80 +256,6 @@ if ($ds) {
    </refsect1>
   </refentry>
 
-  <refentry id="function.ldap-mod-add">
-   <refnamediv>
-    <refname>ldap_mod_add</refname>
-    <refpurpose>Add attribute values to current attributes</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Description</title>
-    <funcsynopsis>
-     <funcprototype>
-      <funcdef>int <function>ldap_mod_add</function></funcdef>
-      <paramdef>int <parameter>link_identifier</parameter></paramdef>
-      <paramdef>string <parameter>dn</parameter></paramdef>
-      <paramdef>array <parameter>entry</parameter></paramdef>
-     </funcprototype>
-    </funcsynopsis>
-    <para>
-     returns true on success and false on error.</para>  
-	<para>
-	 This function adds attribute(s) to the specified dn.  It
-	 performs the modification at the attribute level as opposed to the 
-	 object level.  Object-level additions are done by the 
-	<function>ldap_add</function> function.</para>
-   </refsect1>
-  </refentry>
-
-  <refentry id="function.ldap-mod-del">
-   <refnamediv>
-    <refname>ldap_mod_del</refname>
-    <refpurpose>Delete attribute values from current attributes</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Description</title>
-    <funcsynopsis>
-     <funcprototype>
-      <funcdef>int <function>ldap_mod_del</function></funcdef>
-      <paramdef>int <parameter>link_identifier</parameter></paramdef>
-      <paramdef>string <parameter>dn</parameter></paramdef>
-      <paramdef>array <parameter>entry</parameter></paramdef>
-     </funcprototype>
-    </funcsynopsis>
-    <para>
-     returns true on success and false on error.</para>  
-	<para>
-	 This function removes attribute(s) from the specified dn.  It
-	 performs the modification at the attribute level as opposed to the 
-	 object level.  Object-level deletions are done by the 
-	<function>ldap_del</function> function.</para>
-   </refsect1>
-  </refentry>
-
-  <refentry id="function.ldap-mod-replace">
-   <refnamediv>
-    <refname>ldap_mod_replace</refname>
-    <refpurpose>Replace attribute values with new ones</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Description</title>
-    <funcsynopsis>
-     <funcprototype>
-      <funcdef>int <function>ldap_mod_replace</function></funcdef>
-      <paramdef>int <parameter>link_identifier</parameter></paramdef>
-      <paramdef>string <parameter>dn</parameter></paramdef>
-      <paramdef>array <parameter>entry</parameter></paramdef>
-     </funcprototype>
-    </funcsynopsis>
-    <para>
-     returns true on success and false on error.</para>  
-	<para>
-	 This function replaces attribute(s) from the specified dn.  It
-	 performs the modification at the attribute level as opposed to the 
-	 object level.  Object-level modifications are done by the 
-	<function>ldap_modify</function> function.</para>
-   </refsect1>
-  </refentry>
 
   <refentry id="function.ldap-bind">
    <refnamediv>
@@ -381,6 +307,89 @@ if ($ds) {
      <function>ldap_unbind</function>. The LDAP API uses the call
      <function>ldap_unbind</function>, so perhaps you should use this
      in preference to <function>ldap_close</function>.</para>
+   </refsect1>
+  </refentry>
+
+
+  <refentry id="function.ldap-compare">
+   <refnamediv>
+    <refname>ldap_compare</refname>
+    <refpurpose>Compare value of attribute found in entry specified with DN</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ldap_compare</function></funcdef>
+      <paramdef>int <parameter>link_identifier</parameter></paramdef>
+      <paramdef>string <parameter>dn</parameter></paramdef>
+      <paramdef>string <parameter>attribute</parameter></paramdef>
+      <paramdef>string <parameter>value</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <simpara>
+     Returns true if <parameter>value</parameter> matches otherwise returns false. Returns -1 on error.
+    </simpara>
+    <para>
+     <function>ldap_compare</function> is used to compare <parameter>value</parameter>
+      of <parameter>attribute</parameter> to value of same attribute in LDAP directory 
+      entry specified with <parameter>dn</parameter>. 
+    </para>
+    <simpara>
+     The following example demonstrates how to check whether or not given password matches
+     the one defined in DN specified entry. 
+    </simpara>
+    <example>
+    <title>Complete example of password check</title>
+     <programlisting role="php">
+&lt;?php
+
+$ds=ldap_connect("localhost");  // assuming the LDAP server is on this host
+      
+if ($ds) {
+
+    // bind 
+    if(ldap_bind($ds)) {
+
+        // prepare data
+        $dn = "cn=Matti Meikku, ou=My Unit, o=My Company, c=FI";
+        $value = "secretpassword";
+        $attr = "password";	
+
+        // compare value
+        $r=ldap_compare($ds, $dn, $attr, $value);
+
+        if ($r === -1) {
+            echo "Error: ".ldap_error($ds);
+        } elseif ($r === TRUE) {
+            echo "Password correct.";
+        } elseif ($r === FALSE) {
+            echo "Wrong guess! Password incorrect.";
+        }
+
+    } else {
+        echo "Unable to bind to LDAP server.";
+    }          
+
+    ldap_close($ds);
+
+} else {
+    echo "Unable to connect to LDAP server.";
+}
+?&gt;
+
+     </programlisting>
+    </example>  
+    <note>
+     <para>
+      <function>ldap_compare</function> can NOT be used to compare BINARY values!
+     </para>
+    </note>
+    <note>
+     <para>
+      This function was added in 4.0.2. 
+     </para>
+    </note>
    </refsect1>
   </refentry>
 
@@ -478,6 +487,139 @@ if ($ds) {
     <para>
      <function>ldap_dn2ufn</function> function is used to turn a DN
      into a more user-friendly form, stripping off type names.</para>
+   </refsect1>
+  </refentry>
+
+
+  <refentry id="function.ldap-err2str">
+   <refnamediv>
+    <refname>ldap_err2str</refname>
+    <refpurpose>
+     Convert LDAP error number into string error message
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>string <function>ldap_err2str</function></funcdef>
+      <paramdef>int <parameter>errno</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     returns string error message.</para>
+    <para>
+     This function returns the string error message explaining the
+     error number errno. While LDAP errno numbers are standardized,
+     different libraries return different or even localized textual
+     error messages. Never check for a specific error message text,
+     but always use an error number to check.</para>
+    <para>
+     See also <function>ldap_errno</function> and
+     <function>ldap_error</function>.
+
+    <example>
+     <title>Enumerating all LDAP error messages</title>
+<programlisting role="php">
+&lt;?php
+  for($i=0; $i&lt;100; $i++) {
+    printf("Error $i: %s&lt;br>\n", ldap_str2err($i));
+  }
+?>
+</programlisting>
+    </example></para>
+   </refsect1>
+  </refentry>
+
+
+  <refentry id="function.ldap-errno">
+   <refnamediv>
+    <refname>ldap_errno</refname>
+    <refpurpose>
+     Return the LDAP error number of the last LDAP command
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ldap_errno</function></funcdef>
+      <paramdef>int <parameter>link_id</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     return the LDAP error number of the last LDAP command for this
+     link.</para>
+    <para>
+     This function returns the standardized error number returned by
+     the last LDAP command for the given link identifier. This number
+     can be converted into a textual error message using
+     <function>ldap_err2str</function>.</para>
+    <para>
+     Unless you lower your warning level in your php3.ini sufficiently
+     or prefix your LDAP commands with @ (at) characters to suppress
+     warning output, the errors generated will also show up in your
+     HTML output.
+     <example>
+      <title>Generating and catching an error</title>
+<programlisting role="php">
+&lt;?php
+// This example contains an error, which we will catch.
+$ld = ldap_connect("localhost");
+$bind = ldap_bind($ld);
+// syntax error in filter expression (errno 87),
+// must be "objectclass=*" to work.
+$res =  @ldap_search($ld, "o=Myorg, c=DE", "objectclass");
+if (!$res) {
+    printf("LDAP-Errno: %s&lt;br>\n", ldap_errno($ld));
+    printf("LDAP-Error: %s&lt;br>\n", ldap_error($ld));
+    die("Argh!&lt;br>\n");
+}
+$info = ldap_get_entries($ld, $res);
+printf("%d matching entries.&lt;br>\n", $info["count"]);
+?>
+</programlisting>
+    </example></para>
+    <para>
+     see also <function>ldap_err2str</function> and
+     <function>ldap_error</function>.</para>
+   </refsect1>
+  </refentry>
+  
+
+  <refentry id="function.ldap-error">
+   <refnamediv>
+    <refname>ldap_error</refname>
+    <refpurpose>
+     Return the LDAP error message of the last LDAP command
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>string <function>ldap_error</function></funcdef>
+      <paramdef>int <parameter>link_id</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     returns string error message.</para>
+    <para>
+     This function returns the string error message explaining the
+     error generated by the last LDAP command for the given link
+     identifier. While LDAP errno numbers are standardized, different
+     libraries return different or even localized textual error
+     messages. Never check for a specific error message text, but
+     always use an error number to check.</para>
+    <para>
+     Unless you lower your warning level in your
+     <filename>php3.ini</filename> sufficiently or prefix your LDAP
+     commands with <literal>@</literal> (at) characters to suppress
+     warning output, the errors generated will also show up in your
+     HTML output.</para>
+    <para>
+     see also <function>ldap_err2str</function> and
+     <function>ldap_errno</function>.</para>
    </refsect1>
   </refentry>
 
@@ -883,6 +1025,18 @@ for ($i=0; $i &lt; $values["count"]; $i++)
       <paramdef>string <parameter>filter</parameter></paramdef>
       <paramdef>array
        <parameter><optional>attributes</optional></parameter></paramdef>
+      <paramdef>int 
+       <parameter><optional>attrsonly</optional></parameter>
+      </paramdef>
+      <paramdef>int 
+       <parameter><optional>sizelimit</optional></parameter>
+      </paramdef>
+      <paramdef>int 
+       <parameter><optional>timelimit</optional></parameter>
+      </paramdef>
+      <paramdef>int 
+       <parameter><optional>deref</optional></parameter>
+      </paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
@@ -896,9 +1050,17 @@ for ($i=0; $i &lt; $values["count"]; $i++)
      given in the call. (Equivalent to typing "ls" and getting a list
      of files and folders in the current working directory.)</para>
     <para>
-     This call takes an optional fourth parameter which is an array of
-     the attributes required. See <function>ldap_search</function>
+     This call takes 5 optional parameters. See <function>ldap_search</function>
      notes.
+    <note>
+     <para>
+       These optional parameters were added in 4.0.2:
+      <parameter>attrsonly</parameter>,
+      <parameter>sizelimit</parameter>,
+      <parameter>timelimit</parameter>,
+      <parameter>deref</parameter>.
+     </para>
+    </note>
 
     <example>
       <title>Produce a list of all organizational units of an organization 
@@ -945,6 +1107,81 @@ for ($i=0; $i&lt;$info["count"]; $i++)
    </refsect1>
   </refentry>
 
+
+  <refentry id="function.ldap-mod-add">
+   <refnamediv>
+    <refname>ldap_mod_add</refname>
+    <refpurpose>Add attribute values to current attributes</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ldap_mod_add</function></funcdef>
+      <paramdef>int <parameter>link_identifier</parameter></paramdef>
+      <paramdef>string <parameter>dn</parameter></paramdef>
+      <paramdef>array <parameter>entry</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     returns true on success and false on error.</para>  
+	<para>
+	 This function adds attribute(s) to the specified dn.  It
+	 performs the modification at the attribute level as opposed to the 
+	 object level.  Object-level additions are done by the 
+	<function>ldap_add</function> function.</para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.ldap-mod-del">
+   <refnamediv>
+    <refname>ldap_mod_del</refname>
+    <refpurpose>Delete attribute values from current attributes</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ldap_mod_del</function></funcdef>
+      <paramdef>int <parameter>link_identifier</parameter></paramdef>
+      <paramdef>string <parameter>dn</parameter></paramdef>
+      <paramdef>array <parameter>entry</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     returns true on success and false on error.</para>  
+	<para>
+	 This function removes attribute(s) from the specified dn.  It
+	 performs the modification at the attribute level as opposed to the 
+	 object level.  Object-level deletions are done by the 
+	<function>ldap_del</function> function.</para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.ldap-mod-replace">
+   <refnamediv>
+    <refname>ldap_mod_replace</refname>
+    <refpurpose>Replace attribute values with new ones</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ldap_mod_replace</function></funcdef>
+      <paramdef>int <parameter>link_identifier</parameter></paramdef>
+      <paramdef>string <parameter>dn</parameter></paramdef>
+      <paramdef>array <parameter>entry</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     returns true on success and false on error.</para>  
+	<para>
+	 This function replaces attribute(s) from the specified dn.  It
+	 performs the modification at the attribute level as opposed to the 
+	 object level.  Object-level modifications are done by the 
+	<function>ldap_modify</function> function.</para>
+   </refsect1>
+  </refentry>
 
   <refentry id="function.ldap-next-attribute">
    <refnamediv>
@@ -1026,6 +1263,18 @@ for ($i=0; $i&lt;$info["count"]; $i++)
       <paramdef>string <parameter>filter</parameter></paramdef>
       <paramdef>array 
        <parameter><optional>attributes</optional></parameter></paramdef>
+      <paramdef>int 
+       <parameter><optional>attrsonly</optional></parameter>
+      </paramdef>
+      <paramdef>int 
+       <parameter><optional>sizelimit</optional></parameter>
+      </paramdef>
+      <paramdef>int 
+       <parameter><optional>timelimit</optional></parameter>
+      </paramdef>
+      <paramdef>int 
+       <parameter><optional>deref</optional></parameter>
+      </paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
@@ -1042,9 +1291,18 @@ for ($i=0; $i&lt;$info["count"]; $i++)
      directory server, you might use an appropriate filter such as
      "objectClass=inetOrgPerson".</para>
     <para>
-     This call takes an optional fourth parameter which is an array of
-     the attributes required. See <function>ldap_search</function>
-     notes.</para>
+     This call takes 5 optional parameters. See <function>ldap_search</function>
+     notes.
+    </para>
+    <note>
+     <para>
+	  These optional parameters were added in 4.0.2:
+      <parameter>attrsonly</parameter>,
+      <parameter>sizelimit</parameter>,
+      <parameter>timelimit</parameter>,
+      <parameter>deref</parameter>.
+     </para>
+    </note>
    </refsect1>
   </refentry>
 
@@ -1063,7 +1321,20 @@ for ($i=0; $i&lt;$info["count"]; $i++)
       <paramdef>string <parameter>base_dn</parameter></paramdef>
       <paramdef>string <parameter>filter</parameter></paramdef>
       <paramdef>array 
-       <parameter><optional>attributes</optional></parameter></paramdef>
+       <parameter><optional>attributes</optional></parameter>
+      </paramdef>
+      <paramdef>int 
+       <parameter><optional>attrsonly</optional></parameter>
+      </paramdef>
+      <paramdef>int 
+       <parameter><optional>sizelimit</optional></parameter>
+      </paramdef>
+      <paramdef>int 
+       <parameter><optional>timelimit</optional></parameter>
+      </paramdef>
+      <paramdef>int 
+       <parameter><optional>deref</optional></parameter>
+      </paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
@@ -1090,11 +1361,69 @@ for ($i=0; $i&lt;$info["count"]; $i++)
      Note too that some directory server hosts will be configured to
      return no more than a preset number of entries. If this occurs,
      the server will indicate that it has only returned a partial
-     results set.</para> 
+     results set. This occurs also if the sixth parameter 
+     <parameter>sizelimit</parameter> has been used to limit the count 
+     of fetched entries.
+    </para> 
+    <para>
+     The fifth parameter <parameter>attrsonly</parameter> should be 
+     set to 1 if only attribute types are wanted. 
+     If set to 0 both attributes types and attribute values are fetched
+     which is the default behaviour.
+    </para> 
+    <para>
+     With the sixth parameter <parameter>sizelimit</parameter> it is 
+     possible to limit the count of entries fetched. 
+     Setting this to 0 means no limit. 
+     NOTE: This parameter can NOT override server-side preset sizelimit. 
+     You can set it lower though.
+    </para> 
+    <para>
+     The seventh parameter <parameter>timelimit</parameter> sets the number 
+     of seconds how long is spend on the search. 
+     Setting this to 0 means no limit.
+     NOTE: This parameter can NOT override server-side preset timelimit. 
+     You can set it lower though.
+    </para> 
+    <para>
+     The eigth parameter <parameter>deref</parameter> specifies how aliases 
+     should be handled during the search. It can be one of the following:
+     <itemizedlist>
+     <listitem>
+      <simpara>
+       LDAP_DEREF_NEVER - (default) aliases are never dereferenced.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       LDAP_DEREF_SEARCHING - aliases should be dereferenced during the search
+       but not when locating the base object of the search.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       LDAP_DEREF_FINDING - aliases should be dereferenced when 
+       locating the base object but not during the search.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       LDAP_DEREF_ALWAYS - aliases should be dereferenced always.
+      </simpara>
+     </listitem>
+     </itemizedlist>
+    </para>  
+    <para>
+	  These optional parameters were added in 4.0.2:
+      <parameter>attrsonly</parameter>,
+      <parameter>sizelimit</parameter>,
+      <parameter>timelimit</parameter>,
+      <parameter>deref</parameter>.
+    </para>
     <para>
      The search filter can be simple or advanced, using boolean
      operators in the format described in the LDAP doumentation (see
-     the <ulink url="&url.ldap.netscape;">Netscape Directory SDK</ulink>
+     the <ulink url="&url.ldap.filters;">Netscape Directory SDK</ulink>
      for full information on filters).</para>
     <para>
      The example below retrieves the organizational unit, surname,
@@ -1144,136 +1473,6 @@ print $info["count"]." entries returned&lt;p>";
     <para>
      <function>ldap_unbind</function> function unbinds from the LDAP
      directory.</para>
-   </refsect1>
-  </refentry>
-
-  <refentry id="function.ldap-err2str">
-   <refnamediv>
-    <refname>ldap_err2str</refname>
-    <refpurpose>
-     Convert LDAP error number into string error message
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Description</title>
-    <funcsynopsis>
-     <funcprototype>
-      <funcdef>string <function>ldap_err2str</function></funcdef>
-      <paramdef>int <parameter>errno</parameter></paramdef>
-     </funcprototype>
-    </funcsynopsis>
-    <para>
-     returns string error message.</para>
-    <para>
-     This function returns the string error message explaining the
-     error number errno. While LDAP errno numbers are standardized,
-     different libraries return different or even localized textual
-     error messages. Never check for a specific error message text,
-     but always use an error number to check.</para>
-    <para>
-     See also <function>ldap_errno</function> and
-     <function>ldap_error</function>.
-
-    <example>
-     <title>Enumerating all LDAP error messages</title>
-<programlisting role="php">
-&lt;?php
-  for($i=0; $i&lt;100; $i++) {
-    printf("Error $i: %s&lt;br>\n", ldap_str2err($i));
-  }
-?>
-</programlisting>
-    </example></para>
-   </refsect1>
-  </refentry>
-
-  <refentry id="function.ldap-errno">
-   <refnamediv>
-    <refname>ldap_errno</refname>
-    <refpurpose>
-     Return the LDAP error number of the last LDAP command
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Description</title>
-    <funcsynopsis>
-     <funcprototype>
-      <funcdef>int <function>ldap_errno</function></funcdef>
-      <paramdef>int <parameter>link_id</parameter></paramdef>
-     </funcprototype>
-    </funcsynopsis>
-    <para>
-     return the LDAP error number of the last LDAP command for this
-     link.</para>
-    <para>
-     This function returns the standardized error number returned by
-     the last LDAP command for the given link identifier. This number
-     can be converted into a textual error message using
-     <function>ldap_err2str</function>.</para>
-    <para>
-     Unless you lower your warning level in your php3.ini sufficiently
-     or prefix your LDAP commands with @ (at) characters to suppress
-     warning output, the errors generated will also show up in your
-     HTML output.
-     <example>
-      <title>Generating and catching an error</title>
-<programlisting role="php">
-&lt;?php
-// This example contains an error, which we will catch.
-$ld = ldap_connect("localhost");
-$bind = ldap_bind($ld);
-// syntax error in filter expression (errno 87),
-// must be "objectclass=*" to work.
-$res =  @ldap_search($ld, "o=Myorg, c=DE", "objectclass");
-if (!$res) {
-    printf("LDAP-Errno: %s&lt;br>\n", ldap_errno($ld));
-    printf("LDAP-Error: %s&lt;br>\n", ldap_error($ld));
-    die("Argh!&lt;br>\n");
-}
-$info = ldap_get_entries($ld, $res);
-printf("%d matching entries.&lt;br>\n", $info["count"]);
-?>
-</programlisting>
-    </example></para>
-    <para>
-     see also <function>ldap_err2str</function> and
-     <function>ldap_error</function>.</para>
-   </refsect1>
-  </refentry>
-  
-  <refentry id="function.ldap-error">
-   <refnamediv>
-    <refname>ldap_error</refname>
-    <refpurpose>
-     Return the LDAP error message of the last LDAP command
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Description</title>
-    <funcsynopsis>
-     <funcprototype>
-      <funcdef>string <function>ldap_error</function></funcdef>
-      <paramdef>int <parameter>link_id</parameter></paramdef>
-     </funcprototype>
-    </funcsynopsis>
-    <para>
-     returns string error message.</para>
-    <para>
-     This function returns the string error message explaining the
-     error generated by the last LDAP command for the given link
-     identifier. While LDAP errno numbers are standardized, different
-     libraries return different or even localized textual error
-     messages. Never check for a specific error message text, but
-     always use an error number to check.</para>
-    <para>
-     Unless you lower your warning level in your
-     <filename>php3.ini</filename> sufficiently or prefix your LDAP
-     commands with <literal>@</literal> (at) characters to suppress
-     warning output, the errors generated will also show up in your
-     HTML output.</para>
-    <para>
-     see also <function>ldap_err2str</function> and
-     <function>ldap_errno</function>.</para>
    </refsect1>
   </refentry>
  </reference>

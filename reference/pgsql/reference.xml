@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.6 Maintainer: cucinato Status: working -->
+<!-- EN-Revision: 1.7 Maintainer: cucinato Status: working -->
 <!-- CREDITS: fabio,cortesi,denny -->
  <reference id="ref.pgsql">
   <title>Funzioni PostgreSQL</title>
@@ -193,7 +193,7 @@
        </row>
        <row>
         <entry>postmaster &amp;</entry>
-        <entry>pg_connect("host=localhost dbname=MyDbName");</entry>
+        <entry>pg_connect("host=localhost dbname=NomeMioDatabase");</entry>
         <entry>
          Unable to connect to PostgreSQL server: connectDB() failed:
          Is the postmaster running and accepting TCP/IP (with -i)
@@ -203,7 +203,7 @@
        </row>
        <row>
         <entry>postmaster -i &amp;</entry>
-        <entry>pg_connect("host=localhost dbname=MyDbName");</entry>
+        <entry>pg_connect("host=localhost dbname=NomeMioDatabase");</entry>
         <entry>OK</entry>
        </row>
       </tbody>
@@ -225,13 +225,35 @@
     è deprecato.
    </para>
    <para>
-    Le variabili d'ambiente influiscono sul comportamento del server/client 
-    PostgreSQL. Per esempio, il modulo PostgreSQL userà la variabile d'ambiente
-    PGHOST quando l'hostname viene omesso nella stringa di
-    connessione. Le variabili d'ambiente supportate differiscono da versione
-    a versione. Fare riferimento al Manuale di Programmazione di PostgreSQL (libpq -
-    Environment Variables) per ulteriori dettagli.
+    Le variabili d'ambiente modificano il comporetamento server/client di
+    PostgreSQL. Per esempio, il modulo PostgreSQL si baserà sulla variabile
+    PGHOST quando il nome dell'host è omesso nella stringa di
+    connessione. Le variabili d'ambiente riconosciute sono diverse da versione
+    a versione. Consultare il Manuale del Programmatore PostgreSQL (lbpq -
+    Variabili d'Ambiente) per ulteriori dettagli.
    </para>
+   <para>
+    Assicurarsi di aver impostato le variabili d'ambiente per l'utente appropriato. Usare
+    <literal>$_ENV</literal> o <function>getenv</function> per controllare
+    quali variabili d'ambiente sono disponibili al processo corrente.
+   </para>
+   <example>
+    <title>Impostazione dei parametri di default</title>
+    <programlisting>
+<![CDATA[
+PGHOST=pgsql.example.com
+PGPORT=7890
+PGDATABASE=web-system
+PGUSER=web-user
+PGPASSWD=segreta
+PGDATESTYLE=ISO
+PGTZ=JST
+PGCLIENTENCODING=EUC-JP
+
+export PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD PGDATESTYLE PGTZ PGCLIENTENCODING
+]]>
+    </programlisting>
+   </example>
    <para>
     A partire da PostgreSQL 7.1.0, il tipo di dato text ha 1GB come dimensione
     massima. Nelle versioni più vecchie di PostgreSQL il tipo di dato text è limitato dalla dimensione
@@ -251,14 +273,14 @@
 <![CDATA[
 <?php
     $database = pg_connect ("dbname=jacarta");
-    pg_exec ($database, "begin");
-    $oid = pg_locreate ($database);
-    echo ("$oid\n");
-    $handle = pg_loopen ($database, $oid, "w");
-    echo ("$handle\n");
-    pg_lowrite ($handle, "large object data");
-    pg_loclose ($handle);
-    pg_exec ($database, "commit");
+    pg_query ($database, "begin");
+    $oid = pg_lo_create ($database);
+    echo "$oid\n";
+    $handle = pg_lo_open ($database, $oid, "w");
+    echo "$handle\n";
+    pg_lo_write ($handle, "dati large object");
+    pg_lo_close ($handle);
+    pg_query ($database, "commit");
 ?>
 ]]>
      </programlisting>
@@ -291,4 +313,3 @@ vim600: syn=xml fen fdm=syntax fdl=2 si
 vim: et tw=78 syn=sgml
 vi: ts=1 sw=1
 -->
-

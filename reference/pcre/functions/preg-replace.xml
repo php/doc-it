@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/pcre.xml, last change in rev 1.5 -->
 <!-- last change to 'preg-replace' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.7 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.8 Maintainer: darvina Status: ready -->
 <!-- OLD-Revision: 1.78/EN.1.2 -->
   <refentry id="function.preg-replace">
    <refnamediv>
@@ -38,7 +38,7 @@
      riconosciuto tramite tutta l'espressione regolare passata. Nel conteggio
      dei criteri di riconoscimento presenti, sono contate le parentesi 
      aperte da sinistra verso destra partendo da 1.
-     <note>
+     </para>
       <para>
        Quando si lavora con un criterio di sostituzione in cui un riferimento all'indietro
        è immediatamente seguito da un'altro numero (ad esempio un numero che segue immediatamente
@@ -50,7 +50,7 @@
        casi la soluzione consiste nell'uso di <literal>\${1}1</literal>. In questo modo si
        crea un riferimento all'indietro <literal>$1</literal> isolato dal numero <literal>1</literal>.
       </para>
-     </note>
+     <para>
      <example>
       <title>Uso dei riferimenti all'indietro seguiti da numeri</title>
        <programlisting role="php">
@@ -77,22 +77,18 @@ April1,2003
     </para>
     <para>
      Ogni parametro passato alla funzione <function>preg_replace</function>,
-     (eccetto <parameter>limite</parameter>) può essere una matrice.
+     (eccetto <parameter>limite</parameter>) può essere una matrice. 
+     Quando si utilizzano matrici con <parameter>espressione_regolare</parameter>
+     e <parameter>sostituto</parameter>, le chiavi sono processate
+     nell'ordine con cui appaiono nella matrice. Questo 
+     <emphasis>non è necessariamente</emphasis> l'ordine
+     numerico dell'indice. Se si utilizzano degli indici per 
+     identificare quale <parameter>espressione_regolare</parameter> debba
+     essere sostituita da <parameter>sostituto</parameter>, occorre eseguire
+     la funzione <function>ksort</function> su ciascuna matrice
+     prima di eseguire <function>preg_replace</function>.
     </para> 
     <para>
-     <note>
-      <para>
-       Quando si utilizzano matrici con <parameter>espressione_regolare</parameter>
-       e <parameter>sostituto</parameter>, le chiavi sono processate
-       nell'ordine con cui appaiono nella matrice. Questo 
-       <emphasis>non è necessariamente</emphasis> l'ordine
-       numerico dell'indice. Se si utilizzano degli indici per 
-       identificare quale <parameter>espressione_regolare</parameter> debba
-       essere sostituita da <parameter>sostituto</parameter>, occorre eseguire
-       la funzione <function>ksort</function> su ciascuna matrice
-       prima di eseguire <function>preg_replace</function>.
-      </para>
-     </note>
     <example>
      <title>Uso di matrici indicizzate con <function>preg_replace</function></title> 
     <programlisting role="php">
@@ -170,26 +166,34 @@ The slow black bear jumped over the lazy dog.
       <title>Esempi di sostituzione di valori</title>
       <programlisting>
 <![CDATA[
+<?php
 $patterns = array ("/(19|20)(\d{2})-(\d{1,2})-(\d{1,2})/",
                    "/^\s*{(\w+)}\s*=/");
 $replace = array ("\\3/\\4/\\1\\2", "$\\1 =");
 print preg_replace ($patterns, $replace, "{startDate} = 1999-5-27");
+?>
 ]]>
       </programlisting>
-     </example>
-     Questo esempio visualizzerà:
-     <programlisting>
+      <para>
+       Questo esempio visualizzerà:
+      </para>
+      <screen>
 <![CDATA[
 $startDate = 5/27/1999
 ]]>
-     </programlisting>
+      </screen>
+     </example>
+    </para>
+    <para>
      <example>
       <title>Utilizzo del modificatore /e </title>
       <programlisting role="php">
 <![CDATA[
+<?php
 preg_replace ("/(<\/?)(\w+)([^>]*>)/e", 
               "'\\1'.strtoupper('\\2').'\\3'", 
               $html_body);
+?>
 ]]>
       </programlisting>
       <para>
@@ -197,10 +201,13 @@ preg_replace ("/(<\/?)(\w+)([^>]*>)/e",
        input saranno convertiti in maiuscolo.
       </para>
      </example>
+    </para>
+    <para>
      <example>
       <title>Esempio di conversione di codice HTML in testo</title>
       <programlisting role="php">
 <![CDATA[
+<?php
 // $document contiene un documento HTML.
 // In questo esempio la funzione rimuove i tag HTML,
 // le sezioni javascript e gli spazi bianchi.
@@ -235,6 +242,7 @@ $replace = array ("",
                   "chr(\\1)");
 
 $text = preg_replace ($search, $replace, $document);
+?>
 ]]>
       </programlisting>
      </example>

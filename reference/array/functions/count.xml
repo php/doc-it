@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/array.xml, last change in rev 1.1 -->
 <!-- last change to 'count' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.4 Maintainer: cucinato Status: ready -->
+<!-- EN-Revision: 1.9 Maintainer: cucinato Status: ready -->
 <!-- OLD-Revision: 1.173/EN.1.2 -->
   <refentry id="function.count">
    <refnamediv>
@@ -13,25 +13,39 @@
      <methodsynopsis>
       <type>int</type><methodname>count</methodname>
       <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>mode</parameter></methodparam>
      </methodsynopsis>
     <para>
      Restituisce il numero di elementi in <parameter>var</parameter>,
-     la quale &egrave; di norma un array (dal momento che qualsiasi altro oggetto avr&agrave; un
+     la quale è di norma un array (dal momento che qualsiasi altro oggetto avrà un
      elemento).
     </para>
     <para>
-     Se <parameter>var</parameter> non &egrave; un array, verr&agrave; restituito <literal>1</literal> 
+     Se <parameter>var</parameter> non è un array, verrà restituito <literal>1</literal> 
      (eccezione: <literal>count(&null;)</literal> restituisce
      <literal>0</literal>).
     </para>
-    <warning>
+    <note>
+     <simpara>
+      Il parametro opzionale <parameter>mode</parameter> è disponibile da
+      PHP 4.2.0.
+     </simpara>
+    </note>
+    <para>
+     Se il parametro opzionale <parameter>mode</parameter> è impostato a
+     <constant>COUNT_RECURSIVE</constant> (o 1), <function>count</function>
+     conterà ricorsivamente l'array. Questo è utile in particolare per
+     contare tutti gli elementi di un array multidimensionale. Il valore di
+     default per <parameter>mode</parameter> è <literal>0</literal>.
+    </para>
+    <caution>
      <para>
-      <function>count</function> pu&ograve; restituire 0 per una variabile che
-      non &egrave; impostata, ma pu&ograve; anche restituire 0 per una variabile che &egrave;
+      <function>count</function> può restituire 0 per una variabile che
+      non è impostata, ma può anche restituire 0 per una variabile che è
       stata inizializzata con un array vuoto. Usare
-      <function>isset</function> per verificare se una variabile &egrave; impostata.
+      <function>isset</function> per verificare se una variabile è impostata.
      </para>
-    </warning>
+    </caution>
     <para>
      Vedere la sezione <link linkend="language.types.array">Arrays</link>
      nel manuale per una spiegazione dettagliata di come gli array siano 
@@ -43,27 +57,51 @@
       <programlisting role="php">
       <!-- TODO: examples about count(null), count(false), count(object).. -->
 <![CDATA[
+<?php
 $a[0] = 1;
 $a[1] = 3;
 $a[2] = 5;
-$risultato = count ($a);
+$risultato = count($a);
 //$risultato == 3
 
-$b[0] = 7;
-$b[5] = 9;
+$b[0]  = 7;
+$b[5]  = 9;
 $b[10] = 11;
-$risultato = count ($b);
+$risultato = count($b);
 // $risultato == 3;
+?>
 ]]>
       </programlisting>
      </example>
     </para>
-   <note>
     <para>
-     La funzione <function>sizeof</function> &egrave; un 
-     <link linkend="aliases">alias</link> per <function>count</function>.
+     <example>
+      <title>
+       esempio di <function>count</function> ricorsiva (PHP &gt;= 4.2.0)
+      </title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$cibo = array('frutta' => array('arancia', 'banana', 'mela'),
+              'verdura' => array('carota', 'zucchina', 'piselli'));
+
+// conteggio ricorsivo
+echo count($cibp,COUNT_RECURSIVE); // output 8
+
+// conteggio normale
+echo count($cibo);                 // output 2
+
+?>
+]]>
+      </programlisting>
+     </example>
     </para>
-   </note>
+    <note>
+     <para>
+      La funzione <function>sizeof</function> &egrave; un 
+      <link linkend="aliases">alias</link> per <function>count</function>.
+     </para>
+    </note>
     <para>
      Vedere anche <function>is_array</function>,
      <function>isset</function> e

@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- last change to 'fread' in en/ tree in rev 1.25 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: working -->
-<!-- OLD-Revision: 1.134/EN.1.25 -->
+<!-- EN-Revision: 1.15 Maintainer: cortesi Status: working -->
   <refentry id="function.fread">
    <refnamediv>
     <refname>fread</refname>
@@ -12,48 +9,99 @@
     <title>Descrizione</title>
      <methodsynopsis>
       <type>string</type><methodname>fread</methodname>
-      <methodparam><type>int</type><parameter>fp</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
       <methodparam><type>int</type><parameter>length</parameter></methodparam>
      </methodsynopsis>
     <simpara>
      <function>fread</function> legge fino a
      <parameter>length</parameter> byte dal puntatore al file
-     indicato da <parameter>fp</parameter>. La lettura finisce quando sono stati letti
-     <parameter>length</parameter> byte o è stata raggiunta EOF, 
-     qualora giunga prima.
+     indicato da <parameter>handle</parameter>. La lettura finisce quando sono stati letti
+     <parameter>length</parameter> byte o è stata raggiunta EOF, o (nel caso di flussi
+     via rete) quando un pacchetto divnta disponibile,
+     in base a quale evento accada prima.
     </simpara> 
     <para>
      <informalexample>
       <programlisting role="php">
 <![CDATA[
+<?php
 // copia il contenuto di un file in una stringa
 $filename = "/usr/local/something.txt";
-$fd = fopen ($filename, "r");
-$contents = fread ($fd, filesize ($filename));
-fclose ($fd);
+$handle = fopen($filename, "r");
+$contents = fread($handle, filesize($filename));
+fclose($handle);
+?>
 ]]>
       </programlisting>
      </informalexample>
     </para>
-    <note>
+    <warning>
      <para>
       Sui sistemi che differenziano fra file di testo e binari  
       (ad esempio Windows) il file deve essere aperto con il parametro mode di 
       <function>fopen</function> impostato a 'b'.
      </para>
-    </note>
+    </warning>
     <para>
      <informalexample>
       <programlisting role="php">
 <![CDATA[
+<?php
 $filename = "c:\\files\\somepic.gif";
-$fd = fopen ($filename, "rb");
-$contents = fread ($fd, filesize ($filename));
-fclose ($fd);
+$handle = fopen($filename, "rb");
+$contents = fread($handle, filesize($filename));
+fclose($handle);
+?>
 ]]>
       </programlisting>
      </informalexample>
     </para>
+
+    <warning>
+     <para>
+      Quando si ricevono dati via rete o pipe, tipo quelli ottenuti leggendo da
+      <link linkend="features.remote-files">file remoti</link> o da 
+      <function>popen</function> e <function>proc_open</function>, la lettura
+      si fermerà dopo avere ricevuto il pacchetto disponibile.
+      Questo significa che i dati sono ricevuti a blocchi
+      che devono essere raggruppati, come illustrato nell'esempio seguente.
+     </para>
+    </warning>
+    <para>
+     <informalexample>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$handle = fopen("http://www.example.com/", "rb");
+$contents = "";
+do {
+    $data = fread($handle, 8192);
+    if (strlen($data) == 0) {
+        break;
+    }
+    $contents .= $data;
+} while (true);
+fclose($handle);
+?>
+]]>
+
+      </programlisting>
+     </informalexample>
+    </para>
+    <note>
+     <para>
+      L'esempio precedente ottiene migliori performance rispetto al tradizionale approccio
+      tramite while(!<function>feof</function>), poichè si risparmia l'overhead
+      della chiamata per la funzione di iterazione.
+     </para>
+    </note>
+    <note>
+     <para>
+      Se si desidera ottenere il contenuto del file in una stringa, utilizzare
+      la funzione <function>file_get_contents</function> la quale è ancora più
+      performante del codice precedente.
+     </para>
+    </note>
     <simpara>
      Vedere anche <function>fwrite</function>, <function>fopen</function>,
      <function>fsockopen</function>, <function>popen</function>,

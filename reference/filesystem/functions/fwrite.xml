@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- last change to 'fwrite' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: working -->
-<!-- OLD-Revision: 1.134/EN.1.2 -->
+<!-- EN-Revision: 1.8 Maintainer: cortesi Status: working -->
   <refentry id="function.fwrite">
    <refnamediv>
     <refname>fwrite</refname>
@@ -12,14 +10,14 @@
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>fwrite</methodname>
-      <methodparam><type>int</type><parameter>fp</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
       <methodparam><type>string</type><parameter>string</parameter></methodparam>
       <methodparam choice="opt"><type>int</type><parameter>length</parameter></methodparam>
      </methodsynopsis>
     <simpara>
      <function>fwrite</function> scrive il contenuto di
      <parameter>string</parameter> nel flusso del file puntato da
-     <parameter>fp</parameter>. Se l'argomento <parameter>length</parameter>
+     <parameter>handle</parameter>. Se l'argomento <parameter>length</parameter>
      è specificato la scrittura si arresterà dopo aver scritto
      <parameter>length</parameter> byte o alla fine di 
      <parameter>string</parameter> se si verificasse 
@@ -27,7 +25,7 @@
     </simpara>
     <simpara>
      <function>fwrite</function> returns the number of bytes
-     written, or -1 on error.
+     written, or &false; on error.
     </simpara>
     <simpara>
      Nota che se il parametro <parameter>length</parameter> viene specificato,
@@ -43,6 +41,44 @@
       <function>fopen</function>.
      </para>
     </note>
+    <para>
+     <example>
+      <title>Un semplice esempio di fwrite</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$filename = 'test.txt';
+$somecontent = "Aggiunge questa riga al file\n";
+
+// Verifica che il file esista e sia riscrivibile
+if (is_writable($filename)) {
+
+    // In questo esempio apriamo $filename in append mode.
+    // Il puntatore del file è posizionato in fondo al file
+    // è qui che verrà posizionato $somecontent quando eseguiremo fwrite().
+    if (!$handle = fopen($filename, 'a')) {
+         echo "Non si riesce ad aprire il file ($filename)";
+         exit;
+    }
+
+    // Scrive $somecontent nel file aperto.
+    if (!fwrite($handle, $somecontent)) {
+        echo "Non si riesce a scrivere nel file ($filename)";
+        exit;
+    }
+
+    echo "Riuscito, scritto ($somecontent) nel file ($filename)";
+
+    fclose($handle);
+
+} else {
+    echo "Il file $filename non è accessibile";
+}
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
     <simpara>
      Vedere anche <function>fread</function>, <function>fopen</function>,
      <function>fsockopen</function>, <function>popen</function> e

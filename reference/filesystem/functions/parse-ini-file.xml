@@ -1,89 +1,116 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- last change to 'parse-ini-file' in en/ tree in rev 1.87 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: working -->
-<!-- OLD-Revision: 1.134/EN.1.87 -->
+<!-- EN-Revision: 1.16 Maintainer: darvina Status: ready -->
+<!-- splitted from ./en/functions/filesystem.xml, last change in rev 1.87 -->
   <refentry id="function.parse-ini-file">
    <refnamediv>
     <refname>parse_ini_file</refname>
-    <refpurpose>Parse a configuration file</refpurpose>
+    <refpurpose>Legge il file di configurazione</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
      <methodsynopsis>
       <type>array</type><methodname>parse_ini_file</methodname>
       <methodparam><type>string</type><parameter>filename</parameter></methodparam>
       <methodparam choice="opt"><type>bool</type><parameter>process_sections</parameter></methodparam>
      </methodsynopsis>
     <para>
-     <function>parse_ini_file</function> loads in the
-     ini file specified in <parameter>filename</parameter>,
-     and returns the settings in it in an associative array.
-     By setting the last <parameter>process_sections</parameter>
-     parameter to &true;, you get a multidimensional array, with
-     the section names and settings included. The default
-     for <parameter>process_sections</parameter> is &false;
+     La funzione <function>parse_ini_file</function> carica il file ini
+     specificato da <parameter>filename</parameter>,
+     e restituisce le impostazioni in un array associativo.
+     Impostando <parameter>process_sections</parameter> a &true;
+     si ottiene una matrice multi-dimensionale con in nomi 
+     delle sezioni e le impostazioni ivi incluse. Per default
+     <parameter>process_sections</parameter> è impostato a falso &false;
     </para>
     <note>
      <para>
-      This function has nothing to do with the
-      <filename>php.ini</filename> file. It is already processed,
-      the time you run your script. This function can be used to
-      read in your own application's configuration files.
+      Questa funzione non è collegata con il file
+      &php.ini;. Questo è già elaborato
+      al momento in cui gira lo script. Questa funzione può essere utilizzata
+      per leggere i file ini propri dell'applicazione.
      </para>
     </note>
+    <note>
+     <para>
+      Se in un valore il file ini contiene caratteri non alfanumerici
+      questi debbono essere delitimitati dai doppi apici (").
+     </para>
+    </note>
+    <note>
+     <simpara>
+      Dalla versione 4.2.1 di PHP questa funzione è limitata da by &safemode;
+      e da <link linkend="ini.open-basedir">open_basedir</link>.
+     </simpara>
+    </note>
+    <note>
+     <simpara>
+      Esistono parole riservate che non possono essere utilizzare come chiavi
+      nei file ini. Queste includono: null, yes, no, true, and false.
+
+     </simpara>
+    </note>
     <para>
-     The structure of the ini file is similar to that of
-     the <filename>php.ini</filename>'s.
+     La struttura del file ini è simile a quella del
+     &php.ini;.
+    </para>
+    <para>
+     Le <link linkend="language.constants">Costanti</link> possono essere definite
+     in un file ini,  quindi se si definisce la costante come un valore da file ini
+     prima di eseguire <function>parse_ini_file</function>, la funzione integrerà nella costante
+     il valore letto. Saranno considerati solo i valori ini. Ad esempio:
     </para>
     <para>
      <example>
-      <title>Contents of sample.ini</title>
+      <title>Contenuto di <filename>sample.ini</filename></title>
       <programlisting>
 <![CDATA[
-; This is a sample configuration file
-; Comments start with ';', as in php.ini
+; Questo è un esempio di file di configurazione
+; I commenti cominciano con ';', come in php.ini
 
 [first_section]
 one = 1
 five = 5
+animal = BIRD
 
 [second_section]
 path = /usr/local/bin
+URL = "http://www.example.com/~username"
 ]]>
       </programlisting>
      </example>
     </para>
     <para>
      <example>
-      <title><function>parse_ini_file</function> example</title>
-      <programlisting>
+      <title>Esempio di uso di <function>parse_ini_file</function></title>
+      <programlisting role="php">
 <![CDATA[
 <?php
 
-// Parse without sections
+define('BIRD', 'Dodo bird');
+
+// Lettura senza sezioni
 $ini_array = parse_ini_file("sample.ini");
 print_r($ini_array);
 
-// Parse with sections
-$ini_array = parse_ini_file("sample.ini", TRUE);
+// Lettura con sezioni
+$ini_array = parse_ini_file("sample.ini", true);
 print_r($ini_array);
 
 ?>
 ]]>
       </programlisting>
-     </example>
-    </para>
-    <para>
-     Would produce:
-     <informalexample>
-      <programlisting>
+      <para>
+       L'esempio produrrà:
+      </para>
+      <screen>
 <![CDATA[
 Array
 (
     [one] => 1
     [five] => 5
+    [animal] => Dodo bird
     [path] => /usr/local/bin
+    [URL] => http://www.example.com/~username
 )
 Array
 (
@@ -91,17 +118,19 @@ Array
         (
             [one] => 1
             [five] => 5
+            [animal] = Dodo bird
         )
 
     [second_section] => Array
         (
             [path] => /usr/local/bin
+            [URL] => http://www.example.com/~username
         )
 
 )
 ]]>
-      </programlisting>
-     </informalexample>
+      </screen>
+     </example>
     </para>
    </refsect1>
   </refentry>

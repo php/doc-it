@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- last change to 'popen' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: working -->
-<!-- OLD-Revision: 1.134/EN.1.2 -->
+<!-- EN-Revision: 1.11 Maintainer: cortesi Status: working -->
   <refentry id="function.popen">
    <refnamediv>
     <refname>popen</refname>
@@ -11,7 +9,7 @@
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>popen</methodname>
+      <type>resource</type><methodname>popen</methodname>
       <methodparam><type>string</type><parameter>command</parameter></methodparam>
       <methodparam><type>string</type><parameter>mode</parameter></methodparam>
      </methodsynopsis>
@@ -30,40 +28,57 @@
     <para>
      Se si verifica un errore, restituisce &false;.
     </para>
-    <para>
-     <informalexample>
-      <programlisting role="php">
-<![CDATA[
-$fp = popen ("/bin/ls", "r");
-]]>
-      </programlisting>
-     </informalexample>
-    </para>
     <note>
      <para>
-      If the command to be executed could not be found, a valid
-      resource is returned. This may seem odd, but makes sense; it
-      allows you to access any error message returned by the shell:
-      <informalexample>
-       <programlisting role="php">
+      Se si sta cercando un supporto bi-direzionale (2 vie), utilizzare
+      <function>proc_open</function>.
+     </para>
+    </note>
+    <para>
+     <example>
+      <title>Esempio di uso di <function>popen</function></title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$handle = popen("/bin/ls", "r");
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Se il comando che deve essere eseguito non è trovato, la funzione
+     restituisce una risorsa valida. Questo sembra strano, ma ha un senso;
+     esso permette di accedere ai messaggi di erore restituiti dalla shell:
+     <informalexample>
+      <programlisting role="php">
 <![CDATA[
 <?php
 error_reporting(E_ALL);
 
-/* Add redirection so we can get stderr. */
-$fp = popen('/path/to/spooge 2>&1', 'r');
-echo "'$fp'; " . gettype($fp) . "\n";
-$read = fread($fp, 2096);
+/* Aggiunge una redirezione, così possiamo ottenere stderr. */
+$handle = popen('/path/to/spooge 2>&1', 'r');
+echo "'$handle'; " . gettype($handle) . "\n";
+$read = fread($handle, 2096);
 echo $read;
-pclose($fp);
+pclose($handle);
 ?>
 ]]>
        </programlisting>
       </informalexample>
      </para>
+    <note>
+     <simpara>
+      Quando è abilitato il <link linkend="features.safe-mode">safe mode</link>
+      si possono eseguire solo gli eseguibili presenti nella directoy <link
+      linkend="ini.safe-mode-exec-dir">safe_mode_exec_dir</link>.
+      Per ragioni pratiche, attualmente, non è consentito avere
+      <literal>..</literal> nel percorso dell'eseguibile.
+     </simpara>
     </note>
     <para>
-     Vedere anche <function>pclose</function>.
+     Vedere anche <function>pclose</function>, <function>fopen</function>
+     e <function>proc_open</function>.
     </para>
    </refsect1>
   </refentry>

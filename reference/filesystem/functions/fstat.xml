@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- last change to 'fstat' in en/ tree in rev 1.24 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: working -->
-<!-- OLD-Revision: 1.134/EN.1.24 -->
+<!-- EN-Revision: 1.8 Maintainer: cortesi Status: working -->
   <refentry id="function.fstat">
    <refnamediv>
     <refname>fstat</refname>
@@ -12,38 +10,70 @@
     <title>Descrizione</title>
      <methodsynopsis>
       <type>array</type><methodname>fstat</methodname>
-      <methodparam><type>int</type><parameter>fp</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
      </methodsynopsis>
     <para>
-     Restituisce le statistiche del file aperto dal puntatore fp.
+     Restituisce le statistiche del file aperto dal puntatore <parameter>handle</parameter>.
      Questa funzione è simile a 
      <function>stat</function> eccetto per il fatto che opera
      su un puntatore a file aperto invece che su un nome di file.
     </para>
     <para>
-     Restituisce un vettore con le statistiche del file con i 
-     seguenti elementi:
-     <orderedlist>
-      <listitem><simpara>device</simpara></listitem>
-      <listitem><simpara>inode</simpara></listitem>
-      <listitem><simpara>numero di link</simpara></listitem>
-      <listitem><simpara>user id del proprietario</simpara></listitem>
-      <listitem><simpara>group id del proprietario</simpara></listitem>
-      <listitem><simpara>tipo di device se è presente l'inode device *</simpara></listitem>
-      <listitem><simpara>dimensione in byte</simpara></listitem>
-      <listitem><simpara>ora dell'ultimo accesso</simpara></listitem>
-      <listitem><simpara>ora dell'ultima modifica</simpara></listitem>
-      <listitem><simpara>ora del ultimo cambiamento</simpara></listitem>
-      <listitem><simpara>blocksize per l'I/O del filesystem *</simpara></listitem>
-      <listitem><simpara>numero di blocchi allocati</simpara></listitem>
-     </orderedlist>
-      * - valido solo su sistemi che supportano il tipo st_blksize --negli altri sistemi
-      (per esempio Windows) restituisce -1
-     </para>
-    <para>
-     I risultati di questa funzione vengono memorizzati nella cache. Vedi 
-     <function>clearstatcache</function> per maggiori informazioni.
+     Restituisce un vettore con le statistiche del file con il formato 
+     del vettore è descritto nella pagina di <function>stat</function>.     
     </para>
+    <para>
+     <example>
+     <title>Esempio di uso di <function>fstat</function></title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+
+// apertura del file
+$fp = fopen("/etc/passwd", "r");
+
+// raccolta delle informazioni
+$fstat = fstat($fp);
+
+// chiusura del file
+fclose($fp);
+
+// scrittura della sola parte associativa
+print_r(array_slice($fstat, 13));
+
+?>
+]]>
+      </programlisting>
+      <para>
+       l'esempio visualizzerà :
+      </para>
+      <screen>
+<![CDATA[
+Array
+(
+    [dev] => 771
+    [ino] => 488704
+    [mode] => 33188
+    [nlink] => 1
+    [uid] => 0
+    [gid] => 0
+    [rdev] => 0
+    [size] => 1114
+    [atime] => 1061067181
+    [mtime] => 1056136526
+    [ctime] => 1056136526
+    [blksize] => 4096
+    [blocks] => 8
+)
+]]>
+      </screen>
+     </example>
+    </para>
+
+    &note.clearstatcache;
+
+    &note.no-remote;
+
    </refsect1>
   </refentry>
 

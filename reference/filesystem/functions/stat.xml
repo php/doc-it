@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- last change to 'stat' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: working -->
-<!-- OLD-Revision: 1.134/EN.1.2 -->
+<!-- EN-Revision: 1.10 Maintainer: cortesi Status: working -->
   <refentry id="function.stat">
    <refnamediv>
     <refname>stat</refname>
@@ -15,39 +13,116 @@
       <methodparam><type>string</type><parameter>filename</parameter></methodparam>
      </methodsynopsis>
     <para>
-     Restituisce una serie di informazioni a riguardo del file filename.
+     Restituisce una serie di informazioni a riguardo del file <parameter>filename</parameter>.
+     Se il parametro <parameter>filename</parameter> è un link simbolico, le informazioni riguardano il file stesso,
+     e non il file puntato dal link. La funzione <function>lstat</function> è identica a<function>
+     stat</function> tranne che dovrebbe restituire il file puntato dal link.
     </para>
     <para>
-     Restituisce un vettore con le statistiche del file con i 
-     seguenti elementi:
-     <orderedlist>
-      <listitem><simpara>device</simpara></listitem>
-      <listitem><simpara>inode</simpara></listitem>
-      <listitem><simpara>modalità di protezione dell'inode</simpara></listitem>
-      <listitem><simpara>numero di link</simpara></listitem>
-      <listitem><simpara>ID utente del proprietario</simpara></listitem>
-      <listitem><simpara>ID del gruppo del proprietario</simpara></listitem>
-      <listitem><simpara>tipo di device con l'inode device *</simpara></listitem>
-      <listitem><simpara>dimensione in byte</simpara></listitem>
-      <listitem><simpara>ora dell'ultimo aggesso</simpara></listitem>
-      <listitem><simpara>ora del'ultima modifica</simpara></listitem>
-      <listitem><simpara>ora dell'ultimo cambiamento</simpara></listitem>
-      <listitem><simpara>dimensione del blocco per l'I/O di filesystem *</simpara></listitem>
-      <listitem><simpara>numero dei blocchi allocati</simpara></listitem>
-     </orderedlist>
+     In caso di errore <function>stat</function> restituisce &false;. Inoltre
+     genera un warning.
+    </para>
+    <para>
+    La funzione restituisce un vettore con le informazioni sul file contenente i
+     seguenti elementi. Il vettore parte dall'indice zero. Oltre agli indici numerici
+     il vettore contiene indici
+     associativi, come sarà indicato per ciascun parametro; questo è disponibile
+     dal PHP versione 4.0.6.
+    </para>
+    <para>
+     <table>
+      <title>Formato del vettore restituito da <function>stat</function>
+       e <function>fstat</function></title>
+      <tgroup cols="3">
+       <thead>
+        <row>
+         <entry>Indice numerico</entry>
+         <entry>Associativo (da PHP 4.0.6)</entry>
+         <entry>Descrizione</entry>
+        </row>
+       </thead>
+       <tbody>
+        <row>
+         <entry>0</entry>
+         <entry>dev</entry>
+         <entry>device</entry>
+        </row>
+        <row>
+         <entry>1</entry>
+         <entry>ino</entry>
+         <entry>inode</entry>
+        </row>
+        <row>
+         <entry>2</entry>
+         <entry>mode</entry>
+         <entry>modalità di protezione dell'inode</entry>
+        </row>
+        <row>
+         <entry>3</entry>
+         <entry>nlink</entry>
+         <entry>numero di link</entry>
+        </row>
+        <row>
+         <entry>4</entry>
+         <entry>uid</entry>
+         <entry>ID utente del proprietario</entry>
+        </row>
+        <row>
+         <entry>5</entry>
+         <entry>gid</entry>
+         <entry>ID del gruppo del proprietario</entry>
+        </row>
+        <row>
+         <entry>6</entry>
+         <entry>rdev</entry>
+         <entry>tipo di device con l'inode device *</entry>
+        </row>
+        <row>
+         <entry>7</entry>
+         <entry>size</entry>
+         <entry>dimensione in byte</entry>
+        </row>
+        <row>
+         <entry>8</entry>
+         <entry>atime</entry>
+         <entry>ora dell'ultimo accesso (Unix timestamp)</entry>
+        </row>
+        <row>
+         <entry>9</entry>
+         <entry>mtime</entry>
+         <entry>ora del'ultima modifica (Unix timestamp)</entry>
+        </row>
+        <row>
+         <entry>10</entry>
+         <entry>ctime</entry>
+         <entry>ora dell'ultimo cambiamento (Unix timestamp)</entry>
+        </row>
+        <row>
+         <entry>11</entry>
+         <entry>blksize</entry>
+         <entry>dimensione del blocco per l'I/O di filesystem *</entry>
+        </row>
+        <row>
+         <entry>12</entry>
+         <entry>blocks</entry>
+         <entry>numero dei blocchi allocati</entry>
+        </row>
+
+       </tbody>
+      </tgroup>
+     </table>
      * - valida solo su sistemi che supportano il tipo st_blksize--altri sistemi 
      (ad esempio Windows) restituiscono -1.
+  	 
+    &note.clearstatcache;
+
+    &tip.fopen-wrapper.stat;
     </para>
     <para>
-     Restituisce &false; in caso d'errore.
-    </para>
-    <para>
-     <function>stat</function> cannot be used on <link
-     linkend="features.remote-files">remote files</link>.
-    </para>
-    <para>
-     I risultati di questa funzione vengono memorizzati nella cache. Vedi 
-     <function>clearstatcache</function> per maggiori informazioni.
+     Vedere anche <function>lstat</function>,
+     <function>fstat</function>,
+     <function>filemtime</function> e
+     <function>filegroup</function>.
     </para>
    </refsect1>
   </refentry>

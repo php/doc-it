@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
 <!-- last change to 'fpassthru' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: working -->
+<!-- EN-Revision: 1.7 Maintainer: cortesi Status: working -->
 <!-- OLD-Revision: 1.134/EN.1.2 -->
   <refentry id="function.fpassthru">
    <refnamediv>
@@ -12,15 +12,17 @@
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>fpassthru</methodname>
-      <methodparam><type>int</type><parameter>fp</parameter></methodparam>
+       <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
      </methodsynopsis>
     <simpara>
-     Legge fino a EOF sul puntatore al file dato e scrive i risultati sullo 
-     standard output.
+     Legge fino a EOF sul puntatore al file dato e scrive i risultati sul buffer di
+     output.
     </simpara>
     <simpara>
      Se si verifica un errore, <function>fpassthru</function> restituisce
-     &false;.
+     &false;. In caso positivo <function>fpassthru</function> restituisce
+     il numero di caratteri letti da <parameter>handle</parameter> scritti
+     in output.  
     </simpara>
     <simpara>
      Il puntatore al file deve essere valido e deve puntare ad un file 
@@ -29,21 +31,51 @@
      <function>rewind</function> to reset the file pointer to the beginning of
      the file if you have already written data to the file. Il file viene chiuso 
      quando <function>fpassthru</function> viene conclusa
-     la sua lettura (lasciando <parameter>fp</parameter> inutilizzato).
+     la sua lettura (lasciando <parameter>handle</parameter> inutilizzato).
     </simpara>
     <simpara>
-     Se desideri semplicemente inviare il contenuto di un file sullo stdout, 
+     Se desideri semplicemente inviare il contenuto di un file sul buffer di output, 
+     senza doverlo modificare o posizionarti in un particolare offset,
      potresti preferire <function>readfile</function>, che ti salva la
      chiamata a <function>fopen</function>.
     </simpara>
     <note>
      <para>
-      When using <function>fpassthru</function> on a binary file on Windows
-      systems, you should make sure to open the file in binary mode by
-      appending a <literal>b</literal> to the mode used in the call to
+      Quando si utilizza <function>fpassthru</function> con file binari su sistemi Windows
+      si dovrebbe essere certi di aprire il file in modalità binaria
+      aggiungendo <literal>b</literal> alla modalità utilizzata nella chiamata a
       <function>fopen</function>.
      </para>
+     <para>
+      Si incoraggia l'uso del flag <literal>b</literal> quando si trattano file binari,
+      anche se il sistema non lo richiede; in questo modo si rendono gli script
+      più trasportabili.
+     </para>
     </note>
+    <para>
+    <example>
+     <title>Utilizzo di  <function>fpassthru</function> con file binari</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+ 
+// apre il file in modalità binaria
+$name = ".\public\dev\img\ok.png";
+$fp = fopen($name, 'rb');
+ 
+// invia i giusti header
+header("Content-Type: image/png");
+header("Content-Length: " . filesize($name));
+ 
+// invia l'immagine ed esce dallo script
+fpassthru($fp);
+exit;
+ 
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
     <simpara>
      Vedere anche <function>readfile</function>,
      <function>fopen</function>, <function>popen</function> e

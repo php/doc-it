@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
 <!-- last change to 'flock' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: working -->
+<!-- EN-Revision: 1.8 Maintainer: cortesi Status: working -->
 <!-- OLD-Revision: 1.134/EN.1.2 -->
   <refentry id="function.flock">
    <refnamediv>
@@ -12,9 +12,9 @@
     <title>Descrizione</title>
      <methodsynopsis>
       <type>bool</type><methodname>flock</methodname>
-      <methodparam><type>int</type><parameter>fp</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
       <methodparam><type>int</type><parameter>operation</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>wouldblock</parameter></methodparam>
+       <methodparam choice="opt"><type>int</type><parameter>&amp;wouldblock</parameter></methodparam>
      </methodsynopsis>
     <simpara>
      Il PHP supporta un tecnologia portabile per bloccare file completi in modalità
@@ -22,7 +22,7 @@
      bloccaggio o non funzionerà).
     </simpara>
     <simpara>
-     <function>flock</function> opera su <parameter>fp</parameter>
+     <function>flock</function> opera su <parameter>handle</parameter>
      che deve essere un puntatore ad un file aperto. 
      <parameter>operation</parameter> può assumere uno dei valori 
      seguenti:
@@ -32,28 +32,28 @@
       <listitem>
        <simpara>
          Per acquisire una chiave condivisa (in lettura), imposta
-         <parameter>operation</parameter> a LOCK_SH (usa 1 prima di 
+         <parameter>operation</parameter> a <constant>LOCK_SH</constant> (usa 1 prima di 
          PHP 4.0.1).
        </simpara>
       </listitem>
       <listitem>
        <simpara>
          Per acquisire una chiave esclusiva (in scrittura), imposta
-         <parameter>operation</parameter> a LOCK_EX (usa 2 prima di
+         <parameter>operation</parameter> a <constant>LOCK_EX</constant> (usa 2 prima di
          PHP 4.0.1).
        </simpara>
       </listitem>
       <listitem>
        <simpara>
          Per rilasciare una chiave (condivisa o esclusiva), imposta
-         <parameter>operation</parameter> a LOCK_UN (usa 3 prima
+         <parameter>operation</parameter> a <constant>LOCK_UN</constant> (usa 3 prima
          PHP 4.0.1).
        </simpara>
       </listitem>
       <listitem>
        <simpara>
         Se non vuoi che <function>flock</function> blocchi mentre, 
-        imposta come LOCK_NB (4 prima di PHP 4.0.1)
+        imposta come <constant>LOCK_NB</constant> (4 prima di PHP 4.0.1)
         <parameter>operation</parameter>.
        </simpara>
       </listitem>
@@ -67,29 +67,56 @@
      errno condition)
     </simpara>
     <simpara>
-     <function>flock</function> restituisce &true; se ha successo e &false; in caso 
-     d'errore (ad esempio quando una chiave (lock) non può venire acquisita).
+     &return.success;
     </simpara>
+    <para>
+     <example>
+      <title>Esempio di uso di <function>flock</function></title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+ 
+$fp = fopen("/tmp/lock.txt", "w+");
+ 
+if (flock($fp, LOCK_EX)) { // Esegue un lock esclusivo
+    fwrite($fp, "Write something here\n");
+    flock($fp, LOCK_UN); // rilascia il lock
+} else {
+    echo "Non si riesce ad eseguire il lock del file !";
+}
+ 
+fclose($fp);
+ 
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
     <note>
      <para>
-      Because <function>flock</function> requires a file pointer, you may have
-      to use a special lock file to protect access to a file that you intend
-      to truncate by opening it in write mode (with a "w" or "w+" argument to
-      <function>fopen</function>).
+      Poiché <function>flock</function> richiede il puntatore ad un file, può occorre
+      utilizzare un speciale file di lock per proteggere l'accesso a eventuali file che si desidera
+      azzerare attraverso l'apertura in modalità di scrittura (usando "w" o "w+" come argomento
+      di <function>fopen</function>).
      </para>
     </note>
     <warning>
      <para>
-      <function>flock</function> will not work on NFS and many other networked
-      file systems. Check your operating system documentation for more
-      details.
+      La funzione <function>flock</function> non funzione con NFS e con diversi altri file system
+      di rete. Verificare sulla documentazione del proprio sistema operativo.
      </para>
      <para>
       Su molti sistemi operativi <function>flock</function> è implementato a livello
       di processo. Usando un server API multithread quale
-      ISAPI non potrai basarti su <function>flock</function> per proteggerre
+      ISAPI non potrai basarti su <function>flock</function> per proteggere
       i file da altri script PHP che girino in thread paralleli della stessa istanza 
       del server!
+     </para>
+     <para>
+      La funzione <function>flock</function> non è supportata su file system antiquati tipo
+      <literal>FAT</literal> e i suoi derivati e pertanto in tali ambienti restituirà sempre
+      &false; (questo è vero soprattutto per gli utenti di
+      Windows 98).
      </para>
     </warning>
    </refsect1>

@@ -105,13 +105,13 @@
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>debugger_on</function></funcdef>
-      <paramdef>string <parameter>address</parameter></paramdef>
+      <paramdef>string <parameter>indirizzo</parameter></paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
-     Attiva il debugger interno PHP, connecting it to
-     <parameter>address</parameter>.  The debugger is still under
-     development.
+     Attiva il debugger interno PHP, connettendolo ad 
+     <parameter>indirizzo</parameter>. Il debugger è in fase di 
+     sviluppo.
     </para>
    </refsect1>
   </refentry>
@@ -119,7 +119,7 @@
   <refentry id="function.define-syslog-variables">
    <refnamediv>
     <refname>define_syslog_variables</refname>
-    <refpurpose>Initializes all syslog related constants</refpurpose>
+    <refpurpose>Inizializza tutte le costanti collegate al syslog</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
@@ -130,11 +130,11 @@
      </funcprototype>
     </funcsynopsis>
     <para>
-     Initializes all constants used in the syslog functions.
+     Inizializza tutte le costanti usate nelle funzioni del syslog.
     </para>
     <para>
      Vedere anche <function>openlog</function>,
-     <function>syslog</function> and
+     <function>syslog</function> e
      <function>closelog</function>.
     </para>
    </refsect1>
@@ -145,7 +145,7 @@
    <refnamediv>
     <refname>fsockopen</refname>
     <refpurpose>
-     Open Internet or Unix domain socket connection
+     Apre una connessione a un socket appartenente a un dominio Internet o Unix
     </refpurpose> 
    </refnamediv>
    <refsect1>
@@ -169,89 +169,96 @@
      </funcprototype>
     </funcsynopsis>
     <para>
-     Initiates a stream connection in the Internet (AF_INET, using TCP
-     or UDP) or Unix (AF_UNIX) domain. For the Internet domain, it
-     will open a TCP socket connection to
-     <parameter>hostname</parameter> on port
-     <parameter>port</parameter>.  <parameter>hostname</parameter> may
-     in this case be either a fully qualified domain name or an IP
-     address. For UDP connections, you need to explicitly specify the
-     protocol: <parameter>udp://hostname</parameter>.  For the Unix
-     domain, <parameter>hostname</parameter> will be used as the path
-     to the socket, <parameter>port</parameter> must be set to 0 in
-     this case.  The optional <parameter>timeout</parameter> can be
-     used to set a timeout in seconds for the connect system call.
+     Inizializza una connessione nel dominio Internet (AF_INET, usando TCP
+     o UDP) o Unix (AF_UNIX). Per il dominio Internet, apre
+     una connessione a un socket TCP verso l'
+     <parameter>hostname</parameter> sulla porta
+     <parameter>port</parameter>.  <parameter>hostname</parameter> può essere
+     in questo caso, sia un fully qualified domain name o un indirizzo IP.
+     Per le connessioni UDP, è necessario specificare esplicitamente il 
+     protocollo: <parameter>udp://hostname</parameter>. Per il dominio
+     Unix, <parameter>hostname</parameter> viene utilizzato come percorso 
+     verso il socket, in questo caso, <parameter>port</parameter> deve essere impostato
+     a 0. Il parametro opzionale <parameter>timeout</parameter> può essere 
+     usato per impostare un timeout in secondi per la chiamata di sistema connect.
     </para>
     <para>
-     <function>fsockopen</function> returns a file pointer which may
-     be used together with the other file functions (such as
+     <function>fsockopen</function> restituisce un puntatore a file che può
+     essere usato nelle altre funzioni orientate ai file (come
      <function>fgets</function>, <function>fgetss</function>,
-     <function>fputs</function>, <function>fclose</function>, and
+     <function>fputs</function>, <function>fclose</function> e
      <function>feof</function>).
     </para>
     <para>
-     If the call fails, it will return &false; and if the optional
-     <parameter>errno</parameter> and <parameter>errstr</parameter>
-     arguments are present they will be set to indicate the actual
-     system level error that occurred on the system-level
-     <literal>connect()</literal> call. If the returned errno is 0 and
-     the function returned &false;, it is an indication that the error
-     occurred before the <literal>connect()</literal> call. This is
-     most likely due to a problem initializing the socket. Note that
-     the <parameter>errno</parameter> and
-     <parameter>errstr</parameter> arguments must be passed by
+     Se la chiamata non ha successo, viene restituito &false; e se gli argomenti opzionali
+     <parameter>errno</parameter> e <parameter>errstr</parameter>
+     sono presenti, vengono impostati a indicare l'errore
+     a livello di sistema che è avvenuto nella chiamata alla funzione
+     <literal>connect()</literal> del sistema operativo. Se il valore di errno restituito è 0 e
+     la funzione restituisce &false;, è un'indicazione che l'errore
+     è avvenuto prima della chiamata di <literal>connect()</literal>. Questo è
+     molto probabilmente legato ad un problema di inizializzazione del socket. Si noti che
+     gli argomenti <parameter>errno</parameter> e
+     <parameter>errstr</parameter> devono essere passati by
      reference.
     </para>
     <para>
-     Depending on the environment, the Unix domain or the optional
-     connect timeout may not be available.
+     A seconda dell'ambiente operativo, il dominio Unix o l'opzionale
+     timeout della connect potrebbero non essere disponibili.
     </para>
     <para>
-     The socket will by default be opened in blocking mode.  You can
-     switch it to non-blocking mode by using
+     Il socket viene aperto di default in modo blocking. Si può passare
+     al modo non-blocking usando
      <function>socket_set_blocking</function>.
      <example>
-      <title><function>fsockopen</function> Example</title>
+      <title>Esempio di <function>fsockopen</function></title>
       <programlisting role="php">
+<![CDATA[
+<?php
 $fp = fsockopen ("www.php.net", 80, $errno, $errstr, 30);
 if (!$fp) {
-    echo "$errstr ($errno)&lt;br&gt;\n";
+    echo "$errstr ($errno)<br>\n";
 } else {
-    fputs ($fp, "GET / HTTP/1.0\r\n\r\n");
+    fputs ($fp, "GET / HTTP/1.0\r\nHost: www.php.net\r\n\r\n");
     while (!feof($fp)) {
         echo fgets ($fp,128);
     }
     fclose ($fp);
 }
+?>
+]]>
       </programlisting>
      </example>
-     The example below shows how to retrieve the day and time
-     from the UDP service "daytime" (port 13) in your own machine.
+     L'esempio seguente mostra come ottenere data e ora
+     tramite il servizio UDP "daytime" (porta 13) della vostra stessa macchina.
      <example>
      <title>Using UDP connection</title>
      <programlisting role="php">
-&lt;?php
+<![CDATA[
+<?php
 $fp = fsockopen("udp://127.0.0.1", 13, $errno, $errstr);
 if (!$fp) {
-    echo "ERROR: $errno - $errstr&lt;br&gt;\n";
+    echo "ERRORE: $errno - $errstr<br>\n";
 } else {
     fwrite($fp,"\n");
     echo fread($fp, 26);
     fclose($fp);
 }
-?&gt;
+?>
+]]>
      </programlisting>
      </example>
      <note>
-      <para>The timeout parameter was introduced in PHP 3.0.9 and
-      UDP support was added in PHP 4.
+      <para>Il parametro timeout è stato introdotto nel PHP 3.0.9 e
+      il supporto UDP è stato aggiunto nel PHP 4.
       </para>
      </note>
-     Vedere anche: <function>pfsockopen</function>, 
+     Vedere anche <function>pfsockopen</function>, 
      <function>socket_set_blocking</function>,
      <function>socket_set_timeout</function>, <function>fgets</function>,
      <function>fgetss</function>, <function>fputs</function>,
-     <function>fclose</function>, and <function>feof</function>).
+     <function>fclose</function>, <function>feof</function> e
+     l'<link linkend="ref.curl">estensione Curl</link>.
     </para>
    </refsect1>
   </refentry>
@@ -260,7 +267,7 @@ if (!$fp) {
    <refnamediv>
     <refname>gethostbyaddr</refname>
     <refpurpose>
-     Get the Internet host name corresponding to a given IP address
+     Ottiene l'host Internet corrispondente a un dato indirizzo IP
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -268,13 +275,13 @@ if (!$fp) {
     <funcsynopsis>
      <funcprototype>
       <funcdef>string <function>gethostbyaddr</function></funcdef>
-      <paramdef>string <parameter>ip_address</parameter></paramdef>
+      <paramdef>string <parameter>indirizzo_ip</parameter></paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
-     Returns the host name of the Internet host specified by
-     <parameter>ip_address</parameter>. If an error occurs, returns
-     <parameter>ip_address</parameter>.
+     Restituisce l'hostname dell'host Internet specificato da
+     <parameter>indirizzo_ip</parameter>. Se occorre un errore, restituisce
+     <parameter>indirizzo_ip</parameter>.
     </para>
     <para>
      Vedere anche <function>gethostbyname</function>.
@@ -286,7 +293,7 @@ if (!$fp) {
    <refnamediv>
     <refname>gethostbyname</refname>
     <refpurpose>
-     Get the IP address corresponding to a given Internet host name
+     Ottiene l'indirizzo IP corrispondente a un dato hostname Internet
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -298,7 +305,7 @@ if (!$fp) {
      </funcprototype>
     </funcsynopsis>
     <para>
-     Returns the IP address of the Internet host specified by
+     Restituisce l'indirizzo IP dell'host Internet specificato da
      <parameter>hostname</parameter>.
     </para> 
     <para>
@@ -311,8 +318,8 @@ if (!$fp) {
    <refnamediv>
     <refname>gethostbynamel</refname>
     <refpurpose>
-     Get a list of IP addresses corresponding to a given Internet host
-     name
+     Ottiene la lista degli indirizzi IP corrispondenti a un dato hostname 
+     Internet
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -324,14 +331,14 @@ if (!$fp) {
      </funcprototype>
     </funcsynopsis>
     <para>
-     Returns a list of IP addresses to which the Internet host
-     specified by <parameter>hostname</parameter> resolves.
+     Restituisce una lista di indirizzi IP che risolvono nei confronti dell'host Internet
+     specificato da <parameter>hostname</parameter>.
     </para>
     <para>
      Vedere anche <function>gethostbyname</function>,
      <function>gethostbyaddr</function>,
      <function>checkdnsrr</function>, <function>getmxrr</function>,
-     and the <literal>named(8)</literal> manual page.
+     e la man page <literal>named(8)</literal>.
     </para>
    </refsect1>
   </refentry>
@@ -511,12 +518,14 @@ if (!$fp) {
      <example>
       <title><function>ip2long</function> Example</title>
       <programlisting role="php">
-&lt;?php
+<![CDATA[
+<?php
 $ip = gethostbyname("www.php.net");
-$out = "The following URLs are equivalent:&lt;br&gt;\n";
-$out .= "http://www.php.net/, http://".$ip."/, and http://".sprintf("%u",ip2long($ip))."/&lt;br&gt;\n";
+$out = "I seguenti URL sono equivalenti:<br>\n";
+$out .= "http://www.php.net/, http://".$ip."/, and http://".sprintf("%u",ip2long($ip))."/<br>\n";
 echo $out;
-?&gt;
+?>
+]]>
       </programlisting>
      </example>
      <note>
@@ -532,11 +541,13 @@ echo $out;
      <example>
       <title>Displaying an IP address</title>
       <programlisting role="php">
-&lt;?php
+<![CDATA[
+<?php
 $ip = gethostbyname("www.php.net");
 printf("%u\n", ip2long($ip));
 echo $out;
-?&gt;
+?>
+]]>
       </programlisting>
      </example>
     </para>
@@ -611,7 +622,7 @@ echo $out;
        <thead>
         <row>
          <entry>Constant</entry>
-         <entry>Descrizione</entry>
+         <entry>Description</entry>
         </row>
        </thead>
        <tbody>
@@ -658,7 +669,7 @@ echo $out;
        <thead>
         <row>
          <entry>Constant</entry>
-         <entry>Descrizione</entry>
+         <entry>Description</entry>
         </row>
        </thead>
        <tbody>
@@ -805,12 +816,12 @@ echo $out;
      </listitem>
     </itemizedlist>
     <para>
-     Vedere anche 
-     <function>accept_connect</function>,
-     <function>bind</function>,
-     <function>connect</function>,
-     <function>listen</function>, and
-     <function>strerror</function>.
+     Vedere anche: <function>socket_accept</function>,
+     <function>socket_bind</function>,
+     <function>socket_connect</function>,
+     <function>socket_listen</function>,
+     <function>socket_strerror</function>, and the 
+     <link linkend="ref.sockets">Socket extension</link>.
     </para>
    </refsect1>
   </refentry>
@@ -867,7 +878,8 @@ echo $out;
      <example>
      <title><function>socket_set_timeout</function> Example</title>
        <programlisting role="php">
-&lt;?php
+<![CDATA[
+<?php
 $fp = fsockopen("www.php.net", 80);
 if(!$fp) {
     echo "Unable to open\n";
@@ -880,7 +892,8 @@ if(!$fp) {
     fclose($fp);
     print $res;
 }
-?&gt;
+?>
+]]>
       </programlisting>
      </example>
     </para>
@@ -925,7 +938,7 @@ if(!$fp) {
        <thead>
         <row>
          <entry>Constant</entry>
-         <entry>Descrizione</entry>
+         <entry>Description</entry>
         </row>
        </thead>
        <tbody>
@@ -969,12 +982,13 @@ if(!$fp) {
      <example>
       <title>Using <function>syslog</function></title>
       <programlisting role="php">
-&lt;?php
+<![CDATA[
+<?php
 define_syslog_variables();
 // open syslog, include the process ID and also send
 // the log to standard error, and use a user defined
 // logging mechanism
-openlog(&quot;myScripLog&quot;, LOG_PID | LOG_PERROR, LOG_LOCAL0);
+openlog("myScripLog", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
 // some code
 
@@ -983,12 +997,13 @@ if (authorized_client()) {
 } else {
     // unauthorized client!
     // log the attempt
-    $access = date(&quot;Y/m/d H:i:s&quot;);
-    syslog(LOG_WARNING,&quot;Unauthorized client: $access $REMOTE_ADDR ($HTTP_USER_AGENT)&quot;);
+    $access = date("Y/m/d H:i:s");
+    syslog(LOG_WARNING,"Unauthorized client: $access $REMOTE_ADDR ($HTTP_USER_AGENT)");
 }
 
 closelog();
-?&gt;
+?>
+]]>
       </programlisting>
      </example>
      For information on setting up a user defined log handler, see the
@@ -1021,6 +1036,7 @@ sgml-minimize-attributes:nil
 sgml-always-quote-attributes:t
 sgml-indent-step:1
 sgml-indent-data:t
+indent-tabs-mode:nil
 sgml-parent-document:nil
 sgml-default-dtd-file:"../../manual.ced"
 sgml-exposed-tags:nil

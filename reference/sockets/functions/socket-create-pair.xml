@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/sockets.xml, last change in rev 1.4 -->
 <!-- last change to 'socket-create-pair' in en/ tree in rev 1.27 -->
-<!-- EN-Revision: 1.2 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.5 Maintainer: darvina Status: ready -->
 <!-- OLD-Revision: 1.34/EN.1.27 -->
   <refentry id="function.socket-create-pair">
    <refnamediv>
@@ -19,7 +19,225 @@
      </methodsynopsis>
      &warn.experimental.func;
     <para>
-     &warn.undocumented.func;
+     La funzione <function>socket_create_pair</function> crea due socket connessi ed indistinguibili e li memorizza
+     in <parameter>&amp;fd</parameter>. Questa funzione è comunemente utilizzate per l'IPC (InterProcess Communication, comunicazione tra processi).
+    </para> 
+    <para> 
+     Il parametro <parameter>domain</parameter> specifica la famiglia di protocolli
+     da usare per il socket.
+    </para> 
+    <table> 
+    <title>Famiglie di indirizzi/protocolli disponibili</title> 
+    <tgroup cols="2"> 
+     <thead> 
+      <row> 
+       <entry>Dominio</entry> 
+       <entry>Descrizione</entry> 
+      </row> 
+     </thead> 
+     <tbody> 
+      <row> 
+       <entry>AF_INET</entry> 
+       <entry> 
+        Protocollo Internet basato su IPv4. Il TCP e l'UDP sono i protocolli 
+        più comuni di questa famiglia. Supportati solo in Windows.
+       </entry> 
+      </row> 
+      <row> 
+       <entry>AF_INET6</entry> 
+       <entry> 
+        Protocollo Internet basato su IPv6. Il TCP e l'UDP sono i protocolli 
+        più comuni di questa famiglia. Supportati solo in Windows.
+        IPv6 Internet based protocols. Supporto aggiunto in <literal>PHP 5.0.0</literal>.
+       </entry> 
+      </row> 
+      <row> 
+       <entry>AF_UNIX</entry> 
+       <entry> 
+        Famiglia di protocolli per la comunicazione locale. Molto efficiente, basso overhead
+        permettono un buon tipo di IPC (Interprocess Communication). 
+       </entry> 
+      </row> 
+     </tbody> 
+    </tgroup> 
+    </table> 
+    <para> 
+     Il parametro <parameter>type</parameter> seleziona il tipo di comunicazione
+     da utilizzare con il socket.
+    </para> 
+    <table> 
+    <title>Tipi di socket disponibili</title> 
+     <tgroup cols="2"> 
+     <thead> 
+      <row> 
+       <entry>Tipo</entry> 
+       <entry>Descrizione</entry> 
+      </row> 
+     </thead> 
+     <tbody> 
+      <row> 
+       <entry>SOCK_STREAM</entry> 
+       <entry> 
+         Fornisce una connessione sequenziale, affidabile e full-duplex. Può 
+         essere supportato un meccanismo di trasmissione fuori-banda.
+         Il protocollo TCP è basato su questo tipo di socket.
+       </entry> 
+      </row> 
+      <row> 
+       <entry>SOCK_DGRAM</entry> 
+       <entry> 
+         Supporta i datagrammi (privo di connessione, messaggi inaffidabili di una lunghezza massima prefissata).
+         Il protocollo UDP è basato su questo tipo di socket.
+       </entry> 
+      </row> 
+      <row> 
+       <entry>SOCK_SEQPACKET</entry> 
+       <entry> 
+         Fornisce una trasmissione di dati sequenziale, affidabile, bi-direzionale per i 
+         datagrammi di lunghezza massima prefissata; all'utilizzatore è richiesto di 
+         leggere l'intero pacchetto in ogni esecuzione della funzione di lettura dal socket.
+       </entry> 
+      </row> 
+      <row> 
+       <entry>SOCK_RAW</entry> 
+       <entry> 
+         Fornisce un'accesso raw al protocollo di rete. Questo tipo di socket può essere
+         utilizzato per costruire manualmente qualsiasi tipo di protocollo. Un comune utilizzo
+         di questa tipologia di socket è la realizzazione di richieste ICMP (tipo
+         il ping o traceroute).
+       </entry> 
+      </row> 
+      <row> 
+       <entry>SOCK_RDM</entry> 
+       <entry> 
+         Fornisce un'interfaccia affidabile per i datagrammi ma non ne garantisce l'ordine.
+         Probabilmente questo non è implementato nel vostro sistema operativo.
+       </entry> 
+      </row> 
+     </tbody> 
+    </tgroup> 
+    </table> 
+    <para> 
+     Il parametro <parameter>protocol</parameter> indica 
+     lo specifico protocollo nel <parameter>domain</parameter> indicato da usarsi
+     con il socket restituito. Il valore opportuno può essere recuperato
+     utilizzando <function>getprotobyname</function>. Se il protocollo 
+     desiderato è il TCP o l'UDP, si possono utilizzare le corrispondenti costanti
+     <constant>SOL_UDP</constant> e <constant>SOL_TCP</constant>. 
+    </para> 
+    <table> 
+    <title>Protocolli comuni</title> 
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>Nome</entry>
+       <entry>Descrizione</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>icmp</entry>
+       <entry>
+        L'Internet Control Message Protocol viene utilizzato principalmente dai gateway
+        e dagli host per riportare errori nelle comunicazioni con datagrammi. Il 
+        comando "ping" (presente in quasi tutti i moderni sistemi operativi) è un esempio
+        dell'applicazione di ICMP.
+       </entry>
+      </row>
+      <row>
+       <entry>udp</entry>
+       <entry>
+        Lo User Datagram Protocol è un protocollo privo di connessione,
+        inaffidabile con record di lunghezza fissa. Per questo l'UDP
+        richiede poco overhead di protocollo.
+       </entry>       
+      </row>
+        <row>
+       <entry>tcp</entry>
+       <entry>
+        Il Transmission Control Protocol è un procotollo affidabile, basato sulla connessione,
+        orientato al flusso, full duplex. Il TCP garantisce che tutti i pacchetti 
+        siano ricevuti nel medesimo ordine in cui siano stati inviati. Se un pacchetto
+        viene perso durante la trasmissione, il TCP provvederà automaticamente alla ritrasmissione
+        fino a quando l'host remoto non conferma la ricezione dello stesso. Per ragioni
+        di affidabilità e di prestazioni, è il TCP stesso a decidere l'appropriata dimensione 
+        dei pacchetti del sottostante livello di datagrammi. Pertanto le applicazioni TCP devono
+        permettere la parziale ritrasmissione di un record.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+    </table> 
+        <para> 
+    <example> 
+    <title>Esempio di uso di <function>socket_create_pair</function></title> 
+    <programlisting role="php"> 
+<![CDATA[ 
+<?php 
+$sockets = array(); 
+$uniqid = uniqid(''); 
+if (file_exists("/tmp/$uniqid.sock")) { 
+        die('Temporary socket already exists.'); 
+} 
+/* Setup socket pair */ 
+if (!socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $sockets)) { 
+    echo socket_strerror(socket_last_error()); 
+} 
+/* Send and Recieve Data */ 
+if (!socket_write($sockets[0], "ABCdef123\n", strlen("ABCdef123\n"))) { 
+    echo socket_strerror(socket_last_error()); 
+} 
+if (!$data = socket_read($sockets[1], strlen("ABCdef123\n"), PHP_BINARY_READ)) { 
+    echo socket_strerror(socket_last_error()); 
+} 
+var_dump($data); 
+ 
+/* Close sockets */ 
+socket_close($sockets[0]); 
+socket_close($sockets[1]); 
+?> 
+]]> 
+    </programlisting> 
+    </example> 
+    </para> 
+    <para> 
+    <example> 
+    <title>Esempio di IPC con <function>socket_create_pair</function></title> 
+    <programlisting role="php"> 
+<![CDATA[ 
+<?php 
+$ary = array(); 
+$strone = 'Message From Parent.'; 
+$strtwo = 'Message From Child.'; 
+if (!socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $ary)) { 
+    echo socket_strerror(socket_last_error()); 
+} 
+$pid = pcntl_fork(); 
+if ($pid == -1) { 
+    echo 'Could not fork Process.'; 
+} elseif ($pid) { 
+    /*parent*/ 
+    socket_close($ary[0]); 
+    if (!socket_write($ary[1], $strone, strlen($strone))) { 
+            echo socket_strerror(socket_last_error()); 
+    } 
+    if (socket_read($ary[1], strlen($strtwo), PHP_BINARY_READ) == $strtwo) { 
+        echo "Recieved $strtwo\n"; 
+    } 
+} else { 
+    /*child*/ 
+    socket_close($ary[1]); 
+    if (!socket_write($ary[0], $strtwo, strlen($strtwo))) { 
+        echo socket_strerror(socket_last_error()); 
+    } 
+    if (socket_read($ary[0], strlen($strone), PHP_BINARY_READ) == $strone) { 
+        echo "Recieved $strone\n"; 
+    } 
+} 
+?> 
+]]> 
+    </programlisting> 
+    </example>
     </para>
    </refsect1>
   </refentry>

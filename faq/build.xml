@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- EN-Revision: 1.16 Maintainer: hfish Status: ready -->
+<chapter id="faq.build">
+  <title>Problemi di installazione</title>
+  <titleabbrev>Problemi di installazione</titleabbrev>
+
+   <para>
+    Questa sezione raccoglie i più comuni errori che avvengono durante l'installazione.
+   </para>
+
+  <qandaset>
+   <qandaentry id="faq.build.configure">
+    <question>
+     <para>
+      Ho l'ultima versione di PHP ed uso l'anonymous CVS, ma non c'è
+      nessuno script per la configurazione!
+     </para>
+    </question>
+    <answer>
+     <para>
+      Per generare lo script di configurazione dal file <filename>configure.in</filename> devi avere 
+      il pacchetto autoconf di GNU installato sul tuo PC. Esegui <command>/buildconf
+      </command> nella cartella di livello più alto dopo aver ricevuto i sorgenti
+      dal server CVS. (A meno che tu non esegua la configurazione con l'opzione <literal>
+      --enable-maintainer-mode</literal>, lo script di configurazione non ricostruirà
+      automaticamente lo script quando il file <filename>configure.in</filename> è aggiornato, così dovresti essere
+      sicuro di farlo manualmente quando ti accorgi che il file <filename>configure.in</filename> è cambiato.
+      Un segno di ciò è trovare cose simili a @VARIABLE@ nel tuo Makefile dopo aver eseguito
+      la configurazione o il <filename>config.status</filename>.)
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry id="faq.build.configuring">
+    <question>
+     <para>
+      Ho problemi nel configurare PHP per farlo lavorare con Apache.
+      Un messaggio di errore mi dice che è impossibile trovare il file <filename>httpd.h</filename>, 
+      ma questo file è presente nel percorso che ho specificato!
+     </para>
+    </question>
+    <answer>
+     <para>
+      Nello script di configurazione/setup devi specificare il percorso della cartella di
+      livello più alto di Apache, cioè devi scrivere <literal>--with-apache=/percorso/per/apache
+      </literal> e <emphasis>non</emphasis> <literal>--with-apache=/percorso/per/apache/src</literal>.
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry id="faq.build.not-found">
+    <question>
+     <para>
+      Quando eseguo la configurazione, un messaggio di errore mi dice che non è 
+      possibile trovare file inclusi o librerie per GD, gdbm o qualche altro pacchetto!
+     </para>
+    </question>
+    <answer>
+     <para>
+      Puoi ordinare allo script di configurazione di cercare di gli header e le librerie anche
+      in posizioni non standard specificando flag addizionali da passare al preprocessore C, come:
+      <programlisting>
+    CPPFLAGS=.I/percorso/da/includere LDFLAGS=-L/percorso/per/la/libreria ./configure
+      </programlisting>
+      Se stai usando un csh-variant per fare il login da shell (perché?), modifica il codice
+      precedente in questo modo:
+      <programlisting>
+    env CPPFLAGS=-I/percorso/da/includere LDFLAGS=-L/percorso/per/la/libreria ./configure
+      </programlisting>
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry id="faq.build.yytname">
+    <question>
+     <para>
+      Quando cerco di compilare il file <filename>language-parser.tab.c</filename>, un messaggio di errore mi dice
+      <literal>yytname undeclared</literal>.
+     </para>
+    </question>
+    <answer>
+     <para>
+       Devi aggiornare la tua versione di Bison. Puoi trovare l'ultima versione su
+       <ulink url="&faqurl.bison;">&faqurl.bison;</ulink>.
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry id="faq.build.link">
+    <question>
+     <para>
+      Quando eseguo <command>make</command> sembra che vada tutto bene, ma lo script si blocca quando cerca
+      di creare un collegamento all'applicazione finale, e un messaggio di errore mi dice che 
+      non è possibile trovare qualche file.
+     </para>
+    </question>
+    <answer>
+     <para>
+      Qualche vecchia versione di <command>make</command> non posiziona le versioni compilate dei file nelle cartelle
+      giuste. Prova ad eseguire <command>cp *.o functions</command> a quindi e rieseguire
+      <command>make</command> e controlla se il messaggio di errore compare ancora. Se dovesse 
+      continuare ad apparire avrai bisogno di scaricare una versione più recente di make GNU.
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry id="faq.build.undefined">
+    <question>
+     <para>
+      Quando faccio dei collagamenti in PHP, un messaggio di errore mi avvisa di un numero 
+      indefinito di consultazioni.
+     </para>
+    </question>
+    <answer>
+     <para>
+      Controlla la linea relativa al collegamento ed assicurati che tutte le librerie
+      appropriate siano state incluse alla fine dello script. Le librerie più comuni 
+      che tu possa aver scordato sono le '-ldl' e quelle relative al supporto di qualche
+      database che hai incluso.
+     </para>
+     <para>
+      Se stai facendo un collegamento con Apache 1.2.x, ti sei ricordato di aggiungere le 
+      informazioni appropriate nella linea EXTRA_LIBS del file di configurazione? Ti sei 
+      ricordato di rieseguire lo script di configurazione di Apache? Guarda il file 
+      <ulink url="&faqurl.file.installation;">INSTALL</ulink> presente in questa 
+      distribuzione per avere maggiori informazioni.
+     </para>
+     <para>
+      Qualcuno che aveva dei problemi con i collegamenti con Apache ha risolto aggiungendo
+      '-ldl' subito dopo <filename>libphp4.a</filename>.
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry id="faq.build.Apache">
+    <question>
+     <para>
+      Non riesco a capire come installare PHP con Apache 1.3.
+     </para>
+    </question>
+    <answer>
+     <para>
+      Installare PHP insieme con Apache 1.3 è veramente semplice: segui queste istruzioni:
+      <itemizedlist>
+       <listitem>
+        <simpara>
+	 Scarica l'ultima distribuzione di Apache 1.3 da <ulink url="&faqurl.apache;">
+	 &faqurl.apache;</ulink.
+	</simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+	 Estrai prima l'archivio gzip e poi quello tar dove preferisci, per esempio in
+	 <filename>/usr/local/src/apache-1.3</filename>.
+	</simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+	 Compila PHP per la prima volta eseguendo:
+	 <command>./configure --with-apache=/&lt;percorso&gt;/apache-1.3</command>
+	 Sostituisci &lt;percorso&gt; con il percorso che porta alla cartella di Apache 1.3
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+	 Scrivi <command>make</command> seguito da <command>make install</command>
+	 per installare PHP e copiare i file necessari alla distribuzione di Apache.
+	</simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+	 Cambia il percorso delle cartelle fino al tuo <filename>/&lt;percorso&gt;/apache-1.3/src
+	 </filename> e modifica il file di <filename>Configuration</filename>.
+	 Aggiungi al file la riga seguente:
+	 <literal>AddModule modules/php4/libphp4.a</literal>.
+	</simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+	 Scrivi: '<command>./Configure</command>' seguito da '<literal>make</literal>'.
+	</simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+	 Ora dovresti avere un httpd binario abilitato per PHP!
+	</simpara>
+       </listitem>
+      </itemizedlist>
+     </para>
+     <para>
+      <emphasis>Nota bene:</emphasis> puoi anche usare il nuovo script <literal>./configure
+      </literal> di Apache. Leggi le istruzioni nel file <literal>README.configure</literal>
+      presente nella tua distribuzione di Apache. Leggi anche il file <filename>INSTALL</filename>
+      nella distribuzione di PHP.
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry id="faq.build.not-running">
+    <question>
+     <para>
+      Ho seguito le istruzioni per installare Apache come modulo sotto UNIX, ma il browser mi mostra il 
+      codice dei miei script PHP o mi viene chiesto di salvare la pagina PHP sul disco.
+     </para>
+    </question>
+    <answer>
+     <para>
+      Questo significa che il modulo PHP non viene invocato correttamente per una qualche ragione. Prima
+      di cercare ulteriore aiuto controlla tre cose:
+      <itemizedlist>
+       <listitem>
+        <simpara>
+         Assicurati che l'httpd binario che stai eseguendo sia quello nuovo che hai appena installato.
+	 Per fare ciò prova ad eseguire: <literal>/percorso/per/il/file/binario/httpd -l</literal>
+        </simpara>
+        <simpara>
+         Se nell'elenco non compare <filename>mod_php4.c</filename>, significa che non stai eseguendo il 
+	 binario giusto: trova ed installa il binario corretto.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         Assicurati di aver aggiunto il corretto Myme Type ad uno dei tuoi file <literal>Apache .conf
+	 </literal>. Dovrebbe essere: <literal>AddType application/x-httpd-php3 .php3</literal> (per
+	 PHP 3)
+	</simpara>
+	<simpara>
+	 o <literal>AddType application/x-httpd-php .php</literal> (per PHP 4)
+        </simpara>
+        <simpara> 
+	 Assicurati anche che questa linea AddType non sia nascosta all'interno di un &lt;Virtualhost&gt;
+	 o di un blocco di &lt;cartelle&gt; che possa impedire l'applicazione al percorso dei tuoi script
+	 di prova.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         Infine sappi che il percorso predefinito del file di configurazione di Apache 1.2 è diverso da
+	 quello di Apache 1.3. Dovresti controllare che il file della linea AddType sia al momento letto.
+	 Puoi inserire un errore di sintassi di proposito nel file httpd.conf o effettuare qualche altro
+	 cambiamento che ti farà capire se il file è correntemente letto.
+        </simpara>
+       </listitem>
+      </itemizedlist>
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry id="faq.build.activate-module">
+    <question>
+     <para>
+      Un messaggio di errore mi dice di usare: <literal>--activate-module=src/modules/php4/libphp4.a
+      </literal>, ma questo file non esiste, quindi l'ho cambiato in <literal>--activate-module=src/
+      modules/php4/libmodphp4.a</literal> ma il tutto non funziona. Che succede?
+     </para>
+    </question>
+    <answer>
+     <para>
+      Nota che si presume che il file libphp4.a non esista. Sarà un processo di Apache a crearlo!
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry id="faq.build.ansi">
+    <question>
+     <para>
+      Quando provo ad installare Apache con PHP come modulo statico usando <literal>--activate-module=src/
+      modules/php4/libphp4.a</literal> un messaggio di errore mi dice che il mio compilatore non è
+      compatibile con ANSI.
+     </para>
+    </question>
+    <answer>
+     <para>
+      Questo è un messaggio d'errore ingannevole di Apache, un bug che è stato riparato nelle versioni
+      più recenti.
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry id="faq.build.apxs">
+    <question>
+     <para>
+      Quando provo ad installare Apache usando <literal>--with-apxs</literal> ricevo uno strano messaggio
+      di errore.
+     </para>
+    </question>
+    <answer>
+     <para>
+      Per risolvere questo problema devi controllare tre cose. Per iniziare, per qualche ragione, quando
+      Apache installa gli script Perl apxs, ogni tanto finisce senza il compilatore appropriato e le 
+      variabili flag. Trova il tuo script apxs (prova il comando 'which apxs', ogni tanto lo trova in
+      <filename>/usr/local/apache/bin/apxs</filename> o in 
+      <filename>/usr/sbin/apxs</filename>): aprilo e cerca delle linee simili a queste:
+      <progrmalisting>
+my $CFG_CFLAGS_SHLIB  = '&nbsp;';          # substituted via Makefile.tmpl
+my $CFG_LD_SHLIB      = '&nbsp;';          # substituted via Makefile.tmpl
+my $CFG_LDFLAGS_SHLIB = '&nbsp;';          # substituted via Makefile.tmpl
+      </programlisting>
+      Se vedi scritto esattamente questo, hai trovato il problema: queste linee potrebbero contenere spazi o
+      altri valori sbagliati, come 'q()'. Cambia le linee precedenti come segue:
+      <programlisting>
+my $CFG_CFLAGS_SHLIB  = '-fpic -DSHARED_MODULE'; # substituted via Makefile.tmpl
+my $CFG_LD_SHLIB      = 'gcc';             # substituted via Makefile.tmpl
+my $CFG_LDFLAGS_SHLIB = q(-shared);        # substituted via Makefile.tmpl 
+      </programlisting>
+      Il secondo problema possibile potrebbe solo essere una particolare distribuzione di Red Hat 6.1 e
+      6.2. L'unità degli script apxs in Red Hat è corrotta. Cerca una linea simile a questa:
+      <programlisting>
+my $CFG_LIBEXECDIR    = 'modules';         # substituted via APACI install
+      </programlisting>
+      Se trovi una linea identica a quella precedente, cambiala come segue:
+      <programlisting>
+my $CFG_LIBEXECDIR    = '/usr/lib/apache'; # substituted via APACI install
+      </programlisting>
+      Infine, se hai riconfigurato o reinstallato Apache, aggiungi un 'make clean' al processo dopo
+      './configure' e prima di 'make'.
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry id="faq.build.microtime">
+    <question>
+     <para>
+     Quando eseguo <command>make</command>, ricevo errori nei microtime e un sacco di errori <literal>RUSAGE_</literal>.
+    </para>
+    </question>
+    <answer>
+     <para>
+      Se durante la parte di installazione che riguarda <command>make</command> hai incontrato problemi simili a questi, 
+      significa che il tuo sistema ha qualche problema:
+      <programlisting>
+    microtime.c: In function `php_if_getrusage':
+    microtime.c:94: storage size of `usg' isn't known
+    microtime.c:97: `RUSAGE_SELF' undeclared (first use in this function)
+    microtime.c:97: (Each undeclared identifier is reported only once
+    microtime.c:97: for each function it appears in.)
+    microtime.c:103: `RUSAGE_CHILDREN' undeclared (first use in this function)
+    make[3]: *** [microtime.lo] Error 1
+    make[3]: Leaving directory `/home/master/php-4.0.1/ext/standard'
+    make[2]: *** [all-recursive] Error 1
+    make[2]: Leaving directory `/home/master/php-4.0.1/ext/standard'
+    make[1]: *** [all-recursive] Error 1
+    make[1]: Leaving directory `/home/master/php-4.0.1/ext'
+    make: *** [all-recursive] Error 1
+      </programlisting>
+     </para>
+     <para>
+     Hai bisogno di fissare alcuni tuoi file in <filename>/usr/include</filename> installando un pacchetto glibc-devel che
+     corrisponda al tuo glibc. Questo non ha assolutamente niente a che fare con PHP. Per controllare
+     se il tuo problema dipende da questo, prova questo semplice test:
+     <programlisting>
+      $ cat &gt;test.c &lt;&lt;X
+      #include &lt;sys/resource.h&gt;
+      X
+      $ gcc -E test.c &gt;/dev/null
+     </programlisting>
+     Se ricevi messaggi d'errore, allora i tuoi file inclusi sono sparpagliati.
+     </para>
+    </answer>
+   </qandaentry>
+   
+   <qandaentry id="faq.build.upgrade">
+    <question>
+     <para>
+      Voglio aggiornare il mio PHP. Dove posso trovare la linea di <command>./configure</command>
+      che è stata usata per costruire la mia corrente versione di PHP?
+     </para>
+    </question>
+    <answer>
+     <para>
+      Puoi cercare nel file config.nice nel sorgente della tua attuale installazione di PHP o 
+      eseguire questo semplice script:
+      <programlisting>
+       <?php phpinfo(); ?> 
+      </programlisting>
+      Nella prima parte della pagina risultante è mostrato il percorso di <command>./configure</command>.
+     </para>
+    </answer>
+   </qandaentry>   
+  </qandaset>
+ </chapter>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

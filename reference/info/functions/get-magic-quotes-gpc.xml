@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.7 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.12 Maintainer: darvina Status: ready -->
 <!-- splitted from ./en/functions/info.xml, last change in rev 1.2 -->
   <refentry id="function.get-magic-quotes-gpc">
    <refnamediv>
@@ -56,6 +56,40 @@ $sql = "INSERT INTO lastnames (lastname) VALUES ('$lastname')";
 ]]>
       </programlisting>
      </example>
+    </para>
+    <para>
+     Nell'ottica di scrittura di codice portabile (codice che funzioni
+     in qualsiasi ambiente), o, se non si hanno i permessi di modifica
+     del php.ini, è possibile disabilitare gli effetti della funzione
+     da script. Questo può essere fatto in due modi, o con una
+     impostazione da .htaccess (php_value magic_quotes_gpc 0),
+     oppure aggiungendo il codice sottostante allo script.
+     <example>
+      <title>Disattivare magic quotes da script</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+if (get_magic_quotes_gpc()) {
+    function stripslashes_deep($value)
+    {
+        $value = is_array($value) ?
+                    array_map('stripslashes_deep', $value) :
+                    stripslashes($value);
+ 
+        return $value;
+    }
+ 
+    $_POST = array_map('stripslashes_deep', $_POST);
+    $_GET = array_map('stripslashes_deep', $_GET);
+    $_COOKIE = array_map('stripslashes_deep', $_COOKIE);
+}
+?>
+]]>
+      </programlisting>
+     </example>
+      Il parametro magic-quote è stato aggiunto per ridurre il rischio di scrivere codice pericoloso da parte dei principianti.
+      Se si disabilita magic-quote, occorre prestare molta attenzione a proteggersi
+      dagli attacchi di SQL injection.
     </para>
     <simpara>
      Vedere anche <function>addslashes</function>,

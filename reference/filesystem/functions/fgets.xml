@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- last change to 'fgets' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: working -->
-<!-- OLD-Revision: 1.134/EN.1.2 -->
+<!-- EN-Revision: 1.9 Maintainer: cortesi Status: ready -->
   <refentry id="function.fgets">
    <refnamediv>
     <refname>fgets</refname>
@@ -12,18 +9,18 @@
     <title>Descrizione</title>
      <methodsynopsis>
       <type>string</type><methodname>fgets</methodname>
-      <methodparam><type>int</type><parameter>fp</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
       <methodparam><type>int</type><parameter>length</parameter></methodparam>
      </methodsynopsis>
     <para>
-     Restituisce una stringa di length - 1 byte letti dal file puntato da fp. 
-     La lettura termina quando sono stati letti length - 1 byte, in un caratere
-     i newline (che viene incluso nel valore restituito), o alla fine del file
-     (EOF) qualora giunga prima. Se no length is specified, the length 
-     defaults to 1k, or 1024 bytes.
+     Restituisce una stringa di length - 1 byte letti dal file puntato da <parameter>handle</parameter>.  
+     La lettura termina quando sono stati letti length - 1 byte, oppure si incontra il carattere
+     di newline (che viene incluso nel valore restituito), oppure alla fine del file
+     (EOF) qualora giunga prima. Se non si specifica length, si assume
+     come default 1k, o 1024 byte.
     </para>
     <para>
-     Se si verifica un errore, restituisce &false;.
+     Se si verifica un errore, la funzione restituisce &false;.
     </para>
     <para>
      Errori comuni:
@@ -44,24 +41,42 @@
       <title>Legge un file riga per riga</title>
       <programlisting role="php">
 <![CDATA[
-$fd = fopen ("/tmp/inputfile.txt", "r");
-while (!feof ($fd)) {
+<?php
+$handle = fopen ("/tmp/inputfile.txt", "r");
+while (!feof ($handle)) {
     $buffer = fgets($fd, 4096);
     echo $buffer;
 }
-fclose ($fd);
+fclose ($handle);
+?>
 ]]>
       </programlisting>
      </example>
     </para>
     <note>
      <simpara>
-      The <parameter>length</parameter> parameter became optional in PHP 4.2.0
+      Il parametro <parameter>length</parameter> è diventato opzionale a partire da PHP
+      4.2.0, se omesso, si assume come lunghezza della linea 1024.
+      A partire dalla versione 4.3, l'omissione del parametro <parameter>length</parameter> 
+      comporta la lettura del flusso d'ingresso sino al raggiungimento della fine della linea.
+      Se la maggior parte delle righe lette dal file hanno dimensione superiore a 8KB,
+      è più efficiente specificare la lunghezza massima 
+      della linea.
      </simpara>
     </note>
+    <note>
+     <simpara>
+      A partire da PHP 4.3 questa funzione è 'binary safe'. Le versioni
+      precedenti non lo sono.
+     </simpara>
+    </note>
+    &note.line-endings;
     <para> 
-     Vedere anche <function>fread</function>, <function>fopen</function>,
-     <function>popen</function>, <function>fgetc</function>,
+     Vedere anche <function>fread</function>, 
+     <function>fgetc</function>,
+     <function>stream_get_line</function>,
+     <function>fopen</function>,
+     <function>popen</function>, 
      <function>fsockopen</function> e
      <function>socket_set_timeout</function>.
     </para>

@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- last change to 'file' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: working -->
-<!-- OLD-Revision: 1.134/EN.1.2 -->
+<!-- EN-Revision: 1.10 Maintainer: cortesi Status: working -->
   <refentry id="function.file">
    <refnamediv>
     <refname>file</refname> 
@@ -14,23 +11,18 @@
       <type>array</type><methodname>file</methodname>
       <methodparam><type>string</type><parameter>filename</parameter></methodparam>
       <methodparam choice="opt"><type>int</type><parameter>use_include_path</parameter></methodparam>
+      <methodparam choice="opt"><type>resource</type><parameter>context</parameter></methodparam>
      </methodsynopsis>
     <para> 
      Identica a <function>readfile</function>, eccetto per il fatto che
      <function>file</function> restituisce il file in un vettore. Ogni
      elemento del vettore corrisponde ad una riga del file, con il carattere di
-     newline ancora inserito.
+     newline ancora inserito. Se la funzione non riesce restituisce 
+     &false;.
     </para>
-    <note>
-     <para>
-      Each line in the resulting array will include the line ending, so you
-      still need to use <function>trim</function> if you do not want the line
-      ending present.
-     </para>
-    </note>
     <para>
-     Puoi impostare il secondo parametro (opzionale) ad "1", se
-     vuoi cercare il file nel <link
+     Puoi impostare il secondo parametro, <parameter>use_include_path</parameter>, (opzionale) ad "1",
+     se vuoi cercare il file nel <link
      linkend="ini.include-path">include_path</link>.
     </para>
     <para>
@@ -38,31 +30,46 @@
       <programlisting role="php">
 <![CDATA[
 <?php
-// inserisce una pagina web in un array e la stampa
-$fcontents = file ('http://www.php.net');
-while (list ($line_num, $line) = each ($fcontents)) {
-    echo "&lt;b&gt;Line $line_num:&lt;/b&gt; " . htmlspecialchars ($line) . "&lt;br&gt;\n";
+// inserisce una pagina web in un array e la stampa. In questo eesempio useremo il protocollo
+// HTTP per otterenere il sorgente di un URL
+$lines = file ('http://www.example.com/');
+// Ciclo atrraverso l'array, si visualizzerà il sorgente come html ed i numeri di linea
+foreach ($lines as $line_num => $line) {
+    echo "Line #<b>{$line_num}</b> : " . htmlspecialchars($line) . "<br>\n";
 }
 
-// inserisce una pagina web in una stringa
-$fcontents = join ('', file ('http://www.php.net'));
+// Un'altro esempio, inserisce la pagina web in una stringa. Vedere anche  file_get_contents().
+$html = implode ('', file ('http://www.example.com/'));
 ?>
 ]]>
       </programlisting>
      </informalexample>
     </para>
+&tip.fopen-wrapper;
     <note>
      <para>
-      As of PHP 4.3.0 you can use <function>file_get_contents</function> to
-      return the contents of a file as a string in a binary safe manner.
+      Ciascuna riga dell'array restituito conterrà il carattere di fine riga, occorre, pertanto,
+      utilizzare <function>trim</function> se si desidera rimuovere il carattere
+      di fine riga.
      </para>
     </note>
-    &note.not-bin-safe;
-    &tip.fopen-wrapper;
+    &note.line-endings;
+    <note>
+     <para>
+      A partire da PHP 4.3.0 si può utilizzare <function>file_get_contents</function> per 
+      memorizzare il contenuto di un file in una stringa in formato binario.
+     </para>
+    </note>
+    <note>
+     <simpara>
+      Il supporto al contesto è stato aggiunto nel <literal>PHP 5.0.0</literal>
+     </simpara>
+    </note>
     <para> 
      Vedere anche <function>readfile</function>,
-     <function>fopen</function>, <function>fsockopen</function> e
-     <function>popen</function>.
+     <function>fopen</function>, <function>fsockopen</function>,
+     <function>popen</function>, <function>file_get_contents</function> e
+     <function>include</function>.
     </para>
    </refsect1>
   </refentry>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: working -->
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
+<!-- EN-Revision: 1.18 Maintainer: cortesi Status: working -->
+<!-- splitted from ./en/functions/filesystem.xml, last change in rev 1.2 -->
   <refentry id="function.fopen">
    <refnamediv>
     <refname>fopen</refname>
@@ -9,155 +9,258 @@
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>fopen</methodname>
+      <type>resource</type><methodname>fopen</methodname>
       <methodparam><type>string</type><parameter>filename</parameter></methodparam>
       <methodparam><type>string</type><parameter>mode</parameter></methodparam>
       <methodparam choice="opt"><type>int</type><parameter>use_include_path</parameter></methodparam>
+      <methodparam choice="opt"><type>resource</type><parameter>zcontext</parameter></methodparam>
      </methodsynopsis>
     <simpara>
-     Se <parameter>filename</parameter> inizia con "http://" (indipendentemente 
-     dalle maiuscole), viene aperta una connessione HTTP 1.0 al server 
-     specificato, la pagina viene richiesta usando il metodo HTTP 
-     GET e un puntatore a file viene restituito all'inizio del corpo della 
-     risposta. Un header 'Host:' viene inviato con la richiesta
-     in modo di soddisfare i virtual host name-based.
+     La funzione <function>fopen</function> apre un collegamneto tra una risorsa, indicata
+     dal parametro <parameter>filename</parameter>, ed un flusso.  Se il parametro
+     <parameter>filename</parameter> è del tipo "scheme://...",
+     si assume essere un URL ed il PHP cercherà il modulo di gestione del protocollo
+     (detto anche wrapper) per quello schema. Se non vi sono wrapper
+     registrati per il protocollo richiesto, il PHP genererà un
+     messaggio per aiutare a trovare potenziali problemi nello script
+     e quindi procede considerando <parameter>filename</parameter>
+     come un file regolare.
     </simpara>
     <simpara>
-     As of PHP 4.3.0 (not yet released), if you have compiled in
-     support for OpenSSL, you may use "https://" to open an HTTP
-     connection over SSL.
+     Se il PHP ha stabilito che <parameter>filename</parameter> indica un file
+     locale, tenterà di aprire detto file come stream.
+     Il file in oggetto dovrà esere accessibile dal PHP, occorre, pertanto, assicurasi che
+     i permessi di accesso del file lo consentano.
+     Se si è attivato il &safemode;,
+     oppure <link linkend="ini.open-basedir">open_basedir</link> si avranno
+     ulteriori restrizioni.
     </simpara>
     <simpara>
-     Nota che il puntatore al file ti permette di ottenere solo il
-     <emphasis>body</emphasis> della risposta; to retrieve the HTTP
-     response header you need to be using PHP 4.0.5 or later;
-     The headers will be stored in the $http_response_header variable.
-     As of PHP 4.3.0 (not yet released), the header information can
-     be retrieved using the <function>fgetwrapperdata</function>.
+     Se il PHP ha stabilito che <parameter>filename</parameter> indica un
+     protocollo registrato, e che tale protocollo è registrato come un URL
+     di rete, il PHP verificherà che
+     <link linkend="ini.allow-url-fopen">allow_url_fopen</link>
+     sia abilitato.Se fosse disabilitato, il PHP genererà un 'notice' e
+     la funzione fallirà.
     </simpara>
-    <simpara>
-     HTTP connections are read-only; you cannot write data or copy
-     files to an HTTP resource.
-    </simpara>
-    <simpara>
-     Le versioni precedenti al PHP 4.0.5 non elaborano i redirect HTTP. Perciò, 
-     le directory devono includere gli slash finali.
-    </simpara>
-    <simpara>
-     Se <parameter>filename</parameter> inizia con "ftp://" (case insensitive), 
-     Viene aperta una connessione ftp al server specificato e viene restituito
-     un puntatore al file richiesto. Se il server non supporta l'FTP passivo, fallirà. 
-     Via ftp puoi aprire 
-     file sia in lettura che scrittura (ma non 
-     contemporaneamente).
-    </simpara>
-    <simpara>
-     If <parameter>filename</parameter> is one of "php://stdin",
-     "php://stdout", or "php://stderr", the corresponding stdio
-     stream will be opened.  (This was introduced in PHP 3.0.13;
-     in earlier versions, a filename such as "/dev/stdin" or
-     "/dev/fd/0" must be used to access the stdio streams.)
-    </simpara>
-    <simpara>
-     If <parameter>filename</parameter> begins with anything else, the
-     file will be opened from the filesystem, and a file pointer to
-     the file opened is returned.
-    </simpara>
-    <simpara>
-     If the open fails, the function returns &false;.
-    </simpara>
+    <note>
+     <simpara>
+      L'elenco dei protocolli supportati si trova in <xref linkend="wrappers"/>.
+      Alcuni protocolli (indicati anche come <literal>wrappers</literal>) supportano
+      il <literal>context</literal> e/o le opzioni del &php.ini;
+      Fare riferimento alle pagine specifiche del protocollo per avere l'elenco delle opzioni
+      che possono essere utilizzate. (Ad esempio il parametro del &php.ini;
+      <literal>user_agent</literal> è utilizzato dal wrapper <literal>http</literal>)
+      Per una descrizione del <literal>contexts</literal> e del
+      <parameter>zcontext</parameter>, fare riferimento a <xref linkend="ref.stream"/>.
+     </simpara>
+    </note>
     <para>
-     <parameter>mode</parameter> può essere uno dei seguenti:
-     <itemizedlist>
-      <listitem>
-       <simpara>
-        'r' - Apre in sola lettura; posiziona il puntatore 
-        all'inizio del file.
-       </simpara>
-      </listitem>
-      <listitem>
-       <simpara>
-        'r+' - Apre in lettura e scrittura; posiziona il puntatore 
-        all'inizio del file.
-       </simpara>
-      </listitem>
-      <listitem>
-       <simpara>
-        'w' - Apre il file in sola scrittura; posiziona il puntatore all'inizio del file
-        e tronce il file alla lunghezza zero.
-        Se il file non esiste, tenta di crearlo.
-       </simpara>
-      </listitem>
-      <listitem>
-       <simpara>
-        'w+' - Apre in lettura e scrittura; posiziona il puntatore all'inizio del file
-        e tronce il file alla lunghezza zero.
-        Se il file non esiste, tenta di crearlo.
-       </simpara>
-      </listitem>
-      <listitem>
-       <simpara>
-        'a' - Apre in sola scrittura; posiziona il puntatore alla fine 
-        del file. Se il file non esiste, tenta di 
-        crearlo.
-       </simpara>
-      </listitem>
-      <listitem>
-       <simpara>
-        'a+' - Apre in lettura e scrittura; posiziona il 
-        puntatore alla fine del file. Se il file non esiste, tenta 
-        di crearlo.
-       </simpara>
-      </listitem>
-     </itemizedlist>
+     Il parametro <parameter>mode</parameter> indica il tipo di accesso
+     richiesto per il flusso. Esso può essere:
+     <table>
+      <title>
+       Elenco dei possibili valori usati da <function>fopen</function> 
+       per il parametro <parameter>mode</parameter>
+      </title>
+      <tgroup cols="2">
+       <thead>
+        <row>
+         <entry><parameter>mode</parameter></entry>
+         <entry>Descrizione</entry>
+        </row>
+       </thead>
+       <tbody>
+        <row>
+         <entry><literal>'r'</literal></entry>
+         <entry>
+          Apre in sola lettura; posiziona il puntatore 
+          all'inizio del file.
+         </entry>
+        </row>
+        <row>
+         <entry><literal>'r+'</literal></entry>
+         <entry>
+          Apre in lettura e scrittura; posiziona il puntatore 
+          all'inizio del file.
+         </entry>
+        </row>
+        <row>
+         <entry><literal>'w'</literal></entry>
+         <entry>
+           Apre il file in sola scrittura; posiziona il puntatore all'inizio del file
+           e tronca il file alla lunghezza zero.
+           Se il file non esiste, tenta di crearlo.
+         </entry>
+        </row>
+        <row>
+         <entry><literal>'w+'</literal></entry>
+         <entry>
+          Apre in lettura e scrittura; posiziona il puntatore all'inizio del file
+          e tronce il file alla lunghezza zero.
+          Se il file non esiste, tenta di crearlo.
+         </entry>
+        </row>
+        <row>
+         <entry><literal>'a'</literal></entry>
+         <entry>
+          Apre in sola scrittura; posiziona il puntatore alla fine 
+          del file. Se il file non esiste, tenta di crearlo.
+         </entry>
+        </row>
+        <row>
+         <entry><literal>'a+'</literal></entry>
+         <entry>
+          Apre in lettura e scrittura; posiziona il 
+          puntatore alla fine del file. Se il file non esiste, tenta 
+          di crearlo.
+         </entry>
+        </row>
+        <row>
+         <entry><literal>'x'</literal></entry>
+         <entry>
+          Crea ed apre il file in sola scrittura; posiziona il puntatore all'inizio
+          del file. Se il file esiste già la chiamata a
+          <function>fopen</function> fallirà restituendo &false; e verrà generato
+          un errore di lievllo <constant>E_WARNING</constant>. Se il file 
+          non esiste si tenterà di crearlo. Questo equivale a 
+          specificare i flag <literal>O_EXCL|O_CREAT</literal> nella
+          sottostante chiamata a <literal>open(2)</literal> . Questa opzione è
+          supportata a partire dalla versione 4.3.2 di PHP, e funziona solo con i file locali.
+         </entry>
+        </row>
+        <row>
+         <entry><literal>'x+'</literal></entry>
+         <entry>
+          Crea ed apre il file in lettura e scrittura; posiziona il puntatore all'inizio
+          del file. Se il file esiste già la chiamata a
+          <function>fopen</function> fallirà restituendo &false; e verrà generato
+          un errore di lievllo <constant>E_WARNING</constant>. Se il file 
+          non esiste si tenterà di crearlo. Questo equivale a 
+          specificare i flag <literal>O_EXCL|O_CREAT</literal> nella
+          sottostante chiamata a <literal>open(2)</literal> . Questa opzione è
+          supportata a partire dalla versione 4.3.2 di PHP, e funziona solo con i file locali.
+         </entry>
+        </row>
+       </tbody>
+      </tgroup>
+     </table>
     </para>
     <note>
      <para>
-      <parameter>mode</parameter> può anche essere impostato a 
-      'b'. Ciò è utile solo in sistemi che differenziano fra file binari e di testo
-      (ad esempio Windows. è inutile su Unix). 
-      Se non è necessario, tale valore verrà ignorato.
+      Differenti famiglie di file system hanno differenti tipi di terminatori
+      di riga. Quando si scrive un file di testo e si desidera inserire una interruzione 
+      di linea, occorre utilizzare il terminatore appropriato per il sistema operativo
+      utilizzato. I sistemi basati su Unix utilizzano <literal>\n</literal> come
+      terminatore di riga, i sistemi basati su Windows utilizzano <literal>\r\n</literal>
+      mentre i sistemi Macintosh utilizzano 
+      <literal>\r</literal>.
+     </para>
+     <para>
+      Se si utilizza un errato terminatore di riga quando si scrivono i file, 
+      si può verificare che altre applicazioni accedendo a questi file abbiano 
+      comportamenti bizzarri.
+     </para>
+     <para>
+      Windows ha un flag di traduzione della modalità testo (<literal>'t'</literal>)
+      che in modo trasparente converte <literal>\n</literal>  in
+      <literal>\r\n</literal> mentre si lavora sul file. Ovviamente si ha anche
+      il flag <literal>'b'</literal> per forzare una modalità binaria, nella quale non
+      si ha la conversione dei dati. Se si usano questi flag, 
+      <literal>'b'</literal> oppure <literal>'t'</literal>, devono essere posizionati
+      come ultimo carattere del parametro <parameter>mode</parameter>.
+     </para>
+     <para>
+      La modalità di conversione di default dipende dalla SAPI e dalla versione 
+      di PHP che si sta utlizzando, pertanto si incoraggia l'uso dei flag appropriati per
+      aumentare la portabilità degli script. Si dovrebbe utilizzare <literal>'t'</literal>
+      se si lavora con dei file di testo, e si utilizza 
+      <literal>\n</literal> per indicare il fine linea, e ci si aspetta che
+      che altre applicazioni, tipo notepad, leggano il file prodotto. In tutti 
+      gli altri casi si dovrebbe utilizzare <literal>'b'</literal>
+     </para>
+     <para>
+      Se non si specifica il flag 'b' quando si lavora con file binari, si
+      possono avere situazioni anomale nei dati, tipo immagini corrotte,
+      e situazioni anomale con i caratteri <literal>\r\n</literal>.
+     </para>
+     <para>
+      <emphasis>Per motivi di portabilità è fortemente raccomandato l'uso
+      del flag 'b' quando si aprono dei file con <function>fopen</function>.
+      </emphasis>
+     </para>
+     <para>
+      <emphasis>Inoltre, sempre per la portabilità, è anche fortemente raccomandato
+       di aggiornare il codice che utilizza o che confida nel modalità
+       <literal>'t'</literal> in modo da utilizzare il corretto terminatore di linea.
+      </emphasis>
+     </para>
+     <para>
+      <emphasis>A partire dal PHP 4.3.2, per tutte le piattaforme che distinguono tra
+      tra testo e binario, la modalità di default è la binaria. Se si hanno problemi
+      negli script dopo l'aggiornamneto, tentare l'utilizzo del flag
+      <literal>'t'</literal> per tamponare i problemi fino a quando non si
+      sono resi gli script più portabili come descritto in precedenza.
+      </emphasis>
      </para>
     </note>
     <para>
-     Puoi utilizzare il terzo parametro opzionale ed impostarlo ad "1", se 
-     vuoi cercare il file anche 
-     nel <link linkend="ini.include-path">include_path</link>.
+     Il terzo parametro opzionale <parameter>use_include_path</parameter>
+     può essere impostato a '1' oppure a &true; se si desidera cercare il file in
+     <link linkend="ini.include-path">include_path</link>.
     </para>
+    <simpara>
+     Se la open fallisce, la funzione restituisce &false; e viene generato un errore
+     di tipo <constant>E_WARNING</constant>. Si può utilizzare 
+     <link linkend="language.operators.errorcontrol">@</link>
+     per sopprimere questo warning.
+    </simpara>
     <para>
      <example>
-      <title>Esempio di <function>fopen</function></title>
+      <title>Esempi di <function>fopen</function></title>
       <programlisting role="php">
 <![CDATA[
-$fp = fopen ("/home/rasmus/file.txt", "r");
-$fp = fopen ("/home/rasmus/file.gif", "wb");
-$fp = fopen ("http://www.example.com/", "r");
-$fp = fopen ("ftp://user:password@example.com/", "w");
+<?php
+$handle = fopen ("/home/rasmus/file.txt", "r");
+$handle = fopen ("/home/rasmus/file.gif", "wb");
+$handle = fopen ("http://www.example.com/", "r");
+$handle = fopen ("ftp://user:password@example.com/somefile.txt", "w");
+?>
 ]]>
       </programlisting>
      </example>
     </para>
     <simpara>
-     Se incontri problemi nella lettura o scrittura di file e stai usando una
-     versione di PHP come modulo server, ricorda 
-     di verificare che i file e le directory che stai usando siano 
-     accessibili al processo server.
+     Se si dovessero manifestare dei problemi nella lettura o scrittura
+     di file e si sta utilizzando la versione server di PHP, occorre verificare
+     che i file e le directory utilizzate dallo script
+     siano accessibili dal processo del server.
     </simpara>
     <para>
-     Sulle piattaforme Windows, fai attenzione ad dichiarare ogni backslash
-     utilizzata nel percorso del file, o utilizza gli slash semplici.
+     Sulla piattaforma Windows occorre prestare attenzione ai backslash 
+     nei percorsi dei file; questi devono essere preceduti dal caratteri di escape '\', oppure utilizzare 
+     lo slash '/'.
      <informalexample>
       <programlisting role="php"> 
 <![CDATA[
-$fp = fopen ("c:\\data\\info.txt", "r");
+<?php
+$handle = fopen ("c:\\data\\info.txt", "r");
+?>
 ]]>
       </programlisting>
      </informalexample>
     </para>
     <simpara>
-     Vedere anche <function>fclose</function>,
+     Vedere anche <xref linkend="wrappers"/>,
+     <function>fclose</function>,
+     <function>fgets</function>, 
+     <function>fread</function>,
+     <function>fwrite</function>,
      <function>fsockopen</function>,
-     <function>socket_set_timeout</function> e
+     <function>file</function>,
+     <function>file_exists</function>,
+     <function>is_readable</function>,
+     <function>stream_set_timeout</function> e
      <function>popen</function>.
     </simpara>
    </refsect1>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.3 Maintainer: cortesi Status: working -->
+<!-- EN-Revision: 1.8 Maintainer: cortesi Status: working -->
 <!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
   <refentry id="function.fgetcsv">
    <refnamediv>
@@ -10,24 +10,35 @@
     <title>Descrizione</title>
      <methodsynopsis>
       <type>array</type><methodname>fgetcsv</methodname>
-      <methodparam><type>int</type><parameter>fp</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
       <methodparam><type>int</type><parameter>lunghezza</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>delimitatore</parameter></methodparam>
+      <methodparam choice="opt"><type>string</type><parameter>enclosure</parameter></methodparam>
      </methodsynopsis>
     <simpara>
      Simile a <function>fgets</function> eccetto per il fatto che
      <function>fgetcsv</function> analizza le righe lette alla ricerca di campi 
      in in formato <acronym>CSV</acronym> e restituisce un vettore contenente 
      i campi letti. Il delimitatore di campo è una virgola, a meno che non
-     venga specificato un altro delimitatore usando il terzo parametro opzionale.
+     venga specificato un altro delimitatore usando il terzo parametro opzionale,
+     mentre per il quarto parametro opzionale, <parameter>enclosure</parameter>,
+     il default sono i doppi apici. Entrambi i parametri, <parameter>delimitatore</parameter>
+     ed <parameter>enclosure</parameter>, hanno la dimensione di un carattere.
+     Se si forniscono stringhe di più di un carattere, verrà considerato solo il primo.
     </simpara>
+    <note>
+     <simpara>
+      Il parametro  <parameter>enclosure</parameter> è stato aggiunto
+      in PHP 4.3.0.
+     </simpara>
+    </note>
     <simpara>
-     <parameter>fp</parameter> deve essere un puntatore valido ad un file 
+     <parameter>Handle</parameter> deve essere un puntatore valido ad un file 
      correttamente aperto da <function>fopen</function>,
      <function>popen</function> o <function>fsockopen</function>.
     </simpara>
     <simpara>
-     <parameter>lunghezza</parameter> deve essere maggiore della linea 
+     <parameter>Lunghezza</parameter> deve essere maggiore della linea 
      più lunga trovata nel file CSV (compresi i caratteri di fine riga).
     </simpara>
     <simpara>
@@ -37,31 +48,36 @@
     <note>
      <simpara>
       Una riga vuota in un file CVS verrà riportata come un vettore
-      contenente un solo campo vuoto (&null;) e non verrà trattata come un 
+      contenente un solo campo vuoto (<type>null</type>) e non verrà trattata come un 
       errore.
      </simpara>
     </note>
-    <example>
-     <title>
-      Esempio di <function>fgetcsv</function> - Legge e scrive l'intero contenuto
-      di un file CSV.
-     </title>
-     <programlisting role="php">
+    <para>
+     <example>
+      <title>Legge e scrive l'intero contenuto di un file CSV.</title>
+      <programlisting role="php">
 <![CDATA[
+<?php
 $row = 1;
-$fp = fopen ("test.csv","r");
-while ($data = fgetcsv ($fp, 1000, ",")) {
+$handle = fopen ("test.csv","r");
+while ($data = fgetcsv ($handle, 1000, ",")) {
     $num = count ($data);
-    print "<p> $num campi sulla linea $row: <br>";
+    print "<p> $num campi sulla linea $row: <br>\n";
     $row++;
     for ($c=0; $c < $num; $c++) {
-        print $data[$c] . "<br>";
+        print $data[$c] . "<br>\n";
     }
 }
-fclose ($fp);
+fclose ($handle);
+?>
 ]]>
-     </programlisting>
-    </example>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Vedere anche <function>explode</function>, <function>file</function> e
+     <function>pack</function>.
+    </para>
    </refsect1>
   </refentry>
 

@@ -1,25 +1,30 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.16 Maintainer: cortesi Status: ready -->
+<!-- EN-Revision: 1.20 Maintainer: cortesi Status: ready -->
 <!-- CREDITS: marco -->
  <chapter id="features.remote-files">
   <title>Utilizzo di file remoti</title>
 
   <para>
-   Quando viene abilitato il supporto per l "URL fopen wrapper" durante
-   la configurazione di PHP (avviene automaticamente a meno che si 
-   specifichi espressamente il flag <option>--disable-url-fopen-wrapper</option> (per le versioni
-   sino alla 4.0.3) oppure impostare <parameter>allow_url_fopen</parameter> a off in &php.ini;
-   (per le nuove versioni)),
-   si possono usare URL FTP e HTTP con la maggior parte delle funzioni che 
+   Se <parameter>allow_url_fopen</parameter> è abilitato in 
+   &php.ini;, si possono usare URL FTP e HTTP con la maggior parte delle funzioni che 
    richiedono nomi di file come parametri, incluse le funzioni 
    <function>require</function>
    e <function>include</function>.
   </para>
+  <note>
+   <para>   
+   In PHP 4.0.3 e precedenti, al fine di poter utilizzare gli URL wrapper, occorreva 
+   specificare l'opzione di configurazione 
+   <option>--enable-url-fopen-wrapper</option>.
+   </para>
+  </note>
   <para>
    <note>
     <para>
-     Non si possono usare i file remoti con <function>include</function> e
-     <function>require</function> sotto Windows.
+     Al momento, la versione Windows di <literal>PHP</literal>, non supporta
+     l'accesso remoto ai file con le seguenti funzioni:
+     <function>include</function>, <function>include_once</function>,
+     <function>require</function> e <function>require_once</function>.
     </para>
    </note>
   </para>
@@ -31,7 +36,7 @@
   </para>
   <para>
    <example>
-    <title>Legere il titolo di una pagina web remota</title>
+    <title>Leggere il titolo di una pagina web remota</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -55,13 +60,18 @@ fclose($file);
    </example>
   </para>
   <para>
-   Si pu&ograve; anche scrivere in un file remoto via FTP se l'utente con cui ci
-   si connette ha le autorizzazioni necessarie, e il file non &egrave; gi&agrave; presente.
-   Per connettersi con un utenti specifico si ha bisogno di specificare lo username
-   (e la relativa password) dentro l'URL in questo modo:
-   'ftp://user:password@ftp.example.com/directory/del/file'. (Si pu&ograve; usare lo stesso 
+   Si può anche scrivere in un file remoto via FTP (se l'utente con cui ci
+   si connette ha le autorizzazioni necessarie). Si possono solamente 
+   creare nuovi file usando questo metodo, se si prova a 
+   sovrascrivere un file che già esiste, <function>fopen</function> non avrà 
+   successo.
+  </para>
+  <para>
+   Per connettersi con un utenti diversi da 'anonymous' si ha bisogno di specificare lo username
+   (e la relativa password) assieme all'URL, in questo modo:
+   'ftp://user:password@ftp.example.com/directory/del/file'. (Si può usare lo stesso 
    tipo di sintassi per accedere a file via HTTP quando 
-   richiedono autenticazione).
+   richiedono autenticazione Basic).
   </para>
   <para>
    <example>
@@ -75,7 +85,7 @@ if (!$file) {
     exit;
 }
 /* Scrive i dati qui. */
-fputs ($file, $HTTP_SERVER_VARS['HTTP_USER_AGENT'] . "\n");
+fputs ($file, $_SERVER['HTTP_USER_AGENT'] . "\n");
 fclose ($file);
 ?>
 ]]>  
@@ -85,11 +95,11 @@ fclose ($file);
   <para>
    <note>
     <para>
-    Dall'esempio precedente ci si pu&ograve; fare un'idea di come usare questa
-    tecnica per effettuare dei log in remoto, ma come gi&agrave; accennato non &egrave; 
-    possibile scrivere su file gi&agrave; esistenti con questo sitema. 
-    Per fare una procedura di log distribuito &egrave; più indicata la funzione 
-    <function>syslog</function>.
+    Dall'esempio precedente ci si può fare un'idea di come usare questa
+    tecnica per effettuare dei log in remoto, ma come già accennato, con 
+    questo sitema non è possibile scrivere con <function>fopen</function> 
+    su file già esistenti. Per fare una procedura di log distribuito è 
+    più indicata la funzione <function>syslog</function>.
     </para> 
    </note>
   </para>

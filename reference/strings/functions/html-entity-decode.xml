@@ -1,30 +1,29 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.10 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.9 Maintainer: darvina Status: ready -->
 <!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
-  <refentry id="function.htmlentities">
+  <refentry id="function.html-entity-decode">
    <refnamediv>
-    <refname>htmlentities</refname>
+    <refname>html_entity_decode</refname>
     <refpurpose>
-     Converte tutti i possibili caratteri in entità HTML
+     Converte le entità HTML nei corrispondenti caratteri
     </refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>string</type><methodname>htmlentities</methodname>
+      <type>string</type><methodname>html_entity_decode</methodname>
       <methodparam><type>string</type><parameter>string</parameter></methodparam>
       <methodparam choice="opt"><type>int</type><parameter>quote_style</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>charset</parameter></methodparam>
      </methodsynopsis>
     <para>
-     Questa funzione è identica a 
-     <function>htmlspecialchars</function> tranne che
-     <function>htmlentities</function> converte tutti i caratteri
-     che hanno una corrispettiva entità HTML.
+     La funzione <function>html_entity_decode</function> è l'opposto di
+     <function>htmlentities</function> converte tutte le entità HTML presenti
+     nel parametro <parameter>string</parameter> nel corrispondente carattere.
     </para>
     <para>
-     Come per la funzione <function>htmlspecialchars</function>, il secondo parametro opzionale
-     <parameter>quote_style</parameter> indica cosa occorre fare per gli apici
+     Il secondo parametro,
+     <parameter>quote_style</parameter>, opzionale, indica cosa occorre fare per gli apici
      'singoli' e "doppi". Sono possibili tre scelte indicate da tre
      costanti con default <constant>ENT_COMPAT</constant>:
      <table>
@@ -54,43 +53,61 @@
      </table>
     </para>
     <para>
-     Il suupporto per il parametro <parameter>quote</parameter> è stato introdotto 
-     in PHP 4.0.3.
+     Per il terzo parametro opzionale, <parameter>charset</parameter>, si utilizza
+     come default il set di caratteri ISO-8859-1. Questo parametro indica quale
+     set di caratteri utilizzare per la conversione.
     </para>
-    <para>
-     Come per la funzione <function>htmlspecialchars</function>, questa ha un terzo parametro
-     <parameter>charset</parameter>, opzionale, che definisce quale set di caratteri
-     utilizzare per la conversione. Il supporto per questo parametro è stato aggiunto in PHP 4.1.0.
-     Attualmente per default si utilizza il set ISO-8859-1.
-    </para>
-    &reference.strings.charsets;
-    <para>
-     Se si deve esere una decodifica (un giro al contrario) occorre utilizzare la funzione
-     <function>html_entity_decode</function>.
-    </para>
+    &reference.strings.charsets;    
     <para>
      <example>
-      <title>Un esempio di <function>htmlentities</function></title>
+      <title>Decodifica delle entità HTML</title>
       <programlisting role="php">
 <![CDATA[
 <?php
-$str = "A 'quote' is <b>bold</b>";
+$orig = "I'll \"walk\" the <b>dog</b> now";
 
-// Visualizza: A 'quote' is &lt;b&gt;bold&lt;/b&gt;
-echo htmlentities($str);
+$a = htmlentities($orig);
 
-// Visualizza: A &#039;quote&#039; is &lt;b&gt;bold&lt;/b&gt;
-echo htmlentities($str, ENT_QUOTES);
+$b = html_entity_decode($a);
+
+echo $a; // I'll &quot;walk&quot; the &lt;b&gt;dog&lt;/b&gt; now
+
+echo $b; // I'll "walk" the <b>dog</b> now
+
+
+// Per utilizzatori di versioni di PHP antecedenti alla 4.3.0:
+function unhtmlentities($string) 
+{
+    $trans_tbl = get_html_translation_table(HTML_ENTITIES);
+    $trans_tbl = array_flip($trans_tbl);
+    return strtr($string, $trans_tbl);
+}
+
+$c = unhtmlentities($a);
+
+echo $c; // I'll "walk" the <b>dog</b> now
+
 ?>
 ]]>
       </programlisting>
      </example>
     </para>
     <para>
-     Vedere anche <function>html_entity_decode</function>, 
-     <function>get_html_translation_table</function>,
-     <function>htmlspecialchars</function>, <function>nl2br</function>
-     e <function>urlencode</function>.
+     <note>
+      <para>
+       Ci si può chiedere come mai la sequenza trim(html_entity_decode('&amp;nbsp;')); non
+       produca una stringa vuota; questo accade perchè l'intità '&amp;nbsp;'
+       non corrisponde al codice ASCII 32 (che verrebbe rimosso
+       da <function>trim</function>), ma, nella codifica di default ISO-8859-1, corrisponde
+       al carattere ASCII 160 (0xa0).
+      </para>
+     </note>
+    </para>
+    <para>
+     Vedere anche <function>htmlentities</function>,
+     <function>htmlspecialchars</function>,
+     <function>get_html_translation_table</function>, 
+     and <function>urldecode</function>.
     </para>
    </refsect1>
   </refentry>

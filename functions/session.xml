@@ -35,15 +35,49 @@
     by the session module unless the user defines them later.
    </para>
    <para>
-    <literal>track_vars</literal> and <literal>gpc_globals</literal>
-    configuration settings influence how the session variables get
-    restored. If <literal>track_vars</literal> is enabled, then the
-    restored session variables will be available in the global
-    associative array $HTTP_STATE_VARS. If
-    <literal>gpc_globals</literal> is enabled, then the session
-    variables will be restored to corresponding global variables. If
-    both of these settings are enabled, then the globals variables and
-    the $HTTP_STATE_VARS entries will reference the same value.
+    <literal>track_vars</literal> and <literal>register_globals</literal>
+    configuration settings influence how the session variables get stored
+    and restored.
+   </para> 
+   <para>
+    If <literal>track_vars</literal> is enabled and 
+    <literal>register_globals</literal> is disabled, only members of the
+    global associative array $HTTP_SESSION_VARS can be registered as 
+    session variables. The restored session variables will only be 
+    available in the array $HTTP_SESSION_VARS.
+  <example>
+     <title>
+      Registering a variable with <literal>track_vars</literal> enabled
+     </title>
+     <programlisting role="php">
+&lt;?php
+session_register("count");
+$HTTP_SESSION_VARS["count"]++;
+?&gt;
+     </programlisting>
+    </example>
+   </para>
+   <para>
+    If <literal>register_globals</literal> is enabled, then all global
+    variables can be registered as session variables and the session
+    variables will be restored to corresponding global variables. 
+  <example>
+     <title>
+      Registering a variable with <literal>register_globals</literal> enabled
+     </title>
+     <programlisting role="php">
+&lt;?php
+session_register("count");
+$count++;
+?&gt;
+     </programlisting>
+    </example>
+   </para>
+   <para>
+    If both <literal>track_vars</literal> and 
+    <literal>register_globals</literal> are enabled, then the globals 
+    variables and the $HTTP_SESSION_VARS entries will reference the same 
+    value.
    </para>
    <para>
     There are two methods to propagate a session id:
@@ -207,7 +241,7 @@ close
      </listitem>
      <listitem>
       <simpara>
-       <literal>session.lifetime</literal> specifies the lifetime of
+       <literal>session.cookie_lifetime</literal> specifies the lifetime of
        the cookie in seconds which is sent to the browser. The value 0
        means "until the browser is closed." Defaults to
        <literal>0</literal>.
@@ -272,6 +306,32 @@ close
        side. Defaults to <literal>1</literal> (enabled).
       </simpara>
      </listitem>
+     <listitem>
+      <simpara>
+       <literal>session.cookie_path</literal> specifies path to set 
+				in session_cookie. Defaults to <literal>/</literal>.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       <literal>session.cookie_domain</literal> specifies domain to 
+				set in session_cookie. Default is none at all. 
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       <literal>session.cache_limiter</literal> specifies cache control
+ 			  method to use for session pages (nocache/private/public). 
+			  Defaults to <literal>nocache</literal>.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       <literal>session.cache_expire</literal> specifies time-to-live
+        for cached session pages in minutes, this has no effect for
+        nocache limiter. Defaults to <literal>180</literal>.
+      </simpara>
+     </listitem>
     </itemizedlist>
     <note>
      <para>
@@ -327,13 +387,9 @@ close
      associated with the current session.
     </simpara>
     <simpara>
-     This function returns true on success and false on failure.
+     This function returns true on success and false on failure to destroy
+     the session data.
     </simpara>
-    <note>
-     <para>
-      This function was added in PHP 4.0.
-     </para>
-    </note>
    </refsect1>
   </refentry>
 
@@ -546,6 +602,30 @@ echo "The previous session name was $previous_name&lt;p&gt;";
     </para>
    </refsect1>
   </refentry>
+  
+  <refentry id="function.session-unset">
+    <refnamediv>
+      <refname>session_unset</refname>
+      <refpurpose>
+        Free all session variables
+      </refpurpose>
+    </refnamediv>
+    <refsect1>
+      <title>Description</title>
+      <funcsynopsis>
+     <funcprototype>
+         <funcdef>void 
+           <function>session_unset</function>
+         </funcdef>
+         <void/>
+     </funcprototype>
+      </funcsynopsis>
+      <para>
+        The <function>session_unset</function> function free's all session variables
+        currently registered.
+      </para>
+    </refsect1>
+  </refentry>
 
   <refentry id="function.session-is-registered">
    <refnamediv>
@@ -573,6 +653,82 @@ echo "The previous session name was $previous_name&lt;p&gt;";
      </note>
     </para>
    </refsect1>
+  </refentry>
+  
+  <refentry id="function.session-get-cookie-params">
+    <refnamediv>
+      <refname>session_get_cookie_params</refname>
+      <refpurpose>
+        Get the session cookie parameters
+      </refpurpose>
+    </refnamediv>
+    <refsect1>
+      <title>Description</title>
+      <funcsynopsis>
+     <funcprototype>
+         <funcdef>array 
+           <function>session_get_cookie_params</function>
+         </funcdef>
+         <void/>
+     </funcprototype>
+      </funcsynopsis>
+      <para>
+        The <function>session_get_cookie_params</function> function returns an array
+        with the current session cookie information, the array contains the following
+        items:
+        <itemizedlist>
+          <listitem>
+            <simpara>
+              "lifetime" -  The lifetime of the cookie.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              "path" -  The path where information is stored.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              "domain" -  The domain of the cookie.
+            </simpara>
+          </listitem>
+        </itemizedlist>
+      </para>
+    </refsect1>
+  </refentry>
+
+  <refentry id="function.session-set-cookie-params">
+    <refnamediv>
+      <refname>session_set_cookie_params</refname>
+      <refpurpose>
+        Set the session cookie parameters
+      </refpurpose>
+    </refnamediv>
+    <refsect1>
+      <title>Description</title>
+      <funcsynopsis>
+     <funcprototype>
+         <funcdef>void 
+           <function>session_set_cookie_params</function>
+         </funcdef>
+         <paramdef>int 
+           <parameter>lifetime</parameter>
+         </paramdef>
+         <paramdef>
+             string 
+ 				      <parameter><optional>path</optional></parameter>
+         </paramdef>
+         <paramdef>
+             string 
+               <parameter><optional>domain</optional></parameter>
+         </paramdef>
+     </funcprototype>
+      </funcsynopsis>
+      <para>
+        Set cookie parameters defined in the php.ini file.  The effect of this function only lasts
+        for the duration of the script.
+      </para>
+    </refsect1>
   </refentry>
 
   <refentry id="function.session-decode">

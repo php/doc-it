@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- EN-Revision: 1.19 Maintainer: darvina  Status: ready -->
+ <reference id="ref.sem">
+  <title>Funzioni relative ai semafori ed alla memoria condivisa</title>
+  <titleabbrev>Semafori</titleabbrev>
+
+  <partintro>
+   <para>
+    Questo modulo fornisce le funzioni dei semafori a partire dalla gestione dei
+    semafori di System V. I semafori possono essere utilizzati per fornire
+    un accesso esclusivo alle risorse sulla macchina corrente, oppure per limitare
+    il numero di processi che possono utilizzare simultaneamente una risorsa.
+   </para>
+   <para>
+    Questo modulo fornisce anche le funzioni per la memoria condivisa a partire dalla gestione della
+    memoria condivisa di System V. La memoria condivisa può essere utilizzata per fornire
+    l'accesso a variabili globali. Differenti demoni httpd e anche altri programmi 
+    (tipo Perl, C, ...) sono in grado di accedere a questi dati creando 
+    uno scambio di dati globale. Si ricordi che la memoria condivisa non è garantita
+    nei confronti di accessi simultanei. Si utilizzino i semafori per la sincronizzazione.
+    <table>
+     <title>Limiti della memoria condivisa posti da UNIX</title>
+     <tgroup cols="2">
+      <tbody>
+       <row>
+        <entry>SHMMAX</entry> 
+        <entry>dimensione massima della memoria condivisa, solitamente 131072 bytes</entry>
+       </row>
+       <row>
+        <entry>SHMMIN</entry>
+        <entry>dimensione minima della memoria condivisa, solitamente 1 byte</entry>
+       </row>
+       <row>
+        <entry>SHMMNI</entry> 
+        <entry>
+         massimo ammontare dei segmenti di memoria condivisa sul sistema,
+         solitamente 100
+        </entry>
+       </row>
+       <row>
+        <entry>SHMSEG</entry>
+        <entry>
+         numero massimo di segmenti di memoria condivisa per processo, solitamente 6
+        </entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </table>
+   </para>
+   <note>
+    <simpara>
+     Queste funzioni non sono attive sui sistemi Windows.
+    </simpara>
+   </note>
+  </partintro>
+
+  <refentry id="function.sem-get">
+   <refnamediv>
+    <refname>sem_get</refname>
+    <refpurpose>Ottiene l'id di un semaforo</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>sem_get</methodname>
+      <methodparam><type>int</type><parameter>key</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>max_acquire</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>perm</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     La funzione ritorna un identificatore positivo di semaforo se ha successo, 
+     oppure &false; se si verifica un errore.
+    </para>
+    <para>
+     La funzione <function>sem_get</function> restituisce un identificativo
+     che può essere utilizzato per accedere al semaforo con chiave indicata in <parameter>key</parameter>.
+     Se necessario il semaforo viene creato con i bit dei permessi valorizzati come
+     specificato in perm (di default 666). In max_acquire si indicat il numero
+     massimo di processi che possono acquisire il semaforo simultaneamente
+     (1 per default). In realtà questo valore è modificabile solo se il processo
+     è l'unico, in quel momento, ad essere collegato al semaforo.
+    </para>
+    <para>
+     Una seconds chiamata a <function>sem_get</function> per la medesima chiave
+     restituisce un identificativo di semaforo differente, ma entrambi gli 
+     gli identificativi accedono al medesimo semaforo sottostante.
+    </para>  
+    <para> 
+     Vedere anche: <function>sem_acquire</function> e
+     <function>sem_release</function>.
+    </para>
+    <note>
+     <simpara>
+      Questa funzione non è utilizzabile sui sistemi Windows.
+     </simpara>
+    </note>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.sem-acquire">
+   <refnamediv>
+    <refname>sem_acquire</refname>
+    <refpurpose>Acquisisce un semaforo</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>bool</type><methodname>sem_acquire</methodname>
+      <methodparam><type>int</type><parameter>sem_identifier</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     La funzione restituisce: &true; se ha successo, &false; se si verifica un errore.
+    </para>
+    <para>
+     La funzione <function>sem_acquire</function> si blocca (se necessario) fino a quando
+     non riesce ad acquisire il semaforo. Se un processo tenta di acquisire un
+     semaforo che ha già acquisito può restare bloccato per sempre se
+     la nuova acquisizione del semaforo causa il superamento del 
+     parametro max_acquire.
+    </para>
+    <para>
+     Dopo avere processato una richiesta, qualsiasi semaforo acquisito dal
+     processo, ma non esplicitamente rilasciato, sarà rilasciato automaticamente
+     e causerà un messaggio di warning.
+    </para>
+    <para> 
+     Vedere anche: <function>sem_get</function> e
+     <function>sem_release</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.sem-release">
+   <refnamediv>
+    <refname>sem_release</refname>
+    <refpurpose>Rilascia un semaforo</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>bool</type><methodname>sem_release</methodname>
+      <methodparam><type>int</type><parameter>sem_identifier</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     La funzione restituisce: &true; se ha successo, &false; se si verifica un errore.
+    </para>
+    <para>
+     La funzione <function>sem_release</function> rilascia il semaforo
+     se questo è attualmente acquisito dal processo chiamante. In caso
+     contrario sarà generato un messaggio di warning.
+    </para>
+    <para>
+      Dopo avere rilasciato un semaforo, occorre eseguire di nuovo 
+      <function>sem_acquire</function> per ri-acquisirlo.
+    </para>
+    <para> 
+     Vedere anche: <function>sem_get</function> e
+     <function>sem_acquire</function>.
+    </para>
+    <note>
+     <simpara>
+      Questa funzione non è utilizzabile sui sistemi Windows.
+     </simpara>
+    </note>    
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.sem-remove">
+   <refnamediv>
+    <refname>sem_remove</refname>
+    <refpurpose>Rimuove un semaforo</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>bool</type><methodname>sem_remove</methodname>
+      <methodparam><type>int</type><parameter>sem_identifier</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     La funzione restituisce: &true; se ha successo, &false; 
+     se si verifica un errore.
+    </para>
+    <para>
+     La funzione <function>sem_remove</function> rimuove il semaforo indicato 
+     da <parameter>sem_identifier</parameter> se questo 
+     è stato generato in orecedenza da <function>sem_get</function>. 
+     In caso contrario si genera un messaggio di warning
+    </para>
+    <para>
+      Una volta rimosso, il semaforo non è più accessibile.
+    </para>
+    <para> 
+     Vedere anche: <function>sem_get</function>,
+     <function>sem_release</function> e
+     <function>sem_acquire</function>.
+    </para>
+    <note>
+     <simpara>
+      Questa funzione non è utilizzabile sui sistemi Windows. Questa funzione è stata aggiunta
+      nella versione 4.1.0 di PHP.
+     </simpara>
+    </note>    
+   </refsect1>
+  </refentry>
+  
+  <refentry id="function.shm-attach">
+   <refnamediv>
+    <refname>shm_attach</refname>
+    <refpurpose>Crea oppure apre un segmento di memoria condivisa</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>shm_attach</methodname>
+      <methodparam><type>int</type><parameter>key</parameter></methodparam> 
+      <methodparam choice="opt"><type>int</type><parameter>memsize</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>perm</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     La funzione <function>shm_attach</function> restituisce un identificativo 
+     che può essere utilizzato per accedere alla memoria condivisa identificata dalla chiave <parameter>key</parameter>
+     la prima chiamata crea il segmento di memoria condivisa 
+     (la dimensione di default può essere indicata in sysvshm.init_mem nel <link
+     linkend="configuration.file">file di configurazione</link>, altrimenti
+     viene fissata a 10000 bytes) e con i bit dei permessi (default: 0666).
+    </para>
+    <para>
+     Una seconda chiamata alla funzione <function>shm_attach</function> con il medesimo parametro
+     <parameter>key</parameter> restituirà un identificativo di memoria condivisa 
+     differente, ma entrambi accederanno alla medesima memoria condivisa 
+     sottostante. I parametri <parameter>Memsize</parameter> e
+     <parameter>perm</parameter> saranno ignorati.
+    </para>
+    <note>
+     <simpara>
+      Questa funzione non è utilizzabile sui sistemi Windows.
+     </simpara>
+    </note>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.shm-detach">
+   <refnamediv>
+    <refname>shm_detach</refname>
+    <refpurpose>Disconnette da un segmento di memoria condivisa</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>shm_detach</methodname>
+      <methodparam><type>int</type><parameter>shm_identifier</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     La funzione <function>shm_detach</function> disconnette dal segmento di memoria condivisa
+     indicato dal parametro <parameter>shm_identifier</parameter> creato tramite la funzione
+     <function>shm_attach</function>. Si ricordi che la memoria condivisa
+     continua a esistere nel sistema Unix e i dati sono ancora presenti.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.shm-remove">
+   <refnamediv>
+    <refname>shm_remove</refname> 
+    <refpurpose>Rimuove un segmento di memoria condivisa dal sistema Unix</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>shm_remove</methodname>
+      <methodparam><type>int</type><parameter>shm_identifier</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     La funzione rimuove un segmento di memoria condivisa dal sistsema.
+     Tutti i dati contenuti saranno persi.
+    </para>
+    <note>
+     <simpara>
+      Questa funzione non è utilizzabile sui sistemi Windows.
+     </simpara>
+    </note>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.shm-put-var">
+   <refnamediv>
+    <refname>shm_put_var</refname> 
+    <refpurpose>Inserisce o aggiorna una variabile nella
+    memoria condivisa</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>shm_put_var</methodname>
+      <methodparam><type>int</type><parameter>shm_identifier</parameter></methodparam>
+      <methodparam><type>int</type><parameter>variable_key</parameter></methodparam>
+      <methodparam><type>mixed</type><parameter>variable</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     La funzione inserisce o aggiorna la variabile indicata in <parameter>variable</parameter>
+     con chiave <parameter>variable_key</parameter>. Sono suportati
+     <link linkend="language.types">Tutti i tipi di variabili</link>.
+    </para> 
+    <note>
+     <simpara>
+      Questa funzione non è utilizzabile sui sistemi Windows.
+     </simpara>
+    </note>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.shm-get-var">
+   <refnamediv>
+    <refname>shm_get_var</refname> 
+    <refpurpose>Restituisce una variabile dalla memoria condivisa</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>mixed</type><methodname>shm_get_var</methodname>
+      <methodparam><type>int</type><parameter>id</parameter></methodparam>
+      <methodparam><type>int</type><parameter>variable_key</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     La funzione <function>shm_get_var</function> restituisce la variabile identificata 
+     dalla chiave <parameter>variable_key</parameter>. La variabile resta presente 
+     nella memoria condivisa.
+    </para>
+    <note>
+     <simpara>
+      Questa funzione non è utilizzabile sui sistemi Windows.
+     </simpara>
+    </note>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.shm-remove-var">
+   <refnamediv>
+    <refname>shm_remove_var</refname> 
+    <refpurpose>Rimuove una variabile dalla memoria condivisa
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>shm_remove_var</methodname>
+      <methodparam><type>int</type><parameter>id</parameter></methodparam>
+      <methodparam><type>int</type><parameter>variable_key</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Rimuove la variabile identificata da <parameter>variable_key</parameter>
+     e libera la memoria occupata.
+    </para>
+    <note>
+     <simpara>
+      Questa funzione non è utilizzabile sui sistemi Windows.
+     </simpara>
+    </note>
+   </refsect1>
+  </refentry>
+
+  <refentry id='function.ftok'>
+   <refnamediv>
+    <refname>ftok</refname>
+    <refpurpose>
+     Converte il percorso e un identificatore di progetto in un chiave IPC di System V
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>ftok</methodname>
+      <methodparam><type>string</type><parameter>pathname</parameter></methodparam>
+      <methodparam><type>string</type><parameter>proj</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     &warn.undocumented.func;
+    </para>
+   </refsect1>
+  </refentry>
+
+</reference>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->
+

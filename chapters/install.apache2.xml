@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- EN-Revision: 1.12 Maintainer: darvina Status: ready -->
+  <sect1 id="install.apache2">
+   <title>Server-Apache 2.0</title>
+   <para>
+    Questa sezione contiene note e suggerimenti specifici per l'installazione di 
+    <literal>PHP</literal>, con Apache 2.0, sia per sistemi
+    <link linkend="install.apache2.unix">Unix</link>
+    sia per sistemi <link linkend="install.apache2.windows">Windows</link>.
+   </para>
+   <warning>
+    <para>
+     Non utilizzare Apache 2.0 e <literal>PHP</literal> in ambienti di produzione
+     sia con Unix sia con Windows.
+    </para>
+   </warning>
+    <para>
+     Riteniamo sia opportuno dare uno sguardo alla 
+     <ulink url="&url.apache2.docs;">Documentazione di Apache</ulink> per avere
+     le nozioni di base per comprendere Apache 2.0.
+    </para>
+
+   <sect2 id="compat.apache2">
+    <title>Note di compatibilità tra PHP e Apache 2.0</title>
+    <para>
+     Se seguente versioni di PHP funzionano correttamente con le ultime versioni
+     di Apache 2.0:
+     <itemizedlist spacing="compact">
+      <listitem>
+       <simpara>
+        PHP 4.3.0 o successive , disponibili a
+        <ulink url="&url.php.downloads;">&url.php.downloads;</ulink>.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        l'ultima versione stabile dell'ambiente di sviluppo.
+        Per ottenere il sorgente aggiornato <ulink url="&url.php.snapshots;php4-latest.tar.gz">
+        &url.php.snapshots;php4-latest.tar.gz</ulink> o per scaricare gli eseguibili
+        per Windows <ulink url="&url.php.snapshots;win32/php4-win32-latest.zip">
+        &url.php.snapshots;win32/php4-win32-latest.zip</ulink>.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        la versione di pre-rilascio, disponibile in
+        <ulink url="&url.php.prerelease;">&url.php.prerelease;</ulink>.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        inoltre si ha sempre la possibilità di avere il <literal>PHP</literal> tramite il
+        <ulink url="&url.php.anoncvs;">CVS anonimo</ulink>.
+       </simpara>
+      </listitem>
+     </itemizedlist>
+      Queste versioni di <literal>PHP</literal> sono compatibili con Apache 2.0.40 e successive.
+    </para>
+    <note>
+     <simpara>
+      Il supporto tramite <literal>SAPI</literal> ad Apache 2.0 è cominciato da 4.2.0.
+      PHP 4.2.3 funziona con Apache 2.0.39, non utilizzare nessuna altra versione di Apache con
+      PHP 4.2.3. Tuttavia si raccomanda di utilizzare il PHP 4.3.0, o successivo, con la
+      più recente versione di Apache2.
+     </simpara>
+     <simpara>
+      Tutte le versioni di <literal>PHP</literal> menzionate, lavorano con
+      Apache 1.3.x.
+     </simpara>
+    </note>
+   </sect2>
+
+   <sect2 id="install.apache2.unix">
+    <title>PHP e Apache 2 su Linux</title>
+    <para>
+     Scaricare la più recente versione di <ulink url= "&url.apache;">
+     Apache 2.0</ulink> e la versione di PHP dai siti menzionati in precendenza.
+     Questa guida rapida copre soltanto le basi per partire con Apache 2.0
+     e <literal>PHP</literal>. Per maggiori dettagli leggere la 
+     <ulink url="&url.apache2.docs;">documentazione di Apache</ulink>.
+     In questo esempio è stata omesso il numero di versione per evitare problemi
+     nelle istruzioni presentate. Nell'installazione reale occorre sostituire 'NN' con il corretto
+     numero della versione installata.
+    </para>
+    <example>
+     <title>
+      Istruzioni per l'installazione (Apache 2 con modulo condiviso)
+     </title>
+     <screen>
+<![CDATA[
+1.  gzip -d httpd-2_0_NN.tar.gz
+2.  tar xvf httpd-2_0_NN.tar
+3.  gunzip php-NN.tar.gz
+4.  tar -xvf php-NN.tar
+5.  cd httpd-2_0_NN
+6.  ./configure --enable-so
+7.  make
+8.  make install
+
+    A questo punto si ha Apache 2.0 disponibile in /usr/local/apache2,
+    configurato con il supporto dei moduli caricabili.
+    Per testare l'installazione utilizzare la solita procedura per attivare il
+    server Apache, es.:
+    /usr/local/apache2/bin/apachectl start
+    e quindi fermare il server per attivare la configurazione con PHP:
+    /usr/local/apache2/bin/apachectl stop.
+
+9.  cd ../php4-NN
+10. ./configure --with-apxs2=/usr/local/apache2/bin/apxs
+11. make
+12. make install
+13. cp php.ini-dist /usr/local/lib/php.ini
+
+    Modificare il php.ini per impostare le opzioni di PHP.
+    Se si desidera pozionare questo file in altra directory, utilizzare
+    --with-config-file-path=/path al passo 10.
+
+14. Modificare httpd.conf e verificare la presenza delle seguenti
+    linee:
+  
+   LoadModule php4_module modules/libphp4.so
+   AddType application/x-httpd-php .php
+
+  Si può segliere qualsiasi estensione di desideri. Il nostro suggerimento
+  è di utilizzare .php.
+
+  Il percorso indicato nel lato destro della riga LoadModule deve puntare 
+  al percorso in cui si trova il modulo PHP. L'esempio illustrato è coerente
+  con i parametri sin qui impostati. 
+
+15. Utilizzare la solita procedura per avviare Apache, es.:
+   /usr/local/apache2/bin/apachectl start
+   
+]]>
+
+      </screen>
+     </example>
+    <para>
+     Seguendo i passi illustrati si ottiene un server Apache 2.0 funzionante con
+     il supporto <literal>PHP</literal> come modulo <literal>SAPI</literal>.
+     Ovviamente esistono molte altre opzioni di configurazione sia per Apache
+     sia per <literal>PHP</literal>. Per maggiori dettagli utilizzare 
+     <command>./configure --help</command> nei sorgenti di ciascun
+     prodotto. Nel caso si desideri compilare la versione multithread di Apache 2.0
+     occorre sovrascrivere il modulo MPM standard <filename>prefork</filename>
+      con <filename>worker</filename> o con <filename>perchild</filename>.
+     Per ottenere ciò accodare alla linea di configurazione indicata nel passo 6 l'opzione
+     <option role="configure">--with-mpm=worker</option> o
+     <option role="configure">--with-mpm=perchild</option>. Occorre essere consapevoli
+     delle conseguenze di ciò che si sta facendo. Per maggiori dettagli
+     leggere la documenatzione di Apache sul <ulink url="&url.apache2.mpm;">
+     modulo MPM</ulink>.
+    </para>
+    <note>
+     <para>
+      Per potere compilare la versione multithread di Apache occorre che il sistema supporti i thread.
+      Questo implica la compila di <literal>PHP</literal> con il modulo sperimentale
+      Zend Thread Safety (ZTS). Pertanto non tutte le estensioni potranno essere
+      disponibili. Si raccomanda, quindi, di compilare Apache con il modulo
+      MPM standard <filename>prefork</filename>.
+     </para>
+    </note>
+   </sect2>
+
+   <sect2 id="install.apache2.windows">
+    <title>PHP e Apache 2.0 su Windows</title>
+    <para>
+     Si consideri di leggere le <ulink url="&url.apache2.windows;">
+     note specifiche per Windows</ulink> di Apache 2.0.
+    </para>
+    <warning>
+     <para>
+      Apache 2.0 è concepito per essere eseguito su Windows NT 4.0, Windows 2000 oppure
+      Windows XP. In questo momento il supporto per Windows 9x è incompleto.
+      Al momento non ci si aspetta che Apache 2.0 funzioni su quest'ultime piattaforme.
+     </para>
+    </warning>
+    <para>
+     Scaricare la più recente versione di <ulink url= "&url.apache;">
+     Apache 2.0</ulink> e la versione di PHP dai siti menzionati in precendenza.
+     Seguire i <link linkend="install.windows.manual">passi per l'installazione manuale</link>
+     e tornare a questo pagina per integrare il <literal>PHP</literal>
+     con Apache.
+    </para>
+    <para>
+     Esistono due metodi per configurare <literal>PHP</literal> e 
+     Apache 2.0 su Windows. Uno consiste nell'uso dell'eseguibile CGI, l'altro
+     consiste nell'utilizzo del modulo DLL per Apache. In entrambi i casi occorre fermare Apache,
+     modificare il file &httpd.conf; per configurare Apache.
+    </para>
+    <para>
+     Occorre inserire queste tre linee nel file di configurazione 
+     &httpd.conf; di Apache per impostare l'<emphasis>eseguibile CGI</emphasis>:
+     <example>
+      <title>PHP con Apache 2.0 come CGI</title>
+       <programlisting role="apache">
+<![CDATA[
+ScriptAlias /php/ "c:/php/"
+AddType application/x-httpd-php .php
+Action application/x-httpd-php "/php/php.exe"
+]]>
+       </programlisting>
+     </example>
+    </para>
+    <para>
+     Se si desidera utilizzare il <literal>PHP</literal> come modulo di Apache 2.0,
+     occorre copiare <filename>php4ts.dll</filename> nella directory
+     <filename>winnt/system32</filename> (per Windows NT/2000) o
+     <filename>windows/system32</filename> (per Windows XP),
+     sovrascrivendo gli eventuali vecchi file. Quindi occorre inserire queste due righe
+     nel file di configurazione di Apache &httpd.conf; per impostare
+     il <emphasis>modulo PHP</emphasis>
+     <example>
+      <title>PHP su Apache 2.0 come Modulo</title>
+       <programlisting role="apache">
+<![CDATA[
+LoadModule php4_module "c:/php/sapi/php4apache2.dll"
+AddType application/x-httpd-php .php
+]]>
+       </programlisting>
+     </example>
+    </para>
+    <note>
+     <simpara>
+      Nei precedenti esempi ricordarsi di sostituire <filename>c:/php/</filename>
+      con il percorso al<literal>PHP</literal>. Prestare attenzione di avere impostato
+      <filename>php4apache2.dll</filename> nella direttiva LoadModule e
+      <emphasis>non</emphasis><filename>php4apche.dll</filename>. Quest'ultimo è utilizzato
+      per Apache 1.3.x.
+     </simpara>
+    </note>
+    <warning>
+     <simpara>
+      Non mischiare i file dll da
+      <emphasis>differenti versioni di PHP</emphasis>. Si ha solo la possibilità di
+      utilizzare le dll e le estensioni fornite con la versione scaricata.
+     </simpara>
+    </warning>
+   </sect2>
+
+  </sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

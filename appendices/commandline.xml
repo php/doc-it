@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.7 Maintainer: alan_dangelo  Status: ready -->
+<!-- EN-Revision: 1.9 Maintainer: alan_dangelo  Status: ready -->
 <!-- 
    TODO:
    
      The command line options not in the
      list, but in the -h output below:
    
-       -f, -e, -z, -l
+       -e, -z
     
      It would be best to document these, and
      collect more info about -c and -d!
@@ -15,31 +15,31 @@
  <title>Usare PHP alla linea di comando</title>
  <para>
   Le opzioni alla linea di comando dell'eseguibile PHP sono 
-  utili nel caso si voglia fare il debug o testare il setup
-  di PHP, ma possono anche essere importanti nel caso in cui si
-  voglia utilizzare PHP per uno scopo diverso dallo scripting 
-  per il Web.
+  utili nel caso si voglia fare il debug di script o testare il setup
+  di PHP, inoltre possono essere utilizzate nel nel caso in cui si 
+  voglia utilizzare PHP per uno scopo diverso dallo scripting per il Web.
  </para>
  <para>
   Nota, è sempre possibile dirigere l'output dell'eseguibile PHP
   verso un file esterno con il carattere &gt;, in modo che
   <literal>php -q test.php > test.html</literal> stampi come
   output di <filename>test.php</filename> il file <filename>
-  test.html</filename> nella stessa directory senza header HTTP.
+  test.html</filename> nella stessa directory e senza gli header HTTP.
+
  </para>
  <para>
   Le opzioni alla linea di comando si possono utilizzare unicamente
   con l'eseguibile PHP. Compilando PHP come modulo per il server,
-  non si avrà a disposizione la versione CGI, e quindi non è possibile 
+  non si ha a disposizione la versione CGI, e quindi non è possibile 
   utilizzare queste opzioni.
   Per gli utenti Windows sia l'eseguibile PHP, che il modulo per il server
   sono presenti nella distribuzione binaria, l'eseguibile si chiama
   <filename>php.exe</filename>.
  </para>
  <para>
-  Questa lista di opzioni alla linea di comando è relativa a PHP 4.0.6.
-  Si può ottenere l'elenco attuale dei parametri disponibili con relativa descrizione
-  con l'opzione <literal>-h</literal>. L'output di
+  Questa lista di opzioni per l'eseguibile PHP, è relativa a PHP 4.0.6.
+  Si può ottenere l'elenco attuale dei parametri disponibili con la relativa descrizione
+  attraverso l'opzione <literal>-h</literal>. L'output di
   <literal>php -h</literal> è qualcosa di simile a questo:
   <screen>
 <![CDATA[
@@ -95,10 +95,18 @@ Usage: php [-q] [-h] [-s [-v] [-i] [-f <file>] |  {<file> [args...]}
       </entry>
      </row>
      <row>
+      <entry>-f</entry>
+      <entry>
+       Sottopone al parsing il file specificato cercando
+       errori di sintassi ed errori fatali. Questa opzione implica -q.
+       Si usa per propositi di debug.
+      </entry>
+     </row>
+     <row>
       <entry>-v</entry>
       <entry>
-       Chiamando PHP con questa opzione, si
-       ottiene la stampa del suo numero di versione, es: 4.0.6. 
+       Chiamando PHP con questa opzione, ne si
+       ottiene in output il numero di versione, es: 4.0.6. 
       </entry>
      </row>
      <row>
@@ -109,6 +117,7 @@ Usage: php [-q] [-h] [-s [-v] [-i] [-f <file>] |  {<file> [args...]}
        per esempio di poter aprire file nella stessa directory
        specificandone solamente il nome. Per disabilitare questo
        comportamento si può usare questa opzione.
+
       </entry>
      </row>
      <row>
@@ -129,6 +138,16 @@ Usage: php [-q] [-h] [-s [-v] [-i] [-f <file>] |  {<file> [args...]}
       </entry>
      </row>
      <row>
+      <entry>-l</entry>
+      <entry>
+       Controlla se il file passato non contiene errori di sintassi.
+       L'opzione implica -q. Si usa per scopi di debug.
+       L'opzione non trova gli errori fatali (come funzioni
+       non definite). Per controllare che lo script non contenga
+       di errori fatali si usa -f.
+      </entry>
+     </row>
+     <row>
       <entry>-m</entry>
       <entry>
        L'opzione stampa l'elenco dei moduli PHP e Zend
@@ -142,8 +161,10 @@ Usage: php [-q] [-h] [-s [-v] [-i] [-f <file>] |  {<file> [args...]}
        Questa opzione richiama <function>phpinfo</function>,
        e ne stampa i risultati. Se PHP non funziona bene,
        è consigliabile utilizzare <literal>php -i</literal>
-       e guardare se qualche messaggio di errore è stampati
+       e guardare se qualche messaggio di errore è stampato
        prima o al posto delle classiche tabelle informative.
+
+
       </entry>
      </row>
      <row>
@@ -169,7 +190,7 @@ Usage: php [-q] [-h] [-s [-v] [-i] [-f <file>] |  {<file> [args...]}
   dà problemi su Window, quindi è possibile scrivere programmi 
   trasversali indipendenti dalla piattaforma. Un semplice esempio
   di scrittura di un programma alla riga di comando PHP, è disponibile
-  qui sotto.
+  di seguito.
  </para>
  <example>
   <title>Script utilizzati alla linea di comando (script.php)</title>
@@ -206,6 +227,7 @@ Questo script PHP utilizzabile alla linea di comando accetta un'opzione.
   rappresenta il numero di argomenti più uno (il nome dello script in esecuzione)
   Il secondo è un array contenente gli argomenti, che ha come primo elemento, il 
   numero zero, il nome dello script (<varname>$argv[0]</varname>).
+
  </para>
  <para>
   Nel programma sopra si controlla se viene passato almeno un argomento
@@ -219,6 +241,7 @@ Questo script PHP utilizzabile alla linea di comando accetta un'opzione.
   e richiamarlo semlicemente con <literal>script.php echothis</literal>
   or <literal>script.php -h</literal>. Con Windows, è possibile creare
   un file batch per questa operazione:
+
  </para>
  <example>
   <title>File Batch file che eseguono script PHP alla linea di comando (script.bat)</title>
@@ -234,6 +257,11 @@ Questo script PHP utilizzabile alla linea di comando accetta un'opzione.
   funzionerà con le opzioni
   <literal>script.bat echothis</literal> o
   <literal>script.bat -h</literal>.
+ </para>
+ <para>
+  Si veda anche la documentazione relativa all'estensione
+  <link linkend="ref.readline">Readline</link> per maggiori funzioni 
+  da utilizzare nello sviluppo delle vostre applicazioni alla linea di comando.
  </para>
 </appendix>
 

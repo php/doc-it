@@ -1,0 +1,258 @@
+ <!-- $Revision: 1.1 $ -->
+ <chapter id="features.safe-mode">
+  <title>Modalità sicura (Safe mode)</title>
+
+  <para>
+   La modalità Safe Mode è un tentativo di risolvere il problema di sicurezza 
+   derivante dalla condivisione del server. Dal punto di vista architetturale
+   non è corretto cercare di risolvere questo problema al livello del PHP, ma
+   poiché le alternative al livello del web server e del SO (Sistema Operativo)
+   non sono realistiche, in molti, specialmente ISP (Internet Service Provider),
+   utilizzano la modalità sicura. 
+  </para>
+  <para>
+   Le direttive di configurazione che controllano la modalità sicure sono:
+   <programlisting role="ini">
+safe_mode = Off 
+open_basedir = 
+safe_mode_exec_dir = 
+safe_mode_allowed_env_vars = PHP_ 
+safe_mode_protected_env_vars = LD_LIBRARY_PATH 
+disable_functions = 
+   </programlisting>
+  </para>
+  <para>
+   Quando safe_mode è attiva (on), il PHP verifica se il proprietario dello 
+   script in esecuzione e il proprietario del file su cui si sta operando con
+   una funzione sui file, coincidono. Per esempio:
+   <programlisting role="ls">
+-rw-rw-r--    1 rasmus   rasmus       33 Jul  1 19:20 script.php 
+-rw-r--r--    1 root     root       1116 May 26 18:01 /etc/passwd 
+   </programlisting>
+   Eseguendo questo script.php
+   <programlisting role="php">
+&lt;?php
+ readfile('/etc/passwd'); 
+?&gt;  
+   </programlisting>
+   con la modalità sicura attiva si ottiene il seguente errore:
+   <programlisting role="php">
+Warning: SAFE MODE Restriction in effect. The script whose uid is 500 is not 
+allowed to access /etc/passwd owned by uid 0 in /docroot/script.php on line 2
+   </programlisting>
+  </para>
+  <para>
+   Se, invece di safe_mode, viene definita una directory open_basedir allora 
+   tutte le operazioni sui file saranno limitate ai file sottostanti la directory
+   specificata. Per esempio (nel file httpd.conf di Apache):
+   <programlisting role="ini">
+&lt;Directory /docroot&gt; 
+php_admin_value open_basedir /docroot 
+&lt;/Directory&gt;  
+   </programlisting>
+   Se si esegue lo stesso script.php con questa impostazione di open_basedir
+   si ottiene il seguente risultato:
+   <programlisting role="php">
+Warning: open_basedir restriction in effect. File is in wrong directory in 
+/docroot/script.php on line 2 
+   </programlisting>
+  </para>
+  <para>
+   &Egrave; possibile inoltre disabilitare le singole funzioni. Se si aggiunge
+   la seguente riga al file php.ini:
+   <programlisting role="ini">
+disable_functions readfile,system  
+   </programlisting>
+   Si ottiene il seguente risultato:
+   <programlisting role="php">
+Warning: readfile() has been disabled for security reasons in 
+/docroot/script.php on line 2 
+   </programlisting>
+  </para>
+
+  <sect1 id="features.safe-mode.functions">
+   <title>Funzioni limitate/disabilitate dalla modalità sicura (safe-mode)</title>
+   <para>
+    Questo è un elenco probabilmente ancora incompleto e forse non esatto delle
+    funzioni limitate da
+    <link linkend="features.safe-mode">safe-mode</link>.
+    <!-- TODO: add &note.sm.*; to the functions mentioned here.
+    That entity should link to this section -->
+    <table>
+     <title>Funzioni limitate dalla modalità sicura</title>
+     <tgroup cols="2">
+      <thead>
+       <row>
+        <entry>Funzioni</entry>
+        <entry>Limitazioni</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry><function>dbmopen</function></entry>
+        <entry>&sm.uidcheck;</entry>
+       </row>
+       <row>
+        <entry><function>dbase_open</function></entry>
+        <entry>&sm.uidcheck;</entry>
+       </row>
+       <row>
+        <entry><function>filepro</function></entry>
+        <entry>&sm.uidcheck;</entry>
+       </row>
+       <row>
+        <entry><function>filepro_rowcount</function></entry>
+        <entry>&sm.uidcheck;</entry>
+       </row>
+       <row>
+        <entry><function>filepro_retrieve</function></entry>
+        <entry>&sm.uidcheck;</entry>
+       </row>
+       <row>
+        <entry><function>imap_thread</function></entry>
+        <entry>??</entry>
+       </row>
+       <row>
+        <entry><function>ifxus_tell_slob</function></entry>
+        <entry>??</entry>
+       </row>
+       <row>
+        <entry><function>muscat_close</function></entry>
+        <entry>??</entry>
+       </row>
+       <row>
+        <entry><function>pg_loimport</function></entry>
+        <entry>&sm.uidcheck;</entry>
+       </row>
+       <row>
+        <entry><function>posix_mkfifo</function></entry>
+        <entry>&sm.uidcheck.dir;</entry>
+       </row>
+       <row>
+        <entry><function>putenv</function></entry>
+        <entry>??</entry>
+       </row>
+       <row>
+        <entry><function>move_uploaded_file</function></entry>
+        <entry>&sm.uidcheck;</entry>
+       </row>
+       <row>
+        <entry><function>chdir</function></entry>
+        <entry>&sm.uidcheck.dir;</entry>
+       </row>
+       <row>
+        <entry><function>dl</function></entry>
+        <entry>??</entry>
+       </row>
+       <row>
+        <entry><function>shell_exec</function></entry>
+        <entry>??</entry>
+       </row>
+       <row>
+        <entry><function>popen</function></entry>
+        <entry>&sm.uidcheck.dir; <!-- not sure!! --></entry>
+       </row>
+       <row>
+        <entry><function>mkdir</function></entry>
+        <entry>&sm.uidcheck.dir;</entry>
+       </row>
+       <row>
+        <entry><function>rmdir</function></entry>
+        <entry>&sm.uidcheck;</entry>
+       </row>
+       <row>
+        <entry><function>rename</function></entry>
+        <entry>&sm.uidcheck; <!-- on the old name only, it seems --></entry>
+       </row>
+       <row>
+        <entry><function>unlink</function></entry>
+        <entry>&sm.uidcheck;</entry>
+       </row>
+       <row>
+        <entry><function>copy</function></entry>
+        <entry>&sm.uidcheck; <!-- source AND target,should be noted --></entry>
+       </row>
+       <row>
+        <entry><function>chgrp</function></entry>
+        <entry>&sm.uidcheck;</entry>
+       </row>
+       <row>
+        <entry><function>chown</function></entry>
+        <entry>&sm.uidcheck;</entry>
+       </row>
+       <row>
+        <entry><function>chmod</function></entry>
+        <entry>&sm.uidcheck; <!-- there is more than this, 
+        i believe you can't set the SUID/SGID/sticky bits? --></entry>
+       </row>
+       <row>
+        <entry><function>touch</function></entry>
+        <entry>&sm.uidcheck;</entry>
+       </row>
+       <row>
+        <entry><function>symlink</function></entry>
+        <entry>&sm.uidcheck; <!-- only link-target, it seems? --></entry>
+       </row>
+       <row>
+        <entry><function>link</function></entry>
+        <entry>&sm.uidcheck; <!-- only link-target, it seems? --></entry>
+       </row>
+       <row>
+        <entry><function>ob_gzhandler</function></entry>
+        <entry>&sm.uidcheck;</entry>
+       </row>
+       <row>
+        <entry><function>getallheaders</function></entry>
+        <entry>??</entry>
+       </row>
+       <row>
+        <entry><function>exec</function></entry>
+        <entry>??</entry>
+       </row>
+       <row>
+        <entry><function>system</function></entry>
+        <entry>??</entry>
+       </row>
+       <row>
+        <entry><function>passthru</function></entry>
+        <entry>??</entry>
+       </row>
+       <row>
+        <entry><function>mail</function></entry>
+        <entry>??</entry>
+       </row>
+       <row>
+        <entry><link linkend="language.operators.execution">operatore backtick</link></entry>
+        <entry>??</entry>
+       </row>
+       <row>
+        <entry>Qualsiasi funzione che utilizza 
+         <filename>php4/main/fopen_wrappers.c</filename>
+        </entry>
+        <entry>??</entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </table>
+   </para>
+  </sect1>
+
+ </chapter>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+sgml-parent-document:nil
+sgml-default-dtd-file:"../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim: ts=1 sw=1 et syntax=sgml
+-->

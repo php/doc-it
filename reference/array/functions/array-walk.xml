@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/array.xml, last change in rev 1.1 -->
 <!-- last change to 'array-walk' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.4 Maintainer: cucinato Status: ready -->
+<!-- EN-Revision: 1.7 Maintainer: cucinato Status: ready -->
 <!-- OLD-Revision: 1.173/EN.1.2 -->
   <refentry id="function.array-walk">
    <refnamediv>
@@ -15,42 +15,36 @@
      <methodsynopsis>
       <type>int</type><methodname>array_walk</methodname>
       <methodparam><type>array</type><parameter>array</parameter></methodparam>
-      <methodparam><type>string</type><parameter>funzione</parameter></methodparam>
+      <methodparam><type>callback</type><parameter>funzione</parameter></methodparam>
       <methodparam choice="opt"><type>mixed</type><parameter>datiutente</parameter></methodparam>
      </methodsynopsis>
     <simpara>
      Esegue la funzione definita dall'utente identificata da <parameter>funzione</parameter> 
-     su ogni elemento di <parameter>array</parameter>.
-     A <parameter>funzione</parameter> verr&agrave; passato il valore dell'elemento come
-     primo parametro e la chiave come secondo parametro.  Se
-     <parameter>datiutente</parameter> &egrave; specificato, verr&agrave; passato come
-     terzo parametro alla funzione. <parameter>funzione</parameter> 
-     deve essere una funzione definita dall'utente, e non pu&ograve; essere una funzione nativa PHP.
-     Quindi, non si pu&ograve; usare <function>array_walk</function> direttamente con
-     <function>str2lower</function>, bens&igrave; occorre costruire una funzione utente
-     con tale istruzione, e passarla come argomento.
+     su ogni elemento di <parameter>array</parameter>. Normalmente
+     <parameter>funzione</parameter> accetta due parametri.
+     Il valore del parametro <parameter>array</parameter> viene passato per primo,
+     la chiave/indice per secondo. Se il parametro <parameter>datiutente</parameter>
+     è specificato, verrà passato come terzo parametro alla 
+     <parameter>funzione</parameter> callback.
     </simpara>
-    &note.func-callback;
     <simpara>
-     Se <parameter>funzione</parameter> richiede pi&ugrave; di due o tre
-     argomenti, a seconda di <parameter>datiutente</parameter>, un
-     warning verr&agrave; generato ogni qualvolta
-     <function>array_walk</function> chiami
-     <parameter>funzione</parameter>. Questi warning possono essere soppressi
-     apponendo il simbolo '@' alla chiamata di <function>array_walk</function>,
-     oppure usando <function>error_reporting</function>.
+     Se <parameter>funzione</parameter> richiede più parametri di
+     quanti gliene vengono passati, un errore di livello <link linkend="errorfunc.constants>
+     E_WARNING</link> verrà generato ogni volta che <function>array_walk</function>
+     la chiama. Questi avvertimenti possono essere soppressi
+     apponendo l'operatore d'errore 
+     <link linkend="language.operators.errorcontrol">@</link> alla
+     chiamata di <function>array_walk</function>, oppure usando
+     <function>error_reporting</function>.
     </simpara>
     <note>
      <para>
       Se <parameter>funzione</parameter> deve lavorare con i 
       reali valori dell'array, specificare che il primo parametro di 
-      <parameter>funzione</parameter> deve essere passato come riferimento. A qesto punto
+      <parameter>funzione</parameter> deve essere passato come
+      <link linkend="language.references">riferimento</link>. A qesto punto
       ogni modifica a questi elementi verr&agrave; effettuata sull'array
       stesso.
-     </para>
-     <para>
-      Modificare l'array all'interno di <parameter>func</parameter>
-      pu&ograve; causare comportamenti imprevedibili.
      </para>
     </note>
     <note>
@@ -58,23 +52,28 @@
       Il passaggio della chiave e di <parameter>datiutente</parameter> a <parameter>func</parameter> &egrave;
       stato aggiunto nella versione 4.0.
      </para>
-     <para>
-      In PHP 4 la funzione <function>reset</function> deve essere chiamata 
-      obbligatoriamente, in quanto <function>array_walk</function> non reinizializza 
-      automaticamente l'array.
-     </para>
-     <para>
+    </note>
+    <para>
+     <function>array_walk</function> non è influenzato dal puntatore
+     interno dell'array <parameter>array</array>. <function>
+     array_walk</function> percorrerà l'intero array
+     indipendentemente dalla posizione del puntatore. Per reinizializzare il puntatore, utilizzare
+     <function>reset</function>. In PHP 3,
+     <function>array_walk</function> reinizializza il puntatore.
+    </para>
+    <para>
      Gli utenti non possono modificare l'array attraverso la funzione
      di callback, ad esempio aggiungere/togliere un elemento, o cancellare l'array su cui
      <function>array_walk</function> è applicata. Se l'array viene
-     cambiato, il comportamento di questa funzione non è definito.
-    </para> 
-    </note>
+     cambiato, il comportamento di questa funzione non è definito ed
+     è imprevedibile.
+    </para>
     <para>
      <example>
       <title>esempio di <function>array_walk</function></title>
       <programlisting role="php">
 <![CDATA[
+<?php
 $frutta = array ("d"=>"limone", "a"=>"arancia", "b"=>"banana", "c"=>"mela");
 
 function modifica (&$elemento1, $chiave, $prefisso) {
@@ -84,13 +83,15 @@ function modifica (&$elemento1, $chiave, $prefisso) {
 function stampa ($elemento2, $chiave) {
     echo "$chiave. $elemento2<br>\n";
 }
+
 echo "Prima ...:\n";
 array_walk ($frutta, 'stampa');
-reset ($frutta);
+
 array_walk ($frutta, 'modifica', 'frutto');
 echo "... e dopo:\n";
-reset ($frutta);
+
 array_walk ($frutta, 'stampa');
+?>
 ]]>
       </programlisting>
       <para>
@@ -102,7 +103,7 @@ d. limone
 a. arancia
 b. banana
 c. mela
-... and after:
+... e dopo:
 d. frutto: limone
 a. frutto: arancia
 b. frutto: banana
@@ -113,7 +114,9 @@ c. frutto: mela
      </example>
     </para>
     <simpara>
-     Vedere anche <function>each</function> e <function>list</function>.
+     Vedere anche <function>each</function>, <function>list</function>,
+     <link linkend="control-structures.foreach">foreach</link>,
+     <function>each</function> e <function>call_user_func_array</function>.
     </simpara>
    </refsect1>
   </refentry>

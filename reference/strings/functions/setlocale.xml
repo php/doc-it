@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- EN-Revision: 1.20 Maintainer: darvina Status: ready -->
+<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
+  <refentry id="function.setlocale">
+   <refnamediv>
+    <refname>setlocale</refname>
+    <refpurpose>Imposta i parametri di localizzazione</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>string</type><methodname>setlocale</methodname>
+      <methodparam><type>mixed</type><parameter>category</parameter></methodparam>
+      <methodparam><type>string</type><parameter>locale</parameter></methodparam>
+      <methodparam choice="opt"><type>string</type><parameter>...</parameter></methodparam>
+     </methodsynopsis>
+     <methodsynopsis>
+      <type>string</type><methodname>setlocale</methodname>
+      <methodparam><type>mixed</type><parameter>category</parameter></methodparam>
+      <methodparam><type>array</type><parameter>locale</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Il parametro <parameter>category</parameter> è una costante (o stringa)
+     che indica la categoria di parametri coinvolta nelle impostazioni
+     locali:
+     <itemizedlist>
+      <listitem>
+       <simpara>
+        LC_ALL la somma di tutte le seguenti categorie
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        LC_COLLATE per i confronti di stringhe, vedere
+        <function>strcoll</function>
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        LC_CTYPE per la classificazione dei caratteri e le conversioni, ad
+        esempio <function>strtoupper</function>
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        LC_MONETARY per <function>localeconv</function>
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara> LC_NUMERIC per il separatore decimale (vedere anche
+       <function>localeconv</function>)
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        LC_TIMEper la formattazione di data e orario con
+        <function>strftime</function>
+       </simpara>
+      </listitem>
+     </itemizedlist>
+    </para>
+    <note>
+     <simpara>
+      Dalla versione 4.2.0 di PHP il passaggio di <parameter>category</parameter> come stringa è deprecato;
+      piuttosto utilizzare le precedenti costanti. Passare quelle costanti cone stringa
+      (all'inteno di apici) darà come risultato un warning.
+     </simpara>
+    </note>
+    <para>
+     Se il parametro <parameter>locale</parameter> è una stringa vuota
+     <literal>""</literal>, i nomi locali saranno impostati dai valori 
+     delle omonime variabili d'ambiente, oppure
+     da "LANG".
+    </para>
+    <para>
+     Se il parametro <parameter>locale</parameter> è &null; oppure <literal>"0"</literal>,
+     le impostazioni localizzate non vengono toccate, ma vengono restituiti i valori correnti.
+    </para>
+    <para>
+     Se il parametro <parameter>locale</parameter> è una matrice oppure è seguito da parametri
+     addizionali, allora si tenterà di impostare ciascun elemento, o parametro,
+     fino a quando non si ha successo. Questo è utile se l'impostazione locale è nota
+     sotto differenti nomi in sistemi differenti oppure per prevedere più casistiche
+     qualora alcune non fossero disponibili.
+    </para>
+    <note>
+     <simpara>
+      Il passaggio di molteplici impostazioni non è possibile prima di PHP 4.3.0.
+     </simpara>
+    </note>
+    <para>
+     La funzione restituisce le nuove impostazioni locali, oppure &false; se
+     la funzionalità di localizzazione non è implementata sul sistema, se l'impostazione
+     richiesta non esiste, oppure se il nome della categoria non è valida.
+     Un nome di categoria non valido genera anche un warning. I nomi delle
+     categoria possono essere trovati nella <ulink url="&url.rfc;1766">RFC 1766</ulink>
+     e <ulink url="&url.iso-639;">ISO 639</ulink>.
+    </para>
+    <note>
+     <para>
+      Il valore restituito da <function>setlocale</function> dipende dal sistema
+      su cui gira il PHP. La funzione restituisce fedelmente
+      quello che la funzione di sistema restituisce.
+     </para>
+    </note>
+    <tip>
+     <para>
+      Gli utenti di Windows potranno trovare informazioni utili per il parametro
+      <parameter>locale</parameter> sul sito 
+      <acronym>MSDN</acronym> di Microsoft. Le stringhe di linguaggio supportate possono essere trovate
+      in <ulink url="&url.setlocale.lang.win32;">&url.setlocale.lang.win32;</ulink> e le stringhe
+      identificanti i paesi/regioni alla pagina <ulink url="&url.setlocale.country.win32;">
+      &url.setlocale.country.win32;</ulink>. I sistemi Windows supportano la codifica a tre lettere <literal>ISO 3166-Alpha-3</literal> 
+      per identificare i paesi/regioni <literal>ISO 3166-Alpha-3</literal>, tale codifica può
+      essere reperita nel sito <ulink url="&url.iso-3166-3;">.
+      </ulink>. 
+     </para>
+    </tip>
+    <para>
+     <example>
+      <title>Esempi di uso di <function>setlocale</function></title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+/* Impostazioni locali in tedesco */
+setlocale(LC_ALL, 'nl_NL');
+
+/* Visualizza: vrijdag 22 december 1978 */
+echo strftime("%A %e %B %Y", mktime(0, 0, 0, 12, 22, 1978));
+
+/* tenta i differenti nomi possibili per le impostazioni tedesche, dal PHP 4.3.0 */
+$loc_de = setlocale(LC_ALL, 'de_DE@euro', 'de_DE', 'de', 'ge');
+echo "Preferred locale for german on this system is '$loc_de'";
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     <example>
+      <title>Esempio di uso di <function>setlocale</function> perWindows</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+/* Impostazioni locali in tedesco */
+setlocale(LC_ALL, 'nld_nld');
+
+/* Visualizza: vrijdag 22 december 1978 */
+echo strftime("%A %d %B %Y", mktime(0, 0, 0, 12, 22, 1978));
+
+/* tenta i differenti nomi possibili per le impostazioni tedesche, dal PHP 4.3.0 */
+$loc_de = setlocale(LC_ALL, 'de_DE@euro', 'de_DE', 'deu_deu');
+echo "Preferred locale for german on this system is '$loc_de'";
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+   </refsect1>
+  </refentry>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

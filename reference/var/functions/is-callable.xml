@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- splitted from ./it/functions/var.xml, last change in rev 1.16 -->
-<!-- last change to 'is-callable' in en/ tree in rev 1.87 -->
-<!-- EN-Revision: 1.3 Maintainer: darvina Status: ready -->
-<!-- OLD-Revision: 1.104/EN.1.87 -->
+<!-- EN-Revision: 1.4 Maintainer: darvina Status: ready -->
   <refentry id="function.is-callable">
    <refnamediv>
     <refname>is_callable</refname>
     <refpurpose>
-     Verifica se l'argomento è un valido costrutto richiamabile.
+     Verifica se il contenuto dell'argomento può essere eseguito come funzione
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -19,55 +16,73 @@
       <methodparam choice="opt"><type>string</type><parameter>callable_name</parameter></methodparam>
      </methodsynopsis>
     <para>
-     &warn.undocumented.func;
+     Verifica che il contenuto di una funzione possa essere richiamato come una funzione.
+     Questa verifica può essere eseguita su una semplice variabile contenente il nome di una funzione
+     valida, oppure su un array contenente il nome di un oggetto ed il nome
+     di una funzione
     </para>
-<!--
-    <simpara>
-     Il parametro <parameter>var</parameter> può essere sia il nome di una funzione sia il nome di un metodo.
-     Inoltre, le classi o i metodi di un oggetto sono specificati fornendo una matrice con due
-     elementi: la classe o l'oggetto, e il nome del metodo.
-    </simpara>
-    <simpara>
-     Il parametro opzionale <parameter>syntax_only</parameter> eseguirà un
-     controllo sulla sintassi e restituirà &false;  Pure il terzo parametro <parameter>
-     callable_name</parameter> è opzionale.
-    </simpara>
+
     <para>
-     Nel seguente esempio occorre rilevare che, nonostante 
-     <literal>a::b()</literal> sia un metodo statico richiamabile, questo non è
-     il caso.
-     <example>
-      <title>Utilizzo di <function>is_callable</function></title>
-      <programlisting role="php">
+     Il parametro <parameter>var</parameter> può essere sia il nome di una funzione sia
+     un oggetto ed il nome del metodo nell'oggetto, tipo 
+     <screen>array( $SomeObject, 'MethodName' )</screen>     
+    </para>
+
+    <para>
+     Se il parametro <parameter>syntax_only</parameter> è impostato a &true; la funzione eseguirà un
+     controllo sulla validità del parametro  <parameter>var</parameter>.  La funzione scarterà variabili
+     non stringhe o che non hanno la struttura per essere callback validi. L'unica struttura valida
+     presuppone di avere solo 2 righe: una stringa con il nome dell'oggetto, 
+     una seconda riga con il nome del metodo.
+    </para>
+    <para>
+     Il terzo parametro <parameter>callable_name</parameter> contiene il "callable name". Nell'esempio che
+     segue contiene "someClass:someMethod". Si noti che, nonostante someClass::SomeMethod() implichi 
+     il richiamo ad un metodo statico, questo non è il caso.
+    </para>
+     <informalexample>
+      <programlisting>
 <![CDATA[
 <?php
-class a 
-{
-    var $c;
-		
-    function b() {
-        return($this->c);
-    }
+//  Come verificare se una variabile può essere eseguita
+//  come funzione..
+
+//
+//  Semplice variabile contenente una funzione
+//
+
+function unaFunzione() {
 }
 
-$d = new a;
+$functionVariable = 'unaFunzione';
 
-if(is_callable(array($d, 'b'), FALSE, $name)) {
+var_dump( is_callable( $functionVariable, false, $callable_name ));  // bool(true)
 
-    echo $name;
+echo $callable_name, "\n";  // unaFunzione
+
+//
+//  Array contenente un metodo
+//
+
+class unaClasse {
+
+  function unMetodo() {
+  }
+
 }
 
-/* L'esempio visualizzerà:
-    
-    a::
+$anObject = new unaClasse();
 
-*/
+$methodVariable = array( $anObject, 'unMetodo' );
+
+var_dump( is_callable( $methodVariable, true, $callable_name ));  //  bool(true)
+
+echo $callable_name, "\n";  //  unaClasse:unMetodo
+
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
--->
+     </programlisting>
+    </informalexample>   
    </refsect1>
   </refentry>
 

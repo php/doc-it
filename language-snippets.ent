@@ -1,4 +1,4 @@
-<!-- EN-Revision: 1.73 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.84 Maintainer: darvina Status: ready -->
 <!-- CREDITS: perugini -->
 
 <!ENTITY warn.experimental '<warning><simpara>Questo modulo &egrave;
@@ -23,6 +23,10 @@ di <literal>PHP</literal> antecedente la 4.3.0 non supporta l&apos;accesso remot
 ai file da parte di questa funzione, anche se
 <link linkend="ini.allow-url-fopen">allow_url_fopen</link> &egrave; abilitato.
 </para></warning>'>
+<!ENTITY warn.ssl-non-standard '<warning><para>Alcuni webserver non standard,
+tipo IIS, possono inviare dati in maniera tale da fare generare un warning al PHP.
+Quando si utilizza tali server si dovrebbe abbassare il livello del <link linkend="ini.error-reporting">
+error_reporting</link> in modo da non includere i warning.</para></warning>'>
 
 <!ENTITY note.no-remote '<note><simpara>Questa funzione non &egrave; eseguibile con 
 <link linkend="features.remote-files">file remoti</link>, ma con file 
@@ -45,6 +49,8 @@ supportati.</simpara></tip>'>
 <emphasis>alcuni</emphasis> URL wrappers.  Fare riferimento a 
 <xref linkend="wrappers"/> per la lista di quali wrappers supportano le funzioni della famiglia
 <function>stat</function>.</simpara></tip>'>
+<!ENTITY note.context-support '<note><simpara>Il supporto per il contesto &egrave stato
+aggiunto in <literal>PHP 5.0.0</literal>.</simpara></note>'>
 
 <!ENTITY return.success 'Restituisce &true; in caso di successo, &false; in caso di fallimento.'>
 
@@ -94,16 +100,23 @@ possono essere disabilitati usando la direttiva
 magic_quotes_gpc</link> &egrave; impostato per default a <literal>on</literal>. Essenzialmente 
 esegue <function>addslashes</function> su tutti i dati provenienti tramite GET,  POST, e COOKIE.
 Si pu&ograve; utilizzare <function>stripslashes</function> per rimuoverli.</para></note>'>
-
+<!-- Image (GD) Notes -->
 <!ENTITY note.config.t1lib '<note><simpara>Questa funzione &egrave; disponibile soltanto
 se il PHP &grave; compilato utilizzando <option role="configure">--enable-t1lib</option>.
 </simpara></note>'>
+<!ENTITY note.bundled.gd '<note><simpara>Questa funzione &egrave disponibile soltanto se
+il PHP &grave compilato con la libreria GD allegata.</simpara></note>'>
+ 
+<!-- DomXml Notes -->
+<!ENTITY node.inserted 'Questo nodo non sar&agrave presente nel documento
+fino a quando non viene inserito con funzioni tipo <function>domnode_append_child</function>.'>
 
 <!-- Note varie -->
 <!ENTITY note.randomseed '<note><simpara>Come in PHP 4.2.0, non vi &egrave; necessit&agrave;
 di inizializzare il generatore di numeri casuali con <function>srand</function> oppure
 con <function>mt_srand</function> poich&egrave; viene eseguito in modo automatico.
 </simpara></note>'>
+
 
 <!ENTITY note.not-bin-safe '<warning><simpara>Questa funzione
  non &egrave; (ancora) binary-safe! (non gestisce correttamente i file binari)</simpara></warning>'>
@@ -127,6 +140,16 @@ disponibile su piattaforme Windows.</simpara></note>'>
 <!ENTITY note.func-callback '<note><simpara>Invece di un nome di funzione &egrave;
 possibile passare un vettore contenente un riferimento ad un oggetto e un nome di
 metodo.</simpara></note>'>
+<!ENTITY warn.escapeshell '<warning><para>Se si permette di passare a questa funzione i dati
+provenineti dagli input utente, si dovrebbe utilizzare la funzione
+<function>escapeshellarg</function> oppure <function>escapeshellcmd</function>
+in modo da essere sicuri che gli utenti non possano compromettere il sistema eseguendo 
+comandi arbitrari.</para></warning>'>
+	 
+<!ENTITY note.exec-bg '<note><para>Se si vuole avviare un programma tramite questa funzione
+e lasciarlo girare in background, occorre essere certi che l output
+del programma sia rediretto su un file o qualche altro flusso di output
+altrimenti il PHP sar&agrave; sospender&agrave; fino a quando il programma non termina.</para></note>'>
 
 <!-- Note relative alle funzioni limitate da safe-mode -->
 <!ENTITY note.sm.disabled '<note><simpara>&sm.disabled;</simpara></note>'>
@@ -135,6 +158,16 @@ metodo.</simpara></note>'>
 linkend="features.safe-mode">safe-mode</link> &egrave; abilitato, PHP controlla che 
 i file o le directory sulle quali si sta andando a lavorare, abbiano lo stesso UID dello 
 script che &egrave; in esecuzione.</simpara></note>'>
+
+<!ENTITY warn.sm.exec '<warning><simpara>Con la <link linkend="features.safe-mode">modalit&agrave; sicura</link> attivata,
+tutte le parole che seguono il comando iniziale sono trattate come argomenti. Quindi,
+<literal>echo y | echo x</literal> diventa <literal>echo "y | echo x"</literal>.</simpara></warning>'>
+ 
+<!ENTITY note.exec-path '<note><simpara>Quando si abilita la 
+<link linkend="features.safe-mode">modalit&agrave; sicura</link>, si pu&ograve; eseguire
+soltanto gli eseguibili presenti nella directory <link linkend="ini.safe-mode-exec-dir">safe_mode_exec_dir</link>.
+Per motivi pratici, attualmente, non &grave; permesso avere <literal>..</literal>
+come componente del percorso di un eseguibile. </simpara></note>'>
 
 <!ENTITY note.sm.uidcheck.dir '<note><simpara>Quando <link 
 linkend="features.safe-mode">safe-mode</link> &egrave; abilitato, PHP controlla che 
@@ -228,6 +261,11 @@ addizionale per potere utilizzare queste funzioni.</simpara>'>
 <!-- These are here as helpers for manual consistency and brievety-->
 <!ENTITY php '<literal>PHP</literal>'>
 <!ENTITY safemode '<link linkend="ini.safe-mode">safe mode</link>'>
+<!-- Notes for SAPI/Apache -->
+<!ENTITY note.apache.nsapi-module '<note><para>From PHP 4.3.3 on you can use this function with the
+<link linkend="ref.nsapi">NSAPI server module</link> in Netscape/iPlanet/SunONE
+webservers, too.</para></note>'>
+
 <!-- SimpleXML Notes -->
 <!ENTITY simplexml.iteration '<note><simpara>SimpleXML possiede regole per aggiungere propriet&agrave; iterative 
 a diversi metodi. Queste non possono essere visualizzate con <function>var_dump</function> o qualsiasi altra cosa che possa esaminare gli oggetti.</simpara></note>'>
@@ -269,5 +307,13 @@ ignorando l&apos;unit&agrave; corrente.</para>'>
 in Tidy 1.0. Sar&agrave; obsoleta in Tidy 2.0, e quindi sar&grave; rimossa.</simpara></note>'>
 
 <!ENTITY note.tidy.2only '<note><simpara>I parametri opzionali
-<literal>config_options</literal> e <literal>encoding</literal> sono stati
+<literal>config</literal> e <literal>encoding</literal> sono stati
 aggiunti in Tidy 2.0.</simpara></note>'>
+
+<!ENTITY tidy.conf-enc '<para>Il parametro <parameter>config</parameter> pu&ograve essere passato sia come matrice
+sia come stringa. Se lo si passa come stringa, questo indica il nome del file di configurazione; nel primo caso
+viene interpretato come impostazione di opzioni. Guardare <ulink url="&url.tidy.conf;">&url.tidy.conf;</ulink>
+per maggiori dettagli su ogni singola opzione.</para><para>Il parametro <parameter>encoding</parameter>
+imposta la codifica dei caratteri per le operazioni di input ed output. I possibili valori sono:
+ascii, latin1, raw, utf8, iso2022, mac, win1252, utf16le, utf16be, utf16, big5 and shiftjis.</para>'>
+

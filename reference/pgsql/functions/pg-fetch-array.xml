@@ -1,85 +1,86 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/pgsql.xml, last change in rev 1.10 -->
 <!-- last change to 'pg-fetch-array' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: ready -->
+<!-- EN-Revision: 1.4 Maintainer: cucinato Status: ready -->
 <!-- OLD-Revision: 1.70/EN.1.2 -->
+<!-- CREDITS: fabio,cortesi,denny -->
   <refentry id="function.pg-fetch-array">
    <refnamediv>
     <refname>pg_fetch_array</refname>
-    <refpurpose>Fetch a row as an array</refpurpose>
+    <refpurpose>Carica una tupla in un array</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
       <type>array</type><methodname>pg_fetch_array</methodname>
       <methodparam><type>resource</type><parameter>result</parameter></methodparam>
-      <methodparam><type>int</type><parameter>row</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>result_type</parameter></methodparam>
+      <methodparam><type>int</type><parameter>tupla</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>tipo_risultato</parameter></methodparam>
      </methodsynopsis>
     <para>
-     <function>pg_fetch_array</function> returns an array that
-     corresponds to the fetched row (tuples/records). It returns
-     &false;, if there are no more rows.
+     <function>pg_fetch_array</function> restituisce un array che
+     corrisponde alla riga caricata (tuple/record). Restituisce
+     &false; se non ci sono più righe.
     </para>
     <para>
-     <function>pg_fetch_array</function> is an extended version of
-     <function>pg_fetch_row</function>.  In addition to storing the
-     data in the numeric indices (field index) to the result array, it
-     also stores the data in associative indices (field name) by
-     default.
+     <function>pg_fetch_array</function> è una versione estesa di
+     <function>pg_fetch_row</function>.  Oltre a salvare i
+     dati in un array con indici numerici, 
+     li salva pure in un array associativo, utilizzando i nomi dei campi
+     come chiave.
     </para>
     <para>
-     <parameter>row</parameter> is row (record) number to be
-     retrieved. First row is 0.
+     <parameter>tupla</parameter> è il numero della riga (record) che deve
+     essere caricata. La prima riga è la 0.
     </para>
     <para>
-     <parameter>result_type</parameter> is optional parameter controls
-     how return value is initialized.
-     <parameter>result_type</parameter> is a constant and can take the
-     following values: PGSQL_ASSOC, PGSQL_NUM, and PGSQL_BOTH.
-     <function>pg_fetch_array</function> returns associative array
-     that has field name as key for PGSQL_ASSOC. field index as key
-     with PGSQL_NUM and both field name/index as key with
-     PGSQL_BOTH. Default is PGSQL_BOTH.
+     <parameter>tipo_risultato</parameter> è un parametro opzionale che controlla
+     come il risultato viene restituito.
+     <parameter>result_type</parameter> è una costante e può assumere i
+     seguenti valori: PGSQL_ASSOC, PGSQL_NUM, e PGSQL_BOTH.
+     <function>pg_fetch_array</function> restituisce un array associativo
+     con il nome del campo come chiave (PGSQL_ASSOC), oppure l'indice del campo
+     (PGSQL_NUM) o entrambi 
+     (PGSQL_BOTH). Il default è PGSQL_BOTH.
      <note>
       <para>
-       <parameter>result_type</parameter> was added in PHP 4.0.
+       <parameter>tipo_risultato</parameter> è stato aggiunto nel PHP 4.0.
       </para>
      </note>
     </para>
     <para>
-     <function>pg_fetch_array</function> is NOT significantly
-     slower than using <function>pg_fetch_row</function>, while it
-     provides a significant ease of use.
+     <function>pg_fetch_array</function> NON è più
+     lento di <function>pg_fetch_row</function>, inoltre
+     è più facile da usare.
     </para>
     <para>
-     See also <function>pg_fetch_row</function> and
-    <function>pg_fetch_object</function> and
-    <function>pg_result</function>.
+     Vedere anche <function>pg_fetch_row</function>,
+    <function>pg_fetch_object</function> e
+    <function>pg_fetch</function>.
     </para>
     <para>
      <example>
       <title>PostgreSQL fetch array</title>
       <programlisting role="php">
-       <![CDATA[
+<![CDATA[
 <?php 
-$conn = pg_pconnect ("dbname=publisher");
+$conn = pg_pconnect ("dbname=editori");
 if (!$conn) {
-    echo "An error occured.\n";
+    echo "Si è verificato un errore.\n";
     exit;
 }
 
-$result = pg_exec ($conn, "SELECT * FROM authors");
-if (!$result) {
-    echo "An error occured.\n";
+$risultato = pg_query ($conn, "SELECT * FROM autori");
+if (!$risultato) {
+    echo "Si è verificato un errore.\n";
     exit;
 }
 
-$arr = pg_fetch_array ($result, 0, PGSQL_NUM);
+$arr = pg_fetch_array ($risultato, 0, PGSQL_NUM);
 echo $arr[0] . " <- array\n";
 
-$arr = pg_fetch_array ($result, 1, PGSQL_ASSOC);
-echo $arr["author"] . " <- array\n";
+$arr = pg_fetch_array ($risultato, 1, PGSQL_ASSOC);
+echo $arr["autore"] . " <- array\n";
 ?>
 ]]>
       </programlisting>
@@ -87,7 +88,9 @@ echo $arr["author"] . " <- array\n";
     </para>
     <note>
      <para>
-      From 4.1.0, <parameter>row</parameter> became optional.
+      Dalla versione 4.1.0, <parameter>tupla</parameter> è opzionale.
+      La chiamata a <function>pg_fetch_array</function> incrementa
+      di 1 il puntatore alle tuple.
      </para>
     </note>
    </refsect1>

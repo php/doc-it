@@ -8,7 +8,7 @@
     You can use the PDF functions in PHP to create PDF files if you
     have the PDF library by Thomas Merz  (available at 
     <ulink url="&url.pdf;">&url.pdf;</ulink>;
-    you will also need <ulink url="&url.jpeg">the JPEG library</ulink>
+    you will also need <ulink url="&url.jpeg;">the JPEG library</ulink>
     and <ulink url="&url.tiff;">the TIFF library</ulink> to
     compile this. These two libs also quite often make problems when
     configuring php. Follow the messages of configure to fix possible
@@ -32,6 +32,10 @@
     will have gone. It is not supported any more. In general it is a good
     advise to consult the release notes of the used version of pdflib
     for possible changes.
+   </simpara>
+   <simpara>
+    Since version 3.0 of pdflib you should configure pdflib with the option
+    <literal>--enable-shared-pdflib</literal>.
    </simpara>
    <simpara>
      Any version of PHP4 after March, 9th 2000 do not support versions
@@ -78,7 +82,8 @@
       <function>pdf_set_info_keywords</function> do not take the
       info structure as the first parameter but the pdf document. This
       also means that the pdf document must be opened before these functions
-      can be called.
+      can be called. The above functions can and should also be replaced by
+      <function>pdf_set_info</function>
      </simpara>
     </listitem>
     <listitem>
@@ -231,7 +236,7 @@ while($pagecount-- > 0) {
 
     /* minute strokes */
     pdf_setlinewidth($pdf, 2.0);
-    for ($alpha = 0; $alpha < 360; $alpha += 6) {
+    for ($alpha = 0; $alpha &lt; 360; $alpha += 6) {
         pdf_rotate($pdf, 6.0);
         pdf_moveto($pdf, $radius, 0.0);
         pdf_lineto($pdf, $radius-$margin/3, 0.0);
@@ -243,7 +248,7 @@ while($pagecount-- > 0) {
 
     /* 5 minute strokes */
     pdf_setlinewidth($pdf, 3.0);
-    for ($alpha = 0; $alpha < 360; $alpha += 30) { 
+    for ($alpha = 0; $alpha &lt; 360; $alpha += 30) { 
         pdf_rotate($pdf, 30.0);
         pdf_moveto($pdf, $radius, 0.0);
         pdf_lineto($pdf, $radius-$margin, 0.0);
@@ -341,211 +346,54 @@ fclose($fp);
    </refsect1>
   </refentry>
 
-  <refentry id="function.pdf-set-info-creator">
+  <refentry id="function.pdf-set-info">
    <refnamediv>
-    <refname>PDF_set_info_creator</refname>
-    <refpurpose>Fills the creator field of the info structure</refpurpose>
+    <refname>PDF_set_info</refname>
+    <refpurpose>Fills a field of the document information</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Description</title>
     <funcsynopsis>
      <funcprototype>
-      <funcdef>void <function>pdf_set_info_creator</function></funcdef>
-      <paramdef>info <parameter>info</parameter></paramdef>
-      <paramdef>string <parameter>creator</parameter></paramdef>
+      <funcdef>void <function>pdf_set_info</function></funcdef>
+      <paramdef>int <parameter>pdf document</parameter></paramdef>
+      <paramdef>string <parameter>fieldname</parameter></paramdef>
+      <paramdef>string <parameter>value</parameter></paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
-     The <function>PDF_set_info_creator</function> function sets the
-     creator field of a pdf document. It has to be called after
-     <function>PDF_get_info</function> and before
-     <function>PDF_open</function>. Calling it after <function>PDF_open</function>
-     will have no effect on the document.
+     The <function>PDF_set_info</function> function sets an information field
+     of a pdf document.
+     Possible values for the fieldname are 'Subject', 'Title', 'Creator',
+     'Author', 'Keywords' and one user-defined name.
+     It can be called before beginning a page.
+
+     <example>
+      <title>Setting document information</title>
+      <programlisting>
+&lt;?php 
+$fd = fopen("test.pdf", "w");
+$pdfdoc = pdf_open($fd);
+pdf_set_info($pdfdoc, "Author", "Uwe Steinmann");
+pdf_set_info($pdfdoc, "Creator", "Uwe Steinmann");
+pdf_set_info($pdfdoc, "Title", "Testing Info Fields");
+pdf_set_info($pdfdoc, "Subject", "Test");
+pdf_set_info($pdfdoc, "Keywords", "Test, Fields");
+pdf_set_info($pdfdoc, "CustomField", "What ever makes sense");
+pdf_begin_page($pdfdoc, 595, 842);
+pdf_end_page($pdfdoc);
+pdf_close($pdfdoc);
+?>
+</programlisting></example></para>
+
 
     <note><simpara>
-     This function is not part of the pdf library.
+     This function replaces <function>PDF_set_info_keywords</function>,
+              <function>PDF_set_info_title</function>,
+              <function>PDF_set_info_subject</function>,
+              <function>PDF_set_info_creator</function>,
+              <function>PDF_set_info_sybject</function>.
     </simpara></note>
-
-    <note><simpara>
-     This function takes a different first parameter if pdflib 2.x support
-     is activated. The first parameter has to be the identifier of the
-     pdf document as returned by <function>pdf_open</function>. Consequently,
-     <function>pdf_open</function> has to be called before this function.
-    </simpara></note></para>
-
-    <para>
-     See also <function>PDF_get_info</function>,
-              <function>PDF_set_info_keywords</function>,
-              <function>PDF_set_info_title</function>,
-              <function>PDF_set_info_subject</function>.</para>
-
-   </refsect1>
-  </refentry>
-
-  <refentry id="function.pdf-set-info-title">
-   <refnamediv>
-    <refname>PDF_set_info_title</refname>
-    <refpurpose>Fills the title field of the info structure</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Description</title>
-    <funcsynopsis>
-     <funcprototype>
-      <funcdef>void <function>pdf_set_info_title</function></funcdef>
-      <paramdef>info <parameter>info</parameter></paramdef>
-      <paramdef>string <parameter>title</parameter></paramdef>
-     </funcprototype>
-    </funcsynopsis>
-    <para>
-     The <function>PDF_set_info_title</function> function sets the
-     title of a pdf document. It has to be called after
-     <function>PDF_get_info</function> and before
-     <function>PDF_open</function>. Calling it after
-     <function>PDF_open</function> will have no effect on the document.
-
-     <note><simpara>
-       This function is not part of the pdf library.
-      </simpara></note>
-
-    <note><simpara>
-     This function takes a different first parameter if pdflib 2.0 support
-     is activated. The first parameter has to be the identifier of the
-     pdf document as returned by <function>pdf_open</function>. Consequently,
-     <function>pdf_open</function> has to be called before this function.
-    </simpara></note></para>
-
-    <para>
-     See also <function>PDF_get_info</function>,
-              <function>PDF_set_info_creator</function>,
-              <function>PDF_set_info_author</function>,
-              <function>PDF_set_info_keywords</function>,
-              <function>PDF_set_info_subject</function>.</para>
-
-   </refsect1>
-  </refentry>
-
-  <refentry id="function.pdf-set-info-subject">
-   <refnamediv>
-    <refname>PDF_set_info_subject</refname>
-    <refpurpose>Fills the subject field of the info structure</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Description</title>
-    <funcsynopsis>
-     <funcprototype>
-      <funcdef>void <function>pdf_set_info_subject</function></funcdef>
-      <paramdef>info <parameter>info</parameter></paramdef>
-      <paramdef>string <parameter>subject</parameter></paramdef>
-     </funcprototype>
-    </funcsynopsis>
-    <para>
-     The <function>PDF_set_info_subject</function> function sets the
-     subject of a pdf document. It has to be called after
-     <function>PDF_get_info</function> and before
-     <function>PDF_open</function>. Calling it after
-     <function>PDF_open</function> will have no effect on the document.
-
-     <note><simpara>
-       This function is not part of the pdf library.
-      </simpara></note>
-
-    <note><simpara>
-     This function takes a different first parameter if pdflib 2.0 support
-     is activated. The first parameter has to be the identifier of the
-     pdf document as returned by <function>pdf_open</function>. Consequently,
-     <function>pdf_open</function> has to be called before this function.
-    </simpara></note></para>
-
-    <para>
-     See also <function>PDF_get_info</function>,
-              <function>PDF_set_info_creator</function>,
-              <function>PDF_set_info_author</function>,
-              <function>PDF_set_info_title</function>,
-              <function>PDF_set_info_keywords</function>.</para>
-
-   </refsect1>
-  </refentry>
-
-  <refentry id="function.pdf-set-info-keywords">
-   <refnamediv>
-    <refname>PDF_set_info_keywords</refname>
-    <refpurpose>Fills the keywords field of the info structure</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Description</title>
-    <funcsynopsis>
-     <funcprototype>
-      <funcdef>void <function>pdf_set_info_keywords</function></funcdef>
-      <paramdef>info <parameter>info</parameter></paramdef>
-      <paramdef>string <parameter>keywords</parameter></paramdef>
-     </funcprototype>
-    </funcsynopsis>
-    <para>
-     The <function>PDF_set_info_keywords</function> function sets the
-     keywords of a pdf document. It has to be called after
-     <function>PDF_get_info</function> and before
-     <function>PDF_open</function>. Calling it after <function>PDF_open</function>
-     will have no effect on the document.
-
-     <note><simpara>
-       This function is not part of the pdf library.
-      </simpara></note>
-
-    <note><simpara>
-     This function takes a different first parameter if pdflib 2.0 support
-     is activated. The first parameter has to be the identifier of the
-     pdf document as returned by <function>pdf_open</function>. Consequently,
-     <function>pdf_open</function> has to be called before this function.
-    </simpara></note></para>
-
-    <para>
-     See also <function>PDF_get_info</function>,
-              <function>PDF_set_info_creator</function>,
-              <function>PDF_set_info_author</function>,
-              <function>PDF_set_info_title</function>,
-              <function>PDF_set_info_subject</function>.</para>
-
-   </refsect1>
-  </refentry>
-
-  <refentry id="function.pdf-set-info-author">
-   <refnamediv>
-    <refname>PDF_set_info_author</refname>
-    <refpurpose>Fills the author field of the info structure</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Description</title>
-    <funcsynopsis>
-     <funcprototype>
-      <funcdef>void <function>pdf_set_info_author</function></funcdef>
-      <paramdef>info <parameter>info</parameter></paramdef>
-      <paramdef>string <parameter>author</parameter></paramdef>
-     </funcprototype>
-    </funcsynopsis>
-    <para>
-     The <function>PDF_set_info_author</function> function sets the
-     author of a pdf document. It has to be called after
-     <function>PDF_get_info</function> and before
-     <function>PDF_open</function>. Calling it after <function>PDF_open</function>
-     will have no effect on the document.
-
-     <note><simpara>
-       This function is not part of the pdf library.
-      </simpara></note>
-
-    <note><simpara>
-     This function takes a different first parameter if pdflib 2.0 support
-     is activated. The first parameter has to be the identifier of the
-     pdf document as returned by <function>pdf_open</function>. Consequently,
-     <function>pdf_open</function> has to be called before this function.
-    </simpara></note></para>
-
-    <para>
-     See also <function>PDF_get_info</function>,
-              <function>PDF_set_info_creator</function>,
-              <function>PDF_set_info_keywords</function>,
-              <function>PDF_set_info_title</function>,
-              <function>PDF_set_info_subject</function>.</para>
 
    </refsect1>
   </refentry>
@@ -716,7 +564,7 @@ fclose($fp);
     <title>Description</title>
     <funcsynopsis>
      <funcprototype>
-      <funcdef>void <function>pdf_show_boxed</function></funcdef>
+      <funcdef>int <function>pdf_show_boxed</function></funcdef>
       <paramdef>int <parameter>pdf document</parameter></paramdef>
       <paramdef>string <parameter>text</parameter></paramdef>
       <paramdef>double <parameter>x-coor</parameter></paramdef>
@@ -732,16 +580,19 @@ fclose($fp);
      at (<parameter>x-coor</parameter>, <parameter>y-coor</parameter>).
      The boxes dimension is <parameter>height</parameter> by 
      <parameter>width</parameter>. The parameter <parameter>mode</parameter>
-     determines how the text is type seet. If <parameter>width</parameter>
+     determines how the text is type set. If <parameter>width</parameter>
      and <parameter>height</parameter> are zero, the
      <parameter>mode</parameter> can be "left", "right" or "center".
      If <parameter>width</parameter> or <parameter>height</parameter> is
-     unequal zero it can also be "justify" or "fulljustify".</para>
-
+     unequal zero it can also be "justify" and "fulljustify".
+    </para>
+    <para>Returns the number of characters that could not be processed because
+     they did not fit into the box.
+    </para>
     <para>
      See also <function>PDF_show</function>,
-              <function>PDF_show_xy</function>.</para>
-
+     <function>PDF_show_xy</function>.
+    </para>
    </refsect1>
   </refentry>
 
@@ -801,13 +652,14 @@ fclose($fp);
      An encoding greater than 4 and less than 0 will default to winansi.
      winansi is often a good choice.
      If you use php4 and a version of pdflib >= 2.20 the encoding parameter
-     has changed to a string. Use 'winansi', 'builtin' etc. instead.
+     has changed to a string. Use 'winansi', 'builtin', 'host', 'macroman' etc. instead.
      If the last parameter is set to
      1 the font is embedded into the pdf document otherwise it is not.
      To embed a font is usually a good idea if the font is not widely spread
      and you cannot ensure that the person watching your document has
      access on fonts in the document.
-
+     I font is only embedded once even if you call 
+     <function>PDF_set_font</function> several times.
     </para>
 
     <note>
@@ -815,6 +667,15 @@ fclose($fp);
       This function has to be called after
       <function>PDF_begin_page</function> in order to create a valid
       pdf document.
+     </simpara>
+    </note>
+
+    <note>
+     <simpara>
+      If you reference a font in a .upr file make sure the name
+      in the afm file and the font name are the same. Otherwise,
+      the font will be embedded several times (Thanks to Paul Haddon
+      for finding this.)
      </simpara>
     </note>
 
@@ -863,8 +724,90 @@ fclose($fp);
     </funcsynopsis>
     <para>
      The <function>PDF_set_parameter</function> function sets several
-     parameters of pdflib.</para>
+     parameters of pdflib which are of the type string.</para>
+    <para>
+     See also <function>PDF_get_value</function>,
+              <function>PDF_set_value</function>,
+              <function>PDF_get_parameter</function>.</para>
+   </refsect1>
+  </refentry>
 
+  <refentry id="function.pdf-get-parameter">
+   <refnamediv>
+    <refname>PDF_get_parameter</refname>
+    <refpurpose>Gets certain parameters</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>string <function>pdf_get_parameter</function></funcdef>
+      <paramdef>int <parameter>pdf document</parameter></paramdef>
+      <paramdef>string <parameter>name</parameter></paramdef>
+      <paramdef>double <parameter>modifier</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     The <function>PDF_get_parameter</function> function gets several
+     parameters of pdflib which are of the type string. The function parameter
+     <parameter>modifier</parameter> characterizes the parameter to get.
+     If the modifier is not needed it has to be 0.</para>
+    <para>
+     See also <function>PDF_get_value</function>,
+              <function>PDF_set_value</function>,
+              <function>PDF_set_parameter</function>.</para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.pdf-set-value">
+   <refnamediv>
+    <refname>PDF_set_value</refname>
+    <refpurpose>Sets certain numerical value</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>pdf_set_value</function></funcdef>
+      <paramdef>int <parameter>pdf document</parameter></paramdef>
+      <paramdef>string <parameter>name</parameter></paramdef>
+      <paramdef>double <parameter>value</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     The <function>PDF_set_value</function> function sets several
+     numerical parameters of pdflib.</para>
+    <para>
+     See also <function>PDF_get_value</function>,
+              <function>PDF_get_parameter</function>,
+              <function>PDF_set_parameter</function>.</para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.pdf-get-value">
+   <refnamediv>
+    <refname>PDF_get_value</refname>
+    <refpurpose>Gets certain numerical value</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>double <function>pdf_get_value</function></funcdef>
+      <paramdef>int <parameter>pdf document</parameter></paramdef>
+      <paramdef>string <parameter>name</parameter></paramdef>
+      <paramdef>double <parameter>modifier</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     The <function>PDF_get_value</function> function gets several
+     numerical parameters of pdflib. The function parameter
+     <parameter>modifier</parameter> characterizes the parameter to get.
+     If the modifier is not needed it has to be 0.</para>
+    <para>
+     See also <function>PDF_set_value</function>,
+              <function>PDF_get_parameter</function>,
+              <function>PDF_set_parameter</function>.</para>
    </refsect1>
   </refentry>
 
@@ -2067,6 +2010,56 @@ pdf_close_image($pdf, $im);
    </refsect1>
   </refentry>
 
+  <refentry id="function.pdf-open-png">
+    <refnamediv>
+      <refname>PDF_open_png</refname>
+      <refpurpose>
+        Opens a PNG image
+      </refpurpose>
+    </refnamediv>
+    <refsect1>
+      <title>Description</title>
+      <funcsynopsis>
+     <funcprototype>
+         <funcdef>int 
+           <function>pdf_open_png</function>
+         </funcdef>
+         <paramdef>int 
+           <parameter>pdf</parameter>
+         </paramdef>
+         <paramdef>string 
+           <parameter>png_file</parameter>
+         </paramdef>
+     </funcprototype>
+      </funcsynopsis>
+      <para>    
+        The <function>PDF_open_png</function> function opens an image stored
+        in the file with the name <parameter>filename</parameter>.
+        The format of the image has to be png. The function returns a pdf
+        image identifier.
+        <example>
+          <title>Including a PNG image</title>
+          <programlisting>
+&lt;?php
+$im = PDF_open_png ($pdf, "test.png");
+pdf_place_image ($pdf, $im, 100, 100, 1);
+pdf_close_image ($pdf, $im);
+?>
+          </programlisting>
+        </example>
+      </para>
+      <para>
+        See also <function>PDF_close_image</function>,
+                 <function>PDF_open_jpeg</function>,
+                 <function>PDF_open_gif</function>,
+                 <function>PDF_open_memory_image</function>,
+                 <function>PDF_execute_image</function>,
+                 <function>PDF_place_image</function>,
+                 <function>PDF_put_image</function>.
+      </para>
+    </refsect1>
+  </refentry>
+  
   <refentry id="function.pdf-open-memory-image">
    <refnamediv>
     <refname>PDF_open_memory_image</refname>
@@ -2106,6 +2099,7 @@ pdf_close_image($pdf, $pim);
      See also <function>PDF_close_image</function>,
               <function>PDF_open_jpeg</function>,
               <function>PDF_open_gif</function>,
+              <function>PDF_open_png</function>
               <function>PDF_execute_image</function>,
               <function>PDF_place_image</function>,
               <function>PDF_put_image</function>.</para>
@@ -2134,6 +2128,7 @@ pdf_close_image($pdf, $pim);
     <para>
      See also <function>PDF_close_image</function>,
               <function>PDF_open_gif</function>,
+              <function>PDF_open_png</function>,
               <function>PDF_open_memory_image</function>,
               <function>PDF_execute_image</function>,
               <function>PDF_place_image</function>,
@@ -2300,6 +2295,85 @@ pdf_close_image($pdf, $pim);
      <parameter>lly</parameter>) and the upper right corner at
      (<parameter>urx</parameter>, <parameter>ury</parameter>).</para>
 
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.pdf-set-border-style">
+   <refnamediv>
+    <refname>PDF_set_border_style</refname>
+    <refpurpose>Sets style of border around links and annotations</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>pdf_set_border_style</function></funcdef>
+      <paramdef>int <parameter>pdf document</parameter></paramdef>
+      <paramdef>string <parameter>style</parameter></paramdef>
+      <paramdef>double <parameter>width</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     The <function>PDF_set_border_style</function> function sets the
+     style and width of the suroundig box of links and annotations.
+     The parameter <parameter>style</parameter> can be 'solid' or
+     'dashed'.</para>
+    <para>
+     See also <function>PDF_set_border_color</function>,
+              <function>PDF_set_border_dash</function>.</para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.pdf-set-border-color">
+   <refnamediv>
+    <refname>PDF_set_border_color</refname>
+    <refpurpose>Sets color of border around links and annotations</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>pdf_set_border_color</function></funcdef>
+      <paramdef>int <parameter>pdf document</parameter></paramdef>
+      <paramdef>double <parameter>red</parameter></paramdef>
+      <paramdef>double <parameter>green</parameter></paramdef>
+      <paramdef>double <parameter>blue</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     The <function>PDF_set_border_color</function> function sets the
+     color of the suroundig box of links and annotations.
+     The three color components have to have a value between 0.0 and
+     1.0.</para>
+    <para>
+     See also <function>PDF_set_border_style</function>,
+              <function>PDF_set_border_dash</function>.</para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.pdf-set-border-dash">
+   <refnamediv>
+    <refname>PDF_set_border_dash</refname>
+    <refpurpose>Sets dash style of border around links and annotations</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>pdf_set_border_dash</function></funcdef>
+      <paramdef>int <parameter>pdf document</parameter></paramdef>
+      <paramdef>double <parameter>black</parameter></paramdef>
+      <paramdef>double <parameter>white</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     The <function>PDF_set_border_dash</function> function sets the
+     lenght of
+     black and white areas of a dashed line of the suroundig box of
+     links and annotations.</para>
+    <para>
+     See also <function>PDF_set_border_style</function>,
+              <function>PDF_set_border_color</function>.</para>
    </refsect1>
   </refentry>
 

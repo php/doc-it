@@ -1,5 +1,5 @@
  <reference id="ref.imap">
-  <title>IMAP functions</title>
+  <title>IMAP, POP3 and NNTP functions</title>
   <titleabbrev>IMAP</titleabbrev>
 
   <partintro>
@@ -7,19 +7,79 @@
     To get these functions to work, you have to compile PHP with
     <option role="configure">--with-imap</option>. That requires the
     c-client library to be installed. Grab the latest version from
-    <ulink
-    url="ftp://ftp.cac.washington.edu/imap/">ftp://ftp.cac.washington.edu/imap/</ulink>
-    and compile it. Then copy c-client/c-client.a to /usr/local/lib or
-    some other directory on your link path and copy c-client/rfc822.h,
-    mail.h and linkage.h to /usr/local/include or some other directory
-    in your include path.
+    <ulink url="&url.imap;">&url.imap;</ulink> and compile it. Then
+    copy <filename>c-client/c-client.a</filename> to
+    <filename>/usr/local/lib/libc-client.a</filename> or some other 
+    directory on your link path and copy 
+    <filename>c-client/rfc822.h</filename>,
+    <filename>mail.h</filename> and <filename>linkage.h</filename> to
+    <filename>/usr/local/include</filename> or some other directory in
+    your include path.
    </simpara>
    <simpara>
-    Note that these functions are not limited to the IMAP protocol,
-    despite their name.  The underlying c-client library also supports
-    NNTP, POP3 and local mailbox access methods.  See the
-    <function>imap_open</function> for more information.
+    Note that these functions are not limited to the
+    <acronym>IMAP</acronym> protocol, despite their name.  The
+    underlying c-client library also supports <acronym>NNTP</acronym>,
+    <acronym>POP3</acronym> and local mailbox access methods. 
    </simpara>
+   <para>
+    This document can't go into detail on all the topics touched by the
+    provided functions. Further information is provided by the 
+    documentation of the c-client library source 
+    (<filename>docs/internal.txt</filename>).
+    and the following RFC documents:
+    <itemizedlist>
+     <listitem>
+      <simpara>
+       <ulink url="&url.rfc;/rfc821.html">RFC821</ulink>:
+       Simple Mail Transfer Protocol (SMTP).
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       <ulink url="&url.rfc;/rfc822.html">RFC822</ulink>:
+       Standard for ARPA internet text messages.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       <ulink url="&url.rfc;/rfc2060.html">RFC2060</ulink>:
+       Internet Message Access Protocol (IMAP) Version 4rev1. 
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       <ulink url="&url.rfc;/rfc1939.html">RFC1939</ulink>: 
+       Post Office Protocol Version 3 (POP3).
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       <ulink url="&url.rfc;/rfc977.html">RFC977</ulink>:
+       Network News Transfer Protocol (NNTP).
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       <ulink url="&url.rfc;/rfc2076.html">RFC2076</ulink>:
+       Common Internet Message Headers.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       <ulink url="&url.rfc;/rfc2045.html">RFC2045</ulink> ,
+       <ulink url="&url.rfc;/rfc2046.html">RFC2046</ulink> ,
+       <ulink url="&url.rfc;/rfc2047.html">RFC2047</ulink> ,
+       <ulink url="&url.rfc;/rfc2048.html">RFC2048</ulink> &amp;
+       <ulink url="&url.rfc;/rfc2049.html">RFC2049</ulink>:
+       Multipurpose Internet Mail Extensions (MIME).
+      </simpara>
+     </listitem>
+    </itemizedlist>
+    A detailed overview is also available in the book
+    <ulink url="&url.email.book;">Programming Internet Email</ulink> 
+    by David Wood.
+   </para>
   </partintro>
 
   <refentry id="function.imap-append">
@@ -36,7 +96,9 @@
      <paramdef>int <parameter>imap_stream</parameter></paramdef>
      <paramdef>string <parameter>mbox</parameter></paramdef>
      <paramdef>string <parameter>message</parameter></paramdef>
-     <paramdef>string<parameter>flags</parameter></paramdef>
+     <paramdef>string 
+      <parameter><optional>flags</optional></parameter>
+     </paramdef>
     </funcsynopsis>
     <para>
      Returns true on sucess, false on error.
@@ -50,7 +112,34 @@
     <para>
      When talking to the Cyrus IMAP server, you must use "\r\n" as
      your end-of-line terminator instead of "\n" or the operation will
-     fail.</para>
+     fail.
+    </para>
+    <para>     
+     <example>
+      <title><function>imap_append</function> example</title>
+      <programlisting>
+<?php
+$stream = imap_open("{your.imap.host}INBOX.Drafts","username", "password");
+
+$check = imap_check($stream);
+print "Msg Count before append: ". $check->Nmsgs."\n";
+
+imap_append($stream,"{your.imap.host}INBOX.Drafts"
+                   ,"From: me@my.host\r\n"
+                   ."To: you@your.host\r\n"
+                   ."Subject: test\r\n"
+                   ."\r\n"
+                   ."this is a test message, please ignore\r\n"
+                   );
+
+$check = imap_check($stream);
+print "Msg Count after append : ". $check->Nmsgs."\n";
+
+imap_close($stream);
+?>
+      </programlisting>
+     </example>
+    </para>
    </refsect1>
   </refentry>
 
@@ -67,7 +156,11 @@
     </funcsynopsis>
     <para>
      <function>imap_base64</function> function decodes BASE-64 encoded
-     text. The decoded message is returned as a string.
+     text (see <ulink url="&url.rfc;/rfc2045.html">RFC2045</ulink>, 
+     Section 6.8). The decoded message is returned as a string.
+    </para>
+    <para>
+     See also <function>imap_binary</function>.
     </para>
    </refsect1>
   </refentry>
@@ -84,7 +177,7 @@
      <funcdef>string <function>imap_body</function></funcdef>
      <paramdef>int <parameter>imap_stream</parameter></paramdef>
      <paramdef>int <parameter>msg_number</parameter></paramdef>
-     <paramdef>int <parameter>flags</parameter></paramdef>
+     <paramdef>int <parameter><optional>flags</optional></parameter></paramdef>
     </funcsynopsis>
     <para>
      <function>imap_body</function> returns the body of the message,
@@ -94,7 +187,7 @@
      <itemizedlist>
       <listitem>
        <simpara>
-	FT_UID - The msgno is a UID
+	FT_UID - The <parameter>msgno</parameter> is a UID
        </simpara>
       </listitem>
       <listitem>
@@ -121,7 +214,7 @@
    <refsect1>
     <title>Description</title>
     <funcsynopsis>
-     <funcdef>array <function>imap_check</function></funcdef>
+     <funcdef>object <function>imap_check</function></funcdef>
      <paramdef>int <parameter>imap_stream</parameter></paramdef>
     </funcsynopsis>
     <para>
@@ -131,18 +224,36 @@
     <para> 
      The <function>imap_check</function> function checks the current
      mailbox status on the server and returns the information in an
-     object with following properties.
+     object with following properties:
     </para>
     <para>
-     <informalexample>
-      <literallayout>
-        Date : date of the message
-	Driver : driver
-	Mailbox : name of the mailbox	
-	Nmsgs : number of messages	
-	Recent : number of recent messages
-      </literallayout>
-     </informalexample>
+     <itemizedlist>
+      <listitem>
+       <simpara>
+        Date - last change of mailbox contents
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+	Driver - protocol used to access this mailbox: POP3, IMAP, NNTP
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+	Mailbox - the mailbox name
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+	Nmsgs - number of messages in the mailbox
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+	Recent - number of recent messages in the mailbox
+       </simpara>
+      </listitem>
+     </itemizedlist>
     </para>
    </refsect1>
   </refentry>
@@ -157,12 +268,15 @@
     <funcsynopsis>
      <funcdef>int <function>imap_close</function></funcdef>
      <paramdef>int <parameter>imap_stream</parameter></paramdef>
-     <paramdef>int <parameter>flags</parameter></paramdef>
+     <paramdef>int 
+      <parameter><optional>flags</optional></parameter>
+     </paramdef>
     </funcsynopsis>
     <para> 
      Close the imap stream. Takes an optional
      <parameter>flag</parameter> CL_EXPUNGE, which will silently
-     expunge the mailbox before closing.
+     expunge the mailbox before closing, removing all messages marked for
+     deletion.
     </para>
    </refsect1>
   </refentry>
@@ -181,16 +295,17 @@
     </funcsynopsis>
     <para>  
      <function>imap_createmailbox</function> creates a new mailbox
-     specified by <parameter>mbox</parameter> 
-     (see <function>imap_open</function> for the format 
-     of <parameter>mbox</parameter> names). 
+     specified by <parameter>mbox</parameter>. Names containing 
+     international characters should be encoded by <function>imap_utf7_encode</function>
     </para> 
     <para>
      Returns true on success and false on error.
     </para>
     <para>
-     See also <function>imap_renamemailbox</function> and
-     <function>imap_deletemailbox</function>.
+     See also <function>imap_renamemailbox</function>,
+     <function>imap_deletemailbox</function> and
+     <function>imap_open</function> for the format 
+     of <parameter>mbox</parameter> names. 
     </para>
    </refsect1>
   </refentry>
@@ -208,15 +323,24 @@
      <funcdef>int <function>imap_delete</function></funcdef>
      <paramdef>int <parameter>imap_stream</parameter></paramdef>
      <paramdef>int <parameter>msg_number</parameter></paramdef>
+     <paramdef>int 
+      <parameter><optional>flags</optional></parameter>
+     </paramdef>
     </funcsynopsis>
     <para>
      Returns true.
     </para> 
     <para> 
      <function>imap_delete</function> function marks message pointed
-     by <parameter>msg_number</parameter> for deletion. Actual
-     deletion of the messages is done by
-     <function>imap_expunge</function>.
+     by <parameter>msg_number</parameter> for deletion.  The optional
+     <parameter>flags</parameter> parameter only has a single option,
+     <parameter>FT_UID</parameter>, which tells the function to treat
+     the <parameter>msg_number</parameter> argument as a
+     <parameter>UID</parameter>.  Messages marked for deletion will
+     stay in the mailbox until either
+     <function>imap_expunge</function> is called or
+     <function>imap_close</function> is called with the optional
+     parameter CL_EXPUNGE.
     </para>
    </refsect1>
   </refentry>
@@ -242,8 +366,10 @@
      Returns true on success and false on error.
     </para>
     <para>
-     See also <function>imap_createmailbox</function> and
-     <function>imap_reanmemailbox</function>.
+     See also <function>imap_createmailbox</function>, 
+     <function>imap_reanmemailbox</function>, and 
+     <function>imap_open</function> for the format of
+     <parameter>mbox</parameter>.
     </para>
    </refsect1>
   </refentry>
@@ -261,7 +387,10 @@
     </funcsynopsis>
     <para>  
      <function>imap_expunge</function> deletes all the messages marked
-     for deletion by <function>imap_delete</function>.</para>
+     for deletion by <function>imap_delete</function>, 
+     <function>imap_move_mail</function>, or 
+     <function>imap_setflag_full</function>.
+    </para>
     <para>
      Returns true.
     </para>
@@ -271,8 +400,9 @@
   <refentry id="function.imap-fetchbody">
    <refnamediv>
     <refname>imap_fetchbody</refname>
-    <refpurpose>Fetch a particular section of the body of the
-    message</refpurpose>
+    <refpurpose>
+     Fetch a particular section of the body of the message
+    </refpurpose>
    </refnamediv>
    <refsect1>
     <title>Description</title>
@@ -281,7 +411,9 @@
      <paramdef>int <parameter>imap_stream</parameter></paramdef>
      <paramdef>int <parameter>msg_number</parameter></paramdef>
      <paramdef>string <parameter>part_number</parameter></paramdef>
-     <paramdef>flags <parameter>flags</parameter></paramdef>
+     <paramdef>flags 
+      <parameter><optional>flags</optional></parameter>
+     </paramdef>
     </funcsynopsis>
     <para>
      This function causes a fetch of a particular section of the body
@@ -291,12 +423,12 @@
      IMAP4 specification. Body parts are not decoded by this function.
     </para>
     <para>
-     The options for <function>imap_fetchbody </function>e a bitmask
-     with one or more of the following
+     The options for <function>imap_fetchbody</function> is a bitmask
+     with one or more of the following:
      <itemizedlist>
       <listitem>
        <simpara>
-	FT_UID - The msgono is a UID
+	FT_UID - The <parameter>msg_number</parameter> is a UID
        </simpara>
       </listitem>
       <listitem>
@@ -307,7 +439,7 @@
       <listitem>
        <simpara>
 	FT_INTERNAL - The return string is in "internal" format,
-	without any attempt to canonicalize CRLF
+	without any attempt to canonicalize CRLF.
        </simpara>
       </listitem>
      </itemizedlist>
@@ -422,7 +554,7 @@
 	 <entry>parameters
 	  <footnote>
 	   <para>
-	    parameter is an array of objects where each object has an
+	    Parameter is an array of objects where each object has an
 	    "attributte" and a "value" property.
 	   </para>
 	  </footnote>
@@ -433,7 +565,7 @@
 	 <entry>parts
 	  <footnote>
 	   <para>
-	    parts is an array of objects identical in structure to the
+	    Parts is an array of objects identical in structure to the
 	    top-level object, with the limitation that it cannot
 	    contain further 'parts' objects.
 	   </para>
@@ -445,7 +577,6 @@
       </tgroup>
      </table>
     </para>
-
     <para>
      <table>
        <title>Primary body type</title>
@@ -474,8 +605,8 @@
         <row><entry>3</entry><entry>BASE64</entry></row>
         <row><entry>4</entry><entry>QUOTED-PRINTABLE</entry></row>
         <row><entry>5</entry><entry>OTHER</entry></row>
-        </tbody>
-       </tgroup>
+       </tbody>
+      </tgroup>
      </table>
     </para>
    </refsect1>
@@ -533,7 +664,7 @@ Unseen == 'U' || Recent == 'N'
 
 toaddress (full to: line, up to 1024 characters)
 
-to[] (returns an array of objects from the To line, containing:)
+to[] (returns an array of objects from the To line, containing):
    personal
    adl
    mailbox
@@ -541,21 +672,21 @@ to[] (returns an array of objects from the To line, containing:)
 
 fromaddress (full from: line, up to 1024 characters)
 
-from[] (returns an array of objects from the From line, containing:)
+from[] (returns an array of objects from the From line, containing):
    personal
    adl
    mailbox
    host
 
 ccaddress (full cc: line, up to 1024 characters)
-cc[] (returns an array of objects from the Cc line, containing:)
+cc[] (returns an array of objects from the Cc line, containing):
    personal
    adl
    mailbox
    host
 
 bccaddress (full bcc line, up to 1024 characters)
-bcc[] (returns an array of objects from the Bcc line, containing:)
+bcc[] (returns an array of objects from the Bcc line, containing):
    personal
    adl
    mailbox
@@ -563,14 +694,14 @@ bcc[] (returns an array of objects from the Bcc line, containing:)
 
 reply_toaddress (full reply_to: line, up to 1024 characters)
 reply_to[] (returns an array of objects from the Reply_to line,
-containing:)
+containing):
    personal
    adl
    mailbox
    host
 
 senderaddress (full sender: line, up to 1024 characters)
-sender[] (returns an array of objects from the sender line, containing:)
+sender[] (returns an array of objects from the sender line, containing):
    personal
    adl
    mailbox
@@ -578,7 +709,7 @@ sender[] (returns an array of objects from the sender line, containing:)
 
 return_path (full return-path: line, up to 1024 characters)
 return_path[] (returns an array of objects from the return_path line,
-containing:)
+containing):
    personal
    adl
    mailbox
@@ -627,10 +758,12 @@ fetchsubject (subject line formatted to fit <parameter>subjectlength</parameter>
      <funcdef>array <function>imap_listmailbox</function></funcdef>
      <paramdef>int <parameter>imap_stream</parameter></paramdef>
      <paramdef>string <parameter>ref</parameter></paramdef>
-     <paramdef>string <parameter>pat</parameter></paramdef>
+     <paramdef>string <parameter>pattern</parameter></paramdef>
     </funcsynopsis>
     <para>
      Returns an array containing the names of the mailboxes.
+     See <function>imap_getmailboxes</function> for a description
+     of <parameter>ref</parameter> and <parameter>pattern</parameter>.
     </para>
    </refsect1>
   </refentry>
@@ -649,7 +782,7 @@ fetchsubject (subject line formatted to fit <parameter>subjectlength</parameter>
      <funcdef>array <function>imap_getmailboxes</function></funcdef>
      <paramdef>int <parameter>imap_stream</parameter></paramdef>
      <paramdef>string <parameter>ref</parameter></paramdef>
-     <paramdef>string <parameter>pat</parameter></paramdef>
+     <paramdef>string <parameter>pattern</parameter></paramdef>
     </funcsynopsis>
     <para>
      Returns an array of objects containing mailbox information. Each
@@ -663,7 +796,7 @@ fetchsubject (subject line formatted to fit <parameter>subjectlength</parameter>
       <listitem>
        <simpara>
 	LATT_NOINFERIORS - This mailbox has no "children" (there are
-	no mailboxes below this one)
+	no mailboxes below this one).
        </simpara>
       </listitem>
      <listitem>
@@ -690,7 +823,7 @@ fetchsubject (subject line formatted to fit <parameter>subjectlength</parameter>
      server, in the form: {imap_server:imap_port}, and
      <parameter>pattern</parameter> specifies where in the mailbox
      hierarchy to start searching. If you want all mailboxes, pass
-     <parameter>pattern</parameter> as an empty string.
+     '*' for <parameter>pattern</parameter>.
     </para>
     <para>
      There are two special characters you can pass as part of the
@@ -721,10 +854,9 @@ fetchsubject (subject line formatted to fit <parameter>subjectlength</parameter>
     </funcsynopsis>
     <para>
      Returns an array of all the mailboxes that you have
-     subscribed. The <parameter>ref</parameter> and
-     <parameter>pattern</parameter> arguments specify the base
-     location to search from and the pattern the mailbox name must
-     match.
+     subscribed. This is almost identical to 
+     <function>imap_listmailbox</function>, but will only return
+     mailboxes the user you logged in as has subscribed.
     </para>
    </refsect1>
   </refentry>
@@ -762,7 +894,9 @@ fetchsubject (subject line formatted to fit <parameter>subjectlength</parameter>
      <paramdef>int <parameter>imap_stream</parameter></paramdef>
      <paramdef>string <parameter>msglist</parameter></paramdef>
      <paramdef>string <parameter>mbox</parameter></paramdef>
-     <paramdef>int <parameter>flags</parameter></paramdef>
+     <paramdef>int 
+      <parameter><optional>flags</optional></parameter>
+     </paramdef>
     </funcsynopsis>
     <para>
      Returns true on success and false on error.
@@ -770,7 +904,8 @@ fetchsubject (subject line formatted to fit <parameter>subjectlength</parameter>
     <para> 
      Copies mail messages specified by <parameter>msglist</parameter>
      to specified mailbox. <parameter>msglist</parameter> is a range
-     not just message numbers.
+     not just message numbers (as described in 
+     <ulink url="&url.rfc;/rfc2060.html">RFC2060</ulink>).
     </para>
     <para>
      Flags is a bitmask of one or more of
@@ -803,11 +938,25 @@ fetchsubject (subject line formatted to fit <parameter>subjectlength</parameter>
      <paramdef>int <parameter>imap_stream</parameter></paramdef>
      <paramdef>string <parameter>msglist</parameter></paramdef>
      <paramdef>string <parameter>mbox</parameter></paramdef>
+     <paramdef>int 
+      <parameter><optional>flags</optional></parameter>
+     </paramdef>
     </funcsynopsis>
     <para> 
      Moves mail messages specified by <parameter>msglist</parameter>
      to specified mailbox. <parameter>msglist</parameter> is a range
-     not just message numbers.
+     not just message numbers (as described in 
+     <ulink url="&url.rfc;/rfc2060.html">RFC2060</ulink>).
+    </para>
+    <para>
+     Flags is a bitmask and may contain the single option
+     <itemizedlist>
+      <listitem>
+       <simpara>
+	CP_UID - the sequence numbers contain UIDS
+       </simpara>
+      </listitem>
+     </itemizedlist>
     </para>
     <para>
      Returns true on success and false on error.
@@ -864,7 +1013,9 @@ fetchsubject (subject line formatted to fit <parameter>subjectlength</parameter>
      <paramdef>string <parameter>mailbox</parameter></paramdef>
      <paramdef>string <parameter>username</parameter></paramdef>
      <paramdef>string <parameter>password</parameter></paramdef>
-     <paramdef>int <parameter>flags</parameter></paramdef>
+     <paramdef>int 
+      <parameter><optional>flags</optional></parameter>
+     </paramdef>
     </funcsynopsis>
     <para>
      Returns an IMAP stream on success and false on error.  This
@@ -873,26 +1024,21 @@ fetchsubject (subject line formatted to fit <parameter>subjectlength</parameter>
      local machine, do the following:
      <informalexample>
       <programlisting role="php"> 
-$mbox = imap_open("{localhost:143}INBOX","user_id","password");
+$mbox = imap_open ("{localhost:143}INBOX", "user_id", "password");
       </programlisting>
      </informalexample>
-
      To connect to a POP3 server on port 110 on the local server, use:
-
      <informalexample>
       <programlisting role="php">
-$mbox = imap_open("{localhost/pop3:110}INBOX","user_id","password");
+$mbox = imap_open ("{localhost/pop3:110}INBOX", "user_id", "password");
       </programlisting>
      </informalexample>
-
      To connect to an NNTP server on port 119 on the local server, use:
-     
      <informalexample>
       <programlisting role="php">
-$nntp = imap_open("{localhost/nntp:119}comp.test","","");
+$nntp = imap_open ("{localhost/nntp:119}comp.test", "", "");
       </programlisting>
      </informalexample>
-
      To connect to a remote server replace "localhost" with the name
      or the IP address of the server you want to connect to.
     </para>
@@ -906,7 +1052,8 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
       </listitem>
       <listitem>
        <simpara>
-	OP_ANONYMOUS - Dont use or update a .newsrc for news
+	OP_ANONYMOUS - Dont use or update a
+	<filename>.newsrc</filename> for news (NNTP only)
        </simpara>
       </listitem>
       <listitem>
@@ -921,6 +1068,38 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
        </simpara>
       </listitem>
      </itemizedlist>
+    </para>
+    <para>
+     <example>
+      <title><function>imap_open</function> example</title>
+      <programlisting role="php">
+$mbox = imap_open ("{your.imap.host:143}", "username", "password");
+
+echo "&lt;p>&lt;h1>Mailboxes&lt;/h1>\n";
+$folders = imap_listmailbox ($mbox, "{your.imap.host:143}", "*");
+
+if ($folders == false) {
+    echo "Call failed&lt;br&gt;\n";
+} else {
+    while (list ($key, $val) = each ($folders)) {
+        echo $val."&lt;br>\n";
+    }
+}
+
+echo "&lt;p>&lt;h1>Headers in INBOX&lt;/h1>\n";
+$headers = imap_headers ($mbox);
+
+if ($headers == false) {
+    echo "Call failed&lt;br>\n";
+} else {
+    while (list ($key,$val) = each ($headers)) {
+        echo $val."&lt;br>\n";
+    }
+}
+
+imap_close($mbox);
+      </programlisting>
+     </example>
     </para>
    </refsect1>
   </refentry>
@@ -944,6 +1123,8 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
      it is still active. It may discover new mail; this is the
      preferred method for a periodic "new mail check" as well as a
      "keep alive" for servers which have inactivity timeout.
+     (As PHP scripts do not tend to run that long, i can hardly
+     imagine that this function will be usefull to anyone.)
     </para>
    </refsect1>
   </refentry>
@@ -970,8 +1151,10 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
      Returns true on success and false on error.
     </para>
     <para>
-     See also <function>imap_createmailbox</function> and
-     <function>imap_deletemailbox</function>.
+     See also <function>imap_createmailbox</function>,
+     <function>imap_deletemailbox</function>, and
+     <function>imap_open</function> for the format of
+     <parameter>mbox</parameter>.
     </para>
    </refsect1>
   </refentry>
@@ -988,12 +1171,13 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
      <paramdef>string <parameter>imap_stream</parameter></paramdef>
      <paramdef>string <parameter>mailbox</parameter></paramdef>
      <paramdef>string
-     <parameter><optional>flags</optional></parameter></paramdef>
+      <parameter><optional>flags</optional></parameter>
+     </paramdef>
     </funcsynopsis>
-    <para>
-     Returns true on success and false on error.</para>
     <para>  
-     This function reopens the specified stream to new mailbox.</para>
+     This function reopens the specified stream to a new mailbox on
+     an IMAP or NNTP server.
+    </para>
     <para>
      The options are a bit mask with one or more of the following:
      <itemizedlist>
@@ -1004,22 +1188,28 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
       </listitem>
       <listitem>
        <simpara>
-	OP_ANONYMOUS - Dont use or update a .newsrc for news
+	OP_ANONYMOUS - Dont use or update a
+	<filename>.newsrc</filename> for news (NNTP only)
        </simpara>
       </listitem>
       <listitem>
        <simpara>
 	OP_HALFOPEN - For IMAP and NNTP names, open a connection but
-	dont open a mailbox
+	dont open a mailbox.
        </simpara>
       </listitem>
       <listitem>
        <simpara>
 	CL_EXPUNGE - Expunge mailbox automatically upon mailbox close
+	(see also <function>imap_delete</function> and
+	<function>imap_expunge</function>)
        </simpara>
       </listitem>
      </itemizedlist>
     </para>  
+    <para>
+     Returns true on success and false on error.
+    </para>
    </refsect1>
   </refentry>
 
@@ -1060,7 +1250,8 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
     </funcsynopsis>
     <para> 
      This function removes the deletion flag for a specified message,
-     which is set by <function>imap_delete</function>.
+     which is set by <function>imap_delete</function> or
+     <function>imap_mail_move</function>.
     </para>
     <para>
      Returns true on success and false on error.
@@ -1102,9 +1293,16 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
      <paramdef>string <parameter>string</parameter></paramdef>
     </funcsynopsis>
     <para>  
-     Convert a quoted-printable string to an 8 bit string</para>
+     Convert a quoted-printable string to an 8 bit string (according
+     to <ulink url="&url.rfc;/rfc2045.html">RFC2045</ulink>, section
+     6.7).
+    </para>
     <para>
-     Returns an 8 bit (binary) string</para>
+     Returns an 8 bit (binary) string.
+    </para>
+    <para>
+     See also <function>imap_8bit</function>.
+    </para>
    </refsect1>
   </refentry>
 
@@ -1122,9 +1320,16 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
      <paramdef>string <parameter>string</parameter></paramdef>
     </funcsynopsis>
     <para>  
-     Convert an 8bit string to a quoted-printable string.</para>
+     Convert an 8bit string to a quoted-printable string (according to
+     <ulink url="&url.rfc;/rfc2045.html">RFC2045</ulink>, section
+     6.7).
+    </para>
     <para>
-     Returns a quoted-printable string</para>
+     Returns a quoted-printable string.
+    </para>
+    <para>
+     See also <function>imap_qprint</function>.
+    </para>
    </refsect1>
   </refentry>
 
@@ -1142,10 +1347,14 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
      <paramdef>string <parameter>string</parameter></paramdef>
     </funcsynopsis>
     <para>  
-     Convert an 8bit string to a base64 string.
+     Convert an 8bit string to a base64 string (according to <ulink
+     url="&url.rfc;/rfc2045.html">RFC2045</ulink>, Section 6.8).
     </para>
     <para>
      Returns a base64 string.
+    </para>
+    <para>
+     See also <function>imap_base64</function>.
     </para>
    </refsect1>
   </refentry>
@@ -1163,11 +1372,14 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
     <funcsynopsis>
      <funcdef>array <function>imap_scanmailbox</function></funcdef>
      <paramdef>int <parameter>imap_stream</parameter></paramdef>
-     <paramdef>string <parameter>string</parameter></paramdef>
+     <paramdef>string <parameter>content</parameter></paramdef>
     </funcsynopsis>
     <para>
      Returns an array containing the names of the mailboxes that have
      <parameter>string</parameter> in the text of the mailbox.
+     This function is simmilar to <function>imap_listmailbox</function>,
+     but it will additionally check for the presence of the string 
+     <parameter>content</parameter> inside the mailbox data.
     </para>
    </refsect1>
   </refentry>
@@ -1189,21 +1401,48 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
     </para> 
     <para> 
      The <function>imap_mailboxmsginfo</function> function checks the
-     current mailbox status on the server and returns the information
+     current mailbox status on the server. It is similar to 
+     <function>imap_status</function>, but will additionally sum up the
+     size of all messages in the mailbox, which will take some additional
+     time to execute. It returns the information
      in an object with following properties.
     </para>
     <para>
-     <informalexample>
-      <literallayout>
-       Date : date of the message
-       Driver : driver
-       Mailbox : name of the mailbox	
-       Nmsgs : number of messages	
-       Recent : number of recent messages
-       Unread : number of unread messages
-       Size : mailbox size
-      </literallayout>
-     </informalexample>
+     <table>
+      <title>Mailbox properties</title>
+      <tgroup cols="2">
+       <tbody>
+        <row>
+	 <entry>Date</entry>
+	 <entry>date of last change</entry>
+	</row>
+        <row>
+	 <entry>Driver</entry>
+	 <entry>driver</entry>
+	</row>
+        <row>
+	 <entry>Mailbox</entry>
+	 <entry>name of the mailbox</entry>
+	</row>
+        <row>
+	 <entry>Nmsgs</entry>
+	 <entry>number of messages</entry>
+	</row>
+        <row>
+	 <entry>Recent</entry>
+	 <entry>number of recent messages</entry>
+	</row>
+        <row>
+	 <entry>Unread</entry>
+	 <entry>number of unread messages</entry>
+	</row>
+        <row>
+	 <entry>Size</entry>
+	 <entry>mailbox size</entry>
+	</row>
+       </tbody>
+      </tgroup>
+     </table>
     </para>
    </refsect1>
   </refentry>
@@ -1227,8 +1466,9 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
      <paramdef>string <parameter>personal</parameter></paramdef>
     </funcsynopsis>
     <para>
-     Returns a properly formatted email address given the mailbox,
-     host, and personal info.
+     Returns a properly formatted email address as defined in 
+     <ulink url="&url.rfc;/rfc822.html">RFC822</ulink>
+     given the mailbox, host, and personal info.
     </para>
    </refsect1>
   </refentry>
@@ -1248,16 +1488,18 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
      <paramdef>string <parameter>default_host</parameter></paramdef>
     </funcsynopsis>
     <para>
-     This function parses the address string and for each address,
-     returns an array of objects.  The 4 objects are:
+     This function parses the address string as defined in 
+     <ulink url="&url.rfc;/rfc822.html">RFC822</ulink> and 
+     for each address, returns an array of objects.  
+     The 4 objects are:
     </para>
     <para>
      <informalexample>
       <literallayout>
-     mailbox - the mailbox name (username)
-     host   - the host name
-     personal - the personal name
-     adl - at domain source route
+mailbox  - the mailbox name (username)
+host     - the host name
+personal - the personal name
+adl      - at domain source route
       </literallayout>
      </informalexample>
     </para>
@@ -1284,15 +1526,15 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
     </para>
     <para>
      The flags which you can set are "\\Seen", "\\Answered",
-     "\\Flagged", "\\Deleted", "\\Draft", and "\\Recent" ( as defined
-     by RFC2060)
+     "\\Flagged", "\\Deleted", "\\Draft", and "\\Recent" (as defined
+     by RFC2060).
     </para>
     <para>
      The options are a bit mask with one or more of the following:
      <informalexample>
       <literallayout>
-        ST_UID          The sequence argument contains UIDs instead of
-                        sequence numbers
+ST_UID          The sequence argument contains UIDs instead of
+                sequence numbers
       </literallayout>
      </informalexample>
     </para>
@@ -1318,13 +1560,16 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
     <para>
      This function causes a store to delete the specified flag to the
      flags set for the messages in the specified sequence.
+     The flags which you can unset are "\\Seen", "\\Answered",
+     "\\Flagged", "\\Deleted", "\\Draft", and "\\Recent" (as defined
+     by RFC2060).
     </para>
     <para>
      The options are a bit mask with one or more of the following:
      <informalexample>
       <literallayout>
-        ST_UID          The sequence argument contains UIDs instead of
-                        sequence numbers
+ST_UID          The sequence argument contains UIDs instead of
+                sequence numbers
       </literallayout>
      </informalexample>
     </para>
@@ -1334,7 +1579,7 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
   <refentry id="function.imap-sort">
    <refnamediv>
     <refname>imap_sort</refname>
-    <refpurpose></refpurpose>
+    <refpurpose>Sort an array of message headers</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Description</title>
@@ -1347,22 +1592,22 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
     </funcsynopsis>
     <para>
      Returns an array of message numbers sorted by the given
-     parameters
+     parameters.
     </para>
     <para>
-     Rev is 1 for reverse-sorting.
+     <parameter>Reverse</parameter> is 1 for reverse-sorting.
     </para>
     <para>
      Criteria can be one (and only one) of the following:
      <informalexample>
       <literallayout>
-        SORTDATE        message Date
-        SORTARRIVAL     arrival date
-        SORTFROM        mailbox in first From address
-        SORTSUBJECT     message Subject
-        SORTTO          mailbox in first To address 
-        SORTCC          mailbox in first cc address 
-        SORTSIZE        size of message in octets
+SORTDATE        message Date
+SORTARRIVAL     arrival date
+SORTFROM        mailbox in first From address
+SORTSUBJECT     message Subject
+SORTTO          mailbox in first To address 
+SORTCC          mailbox in first cc address 
+SORTSIZE        size of message in octets
       </literallayout>
      </informalexample>
     </para>
@@ -1370,8 +1615,8 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
      The flags are a bitmask of one or more of the following:
      <informalexample>
       <literallayout>
-        SE_UID          Return UIDs instead of sequence numbers
-        SE_NOPREFETCH   Don't prefetch searched messages.
+SE_UID          Return UIDs instead of sequence numbers
+SE_NOPREFETCH   Don't prefetch searched messages.
       </literallayout>
      </informalexample>
     </para>
@@ -1386,13 +1631,14 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
    <refsect1>
     <title>Description</title>
     <funcsynopsis>
-     <funcdef>string<function>imap_fetchheader</function></funcdef>
+     <funcdef>string <function>imap_fetchheader</function></funcdef>
      <paramdef>int <parameter>imap_stream</parameter></paramdef>
      <paramdef>int <parameter>msgno</parameter></paramdef>
      <paramdef>int <parameter>flags</parameter></paramdef>
     </funcsynopsis>
     <para>
-     This function causes a fetch of the complete, unfiltered RFC 822
+     This function causes a fetch of the complete, unfiltered 
+     <ulink url="&url.rfc;/rfc822.html">RFC822</ulink>
      format header of the specified message as a text string and
      returns that text string.
     </para>
@@ -1400,15 +1646,15 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
      The options are:
      <informalexample>
       <literallayout>
-        FT_UID          The msgno argument is a UID 
-        FT_INTERNAL     The return string is in "internal" format,
-                        without any attempt to canonicalize to CRLF
-                        newlines
-        FT_PREFETCHTEXT The RFC822.TEXT should be pre-fetched at the
-                        same time.  This avoids an extra RTT on an
-                        IMAP connection if a full message text is
-                        desired (e.g. in a "save to local file"
-                        operation)
+FT_UID          The msgno argument is a UID 
+FT_INTERNAL     The return string is in "internal" format,
+                without any attempt to canonicalize to CRLF
+                newlines
+FT_PREFETCHTEXT The RFC822.TEXT should be pre-fetched at the
+                same time.  This avoids an extra RTT on an
+                IMAP connection if a full message text is
+                desired (e.g. in a "save to local file"
+                operation)
       </literallayout>
      </informalexample>
     </para>
@@ -1432,7 +1678,10 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
     </funcsynopsis>
     <para>
      This function returns the UID for the given message sequence
-     number. It is the inverse of <function>imap_msgno</function>.
+     number. An UID is an unique identifier that will not change over
+     time while a message sequence number may change whenever the
+     content of the mailbox changes.  This function is the inverse of
+     <function>imap_msgno</function>.
     </para>
    </refsect1>
   </refentry>
@@ -1443,7 +1692,7 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
     <refname>imap_msgno</refname>
     <refpurpose>
      This function returns the message sequence number for the given
-     UID.
+     UID
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -1465,7 +1714,7 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
     <refname>imap_search</refname>
     <refpurpose>
      This function returns an array of messages matching the given
-     search criteria.
+     search criteria
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -1480,7 +1729,7 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
      This function performs a search on the mailbox currently opened
      in the given imap stream. <parameter>criteria</parameter> is a
      string, delimited by spaces, in which the following keywords are
-     allowed. Any multi-word arguments (eg FROM "joey smith") must be
+     allowed. Any multi-word arguments (eg. FROM "joey smith") must be
      quoted.
      <itemizedlist>  
       <listitem>
@@ -1612,7 +1861,7 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
      use: "UNANSWERED FROM mom". Searches appear to be case
      insensitive. This list of criteria is from a reading of the UW
      c-client source code and may be uncomplete or
-     inaccurate. Searcher beware.
+     inaccurate (see also RFC2060, section 6.4.4).
     </para>
     <para>
      Valid values for flags are SE_UID, which causes the returned
@@ -1626,7 +1875,7 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
     <refname>imap_last_error</refname>
     <refpurpose>
      This function returns the last IMAP error (if any) that occurred
-     during this page request.
+     during this page request
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -1641,8 +1890,6 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
      untouched; calling <function>imap_last_error</function>
      subsequently, with no intervening errors, will return the same
      error.
-    </para>
-    <para>CAUTION: this function is not yet available in PHP4.
     </para>
    </refsect1>
   </refentry>
@@ -1667,10 +1914,7 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
      generated since the last <function>imap_errors</function> call,
      or the beginning of the page. When
      <function>imap_errors</function> is called, the error stack is
-     subsequently cleared.
-    </para> 
-    <para>
-     CAUTION: this function is not yet available in PHP4
+     subsequently cleared.  
     </para>
    </refsect1>
   </refentry>
@@ -1681,7 +1925,7 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
     <refpurpose>
      This function returns all IMAP alert messages (if any) that have
      occurred during this page request or since the alert stack was
-     reset.
+     reset
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -1706,7 +1950,7 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
     <refname>imap_status</refname>
     <refpurpose>
      This function returns status information on a mailbox other than
-     the current one.
+     the current one
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -1761,6 +2005,225 @@ $nntp = imap_open("{localhost/nntp:119}comp.test","","");
     <para>
      status->flags is also set, which contains a bitmask which can be
      checked against any of the above constants.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.imap-utf7-decode">
+   <refnamediv>
+    <refname>imap_utf7_decode</refname>
+    <refpurpose>
+     Decodes a modified UTF-7 encoded string.
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcdef>string <function>imap_utf7_decode</function></funcdef>
+     <paramdef>string <parameter>text</parameter></paramdef>
+    </funcsynopsis>
+    <para>  
+     Decodes modified UTF-7 <parameter>text</parameter> into 8bit data.
+    </para>
+    <para>
+     Returns the decoded 8bit data, or false if the input string was
+     not valid modified UTF-7.  The modified UTF-7 encoding is defined in
+     <ulink url="&url.rfc;/rfc2060.html">RFC 2060</ulink>, section 5.1.3 
+     (original UTF-7 was defned in 
+     <ulink url="&url.rfc;/rfc1642.html">RFC1642</ulink>).
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.imap-utf7-encode">
+   <refnamediv>
+    <refname>imap_utf7_encode</refname>
+    <refpurpose>
+     Converts 8bit data to modified UTF-7 text.
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcdef>string <function>imap_utf7_encode</function></funcdef>
+     <paramdef>string <parameter>data</parameter></paramdef>
+    </funcsynopsis>
+    <para>
+     Converts 8bit <parameter>data</parameter> to modified
+     UTF-7 text.  The modified UTF-7 encoding is defined in
+     <ulink url="&url.rfc;/rfc2060.html">RFC 2060</ulink>, section 5.1.3 
+     (original UTF-7 was defned in 
+     <ulink url="&url.rfc;/rfc1642.html">RFC1642</ulink>).
+    </para>
+    <para>
+     Returns the modified UTF-7 text.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.imap-utf8">
+   <refnamediv>
+    <refname>imap_utf8</refname>
+    <refpurpose>
+      Converts text to UTF8
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcdef>string <function>imap_utf8</function></funcdef>
+     <paramdef>string <parameter>text</parameter></paramdef>
+    </funcsynopsis>
+    <para>
+     Converts the given <parameter>text</parameter> to 
+     UTF8 (as defined in 
+     <ulink url="&url.rfc;/rfc2044.html">RFC2044</ulink>).
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.imap-fetch-overview">
+   <refnamediv>
+    <refname>imap_fetch_overview</refname>
+    <refpurpose>
+     Read an overview of the information in the headers of the given message
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcdef>array <function>imap_fetch_overview</function></funcdef>
+     <paramdef>int <parameter>imap_stream</parameter></paramdef>
+     <paramdef>string <parameter>sequence</parameter></paramdef>
+    </funcsynopsis>
+    <para>
+     This function fetches a mail header and returns an overview of
+     its contents.  It will return an array of objects describing one
+     message header each:
+     <itemizedlist>
+      <listitem>
+       <simpara>
+        subject - the messages subject
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        from - who sent it
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        date - when was it sent
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        message_id - Message-ID 
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        references - is a reference to this message id
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        size - size in bytes
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        uid - UID the message has in the mailbox
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        msgno - message sequence number in the maibox
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        recent - this message is flagged as recent
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        flagged -  this message is flagged
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        answered -  this message is flagged as answered
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        deleted -  this message is flagged for deletion
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        seen -  this message is flagged as already read
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        draft -  this message is flagged as being a draft
+       </simpara>
+      </listitem>
+     </itemizedlist>
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.imap-mail-compose">
+   <refnamediv>
+    <refname>imap_mail_compose</refname>
+    <refpurpose>
+     Create a MIME message based on given envelope and body sections 
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcdef>string <function>imap_mail_compose</function></funcdef>
+     <paramdef>array <parameter>envelope</parameter></paramdef>
+     <paramdef>array <parameter>body</parameter></paramdef>
+    </funcsynopsis>
+    <para>
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.imap-mail">
+   <refnamediv>
+    <refname>imap_mail</refname>
+    <refpurpose>
+     Send an email message
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcdef>string <function>imap_mail</function></funcdef>
+     <paramdef>string <parameter>to</parameter></paramdef>
+     <paramdef>string <parameter>subject</parameter></paramdef>
+     <paramdef>string <parameter>message</parameter></paramdef>
+     <paramdef>string 
+      <parameter><optional>additional_headers</optional></parameter>
+     </paramdef>
+     <paramdef>string 
+      <parameter><optional>cc</optional></parameter>
+     </paramdef>
+     <paramdef>string 
+      <parameter><optional>bcc</optional></parameter>
+     </paramdef>
+     <paramdef>string 
+      <parameter><optional>rpath</optional></parameter>
+     </paramdef>
+    </funcsynopsis>
+    <para>
+     This function is currently only available in PHP3. 
     </para>
    </refsect1>
   </refentry>

@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/pgsql.xml, last change in rev 1.16 -->
 <!-- last change to 'pg-put-line' in en/ tree in rev 1.20 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: ready -->
+<!-- EN-Revision: 1.2 Maintainer: cucinato Status: ready -->
 <!-- OLD-Revision: 1.70/EN.1.20 -->
+<!-- CREDITS: fabio,cortesi,denny -->
   <refentry id="function.pg-put-line">
    <refnamediv>
     <refname>pg_put_line</refname>
-    <refpurpose>Send a NULL-terminated string to PostgreSQL backend</refpurpose>
+    <refpurpose>Invia una stringa terminata da NULL al backend PostgreSQL</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
       <type>bool</type><methodname>pg_put_line</methodname>
-      <methodparam choice="opt"><type>resource</type><parameter>connection</parameter></methodparam>
-      <methodparam><type>string</type><parameter>data</parameter></methodparam>
+      <methodparam choice="opt"><type>resource</type><parameter>connessione</parameter></methodparam>
+      <methodparam><type>string</type><parameter>dati</parameter></methodparam>
      </methodsynopsis>
     <para>
-     <function>pg_put_line</function> sends a NULL-terminated string
-     to the PostgreSQL backend server. This is useful for example for
-     very high-speed inserting of data into a table, initiated by
-     starting a PostgreSQL copy-operation. That final NULL-character
-     is added automatically. It returns &true; if successful, &false;
-     otherwise.
+     <function>pg_put_line</function> invia una stringa terminata da NULL
+     al backend PostgreSQL. Ciò è utile, per esempio, per 
+     l'inserimento ad alta velocità di dati in una tabella, iniziato mediante
+     l'invocazione di una operazione di copia. Il carattere NULL finale
+     è aggiunto automaticamente. &return.success;
     </para>
     <note>
      <para> 
-      Note the application must explicitly send the two characters "\."
-      on a final line to indicate to the backend that it has finished
-      sending its data.
+      L'applicazione deve explicitamente inviare i due caratteri "\."
+      sull'ultima riga, ad indicare al backend il termine dell'invio dei
+      dati.
      </para>
     </note>
     <para>
-     See also <function>pg_end_copy</function>.
+     Vedere anche <function>pg_end_copy</function>.
      <example>
-      <title>High-speed insertion of data into a table</title>
+      <title>Inserimento ad alta velocità dai dati in una tabella</title>
       <programlisting role="php">
 <![CDATA[
 <?php 
     $conn = pg_pconnect ("dbname=foo");
-    pg_exec($conn, "create table bar (a int4, b char(16), d float8)");
-    pg_exec($conn, "copy bar from stdin");
+    pg_query($conn, "create table bar (a int4, b char(16), d float8)");
+    pg_query($conn, "copy bar from stdin");
     pg_put_line($conn, "3\thello world\t4.5\n");
     pg_put_line($conn, "4\tgoodbye world\t7.11\n");
     pg_put_line($conn, "\\.\n");

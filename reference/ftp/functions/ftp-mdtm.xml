@@ -1,32 +1,71 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/ftp.xml, last change in rev 1.1 -->
-<!-- last change to 'ftp-mdtm' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: colombo Status: working -->
-<!-- OLD-Revision: 1.43/EN.1.2 -->
+<!-- last change to 'ftp-mdtm' in en/ tree in rev 1.7 -->
+<!-- EN-Revision: 1.8 Maintainer: afparam Status: ready -->
+<!-- CREDITS: Colombo -->
+<!-- OLD-Revision: 1.43/EN.1.7 -->
+
   <refentry id="function.ftp-mdtm">
    <refnamediv>
     <refname>ftp_mdtm</refname>
-    <refpurpose>Restituisce la data di ultima modifica di un dato file</refpurpose>
+    <refpurpose>Restituisce l'orario dell'ultima modifica al file corrente</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>ftp_mdtm</methodname>
-      <methodparam><type>int</type><parameter>ftp_stream</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>ftp_stream</parameter></methodparam>
       <methodparam><type>string</type><parameter>remote_file</parameter></methodparam>
      </methodsynopsis>
     <para>
-     <function>ftp_mdtm</function> Controlla la data di ultima modifica di un 
-     file, e la restituisce in formato UNIX timestamp.  Se si verifica un errore, oppure
-     il file non esiste, viene restituito -1. Da notare che non tutti i server supportano
-     questa caratteristica.
+     La funzione <function>ftp_mdtm</function> controlla l'orario dell'ultima modifica ad un
+     file, e lo restituisce in formato timestamp Unix. Se si verifica un errore,
+     o il file non esiste, restituisce -1. 
     </para>
     <para>
-     Restituisce uno UNIX timestamp se a buon fine, oppure -1 in caso di errore.
+     Restituisce un timestamp Unix in caso di successo, o -1 in caso di errore.
+    </para>
+    <para>
+     <example>
+      <title> Esempio di funzione <function>ftp_mdtm</function> </title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+
+$file = 'somefile.txt';
+
+// stabilisce la connessione
+$conn_id = ftp_connect($ftp_server);
+
+// si collega con nome utente e password
+$login_result = ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
+
+// recupera l'ultimo orario di modifica
+$buff = ftp_mdtm($conn_id, $file);
+
+if ($buff != -1) {
+    // somefile.txt e' stato modificato l'ultima volta il: 26 marzo 2003 14:16:41.
+    echo "$file e' stato modificato l'ultima volta il : " . date("F d Y H:i:s.", $buff);
+} else {
+    echo "Impossibile visualizzare mdtime";
+}
+
+// chiude la connessione
+ftp_close($conn_id);
+
+?>
+]]>
+      </programlisting>
+     </example>
     </para>
     <note>
      <para>
-      <function>ftp_mdtm</function> non funziona con le cartelle.
+       Non tutti i server includono questa funzione!
+     </para>
+    </note>
+    <note>
+     <para>
+      La funzione <function>ftp_mdtm</function> non funziona con le directories.
      </para>
     </note>
    </refsect1>

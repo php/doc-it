@@ -1,31 +1,76 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/ftp.xml, last change in rev 1.1 -->
-<!-- last change to 'ftp-fput' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: colombo Status: working -->
-<!-- OLD-Revision: 1.43/EN.1.2 -->
+<!-- last change to 'ftp-fput' in en/ tree in rev 1.7 -->
+<!-- EN-Revision: 1.10 Maintainer: afparam Status: ready -->
+<!-- CREDITS: Colombo -->
+<!-- OLD-Revision: 1.43/EN.1.7 -->
+
   <refentry id="function.ftp-fput">
    <refnamediv>
     <refname>ftp_fput</refname>
-    <refpurpose>Carica da un file aperto al server FTP</refpurpose>
+    <refpurpose>Carica un file aperto sul server FTP</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>ftp_fput</methodname>
-      <methodparam><type>int</type><parameter>ftp_stream</parameter></methodparam>
+      <type>bool</type><methodname>ftp_fput</methodname>
+      <methodparam><type>resource</type><parameter>ftp_stream</parameter></methodparam>
       <methodparam><type>string</type><parameter>remote_file</parameter></methodparam>
-      <methodparam><type>int</type><parameter>fp</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
       <methodparam><type>int</type><parameter>mode</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>startpos</parameter></methodparam>
      </methodsynopsis>
     <para>
-     <function>ftp_fput</function> carica i dati dal puntatore del file
-     <parameter>fp</parameter> fino alla fine del file stesso.  I risultati
-     vengono salvati in <parameter>remote_file</parameter> sul server FTP.  
-     Il parametro <parameter>mode</parameter> che spedifica il tipo di trasferimento 
-     deve essere <constant>FTP_ASCII</constant> oppure <constant>FTP_BINARY</constant>.
+     <function>ftp_fput</function> carica i dati del file cui fa riferimento il puntatore
+     <parameter>handle</parameter> fino a quando viene raggiunta la fine del file. I risultati sono salvati
+     in <parameter>remote_file</parameter> sul server FTP. Il modo di trasferimento
+     <parameter>mode</parameter> specificato deve essere
+     <constant>FTP_ASCII</constant> oppure <constant>FTP_BINARY</constant>.
     </para>
     <para>
-     Restituisce &true; se a buon fine, &false; in caso di errore.
+     <example>
+      <title> Esempio di funzione <function>ftp_fput</function> </title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+
+// apre in lettura un qualche file
+$file = 'somefile.txt';
+$fp = fopen($file, 'r');
+
+// stabilisce la connessione
+$conn_id = ftp_connect($ftp_server);
+
+// si collega con nome utente e password
+$login_result = ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
+
+// prova a caricare $file
+if (ftp_fput($conn_id, $file, $fp, FTP_ASCII)) {
+    echo "$file caricato con successo\n";
+} else {
+    echo "Problemi con il caricamento di $file\n";
+}
+
+// chiude la connessione e l'handle del file
+ftp_close($conn_id);
+fclose($fp);
+
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <note>
+     <para>
+      Il parametro <parameter>startpos</parameter> e' stato aggiunto in PHP 4.3.0.
+     </para>
+    </note>
+    <para>
+     &return.success;
+    </para>
+    <para>
+     Vedere anche <function>ftp_put</function>, <function>ftp_nb_fput</function>,
+     e <function>ftp_nb_put</function>.
     </para>
    </refsect1>
   </refentry>

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/ftp.xml, last change in rev 1.1 -->
-<!-- last change to 'ftp-get' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: colombo Status: working -->
-<!-- OLD-Revision: 1.43/EN.1.2 -->
+<!-- last change to 'nomefunzione' in en/ tree in rev 1.7 -->
+<!-- EN-Revision: 1.8 Maintainer: afparam Status: ready -->
+<!-- CREDITS: Colombo -->
+<!-- OLD-Revision: 1.43/EN.1.7 -->
+
   <refentry id="function.ftp-get">
    <refnamediv>
     <refname>ftp_get</refname>
@@ -11,24 +13,63 @@
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>ftp_get</methodname>
-      <methodparam><type>int</type><parameter>ftp_stream</parameter></methodparam>
-      <methodparam><type>string</type><parameter>file_in_locale</parameter></methodparam>
-      <methodparam><type>string</type><parameter>file_remoto</parameter></methodparam>
+      <type>bool</type><methodname>ftp_get</methodname>
+      <methodparam><type>resource</type><parameter>ftp_stream</parameter></methodparam>
+      <methodparam><type>string</type><parameter>local_file</parameter></methodparam>
+      <methodparam><type>string</type><parameter>remote_file</parameter></methodparam>
       <methodparam><type>int</type><parameter>mode</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>resumepos</parameter></methodparam>
      </methodsynopsis>
     <para>
-     <function>ftp_get</function> recupera <parameter>file_remoto</parameter>
-     dal server FTP, e lo salva come <parameter>file_in_locale</parameter>
-     localmente.  La modalità di trasferimento indicata dal parametro <parameter>mode</parameter> 
-     deve essere specificata come <constant>FTP_ASCII</constant> oppure
+     <function>ftp_get</function> recupera <parameter>remote_file</parameter>
+     dal server FTP, e lo salva sul file locale <parameter>local_file</parameter>.
+     Il modo di trasferimento <parameter>mode</parameter> specificato deve
+     essere <constant>FTP_ASCII</constant> oppure
      <constant>FTP_BINARY</constant>.
     </para>
+    <note>
+     <para>
+      Il parametro <parameter>resumepos</parameter> e' stato aggiunto in PHP 4.3.0.
+     </para>
+    </note>
     <para>
-     Restituisce &true; se a buon fine, &false; in caso di errore.
+     &return.success;
     </para>
     <para>
-     Vedere anche <function>ftp_fget</function>.
+    <example>
+     <title> Esempio di funzione <function>ftp_get</function> </title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+
+// definisce alcune variabili
+$local_file = 'local.zip';
+$server_file = 'server.zip';
+
+// stabilisce la connessione
+$conn_id = ftp_connect($ftp_server);
+
+// si collega con nome utente e password
+$login_result = ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
+
+// prova a scaricare $server_file e a salvarlo su $local_file
+if (ftp_get($conn_id, $local_file, $server_file, FTP_BINARY)) {
+    echo "Scrittura su $local_file terminata con successo\n";
+} else {
+    echo "Problemi nello scaricamento\n";
+}
+
+// chiude la connessione
+ftp_close($conn_id);
+
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Vedere anche <function>ftp_fget</function>, <function>ftp_nb_get</function> e
+     <function>ftp_nb_fget</function>.
     </para>
    </refsect1>
   </refentry>

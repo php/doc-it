@@ -1,12 +1,107 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.2 Maintainer: curcio_it Status: ready -->
+<!-- EN-Revision: 1.7 Maintainer: darvina Status: ready -->
+<!-- CREDITS: curcio_it -->
  <reference id="ref.w32api">
   <title>Funzioni W32api</title>
   <titleabbrev>Funzioni W32api</titleabbrev>
 
   <partintro>
-   <para>
-   </para>
+   <section id="w32api.intro">
+    &reftitle.intro;
+    <para>
+     Questa è una generica API verso le DLL. In origine fu scritta per consentire
+     l'accesso alle API Win32 dal PHP, sebbene si possa anche accedere
+     a funzioni esportate da altre DLL.
+    </para>
+    <para>
+     Attualmente i tipi di dati supportati dal modulo sono i generici tipi PHP 
+     (strings, booleans, floats, integers e null) e i tipi definiti dall'utente tramite <function>w32api_deftype</function>.
+    </para>
+    &warn.experimental;
+   </section>
+ 
+   <section id="w32api.requirements">
+    &reftitle.required;
+    <para>
+     Questo modulo gira solo su sistemi Windows.
+    </para>
+   </section>
+ 
+   <section id="w32api.installation">
+    &reftitle.install;
+    &no.install;
+   </section>
+ 
+   <section id="w32api.configuration">
+    &reftitle.runtime;
+    &no.config;
+   </section>
+ 
+   <section id="w32api.resources">
+    &reftitle.resources;
+    <para>
+     Questo modulo definisce un solo tipo di risorsa utilizzata per i tipi di dati definiti dall'utente.
+     Il nome i questa risorsa è <literal>"dynaparm"</literal>.
+    </para>
+   </section>
+ 
+   &reference.w32api.constants;
+	 
+   <section id="w32api.examples">
+    &reftitle.examples;
+    <para>
+     Nel seguente esempio si ottiene da quanto tempo il sistema è attivo
+     ed il risultato viene visualizzato in una finestra.
+    </para>
+    <example>
+     <title>Ottenere il tempo di attività e visualizzarlo in una finestra</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+// Definizione delle costanti richieste, dati ottenuti da
+// Visual Studio/Tools/Winapi/WIN32API.txt
+define("MB_OK", 0);
+ 
+// Carico il modulo
+dl("php_w32api.dll");
+ 
+// Registrazione della funzione GetTickCount da kernel32.dll
+w32api_register_function("kernel32.dll",
+                         "GetTickCount",
+                         "long");
+ 
+// Registrazione della funzione MessageBoxA da User32.dll
+w32api_register_function("User32.dll",
+                         "MessageBoxA",
+                         "long");
+ 
+// Ottiene il dato cercato
+$ticks = GetTickCount();
+ 
+// Converte in formato umano
+$secs  = floor($ticks / 1000);
+$mins  = floor($secs / 60);
+$hours = floor($mins / 60);
+ 
+$str = sprintf("You have been using your computer for:" .
+                "\r\n %d Milliseconds, or \r\n %d Seconds" .
+                "or \r\n %d mins or\r\n %d hours %d mins.",
+                $ticks,
+                $secs,
+                $mins,
+                $hours,
+                $mins - ($hours*60));
+	 
+// Visualizza la finestra con il bottone di OK
+MessageBoxA(NULL,
+            $str,
+            "Uptime Information",
+            MB_OK);
+?>
+]]>
+     </programlisting>
+    </example>
+   </section>
   </partintro>
 
 &reference.w32api.functions;

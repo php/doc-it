@@ -1,114 +1,137 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.7 Maintainer: cortesi Status: ready -->
-
+<!-- EN-Revision: 1.1	7 Maintainer: cortesi Status: ready -->
  <chapter id="features.persistent-connections">
   <title>Connessioni Persistenti ai Database</title>
 
   <simpara>
    Connessioni persistenti sono collegamenti SQL che non vengono chiusi quando
-   l'esecusione di uno script viene terminata. Quando &egrave; richiesta una connessione
-   persistente, PHP controlla se esiste gi&agrave; una identica connessione persistente
-   (che &egrave; rimasta aperta da prima) - e se esiste, la
+   l'esecusione di uno script viene terminata. Quando è richiesta una connessione
+   persistente, PHP controlla se esiste già una identica connessione persistente
+   (che è rimasta aperta da prima) - e se esiste, la
    usa. Se non esiste, crea il collegamento. Una connessione 'identica'
-   &egrave; una connessione aperta verso lo stesso host, con
+   è una connessione aperta verso lo stesso host, con
    lo stesso username e la stessa password (dove applicabile).
   </simpara>
+  <note>
+   <para>
+    Ci sono altre estensioni che permettono di usare connessioni persistenti, ad 
+    esempio l'<link linkend="ref.imap">estensione IMAP</link>.
+   </para>
+  </note>
   <simpara>
-   Chi non ha molta familiarit&agrave; con il modo in cui lavorano i server web
-   e di come essi distribuiscano il carico potrebbero confondere le connessioni permanenti per ci&ograve;
+   Chi non ha molta familiarità con il modo in cui lavorano i server web
+   e di come essi distribuiscano il carico potrebbero confondere le connessioni permanenti per ciò
    che esse non sono. In particolare, <emphasis>non</emphasis> danno
-   la possibilit&agrave; di aprire 'sessioni utente' sullo stesso collegamento SQL, 
-   <emphasis>non</emphasis> danno la possibilit&agrave; di gestire una transazione in
+   la possibilità di aprire 'sessioni utente' sullo stesso collegamento SQL, 
+   <emphasis>non</emphasis> danno la possibilità di gestire una transazione in
    maniera efficiente e sopratutto non fanno molte altre
    cose. Infatti, per essere molto chiari su questo punto,
    le connessioni persistenti non hanno <emphasis>nessuna</emphasis>
-   funzionali&agrave; che non era disponibile con le loro omonime
+   funzionalià che non era disponibile con le loro omonime
    non-persistenti.
   </simpara>
   <simpara>
-   Perch&eacute;?
+   Perché?
   </simpara> 
   <simpara>
    Questo ha a che fare con il modo in cui i server web operano. Ci sono tre modi
-   in cui un server web pu&ograve; utilizzare PHP per generare le pagine web.
+   in cui un server web può utilizzare PHP per generare le pagine web.
   </simpara>
   <simpara>
    Il primo metodo &grave; quello di usare il PHP come un "wrapper" (involucro) CGI. Quando viene
-   eseguito in questa modalit&agrave;, per ogni pagina che viene richiesta al server web
+   eseguito in questa modalità, per ogni pagina che viene richiesta al server web
    che contenga del codice PHP, viene creata e, alla fine dell'esecuzione, distrutta,
    una istanza dell'interprete PHP.
    Poich&eacute; viene distrutta alla fine di ogni richiesta, qualunque risorsa
-   abbia acquisito (come ad esempio un collegamento ad un server di database SQL) verr&agrave;
-   anch'essa distrutta. In questo caso, non vi &egrave; nessun guadagno nell'usare
+   abbia acquisito (come ad esempio un collegamento ad un server di database SQL) verrà
+   anch'essa distrutta. In questo caso, non vi è nessun guadagno nell'usare
    le connessioni persistenti -- semplicemente esse non persistono.
   </simpara>
   <simpara>
-   Il secondo, e pi&ugrave; popolare, metodo &egrave; quello di eseguire il programma PHP come modulo in un
+   Il secondo, e pi&ugrave; popolare, metodo è quello di eseguire il programma PHP come modulo in un
    server web multiprocesso, cosa che attualmente include solo Apache. Un
    server multiprocesso ha tipicamente un processo (il padre) che
    coordina un insieme di processi (i suoi figli) che sono quelli che
    generano le pagine web. Quando arriva una richiesta da parte di un
-   client, questa &egrave; passata ad uno dei figli che in quel momento
-   non &egrave; gi&agrave; occupato a servire un altro client. Questo significa che quando lo stesso client effettua
-   una seconda richiesta al server, esso potr&agrave; essere servito da un diverso processo
+   client, questa è passata ad uno dei figli che in quel momento
+   non è già occupato a servire un altro client. Questo significa che quando lo stesso client effettua
+   una seconda richiesta al server, esso potrà essere servito da un diverso processo
    figlio rispetto a quello della prima volta. In questa situazione, usare una
    connessione persistente, permette di stabilire una e una sola connessione
    al database SQL per ogni processo figlio, poich&eacute; ciascun
    processo figlio necessita di collegarsi al database SQL solo la
    prima volta che richiama una pagina che ne fa uso. Quando viene richamata
-   un'altra pagina che necessita di una connessione al server SQL, essa pu&ograve;
+   un'altra pagina che necessita di una connessione al server SQL, essa può
    riutilizzare la connessione che lo stesso processo figlio aveva
    stabilito in precedenza.
   </simpara>
   <simpara>
-   L'ultimo metodo &egrave; quello di usare il PHP come una plug-in per un server web
+   L'ultimo metodo è quello di usare il PHP come una plug-in per un server web
    multithread. Attualmente PHP 4 supporta ISAPI, WSAPI e NSAPI (su piattaforma
    Windows), i quali permettono di usare PHP come una plug-in sui server web multithread
-   come FastTrack di Netscape, Internet Information Server (IIS) di Microsoft e
-   WebSite Pro di O'Reilly. Il comportamento &egrave; essenzialmente
+   come FastTrack (iPlanet) di Netscape, Internet Information Server (IIS) di Microsoft e
+   WebSite Pro di O'Reilly. Il comportamento è essenzialmente
    lo stesso che si ha nel modello multiprocesso descritto prima. Si noti che
-   il supporto SAPI non &egrave; disponibile in PHP 3.
+   il supporto SAPI non è disponibile in PHP 3.
   </simpara>
   <simpara>
-   Se le connessioni persistenti non hanno nessuna funzionalit&agrave; aggiuntiva, perch&acute;
+   Se le connessioni persistenti non hanno nessuna funzionalità aggiuntiva, perch&acute;
    usarle?
   </simpara>
   <simpara>
-   La risposta, in questo caso &egrave; estremamente semplice: efficienza. Le connessioni
+   La risposta, in questo caso è estremamente semplice: efficienza. Le connessioni
    persistenti sono utili se il carico di lavoro necessario per aprire una connessione al server SQL
-   &egrave; alto. Che il carico sia molto alto o meno dipende
+   è alto. Che il carico sia molto alto o meno dipende
    da molti fattori. Quali, il tipo di database che si utilizza, il fatto che
    esso si trovi sulla stessa macchina sulla quale si trova il server web, quanto
    carico di lavoro ha la macchina sulla quale si trova il server SQL, e molte altre ragioni. Il
-   fatto importante &egrave; che se il carico di lavoro necessario per aprire le connessioni &egrave; alto, le
+   fatto importante è che se il carico di lavoro necessario per aprire le connessioni è alto, le
    connessioni persistenti possono aiutare in maniera considerevole. Fanno in modo che il processo figlio si
    colleghi semplicemente una volta durante la sua intera vita, invece di collegarsi ogni volta che
    processa una pagina che richiede una connessione al server SQL.
    Questo significa che per ogni figlio che ha aperto una connessione 
-   persistente, si avr&agrave; una nuova connessione persistente aperta verso il
+   persistente, si avrà una nuova connessione persistente aperta verso il
    server. Per esempio, se si hanno 20 diversi processi figlio che
    eseguono uno script che crea una connessione persistente al server SQL server,
    si avranno 20 diverse connessioni al server SQL, una per ogni
    figlio.
   </simpara>
   <simpara>
-   Si fa notare, tuttavia, che questo pu&ograve; avere degli svantaggi se si fa uso di
+   Si fa notare, tuttavia, che questo può avere degli svantaggi se si fa uso di
    un database che ha un limite al numero di connessioni, minore rispetto al numero delle
    connessioni persistenti dei procesi figlio. Se per esempio di usa un database con 16 connessioni simultanee,
-   e durante un periodo di intensa attivit&agrave; del web server, 17 processi figlio
-   cercano di collegarsi, uno non sar&agrave; in grado di farlo. Se nei vostri script
+   e durante un periodo di intensa attività del web server, 17 processi figlio
+   cercano di collegarsi, uno non sarà in grado di farlo. Se nei vostri script
    ci sono bug che non permettono alle connessioni di chiudersi in maniera regolare
    (come ad esempio un loop infinito), un database con sole 32 connessioni
-   diventer&agrave; rapidamente saturo. Fare riferimento alla documentazione del database per
+   diventerà rapidamente saturo. Fare riferimento alla documentazione del database per
    informazioni su come gestire connessioni abbandonate o inattive.
   </simpara>
+  <warning>
+   <simpara>
+    Ci sono un paio di altri caveat da tenere in considerazione quando
+    si usano le connessioni persistenti. Uno è che quando si usa il table
+    locking su una connessione persistente, se lo script, per una qualunque
+    ragione non è in grado di rimuovere il blocco, allora i successivi script che useranno
+    la stessa connessione rimarranno bloccati in maniera indefinita e potrebbe essre necessario
+    riavviare il server httpd o il server database. Un altro è che
+    quando si usano le transazioni, un transaction block verrà trasferito
+    anche allo script successivo che usa la medesima connessione, se lo script in esecuzione
+    termina prima che sia terminato il transaction block. In entrambi i casi, si può
+    usare <function>register_shutdown_function</function> per registrare una
+    semplice funzione di pulizia per sbloccare le tabelle o effettuare il roll back delle
+    transaczioni. Sarebbe meglio non dover affrontare il problema, semplicemente non usando
+    le connessioni persistenti negli script che usano i lock delle tabelle o
+    le transaczioni (si possono comunque usare in altre situazioni).
+   </simpara>
+  </warning>
   <simpara>
    Sommario importante. Le connessioni persistenti sono state pensate per avere
-   una mappatura uno-a-uno con le connessioni di tipo normale. Ci&ograve; significa che si
+   una mappatura uno-a-uno con le connessioni di tipo normale. Ciò significa che si
    dovrebbe <emphasis>sempre</emphasis> essere in grado di cambiare una connessione persistente
    con una connessione non-persistente, e che questo non dovrebbe cambiare
-   il modo in cui lo script si comporta. <emphasis>Pu&ograve;</emphasis> (e
-   probabilmente succeder&agrave;) cambiare l'efficienza dello script, ma non il suo 
+   il modo in cui lo script si comporta. <emphasis>Può</emphasis> (e
+   probabilmente succederà) cambiare l'efficienza dello script, ma non il suo 
    comportamento!
   </simpara>
 

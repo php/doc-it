@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/pcre.xml, last change in rev 1.1 -->
 <!-- last change to 'preg-replace-callback' in en/ tree in rev 1.47 -->
-<!-- EN-Revision: 1.3 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.4 Maintainer: darvina Status: ready -->
 <!-- OLD-Revision: 1.78/EN.1.47 -->
   <refentry id="function.preg-replace-callback">
    <refnamediv>
@@ -26,8 +26,78 @@
      passata una matrice con i testi riconosciuti in <parameter>testo</parameter>.
      La funzione di callback dovrebbe restituire la stringa da sostituire.
     </para>
+    <example> 
+     <title><function>preg_replace_callback</function></title> 
+     <programlisting role='php'>
+<![CDATA[
+<?php 
+// questo test è stato usato nel 2002
+// lo si vuole avere aggiornato per il 2003
+$text = "April fools day is 04/01/2002\n"; 
+$text.= "Last christmas was 12/24/2001\n"; 
+ 
+// la funzione di callback
+function next_year($matches) { 
+// come solito: $matches[0] è il testo riconosciuto completo
+// $matches[1] la parte riconosciuta per il primo criterio
+// racchiuso in '(...)' e così via
+return $matches[1].($matches[2]+1); 
+}
+ 
+echo preg_replace_callback(
+     "|(\d{2}/\d{2}/)(\d{4})|",
+     "next_year",
+     $text);
+ 
+// il risultato sarà:
+// April fools day is 04/01/2003
+// Last christmas was 12/24/2002
+?>
+]]>
+     </programlisting>
+    </example>
     <para>
-     Vedere anche <function>preg_replace</function>.
+     Spesso si ha la necessità di richiamare la funzione <parameter>callback</parameter>
+     soltanto in un unico posto.
+     In questo caso si può utilizzare <function>create_function</function>
+     per dichiarare una funzione anonima come callback per 
+     <function>preg_replace_callback</function>.In questo modo si
+     hanno tutte le informazioni per la chiamata in un unico posto
+     e non si disperde con funzioni di callback non
+     utilizzate altrove.
+    </para>
+    <example>
+     <title><function>preg_replace_callback</function> e <function>create_function</function></title>
+     <programlisting role='php'>
+<![CDATA[
+<?php
+  // Un filtro da linea di comando stile Unix che converte
+  // la maiuscole poste all'inizio delle parole in minuscolo
+ 
+  $fp = fopen("php://stdin", "r") or die("can't read stdin");
+  while (!feof($fp)) {
+        $line = fgets($fp);
+        $line = preg_replace_callback(
+               '|<p>\s*\w|',
+                create_function(
+                  // l'apice singolo è essenziale qui, 
+                  // o in alternativa occorre usare la sequenza di escape \$ 
+                  // per tutte le occorrenze di $ 
+                 '$matches',
+                 'return strtolower($matches[0]);' 
+                 ), 
+               $line 
+               );
+        echo $line; 
+  }
+  fclose($fp);
+?>
+]]> 
+     </programlisting>
+    </example>
+    <para>
+     Vedere anche <function>preg_replace</function> e
+     <function>create_function</function>.
     </para>
    </refsect1>
   </refentry>

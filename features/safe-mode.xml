@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.15 Maintainer: perugini Status: ready -->
+<!-- EN-Revision: 1.16 Maintainer: perugini Status: working -->
  <chapter id="features.safe-mode">
   <title>Modalità sicura (Safe mode)</title>
 
@@ -14,12 +14,14 @@
   <para>
    Le direttive di configurazione che controllano la modalità sicura sono:
    <programlisting role="ini">
+<![CDATA[
 safe_mode = Off 
 open_basedir = 
 safe_mode_exec_dir = 
 safe_mode_allowed_env_vars = PHP_ 
 safe_mode_protected_env_vars = LD_LIBRARY_PATH 
 disable_functions = 
+]]>
    </programlisting>
   </para>
   <para>
@@ -28,53 +30,62 @@ disable_functions =
    script in esecuzione e il proprietario del file su cui si sta operando con
    una funzione sui file, coincidono. Per esempio:
    <programlisting role="ls">
+<![CDATA[
 -rw-rw-r--    1 rasmus   rasmus       33 Jul  1 19:20 script.php 
 -rw-r--r--    1 root     root       1116 May 26 18:01 /etc/passwd 
+]]>
    </programlisting>
    Eseguendo questo script.php
    <programlisting role="php">
-&lt;?php
+<![CDATA[
+<?php
  readfile('/etc/passwd'); 
-?&gt;  
+?>
+]]>
    </programlisting>
-   con la modalità sicura attiva si ottiene il seguente errore:
-   <programlisting>
+   results in this error when Safe Mode is enabled: 
+   <screen>
+<![CDATA[
 Warning: SAFE MODE Restriction in effect. The script whose uid is 500 is not 
 allowed to access /etc/passwd owned by uid 0 in /docroot/script.php on line 2
-   </programlisting>
-   Ovvero non è possibile accedere al file /etc/passwd in quanto l&apos;utente
-che esegue lo script non coindice con l&apos;utente proprietario del file.
+]]>
+   </screen>
   </para>
   <para>
    Se, invece di <link linkend="ini.safe-mode">safe_mode</link>, viene definita 
-   una directory open_basedir allora 
-   tutte le operazioni sui file saranno limitate ai file sottostanti la directory
-   specificata. Per esempio (nel file httpd.conf di Apache):
+   una directory open_basedir allora tutte le operazioni sui file saranno limitate ai file
+   sottostanti la directory specificata. Per esempio (nel file httpd.conf di Apache):
    <programlisting role="ini">
-&lt;Directory /docroot&gt; 
-php_admin_value open_basedir /docroot 
-&lt;/Directory&gt;  
+<![CDATA[
+<Directory /docroot>
+  php_admin_value open_basedir /docroot 
+</Directory>
+]]>
    </programlisting>
-   Se si esegue lo stesso script.php con questa impostazione di open_basedir
-   si ottiene il seguente risultato:
-   <programlisting>
+   If you run the same script.php with this open_basedir setting then this is 
+   the result: 
+   <screen>
+<![CDATA[
 Warning: open_basedir restriction in effect. File is in wrong directory in 
 /docroot/script.php on line 2 
-   </programlisting>
-   Ovvero il file è in una directory non accessibile tramite script in PHP.
+]]>
+   </screen>
   </para>
   <para>
    &Egrave; possibile inoltre disabilitare le singole funzioni. Se si aggiunge
    la seguente riga al file php.ini:
    <programlisting role="ini">
+<![CDATA[
 disable_functions readfile,system  
+]]>
    </programlisting>
-   Si ottiene il seguente risultato:
-   <programlisting>
+   Then we get this output: 
+   <screen>
+<![CDATA[
 Warning: readfile() has been disabled for security reasons in 
 /docroot/script.php on line 2 
-   </programlisting>
-   Ovvero la funzione readfile() è stata disabilitata per motivi di sicurezza.
+]]>
+   </screen>
   </para>
 
   <sect1 id="features.safe-mode.functions">
@@ -82,7 +93,7 @@ Warning: readfile() has been disabled for security reasons in
    <para>
     Questo è un elenco probabilmente ancora incompleto e forse non esatto delle
     funzioni limitate da
-    <link linkend="features.safe-mode">safe-mode</link>.
+    <link linkend="features.safe-mode">Safe Mode</link>.
     <!-- TODO: add &note.sm.*; to the functions mentioned here.
     That entity should link to this section -->
     <table>
@@ -133,6 +144,7 @@ Warning: readfile() has been disabled for security reasons in
        <row>
         <entry><function>pg_loimport</function></entry>
         <entry>&sm.uidcheck;</entry>
+        <!-- source TODO: there is no PHP-warning for that safe-mode-restriction -->
        </row>
        <row>
         <entry><function>posix_mkfifo</function></entry>
@@ -140,27 +152,64 @@ Warning: readfile() has been disabled for security reasons in
        </row>
        <row>
         <entry><function>putenv</function></entry>
-        <entry>??</entry>
+        <entry>Obbedisce le direttive del file ini safe_mode_protected_env_vars e 
+        safe_mode_allowed_env_vars. Vedere la documentazione relativa
+        on <function>putenv</function></entry>
+        <!-- TODO: document those directives in chapters/config.xml -->
        </row>
        <row>
         <entry><function>move_uploaded_file</function></entry>
-        <entry>&sm.uidcheck;</entry>
+        <entry>&sm.uidcheck; <!-- TODO: check this --></entry>
        </row>
+
+       <!-- TODO: from here on, add warning to the function itself -->
+
        <row>
         <entry><function>chdir</function></entry>
         <entry>&sm.uidcheck.dir;</entry>
        </row>
        <row>
         <entry><function>dl</function></entry>
-        <entry>??</entry>
+        <entry>&sm.disabled;</entry>
        </row>
        <row>
-        <entry><function>shell_exec</function></entry>
-        <entry>??</entry>
+        <entry><link linkend="language.operators.execution">backtick operator</link></entry>
+        <entry>&sm.disabled;</entry>
+       </row>
+       <row>
+        <entry><function>shell_exec</function> (functional equivalent 
+        of backticks)</entry>
+        <entry>&sm.disabled;</entry>
+       </row>
+       <row>
+        <entry><function>exec</function></entry>
+        <entry>You can only execute executables within the <link 
+        linkend="ini.safe-mode-exec-dir">safe_mode_exec_dir</link>.
+        For practical reasons it's currently not allowed to have
+        <literal>..</literal> components in the path to the executable.</entry>
+       </row>
+       <row>
+        <entry><function>system</function></entry>
+        <entry>You can only execute executables within the <link 
+        linkend="ini.safe-mode-exec-dir">safe_mode_exec_dir</link>.
+        For practical reasons it's currently not allowed to have
+        <literal>..</literal> components in the path to the executable.</entry>
+       </row>
+       <row>
+        <entry><function>passthru</function></entry>
+        <entry>You can only execute executables within the <link 
+        linkend="ini.safe-mode-exec-dir">safe_mode_exec_dir</link>.
+        For practical reasons it's currently not allowed to have
+        <literal>..</literal> components in the path to the executable.</entry>
        </row>
        <row>
         <entry><function>popen</function></entry>
-        <entry>&sm.uidcheck.dir; <!-- not sure!! --></entry>
+        <entry>You can only execute executables within the <link 
+        linkend="ini.safe-mode-exec-dir">safe_mode_exec_dir</link>.
+        For practical reasons it's currently not allowed to have
+        <literal>..</literal> components in the path to the executable.</entry>
+        <!-- TODO: not sure. popen uses a completely different implementation
+        Don't know why, don't know whether it's behaving the same -->
        </row>
        <row>
         <entry><function>mkdir</function></entry>
@@ -172,15 +221,17 @@ Warning: readfile() has been disabled for security reasons in
        </row>
        <row>
         <entry><function>rename</function></entry>
-        <entry>&sm.uidcheck; <!-- on the old name only, it seems --></entry>
+        <entry>&sm.uidcheck; &sm.uidcheck.dir;<!-- on the old name only, it seems. Is rename preventing moving files? --></entry>
        </row>
        <row>
         <entry><function>unlink</function></entry>
-        <entry>&sm.uidcheck;</entry>
+        <entry>&sm.uidcheck; &sm.uidcheck.dir;</entry>
        </row>
        <row>
         <entry><function>copy</function></entry>
-        <entry>&sm.uidcheck; <!-- source AND target,should be noted --></entry>
+        <entry>&sm.uidcheck; &sm.uidcheck.dir; (on 
+        <parameter>source</parameter> and 
+        <parameter>target</parameter>) </entry>
        </row>
        <row>
         <entry><function>chgrp</function></entry>
@@ -192,40 +243,29 @@ Warning: readfile() has been disabled for security reasons in
        </row>
        <row>
         <entry><function>chmod</function></entry>
-        <entry>&sm.uidcheck; <!-- there is more than this, 
-        i believe you can't set the SUID/SGID/sticky bits? --></entry>
+        <entry>&sm.uidcheck; In addition, you cannot  
+        set the SUID, SGID and sticky bits</entry>
        </row>
        <row>
         <entry><function>touch</function></entry>
-        <entry>&sm.uidcheck;</entry>
+        <entry>&sm.uidcheck; &sm.uidcheck.dir;</entry>
        </row>
        <row>
         <entry><function>symlink</function></entry>
-        <entry>&sm.uidcheck; <!-- only link-target, it seems? --></entry>
+        <entry>&sm.uidcheck; &sm.uidcheck.dir; (note: only the target is 
+        checked)</entry>
        </row>
        <row>
         <entry><function>link</function></entry>
-        <entry>&sm.uidcheck; <!-- only link-target, it seems? --></entry>
+        <entry>&sm.uidcheck; &sm.uidcheck.dir; (note: only the target is 
+        checked)</entry>
        </row>
        <row>
         <entry><function>getallheaders</function></entry>
-        <entry>??</entry>
-       </row>
-       <row>
-        <entry><function>exec</function></entry>
-        <entry>??</entry>
-       </row>
-       <row>
-        <entry><function>system</function></entry>
-        <entry>??</entry>
-       </row>
-       <row>
-        <entry><function>passthru</function></entry>
-        <entry>??</entry>
-       </row>
-       <row>
-        <entry><link linkend="language.operators.execution">operatore backtick</link></entry>
-        <entry>??</entry>
+        <entry>In Safe Mode, headers beginning with 'authorization' 
+        (case-insensitive)
+        will not be returned. Warning: this is broken with the aol-server
+        implementation of <function>getallheaders</function>!</entry>
        </row>
        <row>
         <entry>Qualsiasi funzione che utilizza 

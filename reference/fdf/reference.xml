@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- EN-Revision: 1.8 Maintainer: darvina Status: ready -->
+ <reference id="ref.fdf">
+  <title>Funzioni Forms Data Format</title>
+  <titleabbrev>FDF</titleabbrev>
+
+  <partintro>
+
+   <section id="fdf.intro">
+   &reftitle.intro;
+   <simpara>
+    Il Forms Data Format (FDF) è un formato per la gestione
+    di form all'interno di documenti PDF. Si dovrebbe leggere la documentazione
+    al link <ulink url="&spec.pdf.fdf;">&spec.pdf.fdf;</ulink>
+    per avere maggiori informazioni su cosa sia FDF e su come usarlo in generale.
+   </simpara>
+   <simpara>
+    L'idea di base è che FDF sia simile ai form HTML. Fondamentalmente la differenza consiste
+    nel formato con cui i dati sono inviati al server quando viene
+    premuto il bottone di sottomissione del form (che, ovviamente, è in Form Data Format) 
+    e il formato del form stesso (che è il Portable Document Format, PDF).
+    L'elaborazione dei dati FDF è una delle caratteristiche delle funzioni
+    fdf.Ma ve ne sono altre. Una di queste consiste nel prendere un form PDF
+    e compilarne i campi senza modificare il form .
+    In questo caso si dovrebbe creare il documento FDF
+    (<function>fdf_create</function>) impostare i valori per ciascun campo
+    (<function>fdf_set_value</function>) e associarlo al form PDF
+    (<function>fdf_set_file</function>). Infine viene inviato al browser
+    browser con MimeType <literal>application/vnd.fdf</literal>. Acrobat Reader
+    riconosce il MimeType, legge il form PDF associato
+    e completa i campi con i dati dal documento FDF.
+   </simpara>
+
+   <simpara>
+    Se si apre un documento FDF con un editor di testo si troveranno
+    degli oggetti con nome <literal>FDF</literal>. Tali oggetti
+    possono contenere diversi campi tipo <literal>Fields</literal>,
+    <literal>F</literal>, <literal>Status</literal> etc..
+    I campi più comuni sono <literal>Fields</literal> che puntano
+    alla lista dei campi di input, e <literal>F</literal> che contiene
+    il nome del file PDF a cui appartengono questi dati. Questi campi
+    sono definiti dalla documentazione FDF come chiave /F (/F-Key) e chiave /Status (/Status-Key)
+    Le modifiche a questi chiavi posso essere svolte con funzioni tipo
+    <function>fdf_set_file</function> e
+    <function>fdf_set_status</function>. I campi sono modificati dalle funzioni
+    <function>fdf_set_value</function>, <function>fdf_set_opt</function> etc..
+   </simpara>
+   </section>
+
+   <section id="fdf.requirements">
+    &reftitle.required;
+    <para>
+     Occorre avere disponibile il toolkit FDF SDK, scaricabile da
+     <ulink url="&spec.pdf.fdf;">&spec.pdf.fdf;</ulink>.
+     Dal PHP 4.3 occorre avere almeno l'SDK versione 5.0.
+     Le librerie FDF sono disponibili in formato binario
+     solo per le piattaforme supportate da Adobe quali Win32, Linux, Solaris e AIX.
+    </para>
+   </section>
+
+   &reference.fdf.configure;
+
+   <section id="fdf.configuration">
+    &reftitle.runtime;
+    &no.config;
+   </section>
+
+   <section id="fdf.resources">
+    &reftitle.resources;
+    <section id="fdf.resources.fdf">
+     <title>fdf</title>
+     <para>
+      La maggior parte delle funzioni richiedono una risorsa <parameter>fdf</parameter>
+      come primo parametro. La risorsa <parameter>fdf</parameter> è un puntatore
+      al file fdf aperto. Le risorse <parameter>fdf</parameter> possono essere
+      ottenute dalle funzioni <function>fdf_create</function>,
+      <function>fdf_open</function> e <function>fdf_open_string</function>.
+     </para>
+    </section>
+   </section>
+
+   &reference.fdf.constants;
+
+   <section id="fdf.examples">
+   &reftitle.examples;
+    <para>
+     Il seguente esempio illustra l'elaborazione dei dati di un form.     
+     <example>
+      <title>Elaborazione di un documento FDF</title>
+       <programlisting role="php">
+<![CDATA[
+<?php
+// Apre fdf dalla stringa di input fornita dalla estensione
+// Il form pdf contiene diversi campi con nome
+// volume, date, comment, publisher, preparer, e due checkboxes
+// show_publisher e show_preparer.
+$fdf = fdf_open_string($HTTP_FDF_DATA);
+$volume = fdf_get_value($fdf, "volume");
+echo "TIl campo volume ha valore '<b>$volume</b>'<br />";
+
+$date = fdf_get_value($fdf, "date");
+echo "Il campo date ha valore '<b>$date</b>'<br />";
+
+$comment = fdf_get_value($fdf, "comment");
+echo "Il campo commento ha valore '<b>$comment</b>'<br />";
+
+if (fdf_get_value($fdf, "show_publisher") == "On") {
+  $publisher = fdf_get_value($fdf, "publisher");
+  echo "Il campo publisher ha valore '<b>$publisher</b>'<br />";
+} else
+  echo "Publisher non deve essere visualizzato.<br />";
+
+if (fdf_get_value($fdf, "show_preparer") == "On") {
+  $preparer = fdf_get_value($fdf, "preparer");
+  echo "Il campo preparer ha valore '<b>$preparer</b>'<br />";
+} else
+  echo "Preparer non deve essere visualizzato.<br />";
+fdf_close($fdf);
+?>
+]]>
+       </programlisting>
+     </example>
+    </para>
+   </section>
+   
+  </partintro>
+
+&reference.fdf.functions;
+
+ </reference>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->
+

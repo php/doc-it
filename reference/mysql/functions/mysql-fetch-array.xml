@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.6 Maintainer: geppo Status: ready -->
+<!-- EN-Revision: 1.14 Maintainer: geppo Status: ready -->
 <!-- splitted from ./en/functions/mysql.xml, last change in rev 1.27 -->
   <refentry id="function.mysql-fetch-array">
    <refnamediv>
     <refname>mysql_fetch_array</refname>
     <refpurpose>
-     Carica una riga del risultato come un array associativo, un array numerico o entrambe.
+     Carica una riga del risultato come un array associativo, un array numerico o entrambi.
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -37,7 +37,7 @@
       <title>Query con nomi di campo duplicati</title>
       <programlisting role="sql">
 <![CDATA[
-select tabella1.campo as foo tabella2.campo as bar from tabella1, tabella2
+SELECT tabella1.campo as foo tabella2.campo as bar from tabella1, tabella2
 ]]>
       </programlisting>
      </example>
@@ -60,69 +60,72 @@ select tabella1.campo as foo tabella2.campo as bar from tabella1, tabella2
      Usando MYSQL_BOTH, si ottiene un array con entrambe gli indici (associativo
      e numerico). Usando MYSQL_ASSOC, si ottengono solo gli indici associativi
      (stesso funzionamento di <function>mysql_fetch_assoc</function>),
-     usando MYSQL_NUM, si otengono solo gli indici numerici (stesso
+     usando MYSQL_NUM, si ottengono solo gli indici numerici (stesso
      funzionamento di <function>mysql_fetch_row</function>).
     </para>
-    <example>
-     <title>mysql_fetch_array con MYSQL_NUM</title>
-     <programlisting role="php">
+    &database.field-case;
+    <para>
+     <example>
+      <title><function>mysql_fetch_array</function> con MYSQL_NUM</title>
+      <programlisting role="php">
 <![CDATA[
 <?php
-    mysql_connect("localhost", "utente_mysql", "password_mysql") or
-        die("Connessione non riuscita: " . mysql_error());
-    mysql_select_db("mio_db");
+mysql_connect("localhost", "utente_mysql", "password_mysql") or
+    die("Connessione non riuscita: " . mysql_error());
+mysql_select_db("mio_db");
 
-    $result = mysql_query("SELECT id, nome FROM mia_tabella");
+$risultato = mysql_query("SELECT id, nome FROM mia_tabella");
 
-    while ($riga = mysql_fetch_array($risultato, MYSQL_NUM)) {
-        printf ("ID: %s  Nome: %s", $riga[0], $riga[1]);
-    }
+while ($riga = mysql_fetch_array($risultato, MYSQL_NUM)) {
+    printf ("ID: %s  Nome: %s", $riga[0], $riga[1]);
+}
 
-    mysql_free_result($risultato);
+mysql_free_result($risultato);
+?>
+]]>
+      </programlisting>
+     </example>
+     <example>
+      <title><function>mysql_fetch_array</function> con MYSQL_ASSOC</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+mysql_connect("localhost", "utente_mysql", "password_mysql") or
+    die("Connessione non riuscita: " . mysql_error());
+mysql_select_db("mio_db");
+
+$risultato = mysql_query("SELECT id, nome FROM mia_tabella");
+
+while ($riga = mysql_fetch_array($risultato, MYSQL_ASSOC)) {
+    printf ("ID: %s  Nome: %s", $riga["id"], $riga["name"]);
+}
+
+mysql_free_result($risultato);
 ?>
 ]]>
      </programlisting>
     </example>
     <example>
-     <title>mysql_fetch_array con MYSQL_ASSOC</title>
-     <programlisting role="php">
+      <title><function>mysql_fetch_array</function> con MYSQL_BOTH</title>
+      <programlisting role="php">
 <![CDATA[
 <?php
-    mysql_connect("localhost", "utente_mysql", "password_mysql") or
-        die("Connessione non riuscita: " . mysql_error());
-    mysql_select_db("mio_db");
+mysql_connect("localhost", "utente_mysql", "password_mysql") or
+    die("Connessione non riuscita: " . mysql_error());
+mysql_select_db("mio_db");
 
-    $result = mysql_query("SELECT id, nome FROM mia_tabella");
+$risultato = mysql_query("SELECT id, nome FROM mia_tabella");
 
-    while ($riga = mysql_fetch_array($risultato, MYSQL_ASSOC)) {
-        printf ("ID: %s  Nome: %s", $riga["id"], $riga["name"]);
-    }
+while ($riga = mysql_fetch_array($risultato, MYSQL_BOTH)) {
+    printf ("ID: %s  Nome: %s", $riga[0], $riga["nome"]);
+}
 
-    mysql_free_result($risultato);
+mysql_free_result($risultato);
 ?>
 ]]>
-     </programlisting>
-    </example>
-    <example>
-     <title>mysql_fetch_array con MYSQL_BOTH</title>
-     <programlisting role="php">
-<![CDATA[
-<?php
-    mysql_connect("localhost", "utente_mysql", "password_mysql") or
-        die("Connessione non riuscita: " . mysql_error());
-    mysql_select_db("mio_db");
-
-    $result = mysql_query("SELECT id, nome FROM mia_tabella");
-
-    while ($riga = mysql_fetch_array($risultato, MYSQL_BOTH)) {
-        printf ("ID: %s  Nome: %s", $riga[0], $riga["nome"]);
-    }
-
-    mysql_free_result($risultato);
-?>
-]]>
-     </programlisting>
-    </example>
+      </programlisting>
+     </example>
+    </para>
     <para>
      Per maggiori dettagli, vedere anche
      <function>mysql_fetch_row</function> e

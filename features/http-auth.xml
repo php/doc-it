@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.11 Maintainer: cortesi Status: ready -->
-
+<!-- EN-Revision: 1.19 Maintainer: cortesi Status: ready -->
  <chapter id="features.http-auth">
   <title>Autenticazione HTTP usando PHP</title>
 
@@ -11,7 +10,7 @@
    funzione <function>header</function> per inviare un messaggio di "Authentication Required" 
    al browser dell'utente, provocando quindi l'apertura di una finestra contenente una richiesta di
    Nome utente/Password. Una volta che l'utente ha compilato i campi nome utente e password, 
-   l'URL contenente lo script PHP verr&agrave; richiamato nuovamente usando le variabili,
+   l'URL contenente lo script PHP verrà richiamato nuovamente usando le variabili,
    $PHP_AUTH_USER, $PHP_AUTH_PW e $PHP_AUTH_TYPE impostate con, rispettivamente:
    nome, password e tipo di autenticazione. Solamente il tipo di autenticazione "Basic"
    &egrave; al momento supportato. Fare riferimento alla funzione <function>header</function>
@@ -24,17 +23,19 @@
    <example>
     <title>Esempio di Autenticazione HTTP</title>
     <programlisting role="php">
-&lt;?php
+<![CDATA[
+<?php
   if(!isset($PHP_AUTH_USER)) {
-    Header(&quot;WWW-Authenticate: Basic realm=\&quot;Il mio Regno\&quot;&quot;);
-    Header(&quot;HTTP/1.0 401 Unauthorized&quot;);
-    echo &quot;Messaggio da inviare se si preme il tasto Cancel\n&quot;;
+    Header("WWW-Authenticate: Basic realm=\"Il mio Regno\"");
+    Header("HTTP/1.0 401 Unauthorized");
+    echo "Messaggio da inviare se si preme il tasto Cancel\n";
     exit;
   } else {
-    echo &quot;Ciao $PHP_AUTH_USER.&lt;P&gt;&quot;;
-    echo &quot;Hai inserito $PHP_AUTH_PW come tua password.&lt;P&gt;&quot;;
+    echo "<p>Ciao $PHP_AUTH_USER.</p>";
+    echo "<p>Hai inserito $PHP_AUTH_PW come tua password.</p>";
   }
 ?>
+]]>
     </programlisting>
    </example></para>
 
@@ -42,7 +43,7 @@
    <title>Note</title>
    <para>
     Fare molta attenzione quando si scrive codice per le intestazioni HTTP. Per ottenere la  massima
-    compatibilit&agrave; con tutti i client, la paorla-chiave "Basic" deve essere scritta con una
+    compatibilità con tutti i client, la paorla-chiave "Basic" deve essere scritta con una
     "B" maiuscola, la stringa realm deve essere racchiusa in virgolette doppie (non singole),
     ed esattamente uno spazio deve precedere il codice "401" nella linea di intestazione "HTTP/1.0 401".
    </para>
@@ -50,7 +51,7 @@
 
   <para>
    Invece di stampare semplicemente $PHP_AUTH_USER e
-   $PHP_AUTH_PW, probabilmente si vorr&agrave; controllare la validit&agrave; dello username e 
+   $PHP_AUTH_PW, probabilmente si vorrà controllare la validità dello username e 
    della password. Probabilemnte inviando una chiamata al database,
    o cercando un utente in un file dbm.</para>
 
@@ -76,12 +77,12 @@
     per determinare se viene utilizzata l'autenticazione esterna.
     Evitare questa direttiva nel contesto dove si intende
     usare l'autenticazione con PHP (altrimenti ogni tentativo di autenticazione
-    fallir&agrave;).
+    fallirà).
    </para>
   </note>
 
   <simpara>
-   Si fa notare, per&ograve;, che quanto scritto sopra non impedisce a qualcuno che
+   Si fa notare, però, che quanto scritto sopra non impedisce a qualcuno che
    controlla un URL non autenticato di sottrarre password da
    URL autenticati presenti sullo stesso server.</simpara>
   <simpara>
@@ -94,27 +95,29 @@
    <example>
      <title>Esempio di Autenticazione HTTP che impone l'inserimento di nuovo username/password</title>
      <programlisting role="php">
-&lt;?php
+<![CDATA[
+<?php
   function authenticate() {
-    Header( &quot;WWW-Authenticate: Basic realm=\&quot;Prova del Sistema di Autenticazione\&quot;&quot;);
-    Header( &quot;HTTP/1.0 401 Unauthorized&quot;);
-    echo &quot;Per poter accedere a questa risorsa occorre inserire una coppia login e password valide\n&quot;;
+    Header( "WWW-Authenticate: Basic realm=\"Prova del Sistema di Autenticazione\"");
+    Header( "HTTP/1.0 401 Unauthorized");
+    echo "Per poter accedere a questa risorsa occorre inserire una coppia login e password valide\n";
     exit;
   }
  
-  if(!isset($PHP_AUTH_USER) || ($SeenBefore == 1 &amp;&amp; !strcmp($OldAuth, $PHP_AUTH_USER)) ) {
+  if(!isset($PHP_AUTH_USER) || ($SeenBefore == 1 && !strcmp($OldAuth, $PHP_AUTH_USER)) ) {
    authenticate();
   } 
   else {
-   echo &quot;Benvenuto: $PHP_AUTH_USER&lt;BR&gt;&quot;;
-   echo &quot;Vecchio: $OldAuth&quot;;
-   echo &quot;&lt;FORM ACTION=\&quot;$PHP_SELF\&quot; METHOD=POST&gt;\n&quot;;
-   echo &quot;&lt;INPUT TYPE=HIDDEN NAME=\&quot;SeenBefore\&quot; VALUE=\&quot;1\&quot;&gt;\n&quot;;
-   echo &quot;&lt;INPUT TYPE=HIDDEN NAME=\&quot;OldAuth\&quot; VALUE=\&quot;$PHP_AUTH_USER\&quot;&gt;\n&quot;;
-   echo &quot;&lt;INPUT TYPE=Submit VALUE=\&quot;Re Authenticate\&quot;&gt;\n&quot;;
-   echo &quot;&lt;/FORM&gt;\n&quot;;
+   echo "<p>Benvenuto: $PHP_AUTH_USER<br>";
+   echo "Vecchio: $OldAuth";
+   echo "<form action='$PHP_SELF' method=POST>\n";
+   echo "<input type='HIDDEN' name='SeenBefore' value='1'>\n";
+   echo "<input type='HIDDEN' name='OldAuth' value='$PHP_AUTH_USER'>\n";
+   echo "<input type='submit' value='Re Authenticate'>\n";
+   echo "</form></p>\n";
   }
 ?>
+]]>
    </programlisting>
   </example>
   <simpara>
@@ -122,7 +125,7 @@
    Basic, quindi non si dovrebbe mai fare affidamento su di esso. Test effettuati con Lynx
    mostrano che Lynx non cancella le credenziali di autenticazione
    al ricevimento del codice di risposta 401 da parte del server, quindi, premendo indietro e avanti
-   nuovamente, dar&agrave; nuovamente accesso alla risorsa, ammesso che le rispettive richieste di credenziali
+   nuovamente, darà nuovamente accesso alla risorsa, ammesso che le rispettive richieste di credenziali
    non siano cambiate. L'utente pu&ograve; per&ograve; premere il
    tasto '_' al fine di cancellare le sue informazioni di autenticazione.
   </simpara>
@@ -144,7 +147,7 @@ sgml-indent-step:1
 sgml-indent-data:t
 indent-tabs-mode:nil
 sgml-parent-document:nil
-sgml-default-dtd-file:"../manual.ced"
+sgml-default-dtd-file:"../../manual.ced"
 sgml-exposed-tags:nil
 sgml-local-catalogs:nil
 sgml-local-ecat-files:nil

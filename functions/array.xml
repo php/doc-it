@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
- <!-- EN-Revision: 1.109 Maintainer: cucinato  Status: ready -->
+ <!-- EN-Revision: 1.117 Maintainer: cucinato  Status: ready -->
  <reference id="ref.array">
   <title>Funzioni di Array</title>
   <titleabbrev>Arrays</titleabbrev>
@@ -130,6 +130,141 @@ Array
     </para>
     <para>
      Vedere anche: <function>list</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-change-key-case">
+   <refnamediv>
+    <refname>array_change_key_case</refname>
+    <refpurpose>Restituisce un array with tutte le chiavi cambiate in maiuscolo o in minuscolo</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_change_key_case</function></funcdef>
+      <paramdef>array <parameter>input</parameter></paramdef>
+      <paramdef>int <parameter><optional>case</optional></parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_change_key_case</function> cambia le
+     chiavi nell'array <parameter>input</parameter> in modo che
+     siano tutte minuscole o maiuscole. Il tipo di cambiamento dipende
+     dal parametro opzionale <parameter>case</parameter>.
+     Si possono usare due costanti,
+     <constant>CASE_UPPER</constant> per le maiuscole e
+     <constant>CASE_LOWER</constant> per le minuscole. Il default &egrave;
+     <constant>CASE_LOWER</constant>. La funziona non modifica
+     le chiavi numeriche.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>array_change_key_case</function></title>
+      <programlisting role="php">
+$input_array = array("PriMo" => 1, "SecOndO" => 4);
+print_r(array_change_key_case($input_array, CASE_UPPER);
+      </programlisting>
+     </example>     
+     Il risultato di questo programma sar&agrave;:
+     <informalexample>
+      <programlisting>
+Array
+(
+    [PRIMO] => 1
+    [SECONDO] => 2
+)
+      </programlisting>
+     </informalexample>
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-chunk">
+   <refnamediv>
+    <refname>array_chunk</refname>
+    <refpurpose>Spezza un array in tronconi</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_chunk</function></funcdef>
+      <paramdef>array <parameter>input</parameter></paramdef>
+      <paramdef>int <parameter>dimensione</parameter></paramdef>
+      <paramdef>bool <parameter><optional>mantieni_chiavi</optional></parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_chunk</function> spezza l'array in
+     pi&ugrave; array di dimensione <parameter>dimensione</parameter>.
+     L'ultimo array potrebbe ovviamente avere una dimensione
+      inferiore. Gli array sono restituiti in un 
+     array multidimensionale indicizzato con chiavi che partono 
+     da zero.
+    </para>
+    <para>
+     Impostando il parametro opzionale <parameter>preserve_keys</parameter>
+     a &true;, si forza PHP a mantenere le chiavi originarie
+     dell'array di input. Se si imposta a  &false; come chiavi verranno
+     usati in ogni array dei numeri crescenti a 
+     partire da zero. Il default &egrave; &false;.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>array_chunk</function></title>
+      <programlisting role="php">
+$input_array = array('a', 'b', 'c', 'd', 'e');
+print_r(array_chunk($input_array, 2));
+print_r(array_chunk($input_array, 2, TRUE));
+      </programlisting>
+     </example>     
+     Il risultato di questo programma sar&agrave;:
+     <informalexample>
+      <programlisting>
+Array
+(
+    [0] => Array
+        (
+            [0] => a
+            [1] => b
+        )
+
+    [1] => Array
+        (
+            [0] => c
+            [1] => d
+        )
+
+    [2] => Array
+        (
+            [0] => e
+        )
+
+)
+Array
+(
+    [0] => Array
+        (
+            [0] => a
+            [1] => b
+        )
+
+    [1] => Array
+        (
+            [2] => c
+            [3] => d
+        )
+
+    [2] => Array
+        (
+            [4] => e
+        )
+
+)
+      </programlisting>
+     </informalexample>
     </para>
    </refsect1>
   </refentry>
@@ -2420,13 +2555,50 @@ if (in_array(1.13, $a, TRUE))
    </refsect1>
   </refentry>
 
+  <refentry id="function.array-key-exists">
+   <refnamediv>
+    <refname>array_key_exists</refname>
+    <refpurpose>Controlla se l'indice (o chiave) specificato esiste nell'array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>bool <function>array_key_exists</function></funcdef>
+      <paramdef>mixed <parameter>chiave</parameter></paramdef>
+      <paramdef>array <parameter>cerca</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_key_exists</function> restituisce &true; se il
+     parametro <parameter>chiave</parameter> esiste nell'array.
+     <parameter>chiave</parameter> pu&ograve; essere qualsiasi valore accettabile
+     per un indice di array.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>array_key_exists</function></title>
+      <programlisting role="php">
+$un_array = array("primo" => 1, "secondo" => 4);
+if (array_key_exists("primo", $un_array)) {
+    echo "L'elemento 'primo' &egrave; nell'array";
+}
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Vedere anche <function>isset</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
   <refentry id="function.krsort">
    <refnamediv>
     <refname>krsort</refname>
     <refpurpose>Ordina rispetto alle chiavi di un array in ordine inverso</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>krsort</function></funcdef>

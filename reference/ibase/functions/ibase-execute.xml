@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/ibase.xml, last change in rev 1.1 -->
-<!-- last change to 'ibase-execute' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: ready -->
-<!-- OLD-Revision: 1.46/EN.1.2 -->
+<!-- EN-Revision: 1.6 Maintainer: cortesi Status: ready -->
   <refentry id="function.ibase-execute">
    <refnamediv>
     <refname>ibase_execute</refname>
@@ -11,26 +9,38 @@
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>ibase_execute</methodname>
-      <methodparam><type>int</type><parameter>query</parameter></methodparam>
+      <type>resource</type><methodname>ibase_execute</methodname>
+      <methodparam><type>resource</type><parameter>query</parameter></methodparam>
       <methodparam choice="opt"><type>int</type><parameter>bind_args</parameter></methodparam>
      </methodsynopsis>
     <para>
      Esegue una query preparata da <function>ibase_prepare</function>.
+     Se la query genera un errore, la funzione restituisce &false;. Se invece ha successo
+     ed si ha un set di risultati (tipo un query SELECT),
+     la funzione ne restituisce l'identificativo. Se la query ha successo e non vi sono
+     risultati, restituisce &true;
+    </para>
+    <para>
      Ciò è molto più efficace che usare <function>ibase_query</function>
      se state ripetendo uno stesso tipo di query molte volte cambiando solo
      alcuni parametri.
-     <informalexample>
+     </para>
+    <para>
+     <example>
+      <title>Esempio di uso di <function>ibase_execute</function></title>
       <programlisting role="php">
 <![CDATA[
 <?php
+
+    $dbh = ibase_connect($host, $username, $password);
+
     $updates = array(
         1 => 'Eric',
         5 => 'Filip',
         7 => 'Larry'
     );
 
-    $query = ibase_prepare("UPDATE FOO SET BAR = ? WHERE BAZ = ?");
+    $query = ibase_prepare($dbh, "UPDATE FOO SET BAR = ? WHERE BAZ = ?");
 
     while (list($baz, $bar) = each($updates)) {
         ibase_execute($query, $bar, $baz);
@@ -38,7 +48,18 @@
 ?>
 ]]>
       </programlisting>
-     </informalexample>
+     </example>
+    </para>
+    <note>
+     <para>
+      In PHP 5.0.0 e successivi, questa funzione restituisce il numero di righe toccate
+      dalla query (se >0 ed è applicabile al tipo di query). Una query che ha successo,
+      ma che non modifica nessuna righa (ad esempio un UPDATE su record che non esistono) restituirà
+      &true;
+      </para>
+    </note>
+    <para>
+    Vedere anche <function>ibase_query</function>.
     </para>
    </refsect1>
   </refentry>

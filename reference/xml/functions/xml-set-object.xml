@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.7 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.10 Maintainer: darvina Status: ready -->
 <!-- splitted from ./en/functions/xml.xml, last change in rev 1.2 -->
   <refentry id="function.xml-set-object">
    <refnamediv>
@@ -11,7 +11,7 @@
     <methodsynopsis>
      <type>void</type><methodname>xml_set_object</methodname>
      <methodparam><type>resource</type><parameter>parser</parameter></methodparam>
-     <methodparam><type>object</type><parameter>oggetto</parameter></methodparam>
+     <methodparam><type>object</type><parameter>&amp;oggetto</parameter></methodparam>
     </methodsynopsis>
     <para>
      Questa funzione permette l'uso del <parameter>parser</parameter> all'interno
@@ -19,33 +19,40 @@
      <function>xml_set_element_handler</function> e simili, e sono assunte come metodi
      dell'<parameter>oggetto</parameter>.
     </para>
-    <programlisting role="php">
+    <para>
+     <example>
+      <title>Esempio di uso di <function>xml_set_object</function></title>
+      <programlisting role="php">
 <![CDATA[
 <?php
 class xml  {
     var $parser;
 
-    function xml() {
+    function xml() 
+    {
         $this->parser = xml_parser_create();
-
-        xml_set_object($this->parser, &$this);
+        xml_set_object($this->parser, $this);        
         xml_set_element_handler($this->parser, "tag_open", "tag_close");
         xml_set_character_data_handler($this->parser, "cdata");
     }
 
-    function parse($data) { 
+    function parse($data) 
+    { 
         xml_parse($this->parser, $data);
     }
 
-    function tag_open($parser, $tag, $attributes) { 
+    function tag_open($parser, $tag, $attributes)
+    { 
         var_dump($parser, $tag, $attributes); 
     }
 
-    function cdata($parser, $cdata) {
+    function cdata($parser, $cdata) 
+    {
         var_dump($parser, $cdata);
     }
 
-    function tag_close($parser, $tag) {
+    function tag_close($parser, $tag) 
+    {
         var_dump($parser, $tag);
     }
 
@@ -55,7 +62,9 @@ $xml_parser = new xml();
 $xml_parser->parse("<A ID='hallo'>PHP</A>");
 ?>
 ]]>
-    </programlisting>
+      </programlisting>
+     </example>
+    </para>
    </refsect1>
   </refentry>
 

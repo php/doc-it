@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.15 Maintainer: cortesi Status: working -->
+<!-- EN-Revision: 1.16 Maintainer: cortesi Status: working -->
   <refentry id="function.fread">
    <refnamediv>
     <refname>fread</refname>
@@ -61,7 +61,7 @@ fclose($handle);
      <para>
       Quando si ricevono dati via rete o pipe, tipo quelli ottenuti leggendo da
       <link linkend="features.remote-files">file remoti</link> o da 
-      <function>popen</function> e <function>proc_open</function>, la lettura
+      <function>popen</function> e <function>fsockopen</function>, la lettura
       si fermerà dopo avere ricevuto il pacchetto disponibile.
       Questo significa che i dati sono ricevuti a blocchi
       che devono essere raggruppati, come illustrato nell'esempio seguente.
@@ -73,28 +73,17 @@ fclose($handle);
 <![CDATA[
 <?php
 $handle = fopen("http://www.example.com/", "rb");
-$contents = "";
-do {
-    $data = fread($handle, 8192);
-    if (strlen($data) == 0) {
-        break;
-    }
-    $contents .= $data;
-} while (true);
+$contents = '';
+while (!feof($handle)) {
+  $contents .= fread($handle, 8192);
+}
 fclose($handle);
 ?>
 ]]>
 
       </programlisting>
      </informalexample>
-    </para>
-    <note>
-     <para>
-      L'esempio precedente ottiene migliori performance rispetto al tradizionale approccio
-      tramite while(!<function>feof</function>), poichè si risparmia l'overhead
-      della chiamata per la funzione di iterazione.
-     </para>
-    </note>
+    </para>    
     <note>
      <para>
       Se si desidera ottenere il contenuto del file in una stringa, utilizzare

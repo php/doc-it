@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.27 Maintainer: donelli Status: ready -->
+<!-- EN-Revision: 1.59 Maintainer: donelli Status: ready -->
  <chapter id="features.file-upload">
   <title>Caricare file</title>
 
@@ -15,6 +15,18 @@
     è possibile avere pieno controllo su chi ha i permessi per caricare un file e su
     ciò che deve essere fatto una volta che il file è stato caricato.
    </simpara>
+
+   <note>
+     <title>Note relative alla configurazione</title>
+     <para>
+      Si vedano i parametri <link linkend="ini.file-uploads">file_uploads</link>,
+      <link linkend="ini.upload-max-filesize">upload_max_filesize</link>,
+      <link linkend="ini.upload-tmp-dir">upload_tmp_dir</link>, e
+      <link linkend="ini.post-max-size">post_max_size</link>
+      nel &php.ini;
+     </para>
+    </note>
+
    <para>
     Si noti che PHP permette l'upload di file con metodo PUT come utilizzato dai
     programmi Netscape Composer e W3C Amaya. Si veda <link
@@ -29,7 +41,7 @@
      <programlisting role="html">
 <![CDATA[
 <form enctype="multipart/form-data" action="_URL_" method="post">
-<input type="hidden" name="MAX_FILE_SIZE" value="1000">
+<input type="hidden" name="MAX_FILE_SIZE" value="30000">
 Invia questo file: <input name="userfile" type="file">
 <input type="submit" value="Invia File">
 </form>
@@ -37,78 +49,42 @@ Invia questo file: <input name="userfile" type="file">
      </programlisting>
     </example>
     Il valore della action _URL_ dovrebbe puntare a un file PHP.  Il campo nascosto MAX_FILE_SIZE
-    deve precedere il campo di immisione del file e il suo valore è la
+    deve precedere il campo di immissione del file e il suo valore è la
     dimensione massima accettata del file.  Il valore è in byte.
     <warning>
      <para>
       Il valore MAX_FILE_SIZE è consigliato al browser. E' facile aggirare 
       questo valore, quindi non fate affidamento sul fatto che il
       navigatore si comporti come desiderato! L'impostazione PHP lato server per la dimensione
-      massima non può comunque essere aggirata.
+      massima non può comunque essere aggirata. Tuttavia si può comunque inserire
+      MAX_FILE_SIZE per evitare all'utente di attendere il trasferimento di un file
+      prima di scoprire che è di dimensioni eccessive.
      </para>
    </warning>
    </para>
-
+ 
    <para>
-    In PHP, le seguenti variabili sono definite all'interno dello script di
-    destinazione a seguito di un upload terminato con successo, nell'ipotesi
-    che l'impostazione <link
-    linkend="ini.register-globals">register_globals</link> sia attiva
-    nel file <filename>php.ini</filename>. Se l'impostazione <link
-    linkend="ini.track-vars">track_vars</link> è attiva, le variabili saranno attive
-    in PHP nell'array globale <varname>$HTTP_POST_VARS</varname>. 
-    Notate che i nomi delle variabili seguenti si basano sull'ipotesi che
-    abbiate chiamato il file di cui fare l'upload 'userfile' come nell'esempio precedente:
-
-    <itemizedlist>
-     <listitem>
-      <simpara>
-       <varname>$userfile</varname> - Il file temporaneo in cui il file caricato
-       è salvato sul server.
-      </simpara>
-     </listitem>
-     <listitem>
-      <simpara>
-       <varname>$userfile_name</varname> - Il nome originale o percorso del file
-       sulla macchina dell'utente.
-      </simpara>
-     </listitem>
-     <listitem>
-      <simpara>
-       <varname>$userfile_size</varname> - La dimensione del file caricato in 
-       bytes.
-      </simpara>
-     </listitem>
-     <listitem>
-      <simpara>
-       <varname>$userfile_type</varname> - Il mime-type del file,
-       se il browser fornisce questa informazione.  Un esempio può
-       essere "image/gif".
-      </simpara>
-     </listitem>
-    </itemizedlist>
-    Si noti che la parte "$userfile" della variabile precedente è 
-    specificata nel campo INPUT TYPE=file nella form di upload.  
-    Nell'esempio precedente dell'upload, è stata chiamata
-    "userfile"
+    Le variabili definite per i file inviati differiscono in base
+    alla versione di PHP ed alla configurazione. La variabile globale
+    <link linkend="reserved.variables.files">$_FILES</link>
+    esiste a partire dalla versione 4.1.0 di PHP. La matrice
+    <varname>$HTTP_POST_FILES</varname> esiste dalla versione 4.0.0.
+    Tutte queste matrici conterranno tutte le informazioni dei file inviati.
+    Si consiglia di preferire l'uso di <varname>$_FILES</varname>.
+    Se il parametro <link linkend="ini.register-globals">register_globals</link> è
+    impostato a <emphasis>on</emphasis>, esisteranno anche le relative variabili.
+    Attenzione che per default il parametro  <link linkend="ini.register-globals">register_globals</link>
+    viene impostato a <emphasis>off</emphasis> dalla versione <ulink url="&url.php.release4.2.0;">4.2.0</ulink>
+    di PHP.
    </para>
-
    <para>
-    In PHP 4 il comportamento è leggermente differente, perché è disponibile il nuovo
-    array globale <varname>$HTTP_POST_FILES</varname>  che contiene le 
-    informazioni sul file caricato. Questo è disponibile solo se la variabile
-     <link linkend="ini.track-vars">track_vars</link> è attiva, ma 
-     <link linkend="ini.track-vars">track_vars</link> è sempre attiva 
-    dalle versioni successive alla PHP 4.0.2.
-   </para>
-
-   <para>
-    Il contentuto dell'array <varname>$HTTP_POST_FILES</varname> è riportato
-    di seguito. Si noti che che questo ipotizza l'uso del nome del file caricato
-    'userfile', come nell'esempio precedente:
+    Di seguito verrà illustrato il contenuto di
+    <link linkend="reserved.variables.files">$_FILES</link> nel caso dell'esempio precedente. Si
+    noti che si assume come nome del file inviato <emphasis>userfile</emphasis>, come nell'esempio
+    precedente.
     <variablelist>
      <varlistentry>
-      <term><varname>$HTTP_POST_FILES['userfile']['name']</varname></term>
+      <term><varname>$_FILES['userfile']['name']</varname></term>
       <listitem>
        <para>
         Il nome originale del file sulla macchina dell'utente.
@@ -116,7 +92,7 @@ Invia questo file: <input name="userfile" type="file">
       </listitem>
      </varlistentry>
      <varlistentry>
-      <term><varname>$HTTP_POST_FILES['userfile']['type']</varname></term>
+      <term><varname>$_FILES['userfile']['type']</varname></term>
       <listitem>
        <para>
         Il mime-type del file, se il browser fornisce questa informazione. 
@@ -125,7 +101,7 @@ Invia questo file: <input name="userfile" type="file">
       </listitem>
      </varlistentry>
      <varlistentry>
-      <term><varname>$HTTP_POST_FILES['userfile']['size']</varname></term>
+      <term><varname>$_FILES['userfile']['size']</varname></term>
       <listitem>
        <para>
         La dimensione, in bytes, del file caricato.
@@ -133,7 +109,7 @@ Invia questo file: <input name="userfile" type="file">
       </listitem>
      </varlistentry>
      <varlistentry>
-      <term><varname>$HTTP_POST_FILES['userfile']['tmp_name']</varname></term>
+      <term><varname>$_FILES['userfile']['tmp_name']</varname></term>
       <listitem>
        <para>
         Il nome del file temporaneo in cui il file caricato è salvato 
@@ -141,14 +117,45 @@ Invia questo file: <input name="userfile" type="file">
        </para>
       </listitem>
      </varlistentry>
+     <varlistentry>
+      <term><varname>$_FILES['userfile']['error']</varname></term>
+      <listitem>
+       <para>
+        Il <link linkend="features.file-upload.errors">codice di errore</link>
+        associato all'upload di questo file. Il campo <emphasis>['error']</emphasis>
+        è stato aggiunto nella versione 4.2.0 di PHP.
+       </para>
+      </listitem>
+     </varlistentry>
     </variablelist>
+   </para>
+   <note> 
+    <para> 
+     Nelle versioni di PHP precedenti alla 4.1.0 questa variabile era chiamata
+     <varname>$HTTP_POST_FILES</varname> e non era una variabile
+     <link linkend="language.variables.superglobals">autoglobal</link> 
+     come è <varname>$_FILES</varname>. La versione 3 di PHP non supporta
+     <varname>$HTTP_POST_FILES</varname>. 
+    </para> 
+   </note> 
+   
+   <para> 
+    Quando <link linkend="ini.register-globals">register_globals</link> 
+    è impostato a <emphasis>on</emphasis> nel &php.ini;, sono disponibili 
+    variabili addizionali. Da esempio,
+    <varname>$userfile_name</varname> sarà uguale a
+    <varname>$_FILES['userfile']['name']</varname>, 
+    <varname>$userfile_type</varname> sarà uguale a
+    <varname>$_FILES['userfile']['type']</varname>, eccetera. Si ricordi 
+    che a partire dalla versione 4.2.0 di PHP il parametro register_globals viene impostato a off per default.
+    E' preferibile non fare affidamento su questo parametro.
    </para>
 
    <para>
     I file sono, di default, salvati in una directory temporanea sul server, a meno 
     che un diverso percorso sia specificato nella direttiva <link
     linkend="ini.upload-tmp-dir">upload_tmp_dir</link> nel file 
-    <filename>php.ini</filename>. La directory del server predefinita può essere 
+    &php.ini;. La directory del server predefinita può essere 
     cambiata impostando la variabile di ambiente <envar>TMPDIR</envar> in cui 
     è in esecuzione PHP. Non è possibile impostare questa variabile utilizzando 
     la funzione <function>putenv</function> da uno script PHP. 
@@ -157,53 +164,27 @@ Invia questo file: <input name="userfile" type="file">
         <example>
      <title>Verifica dell'upload di file</title>
      <para>
-      Gli esempi seguenti valgono per versioni di PHP 3 maggiori di 
-      3.0.16, e versioni di PHP 4 maggiorni di 4.0.2. Si vedano le definizioni
-      delle funzioni <function>is_uploaded_file</function> e
-      <function>move_uploaded_file</function>.
-     </para>
-     <programlisting role="php">
-<![CDATA[
-<?php 
-if (is_uploaded_file($userfile)) {
-    copy($userfile, "/place/to/put/uploaded/file");
-} else {
-    echo "Possibile attacco nell'upload del file: filename '$userfile'.";
-}
-/* ...or... */
-move_uploaded_file($userfile, "/posto/dove/mettere/file/caricato");
-?>
-]]>
-     </programlisting>
-     <para>
-      Per le versioni precedenti di PHP è necessario fare come descritto 
-      in seguito.
-      <note>
-       <para>
-        Questo <emphasis>non</emphasis> funziona con le versioni di PHP 4
-        successive alla 4.0.2. Dipende da funzionalità interne del PHP cambiate
-	dopo quella versione.
-       </para>
-      </note>
+      Si vedano le definizioni delle funzioni <function>is_uploaded_file</function> e
+      <function>move_uploaded_file</function> per maggiori dettagli.
+      L'esempio seguente illustra il processamento di un file inviato tramite un
+      form.
      </para>
      <programlisting role="php">
 <![CDATA[
 <?php
-/* Userland test for uploaded file. */ 
-function is_uploaded_file($filename) {
-    if (!$tmp_file = get_cfg_var('upload_tmp_dir')) {
-        $tmp_file = dirname(tempnam('', ''));
-    }
-    $tmp_file .= '/' . basename($filename);
-    /* User might have trailing slash in php.ini... */
-    return (ereg_replace('/+', '/', $tmp_file) == $filename);
-}
+// Nelle versioni di PHP precedenti alla 4.1.0 si deve utilizzare  $HTTP_POST_FILES anzichè $_FILES.
+// Nelle versioni di PHP precedenti alla 4.0.3, si utilizzi copy() e is_uploaded_file() anzichè move_uploaded_file
 
-if (is_uploaded_file($userfile)) {
-    copy($userfile, "/posto/dove/mettere/file/caricato");
+$uploaddir = '/var/www/uploads/';
+print "<pre>";
+if (move_uploaded_file($_FILES['userfile']['tmp_name'], $uploaddir . $_FILES['userfile']['name'])) { 
+    print "Il file è valido, e inviato con successo.  Ecco alcune informazioni:\n"; 
+    print_r($_FILES);
 } else {
-    echo "Possibile attacco nell'upload del file: filename '$userfile'.";
+    print "Possibile attacco tramite file upload! Alcune informazioni:\n"; 
+    print_r($_FILES);
 }
+ 
 ?>
 ]]>
      </programlisting>
@@ -213,12 +194,15 @@ if (is_uploaded_file($userfile)) {
     Lo script PHP che riceve il file caricato dovrebbe implementare la  
     logica necessaria per determinare cosa deve essere fatto con il file 
     caricato.  E' possibile, per esempio, utilizzare la variabile 
-    <varname>$file_size</varname> per eliminare file che siano troppo 
+    <varname>$_FILES['userfile']['size']</varname> per eliminare file che siano troppo 
     grandi o troppo piccoli.  E' possibile utillizzare la variabile 
-    <varname>$file_type</varname> per eliminare tutti i file che nono sodisfano
-	certi criteri.  Quale che sia la logica, bisognerebbe comunque sempre
+    <varname>$_FILES['userfile']['type']</varname> per eliminare tutti i file che non soddisfano certi criteri. 
+    A partire da PHP 4.2.0, si può utilizzare <varname>$_FILES['userfile']['error']</varname> 
+    ed organizzare la logica in base ai <link 
+    linkend="features.file-upload.errors">codici di errore</link>.
+    Quale che sia la logica, bisognerebbe comunque sempre
     cancellare il file dalla directory temporanea e spostarlo da qualche
-	altra parte.
+    altra parte.
    </simpara>
    <simpara>
     Il file sarà eliminato dalla directory temporanea al termine della richiesta
@@ -226,6 +210,69 @@ if (is_uploaded_file($userfile)) {
    </simpara>
   </sect1>
  
+  <sect1 id="features.file-upload.errors"> 
+   <title>Spiegazione dei messaggi di errore</title> 
+    <simpara> 
+    Dalla versione 4.2.0, il PHP restituisce un codice di errore nella matrice del file.
+    Il codice di errore si trova nell'indice <emphasis>['error']</emphasis>
+    e viene valorizzato durante
+    l'upload del file da parte del PHP. In altre parole l'errore può essere 
+    trovato in <varname>$_FILES['userfile']['error']</varname>. 
+   </simpara> 
+    <para> 
+     <variablelist> 
+      <varlistentry> 
+       <term><varname>UPLOAD_ERR_OK</varname></term> 
+        <listitem> 
+         <para> 
+         Valore: 0; Non vi sono errori, l'upload è stato eseguito con successo.
+       </para> 
+      </listitem> 
+     </varlistentry> 
+     <varlistentry> 
+      <term><varname>UPLOAD_ERR_INI_SIZE</varname></term> 
+      <listitem> 
+       <para> 
+        Valore: 1; Il file inviato eccede le dimensioni specificate nel parametro
+        <link linkend="ini.upload-max-filesize">upload_max_filesize</link> 
+        di &php.ini;. 
+        </para> 
+       </listitem> 
+      </varlistentry> 
+      <varlistentry> 
+      <term><varname>UPLOAD_ERR_FORM_SIZE</varname></term> 
+      <listitem> 
+       <para> 
+        Valore: 2; Il file inviato eccede le dimensioni specificate
+        nel parametro <emphasis>MAX_FILE_SIZE</emphasis> del form.
+       </para> 
+      </listitem> 
+      </varlistentry> 
+      <varlistentry> 
+       <term><varname>UPLOAD_ERR_PARTIAL</varname></term> 
+       <listitem> 
+         <para> 
+         Valore: 3; Upload eseguito parzialmente. 
+        </para> 
+       </listitem> 
+      </varlistentry> 
+      <varlistentry> 
+       <term><varname>UPLOAD_ERR_NO_FILE</varname></term> 
+       <listitem> 
+        <para> 
+         Valore: 4; Nessun file è stato inviato. 
+       </para> 
+       </listitem> 
+      </varlistentry> 
+     </variablelist> 
+    </para> 
+    <note> 
+     <para> 
+      Questi valori sono diventate costanti PHP a partire dal PHP 4.3.0. 
+     </para> 
+    </note> 
+   </sect1>
+
   <sect1 id="features.file-upload.common-pitfalls">
    <title>Common Pitfalls</title>
    <simpara>
@@ -234,6 +281,34 @@ if (is_uploaded_file($userfile)) {
     linkend="ini.upload-max-filesize">upload_max_filesize</link> del file php.ini.
     L'impostazione di default è 2 Megabytes.
    </simpara>
+   <simpara>
+    Se si è impostato un limite di memoria <link
+    linkend="ini.memory-limit">memory_limit</link> può essere necessario ampliarlo. 
+    Occorre essere certi di impostare <link linkend="ini.memory-limit">memory_limit</link>
+    alle dimensioni appropriate.
+   </simpara>
+   <simpara>
+    Se <link linkend="ini.max-execution-time">max_execution_time</link>
+    è impostato ad un valore basso, l'esecuzione dello script può eccedere tale valore.
+    Ampliare <literal>max_execution_time</literal> ad un tempo sufficiente per l'upload.
+   </simpara>
+   <note>
+    <simpara>
+     <link linkend="ini.max-execution-time">max_execution_time</link> influisce solo
+     sul tempo di esecuzione dello script. Il tempo utilizzato per attività
+     esterno allo script, tipo le chiamate di sistema
+     <function>system</function>, o la funzione 
+     <function>sleep</function>, le query nei database, il tempo inpiegato
+     nell'upload del file non è considerato nel computo del tempo
+     di esecuzione dello script.
+    </simpara>
+   </note>
+   <simpara>
+    Se <link linkend="ini.post-max-size">post_max_size</link> è impostato ad un valore
+    troppo piccolo, non si può inviare file di grosse dimensioni.
+    Impostare <literal>post_max_size</literal> alle dimensioni appropriate.
+   </simpara>
+ 
    <simpara>
     Non controllare il file su cui si sta operando potrebbe dare agli utenti 
 	accesso a informazioni sensibili contenute in altre directory.
@@ -244,10 +319,19 @@ if (is_uploaded_file($userfile)) {
     Fino a che questo si verificherà, il server http CERN non supporterà la possibilità
     di caricare file.
    </simpara>
+ 
+   <simpara>
+    A causa della varietà di formati di directory, non si è in grado di
+    garantire che nomi di file strani (ad esempio contenenti spazi) siano gestiti correttamente.
+   </simpara>
   </sect1>
 
   <sect1 id="features.file-upload.multiple">
    <title>Caricamento di più file</title>
+   <simpara>
+    E' possibile inviare più file contemporanemante utilizzando in
+    <literal>input</literal> <literal>nomi</literal> differenti.
+   </simpara>
    <simpara>
     E' possibile caricare più file contemporaneamente e avere 
     le informazioni organizzate automaticamente in array. Per questo 
@@ -276,37 +360,71 @@ if (is_uploaded_file($userfile)) {
    </para>
    <simpara>
     Quando la form è inviata, gli array
-    <varname>$userfile</varname>,
-    <varname>$userfile_name</varname>, e
-    <varname>$userfile_size</varname> sono costruiti con visibilità 
-	globale (così come in $HTTP_POST_FILES ($HTTP_POST_VARS
-    in PHP 3)). Ognuno di questi è un array indicizzato numericamente 
+    <varname>$_FILES['userfile']</varname>,
+    <varname>$_FILES['userfile']['name']</varname>, e
+    <varname>$_FILES['userfile']['size']</varname> saranno
+    inizializzati (come sarà valorizzato $HTTP_POST_FILES
+    per le versioni di PHP precedenti la 4.1.0).
+    Quando il parametro  <literal>register_globals</literal> è impostato a on
+    saranno presenti anche le variabili globali. Ognuno di questi è un array indicizzato numericamente 
     con i valori relativi ai diversi file caricati.
    </simpara>
    <simpara>
     Per esempio, si supponga che i nomi di file
     <filename>/home/test/review.html</filename> e
     <filename>/home/test/xwp.out</filename> siano inviati.  In questo 
-    caso, <varname>$userfile_name[0]</varname> conterrebbe
+    caso, <varname>$_FILES['userfile']['name'][0]</varname> conterrebbe
     il valore <filename>review.html</filename>,
-    e <varname>$userfile_name[1]</varname> conterrebbe
+    e <varname>$_FILES['userfile']['name'][1]</varname> conterrebbe
     il valore
     <filename>xwp.out</filename>. Analogamente,
-    <varname>$userfile_size[0]</varname> conterrebbe la dimensione di 
+    <varname>$_FILES['userfile']['size'][0]</varname> conterrebbe la dimensione di 
     <filename>review.html</filename>, e così via.
    </simpara>
    <simpara>
    	Anche
-    <varname>$userfile['name'][0]</varname>,
-    <varname>$userfile['tmp_name'][0]</varname>,
-    <varname>$userfile['size'][0]</varname>, e
-    <varname>$userfile['type'][0]</varname> sono impostati.
+    <varname>$_FILES['userfile']['name'][0]</varname>,
+    <varname>$_FILES['userfile']['tmp_name'][0]</varname>,
+    <varname>$_FILES['userfile']['size'][0]</varname>, e
+    <varname>$_FILES['userfile']['type'][0]</varname> sono impostati.
    </simpara>
   </sect1>
 
   <sect1 id="features.file-upload.put-method">
    <title>Supporto per metodo PUT</title>
-
+   <simpara>
+    Il supporto al metodo PUT è cambiato tra PHP 3 e PHP 4.
+    In PHP 4 occorre utilizzare il flusso standard di input per leggere
+    il contenuto di un PUT HTTP.
+   </simpara>
+   <para>
+    <example>
+     <title>Salvataggio di un file HTTP PUT con PHP 4</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+/* I dati PUT arrivano in stdin */
+$putdata = fopen("php://stdin","r");
+ 
+/* Apertura del file in scrittura */
+$fp = fopen("myputfile.ext","w");
+/* Lettura dei dati d 1kb alla volta e scrittura nel file */
+while ($data = fread($putdata,1024))
+  fwrite($fp,$data);
+ 
+/* Chiusura */
+fclose($fp);
+fclose($putdata);
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+   <note>
+    <para>
+     Tutta la documentazione che segue si applica solo a PHP 3. 
+    </para>
+   </note>
    <para>
     PHP fornisce supporto per il metodo HTTP PUT utilizzato da programmi 
     come Netscape Composer e W3C Amaya.  Le richieste PUT sono molto più semplici
@@ -379,6 +497,7 @@ sgml-minimize-attributes:nil
 sgml-always-quote-attributes:t
 sgml-indent-step:1
 sgml-indent-data:t
+indent-tabs-mode:nil
 sgml-parent-document:nil
 sgml-default-dtd-file:"../../manual.ced"
 sgml-exposed-tags:nil

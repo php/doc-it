@@ -1,0 +1,1063 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- EN-Revision: 1.21 Maintainer: darvina Status: ready -->
+<chapter id="features.commandline">
+ <title>Utilizzo di PHP da linea di comando</title>
+ <!-- NEW DOCUMENTATION STARTS -->
+ <para>
+  A partire dalla versione 4.3.0, il <literal>PHP</literal> supporta un
+  nuovo tipo di <literal>SAPI</literal> (Server Application Programming Interface)
+  chiamata <literal>CLI</literal> che significa <emphasis>Interfaccia per la Linea di Comando (Command Line
+  Interface)</emphasis>. Come il nome stesso suggerisce, questo tipo di <literal>SAPI</literal>
+  è mirato allo sviluppo di applicazioni  shell (o desktop) con
+  <literal>PHP</literal>. Esistono alcune differenze tra la 
+  <literal>CLI SAPI</literal> e le altre <literal>SAPI</literal>; queste saranno illustrate
+  nel corrente capitolo. Val la pena ricordare che
+  <literal>CLI</literal> e <literal>CGI</literal> sono differenti
+  SAPI sebbene condividano il medesimo comportamento in diverse situazioni.
+ </para>
+ <para>
+  La <literal>CLI SAPI</literal> è stata rilasciata per la prima volta con
+  <literal>PHP 4.2.0</literal>, ma era ancora sperimentale e quindi doveva essere
+  esplicitamente abilitata con <literal>--enable-cli</literal> nell'esecuzione di
+  <literal>./configure</literal>.  A partire dal <literal>PHP 4.3.0</literal> la
+  <literal>CLI SAPI</literal> non viene più considerata sperimentale e quindi l'opzione
+  <literal>--enable-cli</literal> è attivata per default.  Vedere
+  <literal>--disable-cli</literal> per disabilitare l'opzione.
+ </para>
+ <para>
+  Dal PHP 4.3.0, il nome, la posizione, e l'esistenza di eseguibili CLI/CGI
+  differirà in base a come il PHP sarà installato sul sistema.
+  Per default quando si esegue il <literal>make</literal>, si compila sia la versione CLI sia la versione CGI
+  e saranno poste rispettivamente in <literal>sapi/cgi/php</literal> e <literal>sapi/cli/php</literal> 
+  a partire dalla directory dei sorgenti. Occorre notare che entrambi gli eseguibili
+  sono chiamati <literal>php</literal>. Ciò che accade durante l'esecuzione di
+  <literal>make install</literal> dipende dalla linea di configurazione.
+  Se durante la configurazione si è scelto un modulo SAPI, tipo apxs, o si è attivato
+  <literal> --disable-cgi</literal>, l'eseguibile CLI viene copiato in
+  <literal>{PREFIX}/bin/php</literal> durante <literal>make install</literal>,
+  altrimenti in questa cartella sarà posto l'eseguibile CGI. Così, per esempio, se si ha
+  come parametro di configurazione <literal>--with--apxs</literal> allora l'eseguibile CLI
+  sarà copiato in <literal>{PREFIX}/bin/php</literal> durante <literal>make
+  install</literal>. Se si vuole evitare l'installazione dell'eseguibile CGI,
+  utilizzare <literal>make install-cli</literal> dopo <literal>make
+  install</literal>. In alternativa si può specificare <literal>--disable-cgi
+  </literal> nella linea di configurazione.
+ </para>
+ <note>
+  <para>
+   Poichè sia <literal>--enable-cli</literal> sia <literal>
+   --enable-cgi</literal> sono abilitati per default, avere semplicemente
+   <literal>--enable-cli</literal> nella linea di configurazione non significa 
+   necessariamente che l'eseguibile CLI sia copiato come <literal>
+   {PREFIX}/bin/php</literal> con l'esecuzione di <literal>make install</literal>.
+  </para>
+ </note>
+ <para>
+  Nel pacchetto per Windows, nelle versioni tra PHP 4.2.0 e PHP 4.2.3, l'eseguibile CLI
+  era presente come <filename>php-cli.exe</filename>, nella medesima cartella della versione CGI
+  <filename>php.exe</filename>. A partire dal PHP 4.3.0 nel pacchetto per Windows la versione CLI viene
+  distribuita come <filename>php.exe</filename> in una cartella a parte chiamata cli,
+  avendo perciò <literal>cli/php.exe</literal>. 
+ </para>
+ <note>
+  <title>Quale SAPI ho?</title>
+  <para>
+   Da shell, digitando <literal>php -v</literal> si avrà l'informazione di
+   quale <literal>php</literal> si tratta, CGI o CLI.  Vedere anche la funzione
+   <function>php_sapi_name</function>e la costante <constant>
+   PHP_SAPI</constant> per dettagli.
+  </para>
+ </note>
+ <note>
+  <para>
+   Una pagina stile <literal>man</literal> di Unix è stata aggiunta in PHP 4.3.2.  La si può
+   visualizzare digitando <literal>man php</literal> da linea di comando.
+  </para>
+ </note>
+ <para>
+  Le principali differenze tra la <literal>CLI SAPI</literal> e le altre
+  <literal>SAPI</literal> sono:
+  <itemizedlist>
+   <listitem>
+    <para>
+     A differenza di <literal>CGI SAPI</literal>, non sono inviate in output
+     delle intestazioni.
+    </para>
+    <para>
+     Mentre nella <literal>CGI SAPI</literal> esiste un modo per sopprimere
+     le intestazioni, nella <literal>CLI SAPI</literal> non si ha una opzione
+     per abilitare le intestazioni.
+    </para>
+    <para>
+     Per default CLI parte in modalità silenziosa, si è mantenuto, comunque,
+     l'opzione <literal>-q</literal> per motivi di compatibilità; in questo modo si possono utlizzare i vecchi script CGI.
+    </para>
+    <para>
+     Non cambia la directory di lavoro in quella dello script.
+     (E' rimasta l'opzione <literal>-C</literal> per compatibilità)
+    </para>
+    <para>
+     Messaggi di errore in formato testo (non formattati in HTML).
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Esistono, inoltre, alcune direttive del &php.ini; che sono forzate nell'impostazione dalla <literal>CLI
+     SAPI</literal> poichè non hanno senso nell'ambiente di shell:
+     <table>
+      <title>Direttive del &php.ini; forzate</title>
+      <tgroup cols="3">
+       <thead>
+        <row>
+         <entry>Direttiva</entry>
+         <entry><literal>CLI SAPI</literal> valore di default</entry>
+         <entry>Commento</entry>
+        </row>
+       </thead>
+       <tbody>
+        <row>
+         <entry><link linkend="ini.html-errors">html_errors</link></entry>
+         <entry>&false;</entry>
+         <entry>
+          E' difficile leggere i messaggi di errore nella shell quando
+          sono affogati in tag <literal>HTML</literal> prive di significato;
+          pertanto il default della direttiva è impostato a &false;.
+         </entry>
+        </row>
+        <row>
+         <entry><link linkend="ini.implicit-flush">implicit_flush</link></entry>
+         <entry>&true;</entry>
+         <entry>
+          E' desiderabile che ogni tipo di output proveniente da 
+          <function>print</function>, <function>echo</function> e simili sia scritto
+          immediatamente e non venga bufferizzato. Tuttavia è ancora possibile
+          utilizzare le funzioni di <link linkend="ref.outcontrol">controllo dell'output</link>
+          se si desidera ritardare o manipolare lo standard output.
+         </entry>
+        </row>
+        <row>
+         <entry><link linkend="ini.max-execution-time">max_execution_time</link></entry>
+         <entry>0 (unlimited)</entry>
+         <entry>
+          Considerate le svariate possibilità offerte da <literal>PHP</literal>
+          nell'ambiente di shell, il tempo massimo di esecuzione è stato impostato
+          a infinito. Mentre nelle applicazione scritte per il web i tempi di esecuzione
+          sono rapidi, le applicazioni di shell tendono ad avere tempi di esecuzione
+          molto più lunghi.
+         </entry>
+        </row>
+        <row>
+         <entry><link linkend="ini.register-argc-argv">register_argc_argv</link></entry>
+         <entry>&true;</entry>
+         <entry>
+         <para>
+          Poichè è impostato a &true; nella <literal>CLI SAPI</literal> si ha sempre la possibilità di accedere alla variabili 
+          <emphasis>argc</emphasis> (numero di argomenti passati all'applicazione)
+          e <emphasis>argv</emphasis> (matrice degli
+          argumenti).
+         </para>
+         <para>
+          A partire da PHP 4.3.0, quando si utilizza la <literal>CLI SAPI</literal> le variabili <literal>PHP</literal> <varname>$argc</varname>
+          e <varname>$argv</varname>  sono sempre registrate e valorizzate in modo 
+          appropriato. Prima di questa versione la creazione 
+          di queste variabili era coerente con il comportamento delle versioni
+          <literal>CGI</literal> e <literal>MODULO</literal> le quali
+          richiedevano che la direttiva PHP
+          <link linkend="ini.register-globals">register_globals</link> fosse impostata
+          a <emphasis>on</emphasis>.  A prescindere dalla versione o dall'impostazione di
+          register_globals si può sempre accedere alle variabili 
+          <link linkend="reserved.variables.server">$_SERVER</link> o
+          <varname>$HTTP_SERVER_VARS</varname>.  Esempio:
+          <varname>$_SERVER['argv']</varname>
+         </para>
+         </entry>
+        </row>
+       </tbody>
+      </tgroup>
+     </table>
+    </para>
+    <note>
+     <para>
+      Queste direttive non possono essere inizializate con altri valori 
+      dal file di configurazione  &php.ini; o da uno personalizzato (se specifictao). Questa è
+      una limitazione perchè questi valori di default sono applicati 
+      dopo avere esaminato tutti i file di configurazione. Tuttavia i loro valori possono
+      essere cambiati durante l'esecuzione (operazione che non ha senso per queste direttive,
+      ad esempio <link linkend="ini.register-argc-argv">register_argc_argv</link>).
+     </para>
+    </note>
+   </listitem>
+   <listitem>
+    <para>
+     Per potere lavorare meglio con le shell, sono state definite le seguenti 
+     costanti:
+     <table>
+      <title>Costanti specifiche per CLI</title>
+      <tgroup cols="2">
+       <thead>
+        <row>
+         <entry>Costante</entry>
+         <entry>Descrizione</entry>
+        </row>
+       </thead>
+       <tbody>
+        <row>
+         <entry><constant>STDIN</constant></entry>
+         <entry>
+         Un flusso già aperto allo <literal>stdin</literal>. Questo evita di
+         aprirlo con
+         <programlisting role="php">
+<![CDATA[
+$stdin = fopen('php://stdin', 'r');
+]]>
+         </programlisting>
+         </entry>
+        </row>
+        <row>
+         <entry><constant>STDOUT</constant></entry>
+         <entry>
+         Un flusso già aperto allo <literal>stdout</literal>. Questo evita di
+         aprirlo con
+         <programlisting role="php">
+<![CDATA[
+$stdout = fopen('php://stdout', 'w');
+]]>
+         </programlisting>
+         </entry>
+        </row>
+        <row>
+         <entry><constant>STDERR</constant></entry>
+         <entry>
+         Un flusso già aperto allo <literal>stderr</literal>. Questo evita di
+         aprirlo con
+         <programlisting role="php">
+<![CDATA[
+$stderr = fopen('php://stderr', 'w');
+]]>
+         </programlisting>
+         </entry>
+        </row>
+       </tbody>
+      </tgroup>
+     </table>
+    </para>
+    <para>
+     Stante a quanto descritto non occorre più aprire in autonomia
+     flussi per, ad esempio, lo <literal>stderr</literal>, ma semplicemente si può
+     usare le costanti anzichè una nuova risorsa di flusso:
+     <programlisting role="php">
+<![CDATA[
+php -r 'fwrite(STDERR, "stderr\n");'
+]]>
+     </programlisting>
+     Non occorre chiudere esplicitamente questi flussi, saranno chiusi automaticamente
+     dal <literal>PHP</literal> alla fine dello script.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     La <literal>CLI SAPI</literal> <emphasis
+     role="strong">non</emphasis> cambia la directory corrente in quella
+     dello script eseguito!
+    </para>
+    <para>
+     Il seguente esempio illustra la diferenza rispetto alla <literal>CGI SAPI</literal>:
+     <programlisting role="php">
+<![CDATA[
+<?php
+    /* Semplice esempio di test chiamato test.php*/
+    echo getcwd(), "\n";
+?>
+]]>
+     </programlisting>
+    </para>
+    <para>
+     Quando si usa la versione <literal>CGI</literal>, si avrà il seguente output:
+     <screen>
+<![CDATA[
+$ pwd
+/tmp
+
+$ php -q another_directory/test.php
+/tmp/another_directory
+]]>
+     </screen>
+     Questo evidenzia chiaramente come il <literal>PHP</literal> cambi la
+     directory corrente con quella in cui si trova lo script.
+    </para>
+    <para>
+     Utilizzando la versione <literal>CLI SAPI</literal> abbiamo:
+     <screen>
+<![CDATA[
+$ pwd
+/tmp
+
+$ php -f another_directory/test.php
+/tmp
+]]>
+     </screen>
+     Questo permette una grande flessibilità nello scrivere tools in
+     <literal>PHP</literal>.
+    </para>
+    <note>
+     <para>
+      La <literal>CGI SAPI</literal> supporta il comportamento 
+      della <literal>CLI SAPI</literal> attivando l'opzione <literal>-C</literal>
+      quando viene eseguito da linea di comando.
+     </para>
+    </note>
+   </listitem>
+  </itemizedlist>
+ </para>
+ <para>
+  L'elenco completo delle opzioni del <literal>PHP</literal> disponibili da linea di comando
+  può essere visualizzato in qualsiasi momento eseguendo il <literal>PHP</literal>
+  con l'opzione <literal>-h</literal>:
+  <screen>
+<![CDATA[
+Usage: php [options] [-f] <file> [args...]
+       php [options] -r <code> [args...]
+       php [options] [-- args...]
+  -s               Display colour syntax highlighted source.
+  -w               Display source with stripped comments and whitespace.
+  -f <file>        Parse <file>.
+  -v               Version number
+  -c <path>|<file> Look for php.ini file in this directory
+  -a               Run interactively
+  -d foo[=bar]     Define INI entry foo with value 'bar'
+  -e               Generate extended information for debugger/profiler
+  -z <file>        Load Zend extension <file>.
+  -l               Syntax check only (lint)
+  -m               Show compiled in modules
+  -i               PHP information
+  -r <code>        Run PHP <code> without using script tags <?..?>
+  -h               This help
+
+  args...          Arguments passed to script. Use -- args when first argument 
+                   starts with - or script is read from stdin
+]]>
+  </screen>
+ </para>
+ <para>
+  La vesione <literal>CLI SAPI</literal> ha tre differenti modi per
+  eseguire il codice <literal>PHP</literal>:
+  <orderedlist>
+   <listitem>
+    <para>
+     Dire al <literal>PHP</literal> di eseguire certi file.
+    </para>
+    <para>
+     <screen>
+<![CDATA[
+php my_script.php
+
+php -f my_script.php
+]]>
+     </screen>
+     Entrambi i metodi (con o senza l'opzione <literal>-f</literal>) eseguono il
+     file <filename>my_script.php</filename>. Si può scegliere qualsiasi nome per lo
+     script da eseguire - non è obbligatorio che gli script <literal>PHP</literal> finiscano
+     con l'estensione <filename>.php</filename>, ma possono avere qualsiasi nome
+     o estensione che si desideri.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Passare il codice <literal>PHP</literal> da eseguire direttamente da linea di
+     comando.
+    </para>
+    <para>
+     <screen>
+<![CDATA[
+php -r 'print_r(get_defined_constants());'
+]]>
+     </screen>
+     Occorre prestare molta attenzione alla sostituzione delle variabili di shell
+     e all'uso degli apici.
+    </para>
+    <note>
+     <para>
+      Osservando con attenzione l'esempio si nota l'assenza dei tag di inizio e fine!
+      L'opzione <literal>-r</literal> non li richiede. L'uso dei tag genera un
+      errore di parsing.
+     </para>
+    </note>
+   </listitem>
+   <listitem>
+    <para>
+     Si può passare il codice <literal>PHP</literal> da eseguire via standard input
+     (<literal>stdin</literal>).
+    </para>
+    <para>
+     Questo da la possibilità di generare dinamicamente del codice
+     <literal>PHP</literal> e passarlo all'eseguibile, come illustrato nel seguente
+     esempio (fittizio):
+     <screen>
+<![CDATA[
+$ some_application | some_filter | php | sort -u >final_output.txt
+]]>
+     </screen>
+    </para>
+   </listitem>
+  </orderedlist>
+  Non si possono combinare tra loro questi tre metodi di esecuzione del codice.
+ </para>
+ <para>
+  Come qualsiasi applicazione di shell, anche l'eseguibile <literal>PHP</literal>
+  accetta diversi argomenti, ma anche lo script <literal>PHP</literal> può ricevere
+  argomenti. Il numero degli argomenti passabili allo script non è
+  limitato dal <literal>PHP</literal> (si rammenta che la shell ha un limite
+  nel numero di caratteri che possono essere passati; solitamente non si raggiunte
+  questo limite). Gli argomenti passati allo script sono disponibili nell'array 
+  <literal>$argv</literal>. L'indice zero contiene sempre il nome dello script
+  (che è <literal>-</literal> nel caso in cui il codice <literal>PHP</literal> 
+  provenda o dallo standard input o dalla linea di comando con l'opzione
+  <literal>-r</literal>). La seconda variabile globale registrata è
+  <literal>$argc</literal> la quale contiene il numero degli elementi nella matrice
+  <literal>$argv</literal> (<emphasis role="strong">non</emphasis> è
+  il numero degli argomenti passati allo script).
+ </para>
+ <para>
+  Fino a quando gli argomenti passati allo script non iniziano con 
+  il carattere <literal>-</literal> non si deve prestare alcuna cautela.
+  Tuttavia se si passa allo script argomenti che iniziano con
+   <literal>-</literal> si hanno dei problemi perchè lo stesso <literal>PHP</literal>
+   ritiene di doverli gestire. Per evitare ciò occorre utilizzare il separatore di argomenti
+   <literal>--</literal>. Dopo che il <literal>PHP</literal> ha incontrato questo separatore,
+   ogni argomento verrà passato
+   direttamente allo script.
+ </para>
+ <screen>
+<![CDATA[
+# Questo non visualizzerà il codice passato, ma l'elenco delle opzioni
+$ php -r 'var_dump($argv);' -h
+Usage: php [options] [-f] <file> [args...]
+[...]
+
+# Questo passerà il '-h'allo script ed eviterà al PHP di visualizzare le opzioni
+$ php -r 'var_dump($argv);' -- -h
+array(2) {
+  [0]=>
+  string(1) "-"
+  [1]=>
+  string(2) "-h"
+}
+]]>
+ </screen>
+ <para>
+  Tuttvia esiste un'altro modo per eseguire gli script <literal>PHP</literal>.
+  Si può scrivere uno script la cui prima riga inizi con
+  <literal>#!/usr/bin/php</literal>. Seguendo questa regola si può posizionare
+  il normale codice <literal>PHP</literal> tra i tag di apertura e chiusura
+  del <literal>PHP</literal>. Una volta impostati correttamente gli attributi
+  del file (ad esempio <literal>chmod +x test</literal>) lo script può essere eseguito
+  come una normale shell o script perl:
+  <programlisting role="php">
+<![CDATA[
+#!/usr/bin/php
+<?php
+    var_dump($argv);
+?>
+]]>
+  </programlisting>
+  Assumento che questo file sia chiamato <filename>test</filename> nella directory
+  corrente, si può eseguire:
+  <screen>
+<![CDATA[
+$ chmod 755 test
+$ ./test -h -- foo
+array(4) {
+  [0]=>
+  string(6) "./test"
+  [1]=>
+  string(2) "-h"
+  [2]=>
+  string(2) "--"
+  [3]=>
+  string(3) "foo"
+}
+]]>
+  </screen>
+  Come si può notare in questo caso non vi è necessità di prestare attenzione nel passare 
+  i parametri che iniziano con  <literal>-</literal>.
+ </para>
+ <para>
+  <table>
+   <title>Opzioni della linea di comando,</title>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>Option</entry>
+      <entry>Description</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>-s</entry>
+      <entry>
+       <para>
+        Visualizza il sorgente con sintassi colorata.
+       </para>
+       <para>
+        Questa opzione utilizza il meccanismo interno di parsing dei file e produce
+        una versione <literal>HTML</literal> del sorgente e la dirige verso lo
+        standard output. Occore notare che questa funzione genera dei blocchi di
+        tag <literal>HTML</literal> 
+        <literal>&lt;code&gt; [...] &lt;/code&gt;</literal> e non le intestazione <literal>HTML</literal>.
+       </para>
+       <note>
+        <para>
+         Questa opzione non funziona abbinata all'opzione
+         <literal>-r</literal>.
+        </para>
+       </note>
+      </entry>
+     </row>
+     <row>
+      <entry>-w</entry>
+      <entry>
+       <para>
+        Visualizza il sorgente senza gli spazi e i commenti.
+       </para>
+       <note>
+        <para>
+         Questa opzione non funziona abbinata all'opzione
+         <literal>-r</literal>.
+        </para>
+       </note>
+      </entry>
+     </row>
+     <row>
+      <entry>-f</entry>
+      <entry>
+       <para>
+        Analizza ed esegue il file passato con l'opzione <literal>-f</literal>.
+        Questo parametro è opzionale e può essere omesso. Basta fornire il
+        nome del file da eseguire.
+       </para>
+      </entry>
+     </row>
+     <row>
+      <entry>-v</entry>
+      <entry>
+       <para>
+        Visualizza le versioni di PHP, PHP SAPI, e Zend nello standard output, ad esempio:
+        <screen>
+<![CDATA[
+$ php -v
+PHP 4.3.0 (cli), Copyright (c) 1997-2002 The PHP Group
+Zend Engine v1.3.0, Copyright (c) 1998-2002 Zend Technologies
+]]>
+        </screen>
+       </para>
+      </entry>
+     </row>
+     <row>
+      <entry>-c</entry>
+      <entry>
+       <para>
+        Con questa opzione si può sia specificare la directory in cui cercare 
+        il &php.ini; o si può specificare un file <literal>INI</literal> personalizzato
+        (che non deve necessariamente chiamarsi &php.ini;), ad esempio:
+        <screen>
+<![CDATA[
+$ php -c /custom/directory/ my_script.php
+
+$ php -c /custom/directory/custom-file.ini my_script.php
+]]>
+        </screen>
+       </para>
+      </entry>
+     </row>
+     <row>
+      <entry>-a</entry>
+      <entry>
+       <para>
+        Esegue il PHP in modo interattivo.
+        <!-- 
+        mfischer, 20020510: Couldn't come up with a decent useful description
+        of the current implementation of the interactive mode.
+        -->
+       </para>
+      </entry>
+     </row>
+     <row>
+      <entry>-d</entry>
+      <entry>
+       <para>
+        Questa opzione permette di impostare valori personalizzati per qualsiasi
+        delle direttive di configurazione previste in &php.ini;. La sintassi è:
+        <screen>
+<![CDATA[
+-d configuration_directive[=value]
+]]>
+        </screen>
+       </para>
+       <para>
+        Esempi:
+        <screen>
+<![CDATA[
+# Omettendo il valore si imposta la direttiva data a "1"
+$ php -d max_execution_time -r '$foo = ini_get("max_execution_time"); var_dump($foo);'
+string(1) "1"
+
+# Passando un valore vuoto si imposta la direttiva a ""
+php -d max_execution_time= -r '$foo = ini_get("max_execution_time"); var_dump($foo);'
+string(0) ""
+
+# La direttiva di configurazione viene impostata a qualsiasi valore passato dopo il carattere '='
+$  php -d max_execution_time=20 -r '$foo = ini_get("max_execution_time"); var_dump($foo);'
+string(2) "20"
+$  php -d max_execution_time=doesntmakesense -r '$foo = ini_get("max_execution_time"); var_dump($foo);'
+string(15) "doesntmakesense"
+]]>
+        </screen>
+       </para>
+      </entry>
+     </row>
+     <row>
+      <entry>-e</entry>
+      <entry>
+       <para>
+        Genera informazioni estese per il debugger/profiler.
+        <!-- 
+        mfischer, 20020510: Anyone who can provide more information what it
+        really does (even if it's only for developers) ?
+        -->
+       </para>
+      </entry>
+     </row>
+     <row>
+      <entry>-z</entry>
+      <entry>
+       <para>
+        Carica l'estensione Zend. Soltano se si fornisce un nome di file, il PHP tenta
+        di caricare l'estensione dal corrente percorso di default delle librerie
+        (solitamente, sui sistemi Linux, <filename>/etc/ld.so.conf</filename>).
+        Se si fornisce un nome di file con percorso assoluto, ls libreria non
+        sarà cercata nella directory di default. Un nome di file con percorso relativo
+        indica al <literal>PHP</literal> di tentare di caricare l'estensione con 
+        percorso relativo alla directory corrente.
+       </para>
+      </entry>
+     </row>
+     <row>
+      <entry>-l</entry>
+      <entry>
+       <para>
+        Questa opzione fornisce un metodo pratico per eseguire un controllo sintattico
+        di un dato codice <literal>PHP</literal>. Se il controllo ha successo, verrà visualizzato il testo
+        <literal>No syntax errors detected in &lt;filename&gt;</literal> 
+        e alla shell sarà restituito il codice
+        <literal>0</literal>. Se si rilevano errori si avrà il testo <literal>Errors parsing
+        &lt;filename&gt;</literal>, inoltre si avranno anche i messaggi di errore del parser
+        ed alla shell sarà restituito il codice
+        <literal>255</literal>.
+       </para>
+       <para>
+        Questa opzione non rileva errori fatali (tipo funzioni non definite). Occorre
+        utilizzare l'opzione <literal>-f</literal> se si desidera rilevare gli errori fatali.
+       </para>
+       <note>
+        <para>
+         Questa opzione non è abbinabile all'opzione <literal>-r</literal>.
+        </para>
+       </note>
+      </entry>
+     </row>
+     <row>
+      <entry>-m</entry>
+      <entry>
+       <para>
+        Utilizzare questa opzione per visualizzare i moduli PHP e di Zend
+        integrati (e quindi caricati):
+        <screen>
+<![CDATA[
+$ php -m
+[PHP Modules]
+xml
+tokenizer
+standard
+session
+posix
+pcre
+overload
+mysql
+mbstring
+ctype
+
+[Zend Modules]
+]]>
+        </screen>
+       </para>
+      </entry>
+     </row>
+     <row>
+      <entry>-i</entry>
+      <entry>
+       Questa opzione della linea di comando richiama la funzione <function>phpinfo</function>, e ne
+       visualizza il risultato. Se il <literal>PHP</literal> non funziona correttamente, è opportuno
+       utilizzare <literal>php -i</literal> per verificare se sono visualizzati messaggi di errore
+       prima o al posto della tabella con le informazioni.
+       Fare attenzione che l'output è in formato <literal>HTML</literal> e quindi abbastanza
+       lungo.
+      </entry>
+     </row>
+     <row>
+      <entry>-r</entry>
+      <entry>
+       <para>
+        Questa opzione permette l'esecuzione di codice <literal>PHP</literal> direttamente
+        da linea di comando. I tag <literal>PHP</literal> di apertura e di chiusura
+        (<literal>&lt;?php</literal> e <literal>?&gt;</literal>)
+        <emphasis role="strong">non sono necessari</emphasis> anzi, se presenti, causano un 
+        errore del parser.
+       </para>
+       <note>
+        <para>
+         Quando si utilizza questo metodo occorre prestare attenzione ad evitare
+         collisioni con la sostituzione delle varibili eseguita dalla shell
+         sulla linea di comando.
+        </para>
+        <para>
+         Ecco un esempio che visualizza un errore di parsing
+         <screen>
+<![CDATA[
+$ php -r "$foo = get_defined_constants();"
+Command line code(1) : Parse error - parse error, unexpected '='
+]]>
+         </screen>
+         In questo caso il problema è dovuto alla sostituzione della variabile
+         eseguita da sh/bash anche quando si usano i doppi apici <literal>"</literal>.
+         Poichè la viriabile <literal>$foo</literal> non è definita, essa
+         verrà espansa con 'niente' generando il seguente codice
+         <literal>PHP</literal>:
+         <screen>
+<![CDATA[
+$ php -r " = get_defined_constants();"
+]]>
+         </screen>
+         Il metodo corretto richiede l'uso dell'apice singolo <literal>'</literal>.
+         Le variabili racchiuse in stringhe delimite dall'apice singolo non
+         vengono espanse da sh/bash.
+         <screen>
+<![CDATA[
+$ php -r '$foo = get_defined_constants(); var_dump($foo);'
+array(370) {
+  ["E_ERROR"]=>
+  int(1)
+  ["E_WARNING"]=>
+  int(2)
+  ["E_PARSE"]=>
+  int(4)
+  ["E_NOTICE"]=>
+  int(8)
+  ["E_CORE_ERROR"]=>
+  [...]
+]]>
+         </screen>
+         Se si utilizzano shell differenti rispetto a sh/bash, si potrebbe incorrere
+         in altri problemi. In tal caso aprite una segnalazione di errore o inviate una
+         mail a phpdoc@lists.php.net.
+
+         Tuttavia si può facilmente incorrere in problemi nell'avere variabili
+         di shell nel codice o nell'utilizzare le barre rovesciate (backslash) per l'escape.
+         Siete avvertiti. <!-- :-) -->
+        </para>
+       </note>
+       <note>
+        <para>
+         L'opzione <literal>-r</literal> è disponibile solo nella <emphasis>CLI</emphasis>
+         SAPI e non nella <emphasis>CGI</emphasis> SAPI.
+        </para>
+       </note>
+      </entry>
+     </row>
+     <row>
+      <entry>-h</entry>
+      <entry>
+       Con questa opzione si ha l'elenco dei comandi di linea
+       ed una breve descrizione di questi.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </table>
+ </para>
+ <!-- NEW DOCUMENTATION ENDS -->
+
+ <!-- OLD DOCUMENTED STARTS
+  mfischer, 20020510: I've commented out the start paragraphs of the old
+  documentation as it is meant to be replaced by the new one.
+  darvina, 20030601: poichè questa parte è considerata obsoleta non 
+  se ne fornisce la traduzione.
+ <para>
+  The command line options of the PHP executable are useful
+  if you would like to debug or test your PHP setup, but they
+  can also be handy, if you would like to use PHP for a
+  different purpose than web scripting.
+ </para>
+ <para>
+  Note, that you can always direct the output of the PHP
+  executable to an external file with the &gt; character,
+  so <literal>php -q test.php > test.html</literal> will
+  print out the output of <filename>test.php</filename>
+  without HTTP headers to the <filename>test.html</filename>
+  file in the same directory.
+ </para>
+ <para>
+  You can only use these command line options if you have
+  the PHP executable. If you built the server module
+  version, and you have no CGI version available on your
+  machine, than you have no chance to use these options.
+  For Windows users both the PHP executable and the server
+  modules are in the binary package, the executable is
+  named <filename>php.exe</filename>.
+ </para>
+ <para>
+  This list of command line options is consistent with PHP 4.0.6.
+  You can get the actual list and some one line descriptions
+  with the <literal>-h</literal> option. The output of
+  <literal>php -h</literal> should be something like this:
+  <screen>
+<![CDATA[
+Usage: php [-q] [-h] [-s [-v] [-i] [-f <file>] |  {<file> [args...]}
+  -q             Quiet-mode.  Suppress HTTP Header output.
+  -s             Display colour syntax highlighted source.
+  -f <file>      Parse <file>.  Implies `-q'
+  -v             Version number
+  -C             Do not chdir to the script's directory
+  -c <path>      Look for php.ini file in this directory
+  -d foo[=bar]   Define INI entry foo with value 'bar'
+  -e             Generate extended information for debugger/profiler
+  -z <file>      Load Zend extension <file>.
+  -l             Syntax check only (lint)
+  -m             Show compiled in modules
+  -i             PHP information
+  -h             This help
+]]>
+  </screen>
+ </para>
+ <para>
+  Here we list some of the most important command line options
+  with detailed explanations.
+ </para>
+ <para>
+  <table>
+   <title>Command line options</title>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>Option</entry>
+      <entry>Description</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>-q</entry>
+      <entry>
+       Suppress HTTP headers output. Normally PHP prints out
+       HTTP headers for the calling program (ie. webserver)
+       to hand on to the browser. When writing command line
+       applications these headers are useless.
+      </entry>
+     </row>
+     <row>
+      <entry>-s</entry>
+      <entry>
+       Display the color highlighted source of the file
+       given with its name. This is the same as if you were
+       printing out the source using the
+       <function>highlight_file</function> function in
+       a PHP script.
+      </entry>
+     </row>
+     <row>
+      <entry>-f</entry>
+      <entry>
+       Parse the file given, and search for syntactical and
+       fatal errors. This option implies -q. Use for
+       debugging purposes.
+      </entry>
+     </row>
+     <row>
+      <entry>-v</entry>
+      <entry>
+       By calling PHP with this option, you can ask
+       it to print out its version number, ie: 4.0.6. 
+      </entry>
+     </row>
+     <row>
+      <entry>-C</entry>
+      <entry>
+       Normally PHP changes the working directory to the
+       running scripts directory. This makes it possible
+       for example, to open files in the same directory,
+       with only specifying the name of the file. If you
+       would like to disable this directory change, use
+       this option.
+      </entry>
+     </row>
+     <row>
+      <entry>-c</entry>
+      <entry>
+       Using this option, you can specify an alternative
+       &php.ini; path, so PHP will
+       search your configurations file in this path
+       instead of the default one.
+      </entry>
+     </row>
+     <row>
+      <entry>-d</entry>
+      <entry>
+       With this option, you can set individual 
+       &php.ini; settings in the
+       time of running a script.
+      </entry>
+     </row>
+     <row>
+      <entry>-l</entry>
+      <entry>
+       Check the file given for syntax errors. This
+       option implies -q. Use for debugging purposes.
+       This option won't find fatal errors (like undefined
+       functions). Use -f if you would like to test
+       for fatal errors too.
+      </entry>
+     </row>
+     <row>
+      <entry>-m</entry>
+      <entry>
+       Using this option, PHP prints out the built in
+       (and loaded) PHP and Zend modules, the PHP
+       and Zend version numbers, and a short Zend
+       copyright notice.
+      </entry>
+     </row>
+     <row>
+      <entry>-i</entry>
+      <entry>
+       This command line option calls
+       <function>phpinfo</function>, and prints
+       out the results. If PHP is not working well,
+       it is advisable to make a <literal>php -i</literal>
+       and see if any error messages are printed out
+       before or in place of the information tables.
+      </entry>
+     </row>
+     <row>
+      <entry>-h</entry>
+      <entry>
+       With this option, you can get information about
+       the actual list of command line options and some
+       one line descriptions about what they do.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </table>
+ </para>
+ -->
+ <para>
+  L'eseguibile PHP può essere utilizzato per eseguire script PHP in modo indipendente
+  dal server web. Se ci si trova su sistemi Unix, si può aggiungere una prima linea
+  speciale allo script PHP e renderlo eseguibile, in questo modo il sistema
+  sa quale programma deve interpretare lo script. Sui sistemi Windows si può
+  associare <literal>php.exe</literal> all'estensione 
+  <literal>.php</literal>, o si può scrivere un batch per eseguire
+  gli script tramite PHP. La prima riga inserita per i sistemi Unix non crea
+  problemi in Windows, in questo modo si possono scrivere batch multi-piattaforma.
+  Seguirà un semplice esempio di programma PHP da linea di comando.
+ </para>
+ <example>
+  <title>Script sviluppato per essere esguito da linea di comando (script.php)</title>
+  <programlisting role="php">
+<![CDATA[
+#!/usr/bin/php
+<?php
+
+if ($argc != 2 || in_array($argv[1], array('--help', '-help', '-h', '-?'))) {
+?>
+
+Questo è uno script PHP da linea di comando con una opzione.
+
+  Utilizzo:
+  <?php echo $argv[0]; ?> <opzione>
+
+  <opzione> può essere qualsiasi parola che si desidera
+  stampata. Con --help, -help, -h,
+  o -? si ottiene questo aiuto.
+<?php
+} else {
+    echo $argv[1];
+}
+?>
+]]>
+  </programlisting>
+ </example>
+ <para>
+  Nello script precedente, abbiamo utilizzato la prima riga per indicare
+  che questo file deve essere interpretato dal PHP. Poichè qui lavoriamo con la versione CLI
+  non vengono prodotte intestazioni HTTP. Esistono due variabili che si possono
+  utilizzare  nelle applicazioni PHP da linea di comando:
+  <varname>$argc</varname> e <varname>$argv</varname>. La
+  prima è il numero di argomenti più uno (il nome dello script).
+  La seconda è una matrice contenente gli argomenti, iniziando dal nome
+  dello script all'indice zero (<varname>$argv[0]</varname>).
+ </para>
+ <para>
+  Nel programma precedente abbiamo verificato se i parametri passati erano di più o di meno
+  di uno. Inoltre se l'argomento è <literal>--help</literal>,
+  <literal>-help</literal>, <literal>-h</literal> oppure <literal>-?</literal>,
+  si visualizza un messaggio di aiuto, visualizzando in modo dinamico il nome dello script.
+  Se si riceve un argomento differente questo sarà visualizzato.
+ </para>
+ <para>
+  Se si desidera eseguire lo script precedente su Unix, occorre,
+  per prima cosa, renderlo eseguibile, e quindi richiamarlo con
+  <literal>script.php echothis</literal> oppure
+  <literal>script.php -h</literal>. Su Windows occorre scrivere un batch
+  per ottenere questo risultato:
+ </para>
+ <example>
+  <title>File batch per eseguire uno script PHP da linea di comando (script.bat)</title>
+  <programlisting role="winbat">
+@c:\php\cli\php.exe script.php %1 %2 %3 %4
+  </programlisting>
+ </example>
+ <para>
+  Assumendo che programma precedente sia chiamato
+  <filename>script.php</filename>, che la versione
+  CLI di <filename>php.exe</filename> sia in
+  <filename>c:\php\cli\php.exe</filename> questo batch eseguirà
+  lo script con le opzioni passate:
+  <literal>script.bat echothis</literal> oppure
+  <literal>script.bat -h</literal>.
+ </para>
+ <para>
+  Vedere anche la documentazione del modulo
+  <link linkend="ref.readline">Readline</link> per informazioni su funzioni
+  che possono essere utilizzate per migliorare le applicazioni da linea di comando.
+ </para>
+</chapter>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

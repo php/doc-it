@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/sockets.xml, last change in rev 1.4 -->
 <!-- last change to 'socket-listen' in en/ tree in rev 1.1 -->
-<!-- EN-Revision: 1.2 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.3 Maintainer: darvina Status: ready -->
 <!-- OLD-Revision: 1.34/EN.1.1 -->
   <refentry id="function.socket-listen">
    <refnamediv>
@@ -11,36 +11,45 @@
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>socket_listen</methodname>
+      <type>bool</type><methodname>socket_listen</methodname>
       <methodparam><type>resource</type><parameter>socket</parameter></methodparam>
-      <methodparam><type>int</type><parameter>backlog</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>backlog</parameter></methodparam>
      </methodsynopsis>
      &warn.experimental.func;
     <para>
      Una volta creato il socket <parameter>socket</parameter> tramite
      la funzione <function>socket_create</function>, ed eseguito il bind ad un nome
      con <function>socket_bind</function>, lo si può mettere in ascolto di
-     eventuali richieste di connessione. Tramite il parametro 
-     <parameter>backlog</parameter> si indica il numero massimo di connessioni
-     in ingresso da tenere nella coda per l'elaborazione.
+     eventuali richieste di connessione su <parameter>socket</parameter>. 
     </para>
+    <note> 
+     <para> 
+      Il numero massimo, passato con il parametro <parameter>backlog</parameter> 
+      dipende fortemente dalla piattaforma sottostante. Su Linux questo
+      viene troncato, senza avvisare, a <constant>SOMAXCONN</constant>. Su Win32, 
+      se viene passata la costante <constant>SOMAXCONN</constant>, il servizio
+      sottostante responsabile dei socket valorizza <parameter>backlog</parameter>  al 
+      massimo valore <emphasis>ragionevole</emphasis>. Non esiste un metodo standard per
+      determinare il reale valore massimo su questa piattaforma.
+     </para> 
+    </note> 
     <para>
      La funzione <function>socket_listen</function> è disponibile solo per i 
      socket di tipo <literal>SOCK_STREAM</literal> o
      <literal>SOCK_SEQPACKET</literal>.
     </para>
     <para>
-     La funzione restituisce zero se ha successo, oppure un codice di errore
-     negativo in caso di errore. Questo codice può essere passato alla funzione <function>socket_strerror</function>
-     per ottenere una descrizione dell'errore.
+     &return.success; Il codice di errore può essere recuperato con
+     <function>socket_last_error</function>. Questo codice può essere passato a 
+     <function>socket_strerror</function> per ottenere una spiegazione
+     dell'errore.
     </para>
     <para>
      Vedere anche
      <function>socket_accept</function>,
      <function>socket_bind</function>,
      <function>socket_connect</function>,
-     <function>socket_create</function>,
-     <function>socket_get_status</function> e
+     <function>socket_create</function> e
      <function>socket_strerror</function>.
     </para>
    </refsect1>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/sockets.xml, last change in rev 1.1 -->
 <!-- last change to 'socket-create' in en/ tree in rev 1.4 -->
-<!-- EN-Revision: 1.2 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.3 Maintainer: darvina Status: ready -->
 <!-- OLD-Revision: 1.34/EN.1.4 -->
   <refentry id="function.socket-create">
    <refnamediv>
@@ -12,34 +12,44 @@
     <title>Descrizione</title>
      <methodsynopsis>
       <type>resource</type><methodname>socket_create</methodname>
-      <methodparam><type>int</type><parameter>domain</parameter></methodparam>
-      <methodparam><type>int</type><parameter>type</parameter></methodparam>
-      <methodparam><type>int</type><parameter>protocol</parameter></methodparam>
+      <methodparam><type>int</type><parameter>dominio</parameter></methodparam>
+      <methodparam><type>int</type><parameter>tipo</parameter></methodparam>
+      <methodparam><type>int</type><parameter>protocollo</parameter></methodparam>
      </methodsynopsis>
      &warn.experimental.func;
     <para>
      La funzione crea un punto terminale di una comunicazione (un socket)
-     e restituisce un descrittore del socket.
+     e restituisce una risorsa di tipo socket.
     </para>
     <para>
-     Il parametro <parameter>domain</parameter> indica il
-     dominio. Attualmente i valori ammessi sono  <constant>AF_INET</constant>
-     e <constant>AF_UNIX</constant>.
+     Il parametro <parameter>dominio</parameter> indica il dominio (famiglia di 
+     protocolli da usarsi per la comunicazione). Attualmente i valori ammessi sono  
+     <constant>AF_INET</constant>
+     e <constant>AF_UNIX</constant>. Normalmente <constant>AF_INET</constant> viene utilizzato
+     per le comunicazione basate su internet. Mentre <constant>AF_UNIX</constant> utilizza dei
+     percorsi per identificare i socket e quindi può essere usato solo per connessioni
+     locali (che d'altra parte è più veloce).
     </para>
     <para>
-     Il parametro <parameter>type</parameter> indica il tipo di socket.
+     Il parametro <parameter>tipo</parameter> indica il tipo di socket.
      I tipi ammessi sono <constant>SOCK_STREAM</constant>,
      <constant>SOCK_DGRAM</constant>,
      <constant>SOCK_SEQPACKET</constant>,
      <constant>SOCK_RAW</constant>, <constant>SOCK_RDM</constant> oppure
-     <constant>SOCK_PACKET</constant>.
+     <constant>SOCK_PACKET</constant>. I due tipi più comuni sono 
+     <constant>SOCK_DGRAM</constant> per comunicazioni 
+     <literal>UDP</literal> e
+     <constant>SOCK_STREAM</constant> per comunicazioni
+     <literal>TCP</literal>.
     </para>
     <para>
-     Il parametro <parameter>protocol</parameter> indica il protocollo.
+     Il parametro <parameter>protocollo</parameter> indica il protocollo e può essere
+     <constant>SOL_UDP</constant> oppure <constant>SOL_TCP</constant>. 
     </para>
     <para>
-     La funzione restituisce un descrittore di socket se ha successo, oppure un 
-     codice di errore negativo in caso di errore. Questo codice può essere 
+     La funzione restituisce una risorsa di tipo socket se ha successo, oppure &false; in caso di errore. 
+     In quest'ultimo caso si può ottenere il codice di errore tramite 
+     <function>socket_last_error</function>. Tale codice può essere
      passato alla funzione <function>socket_strerror</function>
      per ottenere una descrizione dell'errore.
     </para>
@@ -48,14 +58,23 @@
      e sul significato dei vari parametri si può consultare il
      man di Unix alle pagine socket (2).
     </para>
+    <note> 
+     <para> 
+      Se si forniscono valori non validi per 
+      <parameter>dominio</parameter> o <parameter>tipo</parameter>,
+      la funzione <function>socket_create</function> imposta i parametri
+      rispettivamente a <constant>AF_INET</constant> e <constant>SOCK_STREAM</constant>
+      ed emette un messaggio di tipo <constant>E_WARNING</constant>.
+     </para> 
+    </note> 
     <para>
      Vedere anche
      <function>socket_accept</function>,
      <function>socket_bind</function>,
      <function>socket_connect</function>,
      <function>socket_listen</function>,
-     <function>socket_strerror</function> e
-     <function>socket_get_status</function>.
+     <function>socket_last_error</function> e
+     <function>socket_strerror</function>.
     </para>
    </refsect1>
   </refentry>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/var.xml, last change in rev 1.2 -->
 <!-- last change to 'isset' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.5 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.7 Maintainer: darvina Status: ready -->
 <!-- OLD-Revision: 1.104/EN.1.2 -->
   <refentry id="function.isset">
    <refnamediv>
@@ -30,20 +30,46 @@
      restituirà &false; se viene utilizzata per testare una variabile valorizzata
      a &null;. Inoltre occorre notare che il byte &null; (<literal>"\0"</literal>)
      non equivale alla costante PHP &null;.
+    </para>
+     <note>
+      <title>Attenzione</title>
+      <para>
+       La funzione <function>isset</function> lavora soltatnto con variabili, il
+       passaggio di qualsiasi altro tipo di parametro genera un errore di parsing.
+       Per verificare se le <link linkend="language.constants">costanti</link>
+       sono definite utilizzare la funzione <function>defined</function>.
+      </para>
+     </note> 
+    <para>
      <informalexample>
       <programlisting role="php">
 <![CDATA[
 <?php
-    $a = "test";
-    $b = "anothertest";
-    echo isset ($a); // TRUE
-    echo isset ($a, $b) //TRUE
-    unset ($a);
-    echo isset ($a); // FALSE
-    echo isset ($a, $b); //FALSE
+
+$var = '';
+
+// Questo test sarà &true; pertanto sarà visualizzato il testo.
+if (isset($var)) {
+    print "Questa variabile è valorizzata, pertanto scrivo.";
+}
+
+// Nel prossimo esempio useremo var_dump per visualizzare
+// il valore restituito da isset().
+
+$a = "test";
+$b = "anothertest";
+
+var_dump( isset($a) );      // TRUE
+var_dump( isset ($a, $b) ); // TRUE
+
+unset ($a);
+
+var_dump( isset ($a) );     // FALSE
+var_dump( isset ($a, $b) ); // FALSE
 
 $foo = NULL;
-    print isset ($foo); // FALSE
+var_dump( isset ($foo) );   // FALSE
+
 ?>  
 ]]>  
       </programlisting>  
@@ -55,12 +81,17 @@ $foo = NULL;
       <programlisting role="php">  
 <![CDATA[  
 <?php  
-    $a = array ('test' => 1, 'hello' => null);  
 
-    echo isset ($a['test']);  // TRUE 
-    echo isset ($a['foo']);   // FALSE 
-    echo isset ($a['hello']); // FALSE 
-    echo array_key_exists('hello', $a); // TRUE 
+$a = array ('test' => 1, 'hello' => NULL);
+
+var_dump( isset ($a['test']) );            // TRUE
+var_dump( isset ($a['foo']) );             // FALSE
+var_dump( isset ($a['hello']) );           // FALSE
+
+// La chiave 'hello' vale NULL pertanto viene considerata non impostata.
+// Se si desidera verificare l'esistenza di chiavi con valore NULL, usare:
+var_dump( array_key_exists('hello', $a) ); // TRUE
+
 ?> 
 ]]>
       </programlisting>
@@ -68,8 +99,9 @@ $foo = NULL;
     </para>
     <simpara>
      Vedere anche <function>empty</function>,
-     <function>unset</function> e
-     <function>array_key_exists</function>. 
+     <function>unset</function>, <function>defined</function>,
+     <function>array_key_exists</function> e l'operatore di controllo 
+     degli errori <link linkend="language.operators.errorcontrol">@</link>.
     </simpara>
    </refsect1>
   </refentry>

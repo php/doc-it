@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: working -->
+<!-- EN-Revision: 1.15 Maintainer: fernando Status: working -->
+<!-- CREDITS: cortesi -->
   <refentry id="function.exec">
    <refnamediv>
     <refname>exec</refname>
     <refpurpose>Esegue un programma esterno</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Descrizione</title>
+    &reftitle.description;
      <methodsynopsis>
       <type>string</type><methodname>exec</methodname>
       <methodparam><type>string</type><parameter>command</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>array
-       </parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>return_var</parameter></methodparam>
+      <methodparam choice="opt"><type>array</type><parameter role="reference">output</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter role="reference">return_var</parameter></methodparam>
+      
      </methodsynopsis>
     <para>
      <function>exec</function> esegue il comando passato da 
@@ -22,9 +23,10 @@
      direttamente indietro senza alcuna interferenza, usare la funzione <function>passthru</function>.
     </para>
     <para>
-     Se l'argomento <parameter>array</parameter> è presente, allora tale vettore specificato
+     Se l'argomento <parameter>output</parameter> è presente, allora tale vettore specificato
      verrà riempito con ogni linea del output del comando.  
-     Notare che se il vettore contiene già degli elementi,
+     I fine riga, come <literal>\n</literal>non sono inclusi 
+     in questo array. Notare che se il vettore contiene già degli elementi,
      <function>exec</function> li aggiungerà in coda al vettore.
      Se non si vuole che la funzione aggiunga elementi, eseguire un 
      <function>unset</function> sul vettore prima di passarlo ad
@@ -32,30 +34,32 @@
     </para>
     <para>
      Se viene passato l'argomento <parameter>return_var</parameter>
-     assieme all'argomento <parameter>array</parameter>, allora lo stato
+     assieme all'argomento <parameter>output</parameter>, allora lo stato
      del comando eseguito verrà scritto in questa variabile.
     </para>
-    <warning>
     <para>
-     Si osservi che se si intende allocare dati che giungono dall'utente
-     per passarli a questa funzione, si dovrebbe usare
-     <function>escapeshellarg</function> o
-     <function>escapeshellcmd</function> per assicurarsi che l'utente
-     non forzi il sistema ad eseguire comandi arbitrari.
+     <example>
+      <title>Un <function>exec</function> example</title>
+      <programlisting role="php">
+ <![CDATA[
+ <?php
+ // restituisce la username del proprietario del processo php/httpd attivo
+ // (su um sistema con l'eseguibile "whoami" nel path)
+ echo exec('whoami');
+ ?>
+ ]]>
+      </programlisting>
+     </example>
     </para>
-   </warning>
-   <note>
-    <para>
-     Notare anche che se si esegue un programma usando questa funzione e lo si vuole lasciare
-     in esecuzione in background, ci si deve assicurare che l'output del programa venga rediretto
-     ad un file o a qualche altro flusso di output, altrimenti PHP rimarrà bloccato in attesa fino alla 
-     fine dell'esecuzione del programma.
-    </para>
-    </note>
+    &warn.escapeshell;
+    &note.exec-bg;
+    &note.exec-path;
+    &warn.sm.exec;
     <para>
      Vedere anche <function>system</function>,
      <function>passthru</function>, <function>popen</function>,
-     <function>escapeshellcmd</function> e <link
+     <function>escapeshellcmd</function>
+     <function>pcntl_exec</function> e <link
      linkend="language.operators.execution">l'operatore backtick</link>.
     </para>
    </refsect1>

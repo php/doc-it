@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/exec.xml, last change in rev 1.12 -->
 <!-- last change to 'system' in en/ tree in rev 1.24 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: working -->
+<!-- EN-Revision: 1.12 Maintainer: fernando Status: working -->
+<!-- CREDITS: cortesi -->
 <!-- OLD-Revision: 1.27/EN.1.24 -->
   <refentry id="function.system">
    <refnamediv>
@@ -9,11 +10,11 @@
     <refpurpose>Esegue un programma esterno e mostra l'output</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Descrizione</title>
+    &reftitle.description;
      <methodsynopsis>
       <type>string</type><methodname>system</methodname>
       <methodparam><type>string</type><parameter>command</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>return_var</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter role="reference">return_var</parameter></methodparam>
      </methodsynopsis>
     <para>
      <function>system</function> è semplicemente come la versione C 
@@ -23,23 +24,8 @@
      ritornato dal comando eseguito verrà scritto in tale 
      variabile.
     </para>
-   <warning>
-    <para>
-     Nota che se intendi permettere che i dati in ingresso dall'utente
-     vengano passati a questa funzione, dovresti utilizzare la funzione
-     <function>escapeshellarg</function> o
-     <function>escapeshellcmd</function> per assicurarti che l'utente non possa
-     forzare il sistema ad eseguire comandi arbitrari.
-    </para>
-   </warning>
-   <note>
-    <para>
-     Nota che se avvii un programma usando questa funzione e intendi lasciarlo
-     girare in background, devi accertarti che l'output del programma sia rediretto
-     in un file o a qualche altro flusso di output o PHP attenderà fino alla
-     fine dell'esecuzione del programma.
-    </para>
-    </note>
+    &warn.escapeshell;
+    &note.exec-bg;
     <para>
      La chiamata a <function>system</function> tenta anche di ripulire automaticamente
      il buffer di output del web server dopo ogni linea di output se PHP 
@@ -55,9 +41,35 @@
      <function>passthru</function>.
     </para>
     <para>
+     <example>
+  	      <title><function>system</function> example</title>
+  	      <programlisting role="php">
+  	<![CDATA[
+  	<?php
+  	echo '<pre>';
+  	 
+  	// Mette in output tutti i risultati della shellcommand "ls", e restituisce
+  	// l'ultima  linea di output nella $last_line. Memorizza il valore restituito
+  	// del comando da shell in $retval.
+  	$last_line = system('ls', $retval);
+  	 
+  	// Stampa informazioni aggiuntive
+  	echo '
+  	</pre>
+  	<hr />L'ultima linea dell'output: ' . $last_line . '
+  	<hr />Restituisce il valore: ' . $retval;
+  	?>
+  	]]>
+  	      </programlisting>
+  	     </example>
+  	    </para>
+  	    &note.exec-path;
+  	    &warn.sm.exec;
+  	    <para>
      Vedere anche <function>exec</function>,
      <function>passthru</function>, <function>popen</function>,
-     <function>escapeshellcmd</function> e <link
+     <function>escapeshellcmd</function>,
+     <function>pcntl_exec</function>, e <link
      linkend="language.operators.execution">l'operatore backtick</link>.
     </para>
    </refsect1>

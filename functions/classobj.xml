@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.32 Maintainer: darvin  Status: ready -->
+<!-- EN-Revision: 1.37 Maintainer: darvin  Status: ready -->
  <reference id="ref.classobj">
   <title>Funzioni per Classi/Oggetti </title>
   <titleabbrev>Classi/Oggetti</titleabbrev>
@@ -171,45 +171,11 @@ Oggetto frondoso appartiene alla classe spinaci derivata da Ortaggio
    </sect1>
   </partintro>
    
-  <refentry id="function.call-user-method-array">
-   <refnamediv>
-    <refname>call_user_method_array</refname>
-    <refpurpose>
-     Richiama il metodo dato con un array di parametri
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>misto</type><methodname>call_user_method_array</methodname>
-      <methodparam><type>stringa</type><parameter>nome_metodo</parameter></methodparam>
-      <methodparam><type>oggetto</type><parameter>oggetto</parameter></methodparam>
-      <methodparam choice="opt"><type>array</type><parameter>array_parametri</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Richiama il metodo indicato da <parameter>nome_metodo</parameter> 
-     dell'oggetto <parameter>oggetto</parameter>, utilizzando i parametri 
-     forniti in <parameter>array_parametri</parameter>.
-    </para>
-    <para>
-     Vedere anche:
-     <function>call_user_func_array</function>,
-     <function>call_user_func</function>,
-     <function>call_user_method</function>.
-    </para>
-    <note>
-     <para>
-      Questa funzione è stata aggiunta al codice CVS dopo la release 4.0.4pl1 di PHP
-     </para>
-    </note>
-   </refsect1>
-  </refentry>
- 
   <refentry id="function.call-user-method">
    <refnamediv>
     <refname>call_user_method</refname>
     <refpurpose>
-     Chiama un metodo dell'oggetto indicato
+     Chiama un metodo dell'oggetto indicato [deprecated] 
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -221,6 +187,13 @@ Oggetto frondoso appartiene alla classe spinaci derivata da Ortaggio
       <methodparam choice="opt"><type>misto</type><parameter>parametro</parameter></methodparam>
       <methodparam choice="opt"><type>misto</type><parameter>...</parameter></methodparam>
      </methodsynopsis>
+   <warning>
+    <para>
+      A partire dalla versione 4.1.0 l'uso della funzione <function>call_user_method</function> 
+      è sconsigliato; in sostituzione utilizzare la serie <function>call_user_func</function>
+      con la sintassi <literal>array(&amp;$obj, "method_name")</literal>.
+    </para>
+   </warning>
     <para>
      Richiama il metodo indicato da <parameter>nome_metodo</parameter> 
      dell'oggetto <parameter>oggetto</parameter>. Di seguito si fornisce
@@ -266,6 +239,47 @@ call_user_method("stampa_info", $paese, "\t");
    </refsect1>
   </refentry>
 
+  <refentry id="function.call-user-method-array">
+   <refnamediv>
+    <refname>call_user_method_array</refname>
+    <refpurpose>
+     Richiama il metodo dato con un array di parametri [deprecated]
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>misto</type><methodname>call_user_method_array</methodname>
+      <methodparam><type>stringa</type><parameter>nome_metodo</parameter></methodparam>
+      <methodparam><type>oggetto</type><parameter>oggetto</parameter></methodparam>
+      <methodparam choice="opt"><type>array</type><parameter>array_parametri</parameter></methodparam>
+     </methodsynopsis>
+     <warning> 
+     <para> 
+        A partire dalla versione 4.1.0 è sconsigliato l'uso di <function>call_user_method_array</function>;
+        in sostituzione utilizzare la serie di funzioni <function>call_user_func_array</function>
+        con sintassi <literal>array(&amp;$obj, "method_name")</literal>.
+     </para> 
+    </warning> 
+    <para>
+     Richiama il metodo indicato da <parameter>nome_metodo</parameter> 
+     dell'oggetto <parameter>oggetto</parameter>, utilizzando i parametri 
+     forniti in <parameter>array_parametri</parameter>.
+    </para>
+    <para>
+     Vedere anche:
+     <function>call_user_func_array</function>,
+     <function>call_user_func</function>,
+     <function>call_user_method</function>.
+    </para>
+    <note>
+     <para>
+      Questa funzione è stata aggiunta al codice CVS dopo la release 4.0.4pl1 di PHP
+     </para>
+    </note>
+   </refsect1>
+  </refentry>
+ 
   <refentry id="function.class-exists">
    <refnamediv>
     <refname>class_exists</refname>
@@ -312,7 +326,7 @@ call_user_method("stampa_info", $paese, "\t");
     </note>
     <simpara>
      Vedere anche <function>get_parent_class</function>,
-     <function>get_type</function>, e 
+     <function>gettype</function> e 
      <function>is_subclass_of</function>
     </simpara>
    </refsect1>
@@ -341,7 +355,7 @@ call_user_method("stampa_info", $paese, "\t");
       <informalexample>
        <programlisting>
 <![CDATA[
-$metodi_della_classe = get_class_methods($mia_classe);
+$metodi_della_classe = get_class_methods($mia_classe); // vedere di seguito l'esempio completo
 ]]>
        </programlisting>
       </informalexample>
@@ -371,9 +385,9 @@ class miaclasse {
     }
 }
 
-$mia_classe = new miaclasse();
+$mio_oggetto = new miaclasse();
 
-$metodi = get_class_methods(get_class($mia_classe));
+$metodi = get_class_methods(get_class($mio_oggetto));
 
 foreach ($metodi as $nome_metodo) {
     echo "$nome_metodo\n";
@@ -397,7 +411,7 @@ funzione2
      </informalexample>
     </para>
     <simpara>
-     Vedere anche <function>get_class_vars</function>,
+     Vedere anche <function>get_class_vars</function> e
      <function>get_object_vars</function>
     </simpara>
    </refsect1>
@@ -506,7 +520,10 @@ var3 : 100
      </para>
      <para>
       Occorre notare che, in base a quali librerie sono state compilate
-      in PHP, possono essere rilevate ulteriori classi
+      in PHP, possono essere rilevate ulteriori classi. Questo significa, anche,
+      che non si potranno definire delle classi con questi nomi. Un'elenco delle
+      classi predefinite è nella sezione <link linkend="reserved.classes">Predefined Classes</link>  
+      dell'appendice.
      </para>
     </note>
    </refsect1>
@@ -554,31 +571,35 @@ class Point2D {
     }
 }
 
+// "$etichetta" è dichiarata ma non definita
 $p1 = new Point2D(1.233, 3.445);
 print_r(get_object_vars($p1));
-// "$etichetta" è dichiarata ma non definita
-// Array
-// (
-//     [x] => 1.233
-//     [y] => 3.445
-// )
-
 $p1->setetichetta("point #1");
 print_r(get_object_vars($p1));
-// Array
-// (
-//     [x] => 1.233
-//     [y] => 3.445
-//     [etichetta] => point #1
-// )
-
 ?>
 ]]>
       </programlisting>
      </example>
+     L'output del programma precedente sarà:
+     <screen> 
+<![CDATA[ 
+Array 
+( 
+     [x] => 1.233 
+     [y] => 3.445 
+) 
+    
+Array 
+( 
+     [x] => 1.233 
+     [y] => 3.445 
+     [label] => point #1 
+) 
+]]> 
+     </screen>      
     </para>
     <simpara>
-     Vedere anche <function>get_class_methods</function>,
+     Vedere anche <function>get_class_methods</function> e
      <function>get_class_vars</function>
     </simpara>
    </refsect1>
@@ -614,12 +635,38 @@ print_r(get_object_vars($p1));
    </refsect1>
   </refentry>
 
+  <refentry id="function.is-a"> 
+   <refnamediv> 
+    <refname>is_a</refname> 
+    <refpurpose> 
+     Restituisce vero se l'oggetto appartiene a questa classe o se ha
+     questa classe tra i suoi genitori
+    </refpurpose> 
+   </refnamediv> 
+   <refsect1> 
+    <title>Descrizione</title> 
+     <methodsynopsis> 
+      <type>bool</type><methodname>is_a</methodname> 
+      <methodparam><type>object</type><parameter>object</parameter></methodparam> 
+      <methodparam><type>string</type><parameter>class_name</parameter></methodparam> 
+     </methodsynopsis> 
+    <para> 
+    Questa funzione restituisce &true; appartiene a questa classe
+    oppure ha questa classe tra i suoi genitori, &false; in caso diverso. 
+    </para> 
+    <simpara> 
+     Vedere anche <function>get_class</function>, 
+     <function>get_parent_class</function> e
+     <function>is_subclass_of</function>. 
+    </simpara> 
+   </refsect1> 
+  </refentry> 
+
  <refentry id="function.is-subclass-of">
    <refnamediv>
     <refname>is_subclass_of</refname>
     <refpurpose>
-     Determina se un oggetto appartiene ad una
-     sottoclasse della classe specificata
+     Restituisce vero se l'oggetto ha questa classe come uno dei suoi genitori
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -627,19 +674,21 @@ print_r(get_object_vars($p1));
      <methodsynopsis>
       <type>bool</type><methodname>is_subclass_of</methodname>
       <methodparam><type>oggetto</type><parameter>oggetto</parameter></methodparam>
-      <methodparam><type>stringa</type><parameter>superclasse</parameter></methodparam>
+      <methodparam><type>stringa</type><parameter>nome_classe</parameter></methodparam>
      </methodsynopsis>
     <para>
      Questa funzione restituisce &true; se <parameter>obj</parameter>,
-     appartiene ad una sottoclasse di <parameter>superclasse</parameter>,
+     appartiene ad una sottoclasse di <parameter>nome_classe</parameter>,
      altrimenti &false;.
     </para>
     <simpara>
      Vedere anche <function>get_class</function>,
-     <function>get_parent_class</function>
+     <function>get_parent_class</function> e
+     <function>is_a</function>. 
     </simpara>
    </refsect1>
   </refentry>
+
   <refentry id="function.method-exists">
    <refnamediv>
     <refname>method_exists</refname>

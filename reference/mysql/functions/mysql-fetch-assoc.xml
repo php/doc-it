@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- EN-Revision: 1.5 Maintainer: geppo Status: ready -->
+<!-- splitted from ./en/functions/mysql.xml, last change in rev 1.45 -->
+  <refentry id="function.mysql-fetch-assoc">
+   <refnamediv>
+    <refname>mysql_fetch_assoc</refname>
+    <refpurpose>
+     Carica una riga del risultato come array associativo
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>array</type><methodname>mysql_fetch_assoc</methodname>
+      <methodparam><type>resource</type><parameter>risultato</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Restituisce un array associativo che corrisponde alla riga caricata
+     o &false; se non ci sono più righe.</para>
+    <para>
+     <function>mysql_fetch_assoc</function> è equivalente alla chiamata di
+     <function>mysql_fetch_array</function> con MYSQL_ASSOC come
+     secondo parametro opzionale. Questa restituisce solo un array associativo.
+     Questo è il modo incui <function>mysql_fetch_array</function> funzionava originalmente.
+     Se è necessario l'indice numerico al posto di quello
+     associativo, usare <function>mysql_fetch_array</function>.
+    </para>
+    <para>
+     Se due o più colonne del risultato hanno gli stessi nomi di campo,
+     l'ultima colonna avrà la precedenza. Per accedere alle altre
+     colonne con lo stesso nome, si deve accedere al
+     risultato con l'indice numerico usando
+     <function>mysql_fetch_row</function> oppure aggiunger degli alias.
+     Vedere l'esempio nella descrizione di <function>mysql_fetch_array</function>
+     per quanto concerne gli alias.
+    </para>
+    <para>
+     Una cosa importante da notare è che l'uso di
+     <function>mysql_fetch_assoc</function> <emphasis>non è
+     significativamente</emphasis> più lento dell'uso di
+     <function>mysql_fetch_row</function>; questo fornisce
+     un significativo valore aggiunto.
+    </para>
+    <example>
+     <title>Un esteso esempio di <function>mysql_fetch_assoc</function></title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+    $conn = mysql_connect("localhost", "utente_mysql", "password_mysql");
+
+    if (!$conn) {
+        echo "Impossibile connettersi al DB: " . mysql_error();
+        exit;
+    }
+
+    if (!mysql_select_db("mio_nome_db")) {
+        echo "Impossibile selezioanre mio_nome_db: " . mysql_error();
+        exit;
+    }
+
+    $sql = "SELECT id as id_utente, nome_intero, stato_utente
+            FROM   una_tabella
+            WHERE  stato_utente = 1";
+
+    $risultato = mysql_query($sql);
+
+    if (!$risultato) {
+        echo "Fallimento nell'esecuzione della query ($sql) dal DB: " . mysql_error();
+        exit;
+    }
+
+    if (mysql_num_rows($risultato) == 0) {
+        echo "Nessuna riga trovata, niente da stampare quindi si esce";
+        exit;
+    }
+
+    // Finché esiste una riga di dati, si pone questa riga in $riga come un array associativo
+    // Nota: Se ci si aspetta solo una riga, non è necessario usare un ciclo
+    // Nota: Se si mette extract($riga); all'interno del seguente ciclo,
+    //       si creeranno $id_utente, $nome_intero, and $stato_utente
+    while ($riga = mysql_fetch_assoc($risultato)) {
+        echo $riga["id_utente"];
+        echo $riga["nome_intero"];
+        echo $riga["stato_utente"];
+    }
+
+    mysql_free_result($risultato);
+
+?>
+]]>
+     </programlisting>
+    </example>
+    <para>
+     Vedere anche
+     <function>mysql_fetch_row</function>,
+     <function>mysql_fetch_array</function>,
+     <function>mysql_query</function> e
+     <function>mysql_error</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

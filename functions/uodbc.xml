@@ -1,58 +1,271 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.33 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.39 Maintainer: darvina Status: ready -->
  <reference id="ref.odbc">
   <title>Funzioni ODBC Unificate</title>
   <titleabbrev>ODBC</titleabbrev>
   <partintro>
-   <simpara>
+   <para id="odbc.intro"> 
     In aggiunta al normale supporto ODBC, le funzioni ODBC unificate del
     PHP consentono l'accesso a diversi database che hanno preso in prestito
     la semantica dell'API ODBC per implementare la loro API. Invece di 
     mantenere più driver per database che sono tutti pressoché 
     identici, questi driver sono stati riuniti in un singolo insieme di 
     funzioni ODBC.
-   </simpara>
-   <simpara>
-    I seguenti database sono supportati dalle funzioni ODBC unificate:
-    <ulink url="&url.adabas;">Adabas D</ulink>, <ulink
-    url="&url.ibmdb2;">IBM DB2</ulink>, <ulink
-    url="&url.iodbc;">iODBC</ulink>, <ulink
-    url="&url.solid;">Solid</ulink>, and <ulink
-    url="&url.sybase;">Sybase SQL Anywhere</ulink>.
-   </simpara>
-<!-- install.xml has changed, so this link is no longer working
-   <simpara>
-    Please see the <link
-    linkend="database-support-options">Installation on Unix
-    Systems</link> chapter for more information about configuring PHP
-    with these databases.
-   </simpara>
--->
+   </para>
    <note>
-    <simpara>
+    <para>
      Nella connessione ai database sopra elencati non vengono coinvolte funzioni
      ODBC. Le funzioni che vengono utilizzate per collegarsi nativamente con essi
-     condividono solamente lo stesso nome e sintassi delle funzioni ODBC.L'eccezione
+     condividono solamente lo stesso nome e sintassi delle funzioni ODBC. L'eccezione
      a questo è iODBC. Compilando il PHP con il supporto di iODBC,
      si può utilizzare qualsiasi driver compatibile ODBC nelle applicazioni PHP.
      iODBC è gestito da <ulink url="&url.openlink;">
      OpenLink Software</ulink>. Maggiori informazioni su iODBC, e un 
      HOWTO sono diponibili nel sito <ulink url="&url.iodbc;">www.iodbc.org</ulink>.
-    </simpara>
+    </para>
    </note>
+
+   <section id="odbc.requirements">
+    <title>Requisiti</title>
+    <para>
+     Le funzioni ODBC Unificate supportano i seguenti
+     database: <ulink url="&url.adabas;">Adabas D</ulink>,
+     <ulink url="&url.ibmdb2;">IBM DB2</ulink>,
+     <ulink url="&url.iodbc;">iODBC</ulink>,
+     <ulink url="&url.solid;">Solid</ulink> e
+     <ulink url="&url.sybase;">Sybase SQL Anywhere</ulink>. Per potere accedere
+     a questi database, occorre avere installato le librerie necessarie.
+    </para>
+   </section>
+
+   <section id="odbc.installation">
+    <title>Installazione</title>
+    <para>
+     Vedere il capitolo <link
+     linkend="install.configure.options.databases">Installazione su Unix
+     Systems</link> per avere maggiori informazioni su come configurare PHP
+     per accedere a questi database.
+    </para>
+   </section>
+
+   <section id="odbc.configuration">
+    <title>Configurazione del Runtime</title>
+    <para>
+     Il comportamento delle funzioni ODBC viene modificato da parametri
+     presenti nel file di <link linkend="configuration.file">configurazione</link> &php.ini;.
+     <table>
+      <title>Opzioni di configurazione per ODBC</title>
+      <tgroup cols="3">
+       <thead>
+        <row>
+         <entry>Nome</entry>
+         <entry>Default</entry>
+         <entry>Modificabile</entry>
+        </row>
+       </thead>
+       <tbody>
+        <row>
+         <entry>odbc.default_db *</entry>
+         <entry>NULL</entry>
+         <entry>PHP_INI_ALL</entry>
+        </row>
+        <row>
+         <entry>odbc.default_user *</entry>
+         <entry>NULL</entry>
+         <entry>PHP_INI_ALL</entry>
+        </row>
+        <row>
+         <entry>odbc.default_pw *</entry>
+         <entry>NULL</entry>
+         <entry>PHP_INI_ALL</entry>
+        </row>
+        <row>
+         <entry>odbc.allow_persistent</entry>
+         <entry>"1"</entry>
+         <entry>PHP_INI_SYSTEM</entry>
+        </row>
+        <row>
+         <entry>odbc.check_persistent</entry>
+         <entry>"1"</entry>
+         <entry>PHP_INI_SYSTEM</entry>
+        </row>
+        <row>
+         <entry>odbc.max_persistent</entry>
+         <entry>"-1"</entry>
+         <entry>PHP_INI_SYSTEM</entry>
+        </row>
+        <row>
+         <entry>odbc.max_links</entry>
+         <entry>"-1"</entry>
+         <entry>PHP_INI_SYSTEM</entry>
+        </row>
+        <row>
+         <entry>odbc.defaultlrl</entry>
+         <entry>"4096"</entry>
+         <entry>PHP_INI_ALL</entry>
+        </row>
+        <row>
+         <entry>odbc.defaultbinmode</entry>
+         <entry>"1"</entry>
+         <entry>PHP_INI_ALL</entry>
+        </row>
+       </tbody>
+      </tgroup>
+     </table>
+     <note>
+      <simpara>
+       Le linee marcate con * non sono state ancora implementate.
+      </simpara>
+     </note>
+     Per avere maggiori dettagli e le definizioni delle costanti PHP_INI_*
+     vedere <function>ini_set</function>.
+    </para>
+    <para>
+     Di seguito verranno brevemente illustrate le direttive di configurazione.
+    <variablelist>
+
+     <varlistentry id="ini.uodbc.default-db">
+      <term>
+       <parameter>odbc.default_db</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Sorgente dei dati ODBC da utilizzare se non viene specificato
+        nulla in <function>odbc_connect</function> o in
+        <function>odbc_pconnect</function>.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry id="ini.uodbc.default-user">
+      <term>
+       <parameter>odbc.default_user</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Nome utente da utilizzare se non viene specificato
+        in <function>odbc_connect</function> o in
+        <function>odbc_pconnect</function>.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry id="ini.uodbc.default-pw">
+      <term>
+       <parameter>odbc.default_pw</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Password da utilizzare se non viene specificata
+        in <function>odbc_connect</function> o in
+        <function>odbc_pconnect</function>.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry id="ini.uodbc.allow-persistent">
+      <term>
+       <parameter>odbc.allow_persistent</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Abilita o meno le connessioni ODBC persistenti.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry id="ini.uodbc.check-persistent">
+      <term>
+       <parameter>odbc.check_persistent</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Controlla se una connessione è ancora valida prima del riutilizzo.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry id="ini.uodbc.max-persistent">
+      <term>
+       <parameter>odbc.max_persistent</parameter>
+       <type>integer</type>
+      </term>
+      <listitem>
+       <para>
+        Indica il numero massimo di connessioni persistenti ammesse per processo.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry id="ini.uodbc.max-links">
+      <term>
+       <parameter>odbc.max_links</parameter>
+       <type>integer</type>
+      </term>
+      <listitem>
+       <para>
+        Indica il numero massimo di connessioni ammesse per processo,
+        compresse le persistenti.
+       </para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry id="ini.uodbc.defaultlrl">
+      <term>
+       <parameter>odbc.defaultlrl</parameter>
+       <type>integer</type>
+      </term>
+      <listitem>
+       <para>
+        Gestione dei campi di tipo LONG. Specifica il numero di byte da 
+        restituire alla variabile.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry id="ini.uodbc.defaultbinmode">
+      <term>
+       <parameter>odbc.defaultbinmode</parameter>
+       <type>integer</type>
+      </term>
+      <listitem>
+       <para>
+        Gestione dei dati binari.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+    </variablelist>
+    </para>
+   </section>
+
+   <section id="odbc.resources">
+    <title>Tipi di risorse</title>
+     &no.resource;
+   </section>
+
+   <section id="odbc.constants">
+    <title>Costanti predefinite</title>
+     &no.constants;
+   </section>
   </partintro>
 
   <refentry id="function.odbc-autocommit">
    <refnamediv>
     <refname>odbc_autocommit</refname>
-    <refpurpose>Setta il parametro autocommit</refpurpose>
+    <refpurpose>Valorizza il parametro autocommit</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>odbc_autocommit</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>OnOff</parameter></methodparam>
+      <type>bool</type><methodname>odbc_autocommit</methodname>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
+      <methodparam choice="opt"><type>bool</type><parameter>OnOff</parameter></methodparam>
      </methodsynopsis>
     <para>
      Se non viene fornito il parametro <parameter>OnOff</parameter>, la funzione
@@ -87,7 +300,7 @@
    <title>Descrizione</title>
      <methodsynopsis>
      <type>int</type><methodname>odbc_binmode</methodname>
-     <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
+     <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
       <methodparam><type>int</type><parameter>modalità</parameter></methodparam>
      </methodsynopsis>
     <para>
@@ -195,7 +408,7 @@
     <title>Descrizione</title>
      <methodsynopsis>
       <type>void</type><methodname>odbc_close</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
      </methodsynopsis>
     <para>
      <function>odbc_close</function> chiude la connessione
@@ -223,7 +436,7 @@
       <void/>
      </methodsynopsis>
     <para>
-     <function>odbc_close_all</function>chiude tutte le connessioni
+     La funzione <function>odbc_close_all</function> chiude tutte le connessioni
      aperte con il database server
      <note>
       <simpara>
@@ -243,8 +456,8 @@
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>odbc_commit</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <type>bool</type><methodname>odbc_commit</methodname>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
      </methodsynopsis>
     <para>
      Restituisce: &true; per operazione corretta,
@@ -262,7 +475,7 @@
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>odbc_connect</methodname>
+      <type>resource</type><methodname>odbc_connect</methodname>
       <methodparam><type>string</type><parameter>dsn</parameter></methodparam>
       <methodparam><type>string</type><parameter>utente</parameter></methodparam>
       <methodparam><type>string</type><parameter>password</parameter></methodparam>
@@ -330,7 +543,7 @@
     <title>Descrizione</title>
      <methodsynopsis>
       <type>string</type><methodname>odbc_cursor</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
      </methodsynopsis>
     <para>
      odbc_cursor restituisce il nome del cursore per l'argomento id_risultato.
@@ -346,8 +559,8 @@
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>odbc_do</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <type>resource</type><methodname>odbc_do</methodname>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
       <methodparam><type>string</type><parameter>query</parameter></methodparam>
      </methodsynopsis>
     <para>
@@ -366,7 +579,7 @@
     <title>Descrizione</title>
      <methodsynopsis>
       <type>string</type><methodname>odbc_error</methodname>
-      <methodparam choice="opt"><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <methodparam choice="opt"><type>resource</type><parameter>id_connessione</parameter></methodparam>
      </methodsynopsis>
     <simpara>
      La funzione restituisce un codice di 6 cifre indicante lo stato di ODBC. Se non
@@ -390,7 +603,7 @@
     <title>Descrizione</title>
      <methodsynopsis>
       <type>string</type><methodname>odbc_errormsg</methodname>
-      <methodparam choice="opt"><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <methodparam choice="opt"><type>resource</type><parameter>id_connessione</parameter></methodparam>
      </methodsynopsis>
     <simpara>
      la funzione restituisce una stringa contenente l'ultimo messaggio di 
@@ -414,8 +627,8 @@
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>odbc_exec</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <type>resource</type><methodname>odbc_exec</methodname>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
       <methodparam><type>string</type><parameter>testo_query</parameter></methodparam>
      </methodsynopsis>
     <para>
@@ -445,8 +658,8 @@
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>odbc_execute</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
+      <type>resource</type><methodname>odbc_execute</methodname>
+      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
       <methodparam choice="opt"><type>array</type><parameter>array_parametri</parameter></methodparam>
      </methodsynopsis>
     <para>
@@ -510,12 +723,18 @@
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>odbc_fetch_into</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>numero_riga</parameter></methodparam>
-      <methodparam><type>array</type><parameter>array_dati</parameter></methodparam>
-     </methodsynopsis>
+    <methodsynopsis>
+     <type>bool</type><methodname>odbc_fetch_into</methodname>
+     <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
+     <methodparam choice="opt"><type>int</type><parameter>numero_riga</parameter></methodparam>
+     <methodparam><type>array</type><parameter>array_dati</parameter></methodparam>
+    </methodsynopsis>
+    <methodsynopsis>
+     <type>resource</type><methodname>odbc_fetch_into</methodname>
+     <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
+     <methodparam><type>array</type><parameter>array_dati</parameter></methodparam>
+     <methodparam choice="opt"><type>int</type><parameter>numero_riga</parameter></methodparam>
+    </methodsynopsis>
     <para>
      La funzione restituisce il numero di colonne presenti nel risultato;
      &false; se si verifica un errore.
@@ -524,14 +743,28 @@
      in array. Nell'array saranno posti i valori delle colonne di una riga tratta dalla tabella 
      risultante dalla query a partire dall'indice 0.
     </para>
- <para>
+    <para>
+     A partire dalla versione 4.0.5 di PHP non occorre passare 
+     il parametro <parameter>array_dati</parameter> per riferimento.
+    </para>
+    <para>
+     A partire dall versione 4.0.6 di PHP il parametro <parameter>numero_riga</parameter>
+     non può essere passato come costante, ma come variabile.
+    </para>
+    <para>
+     A partire dalla versione 4.2.0 di PHP i parametri <parameter>array_dati</parameter> e
+     <parameter>numero_riga</parameter> sono stati invertiti. Questo permette
+     al parametro numero_riga di essere ancora una costante. Questa è l'ultima
+     variazione alla funzione.
+    </para>
+    <para>
     <example>
      <title><function>odbc_fetch_into</function> Esempi pre 4.0.6</title>
      <programlisting role="php">
 <![CDATA[
 $rc = odbc_fetch_into($id_risultato, $array_di_test);
 ]]>
-     </programlisting>
+      </programlisting>
      <para>
       oppure
      </para>      
@@ -545,43 +778,41 @@ $rc = odbc_fetch_into($id_risultato, 1, $array_di_test);
     </example>
    </para>
    <para>
-    A partire dalla versione 4.0.5 non è necessario che il parametro 
-    <parameter>result_array</parameter> sia passato per riferimento.
-   </para>
-   <para>
-    A partire dalla versione 4.0.6 il parametro <parameter>rownumber</parameter> 
-    non può essere passato come una costante, ma solo come una variabile.
-   </para>
-   <para>
     <example>
      <title><function>odbc_fetch_into</function> Esempi con PHP 4.0.6 </title>
      <programlisting role="php">
 <![CDATA[
 $rc = odbc_fetch_into($id_risultato, $array_di_test);
 ]]>
-     </programlisting>
-     <para>
-      oppure
-     </para>
-     <programlisting role="php">
+      </programlisting>
+      <para>
+       oppure
+      </para>
+      <programlisting role="php">
 <![CDATA[
 $riga = 1;
 $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
 ]]>
-     </programlisting>
-    </example>
-   </para>
-   <para>
-    Versioni future: In PHP 4.1, questa funzione assurà il seguente 
-    formato:
-     <methodsynopsis>
-      <type>int</type><methodname>odbc_fetch_into</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
-      <methodparam><type>array</type><parameter>array_dati</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>numero_riga</parameter></methodparam>
-     </methodsynopsis>
-    Notare che <parameter>numero_riga</parameter> sarà opzionale, mentre
-    <parameter>array_dati</parameter> no.
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     <example>
+      <title>Esempio di <function>odbc_fetch_into</function>con PHP 4.2.0</title>
+      <programlisting role="php">
+<![CDATA[
+$rc = odbc_fetch_into($res_id, $my_array);
+]]>
+      </programlisting>
+      <para>
+       oppure
+      </para>
+      <programlisting role="php">
+<![CDATA[
+$rc = odbc_fetch_into($res_id,$my_array, 2);
+]]>
+      </programlisting>
+     </example>
     </para>
    </refsect1>
   </refentry>
@@ -594,12 +825,12 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>odbc_fetch_row</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
+      <type>bool</type><methodname>odbc_fetch_row</methodname>
+      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
       <methodparam choice="opt"><type>int</type><parameter>numero_riga</parameter></methodparam>
      </methodsynopsis>
     <para>
-     Se <function>odbc_fetch_row</function> ha successo ( c'è almeno
+     Se <function>odbc_fetch_row</function> ha successo (c'è almeno
      una riga), la funzione restituisce &true;. Altrimenti, se non vi sono più
      righe, la funzione restituisce &false;.
     </para>
@@ -640,7 +871,7 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
       <title>Descrizione</title> 
        <methodsynopsis> 
         <type>array</type><methodname>odbc_fetch_array</methodname> 
-        <methodparam><type>int</type><parameter>resultato</parameter></methodparam> 
+        <methodparam><type>resource</type><parameter>resultato</parameter></methodparam> 
         <methodparam choice="opt"><type>int</type><parameter>numero_riga</parameter></methodparam> 
        </methodsynopsis>
       <para> 
@@ -660,7 +891,7 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
       <title>Descrizione</title> 
        <methodsynopsis> 
         <type>bool</type><methodname>odbc_next_result</methodname> 
-        <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam> 
+        <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam> 
        </methodsynopsis>
       <para> 
        &warn.undocumented.func; 
@@ -679,7 +910,7 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
       <title>Descrizione</title> 
        <methodsynopsis> 
         <type>object</type><methodname>odbc_fetch_object</methodname> 
-        <methodparam><type>int</type><parameter>risultato</parameter></methodparam> 
+        <methodparam><type>resource</type><parameter>risultato</parameter></methodparam> 
         <methodparam choice="opt"><type>int</type><parameter>NumeroRiga</parameter></methodparam> 
        </methodsynopsis>
       <para> 
@@ -697,7 +928,7 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
     <title>Descrizione</title>
      <methodsynopsis>
       <type>string</type><methodname>odbc_field_name</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
       <methodparam><type>int</type><parameter>numero_campo</parameter></methodparam>
      </methodsynopsis>
     <para>
@@ -718,7 +949,7 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>odbc_field_num</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
       <methodparam><type>string</type><parameter>nome_campo</parameter></methodparam>
      </methodsynopsis>
     <para>
@@ -739,7 +970,7 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
     <title>Descrizione</title>
      <methodsynopsis>
       <type>string</type><methodname>odbc_field_type</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
       <methodparam><type>int</type><parameter>numero_campo</parameter></methodparam>
      </methodsynopsis>
     <para>
@@ -759,7 +990,7 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>odbc_field_len</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
       <methodparam><type>int</type><parameter>numero_campo</parameter></methodparam>
      </methodsynopsis>
     <para>
@@ -783,7 +1014,7 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
     <title>Descrizione</title>
      <methodsynopsis>
       <type>string</type><methodname>odbc_field_precision</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
       <methodparam><type>int</type><parameter>numero_campo</parameter></methodparam>
      </methodsynopsis>
     <para>
@@ -807,7 +1038,7 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
     <title>Descrizione</title>
      <methodsynopsis>
       <type>string</type><methodname>odbc_field_scale</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
       <methodparam><type>int</type><parameter>numero_campo</parameter></methodparam>
      </methodsynopsis>
     <para>
@@ -826,8 +1057,8 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>odbc_free_result</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
+      <type>bool</type><methodname>odbc_free_result</methodname>
+      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
      </methodsynopsis>
     <para>
      Restituisce sempre &true;.
@@ -862,8 +1093,8 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
   <refsect1>
    <title>Descrizione</title>
      <methodsynopsis>
-     <type>int</type><methodname>odbc_longreadlen</methodname>
-     <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
+      <type>int</type><methodname>odbc_longreadlen</methodname>
+      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
       <methodparam><type>int</type><parameter>lunghezza</parameter></methodparam>
      </methodsynopsis>
     <para>
@@ -888,10 +1119,10 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>odbc_num_fields</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
-     </methodsynopsis>
+    <methodsynopsis>
+     <type>int</type><methodname>odbc_num_fields</methodname>
+     <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
+    </methodsynopsis>
     <para>
      All'interno di un set di righe, referenziate dall'identificativo  di risultato ODBC fornito, la funzione <function>odbc_num_fields</function> 
      restituisce il numero di campi (colonne) presenti. La funzione restituisce -1 se si
@@ -949,11 +1180,11 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>odbc_prepare</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
-      <methodparam><type>string</type><parameter>testo_query</parameter></methodparam>
-     </methodsynopsis>
+    <methodsynopsis>
+     <type>resource</type><methodname>odbc_prepare</methodname>
+     <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
+     <methodparam><type>string</type><parameter>testo_query</parameter></methodparam>
+    </methodsynopsis>
     <para>
      La funzione restituisce &false; su errore.
     </para>
@@ -974,7 +1205,7 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>odbc_num_rows</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
      </methodsynopsis>
     <para>
      <function>odbc_num_rows</function> ritorna il numero di record 
@@ -1001,7 +1232,7 @@ $rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
     <title>Descrizione</title>
      <methodsynopsis>
       <type>string</type><methodname>odbc_result</methodname>
-      <methodparam><type>int</type><parameter>id_risultato</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
       <methodparam><type>mixed</type><parameter>campo</parameter></methodparam>
      </methodsynopsis>
     <para>
@@ -1061,7 +1292,7 @@ Se il campo richiesto contiene dati binari o
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>odbc_result_all</methodname>
-      <methodparam><type>int</type><parameter>id_esito</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_esito</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>formato</parameter></methodparam>
      </methodsynopsis>
     <para>
@@ -1087,7 +1318,7 @@ Se il campo richiesto contiene dati binari o
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>odbc_rollback</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
      </methodsynopsis>
     <para>
      Annulla tutte le operazioni pendenti sulla connessione indicata 
@@ -1110,7 +1341,7 @@ Se il campo richiesto contiene dati binari o
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>odbc_setoption</methodname>
-      <methodparam><type>int</type><parameter>identificativo</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>identificativo</parameter></methodparam>
       <methodparam><type>int</type><parameter>funzione</parameter></methodparam>
       <methodparam><type>int</type><parameter>opzione</parameter></methodparam>
       <methodparam><type>int</type><parameter>parametro</parameter></methodparam>
@@ -1187,7 +1418,7 @@ odbc_execute ($result);
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>odbc_tables</methodname>
-      <methodparam><type>int</type><parameter>Id_connessione</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>Id_connessione</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>qualifica</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>proprietario</parameter></methodparam> 
       <methodparam choice="opt"><type>string</type><parameter>nome</parameter></methodparam> 
@@ -1282,7 +1513,7 @@ odbc_execute ($result);
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>odbc_tableprivileges</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>qualifica</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>proprietario</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>nome</parameter></methodparam>
@@ -1328,7 +1559,7 @@ odbc_execute ($result);
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>odbc_columns</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>qualifica</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>proprietario</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>nome_tabella</parameter></methodparam>
@@ -1385,7 +1616,7 @@ odbc_execute ($result);
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>odbc_columnprivileges</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>qualifica</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>proprietario</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>nome_tabella</parameter></methodparam>
@@ -1432,7 +1663,7 @@ odbc_execute ($result);
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>odbc_gettypeinfo</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
       <methodparam choice="opt"><type>int</type><parameter>tipo_dato</parameter></methodparam>
      </methodsynopsis>
     <para>
@@ -1478,8 +1709,8 @@ odbc_execute ($result);
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>odbc_primarykeys</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <type>resource</type><methodname>odbc_primarykeys</methodname>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
       <methodparam><type>string</type><parameter>qualifica</parameter></methodparam>
       <methodparam><type>string</type><parameter>proprietario</parameter></methodparam>
       <methodparam><type>string</type><parameter>tabella</parameter></methodparam>
@@ -1515,8 +1746,8 @@ odbc_execute ($result);
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>odbc_foreignkeys</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <type>resource</type><methodname>odbc_foreignkeys</methodname>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
       <methodparam><type>string</type><parameter>pk_qualifica</parameter></methodparam>
       <methodparam><type>string</type><parameter>pk_proprietario</parameter></methodparam>
       <methodparam><type>string</type><parameter>pk_tabella</parameter></methodparam>
@@ -1581,8 +1812,8 @@ odbc_execute ($result);
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>odbc_procedures</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <type>resource</type><methodname>odbc_procedures</methodname>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>qualifica</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>proprietario</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>nome</parameter></methodparam>
@@ -1622,8 +1853,8 @@ odbc_execute ($result);
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>odbc_procedurecolumns</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <type>resource</type><methodname>odbc_procedurecolumns</methodname>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>qualifica</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>proprietario</parameter></methodparam>
       <methodparam choice="opt"><type>string</type><parameter>procedura</parameter></methodparam>
@@ -1676,8 +1907,8 @@ odbc_execute ($result);
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>odbc_specialcolumns</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <type>resource</type><methodname>odbc_specialcolumns</methodname>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
       <methodparam><type>int</type><parameter>tipo</parameter></methodparam>
       <methodparam><type>string</type><parameter>qualifica</parameter></methodparam>
       <methodparam><type>string</type><parameter>proprietario</parameter></methodparam>
@@ -1728,8 +1959,8 @@ odbc_execute ($result);
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>odbc_statistics</methodname>
-      <methodparam><type>int</type><parameter>id_connessione</parameter></methodparam>
+      <type>resource</type><methodname>odbc_statistics</methodname>
+      <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
       <methodparam><type>string</type><parameter>qualifica</parameter></methodparam>
       <methodparam><type>string</type><parameter>proprietario</parameter></methodparam>
       <methodparam><type>string</type><parameter>nome_tabella</parameter></methodparam>

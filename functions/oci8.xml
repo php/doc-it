@@ -1,79 +1,182 @@
  <reference id="ref.oci8">
-  <title>Oracle 8 functions</title>
+  <title>Funzioni Oracle 8</title>
   <titleabbrev>OCI8</titleabbrev>
   <partintro>
-   <simpara>
-    These functions allow you to access Oracle8 and Oracle7 databases. It
-    uses the Oracle8 Call-Interface (OCI8). You will need the Oracle8 client
-    libraries to use this extension.</simpara>
-   <simpara>
-    This extension is more flexible than the standard Oracle
-    extension. It supports binding of global and local PHP variables
-    to Oracle placeholders, has full LOB, FILE and ROWID support
-    and allows you to use user-supplied define variables.</simpara>
+   <para>
+    Queste funzioni permettono di accedere ai database Oracle8 e Oracle7. 
+    Usano la Call-Interface di Oracle8 (OCI8). Occorre avere installate le librerie client
+    di Oracle8  per utilizzare questa estensione.
+   </para>
+   <para>
+    Questa estensione e' piu' flessibile della estensione standard di Oracle.
+    Supporta il binding di variabili PHP locali e globali
+    ai segnaposto Oracle, ha pieno supporto di LOB, FILE e ROWID 
+    e permette di utilizzare variabili di definizione personalizzabili.
+   </para>
+   <para>
+    Prima di usare questa estensione, occorre sicerarsi di aver impostato
+    le variabili d'ambiente per l'utente Oracle, come pure
+    per l'utente del server web. Le variabili che potrebbero necessitare l'impostazione sono
+    le seguenti:
+    <itemizedlist>
+     <listitem>
+      <simpara>
+       ORACLE_HOME
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       ORACLE_SID
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       LD_PRELOAD
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       LD_LIBRARY_PATH
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       NLS_LANG
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       ORA_NLS33
+      </simpara>
+     </listitem>
+    </itemizedlist>
+   </para>
+   <para>
+    Dopo aver impostato le variabili d'ambiente per l'utente del server web,
+    occorre sicerarsi di aver aggiunto anche l'utente stesso (nobody, www) al gruppo
+    oracle.
+   </para>
+   <note>
+    <title>Se il server web non parte o va in blocco</title>
+    <para>
+     Controllare che apache sia linkato con la libreria pthread: 
+    </para>
+    <para>
+     <informalexample>
+      <programlisting>
+# ldd /www/apache/bin/httpd 
+    libpthread.so.0 => /lib/libpthread.so.0 (0x4001c000)
+    libm.so.6 => /lib/libm.so.6 (0x4002f000)
+    libcrypt.so.1 => /lib/libcrypt.so.1 (0x4004c000)
+    libdl.so.2 => /lib/libdl.so.2 (0x4007a000)
+    libc.so.6 => /lib/libc.so.6 (0x4007e000)
+    /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x40000000)
+      </programlisting>
+     </informalexample>
+    </para>
+    <para>
+     Se la libpthread non compare nell'elenco, occorre reinstallare Apache:
+    </para>
+    <para>
+     <informalexample>
+      <programlisting>
+# cd /usr/src/apache_1.3.xx
+# make clean
+# LIBS=-lpthread ./config.status
+# make
+# make install
+      </programlisting>
+     </informalexample>
+    </para>
+   </note>
+   <para>
+    <example>
+     <title>OCI Hints</title>
+      <programlisting role="php">
+&lt;?php
+// by sergo@bacup.ru
+
+// Use option: OCI_DEFAULT for execute command to delay execution
+OCIExecute($stmt, OCI_DEFAULT);
+
+// for retrieve data use (after fetch):
+
+$result = OCIResult($stmt, $n);
+if (is_object ($result)) $result = $result-&gt;load();
+
+// For INSERT or UPDATE statement use:
+
+$sql = "insert into table (field1, field2) values (field1 = 'value',
+ field2 = empty_clob()) returning field2 into :field2";
+OCIParse($conn, $sql);
+$clob = OCINewDescriptor($conn, OCI_D_LOB);
+OCIBindByName ($stmt, ":field2", &amp;$clob, -1, OCI_B_CLOB);
+OCIExecute($stmt, OCI_DEFAULT);
+$clob-&gt;save ("some text");
+
+?&gt;
+     </programlisting>
+    </example>
+   </para>
+   <para>
+    You can easily access stored procedures in the same way as you
+    would from the commands line.
+    <example>
+     <title>Using Stored Procedures</title>
+      <programlisting role="php">
+&lt;?php
+// by webmaster@remoterealty.com
+$sth = OCIParse ( $dbh, "begin sp_newaddress( :address_id, '$firstname',
+ '$lastname', '$company', '$address1', '$address2', '$city', '$state',
+ '$postalcode', '$country', :error_code );end;" );
+
+// This calls stored procedure sp_newaddress, with :address_id being an
+// in/out variable and :error_code being an out variable. 
+// Then you do the binding:
+
+   OCIBindByName ( $sth, ":address_id", $addr_id, 10 );
+   OCIBindByName ( $sth, ":error_code", $errorcode, 10 );
+   OCIExecute ( $sth );
+
+?&gt;
+     </programlisting>
+    </example>
+   </para>
   </partintro>
 	
-<!--
-OCIBindByName
-OCIDefineByName
-OCIColumnIsNULL
-OCIColumnName
-OCIColumnSize
-OCIColumnType
-OCIExecute
-OCIFetch
-OCIFetchInto
-OCIFetchStatement
-OCIInternalDebug
-OCILogoff
-OCILogon
-OCIPLogon
-OCINLogon
-OCIError
-OCICommit
-OCIRollback
-OCINewCursor
-OCINewDescriptor
-OCIRowCount
-OCINumCols
-OCIParse
-OCIResult
-OCIServerVersion
-OCIStatementType
-OCIFreeStatement
-OCIFreeCursor
--->
-
   <refentry id="function.ocidefinebyname">
    <refnamediv>
     <refname>OCIDefineByName</refname>
-    <refpurpose>Use a PHP variable for the define-step during a SELECT</refpurpose>
+    <refpurpose>
+     Utilizza una variabile PHP per la fase di definizione in un comando  SELECT
+    </refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCIDefineByName</function></funcdef>
       <paramdef>int <parameter>stmt</parameter></paramdef>
       <paramdef>string <parameter>Column-Name</parameter></paramdef>
-      <paramdef>mixed &<parameter>variable</parameter></paramdef>
-      <paramdef>int <parameter><optional>type</optional></parameter></paramdef>
+      <paramdef>mixed <parameter>variable</parameter></paramdef>
+      <paramdef>int <parameter><optional>type</optional></parameter>
+      </paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIDefineByName</function> uses fetches SQL-Columns
-     into user-defined PHP-Variables. Be careful that Oracle user
-     ALL-UPPERCASE column-names, whereby in your select you can also
-     write lower-case. <function>OCIDefineByName</function> expects
-     the <parameter>Column-Name</parameter> to be in uppercase. If you
-     define a variable that doesn't exists in you select statement, no
-     error will be given!
+     <function>OCIDefineByName</function> copia i valori delle SQL-Columns
+     nelle variabili PHP. Attenzione: Oracle usa
+     nomi di colonna MAIUSCOLI, mentre nella SELECT si possono anche
+     scrivere minuscoli. <function>OCIDefineByName</function> vuole
+     il parametro <parameter>Column-Name</parameter> in caratteri maiuscoli. Se si
+     definisce una variabile che non esiste nel comando SELECT, non
+     viene dato alcun errore!
     </para>
     <para>
-     If you need to define an abstract Datatype (LOB/ROWID/BFILE) you
-     need to allocate it first using
-     <function>OCINewDescriptor</function> function. See also the
-     <function>OCIBindByName</function> function.
+     Se occorre definire un tipo di dati astratto (LOB/ROWID/BFILE)  
+     lo si deve prima allocare usando la funzione
+     <function>OCINewDescriptor</function>. Vedere anche la
+     funzione <function>OCIBindByName</function>.
     </para>
      <example>
       <title>OCIDefineByName</title>
@@ -87,8 +190,8 @@ $stmt = OCIParse($conn,"select empno, ename from emp");
 
 /* the define MUST be done BEFORE ociexecute! */
 
-OCIDefineByName($stmt,"EMPNO",&$empno);
-OCIDefineByName($stmt,"ENAME",&$ename);
+OCIDefineByName($stmt,"EMPNO",$empno);
+OCIDefineByName($stmt,"ENAME",$ename);
 
 OCIExecute($stmt);
 
@@ -99,57 +202,60 @@ while (OCIFetch($stmt)) {
 
 OCIFreeStatement($stmt);
 OCILogoff($conn);
-?></programlisting></example>
-
+?>
+     </programlisting>
+    </example>
    </refsect1>
   </refentry>
 
   <refentry id="function.ocibindbyname">
    <refnamediv>
     <refname>OCIBindByName</refname>
-    <refpurpose>Bind a PHP variable to an Oracle Placeholder</refpurpose>
+    <refpurpose>
+     Lega una variabile PHP ad un segnaposto Oracle
+    </refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCIBindByName</function></funcdef>
       <paramdef>int <parameter>stmt</parameter></paramdef>
       <paramdef>string <parameter>ph_name</parameter></paramdef>
-      <paramdef>mixed &<parameter>variable</parameter></paramdef>
+      <paramdef>mixed &amp;<parameter>variable</parameter></paramdef>
       <paramdef>int<parameter>length</parameter></paramdef>
-      <paramdef>int <parameter><optional>type</optional></parameter></paramdef>
+      <paramdef>int <parameter>
+       <optional>type</optional></parameter></paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIBindByName</function> binds the PHP variable
-     <parameter>variable</parameter> to the Oracle placeholder
-     <parameter>ph_name</parameter>.  Whether it will be used for
-     input or output will be determined run-time, and the necessary
-     storage space will be allocated. The
-     <parameter>length</parameter> paramter sets the maximum length
-     for the bind. If you set <parameter>length</parameter> to -1
-     <function>OCIBindByName</function> will use the current length of
-     <parameter>variable</parameter> to set the maximum length.
+     <function>OCIBindByName</function> collega la variabile PHP 
+     <parameter>variable</parameter> al segnaposto Oracle 
+     <parameter>ph_name</parameter>.  L'utilizzo in modalita'
+     input o output sara' determinato a run-time, e lo spazio di memoria
+     necessario sara' allocato. Il parametro
+     <parameter>length</parameter> imposta la lunghezza massima
+     del collegamento. Se si imposta <parameter>length</parameter> a -1
+     <function>OCIBindByName</function> usera' l'attuale lunghezza di
+     <parameter>variable</parameter> per impostare la lunghezza massima.
     </para>
     <para>
-     If you need to bind an abstract Datatype (LOB/ROWID/BFILE) you
-     need to allocate it first using
-     <function>OCINewDescriptor</function> function. The
-     <parameter>length</parameter> is not used for abstract Datatypes
-     and should be set to -1. The <parameter>type</parameter> variable
-     tells oracle, what kind of descriptor we want to use. Possible
-     values are: OCI_B_FILE (Binary-File), OCI_B_CFILE
+     Se si deve collegare un Datatype astratto (LOB/ROWID/BFILE) 
+     occorre innanzitutto allocarlo usando la funzione
+     <function>OCINewDescriptor</function>. Il parametro
+     <parameter>length</parameter> non e' usato con i Datatypes astratti
+     e dovrebbe essere impostato a -1. La veriabile <parameter>type</parameter> 
+     informa oracle sul tipo di descrittore che si vuole usare. I valori possibili
+     sono: OCI_B_FILE (Binary-File), OCI_B_CFILE
      (Character-File), OCI_B_CLOB (Character-LOB), OCI_B_BLOB
-     (Binary-LOB) and OCI_B_ROWID (ROWID).
+     (Binary-LOB) e OCI_B_ROWID (ROWID).
     </para>
      <example>
       <title>OCIDefineByName</title>
       <programlisting>
 &lt;?php
 /* OCIBindByPos example thies@thieso.net (980221)
-
-  inserts 3 resords into emp, and uses the ROWID for updating the 
+  inserts 3 records into emp, and uses the ROWID for updating the 
   records just after the insert.
 */
 
@@ -163,13 +269,13 @@ $data = array(1111 => "Larry", 2222 => "Bill", 3333 => "Jim");
 
 $rowid = OCINewDescriptor($conn,OCI_D_ROWID);
 
-OCIBindByName($stmt,":empno",&$empno,32);
-OCIBindByName($stmt,":ename",&$ename,32);
-OCIBindByName($stmt,":rid",&$rowid,-1,OCI_B_ROWID);
+OCIBindByName($stmt,":empno",&amp;$empno,32);
+OCIBindByName($stmt,":ename",&amp;$ename,32);
+OCIBindByName($stmt,":rid",&amp;$rowid,-1,OCI_B_ROWID);
 
 $update = OCIParse($conn,"update emp set sal = :sal where ROWID = :rid");
-OCIBindByName($update,":rid",&$rowid,-1,OCI_B_ROWID);
-OCIBindByName($update,":sal",&$sal,32);
+OCIBindByName($update,":rid",&amp;$rowid,-1,OCI_B_ROWID);
+OCIBindByName($update,":sal",&amp;$sal,32);
 
 $sal = 10000;
 
@@ -185,7 +291,7 @@ OCIFreeStatement($stmt);
 
 $stmt = OCIParse($conn,"select * from emp where empno in (1111,2222,3333)");
 OCIExecute($stmt);
-while (OCIFetchInto($stmt,&$arr,OCI_ASSOC)) {
+while (OCIFetchInto($stmt,&amp;$arr,OCI_ASSOC)) {
 	var_dump($arr);
 }
 OCIFreeStatement($stmt);
@@ -196,41 +302,55 @@ OCIExecute($stmt);
 OCIFreeStatement($stmt);
 
 OCILogoff($conn);
-?></programlisting></example>
+?>
+    </programlisting>
+   </example>
+    <warning>
+     <para>
+      It is a bad idea to use magic quotes and
+      <function>OciBindByName</function> simultaneously as no quoting
+      is needed on quoted variables and any quotes magically applied
+      will be written into your database as
+      <function>OciBindByName</function> is not able to distinguish
+      magically added quotings from those added by intention.
+     </para> 
+    </warning>
    </refsect1>
   </refentry>
 
   <refentry id="function.ocilogon">
    <refnamediv>
     <refname>OCILogon</refname>
-    <refpurpose>Establishes a connection to Oracle</refpurpose>
+    <refpurpose>Stabilisce una connessione a Oracle</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCILogon</function></funcdef>
       <paramdef>string <parameter>username</parameter></paramdef>
       <paramdef>string <parameter>password</parameter></paramdef>
-      <paramdef>string <parameter><optional>db</optional></parameter></paramdef>
+      <paramdef>string
+       <parameter><optional>db</optional></parameter>
+      </paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCILogon</function> returns an connection identifier
-     needed for most other OCI calls.  The optional third parameter
-     can either contain the name of the local Oracle instance or the
-     name of the entry in tnsnames.ora to which you want to connect.
-     If the optional third parameter is not specified, PHP uses the
-     environment variables ORACLE_SID (Oracle instance) or TWO_TASK
-     (tnsnames.ora) to determine which database to connect to.
+     <function>OCILogon</function> restituisce un identificatore di connessione
+     necessario per la maggior parte delle altre chiamate OCI. Il terzo parametro opzionale
+     puo' contenere il nome della istanza Oracle locale o il nome
+     della voce in tnsnames.ora a cui ci si vuole connettere.
+     Se il terzo parametro opzionale non e' specificato, PHP usa la
+     variabile d'ambiente ORACLE_SID (istanza di Oracle) o TWO_TASK
+     (in tnsnames.ora) per determinare a quale database collegarsi.
     </para>
-    <para>Connections are shared at the page level when using
-     <function>OCILogon</function>.  This means that commits and
-     rollbacks apply to all open transactions in the page, even if you
-     have created multiple connections.
+    <para>Le connessioni sono condivise a livello di pagina quando si usa 
+     <function>OCILogon</function>. Questo significa che i commit e i
+     rollback avvengono su tutte le transazioni aperte nella pagina, anche se sono
+     state create connessioni multiple.
     </para>
     <para>
-     This example demonstrates how the connections are shared.
+     Questo esempio dimostra come le connessioni sono condivise.
      <example>
       <title>OCILogon</title>
       <programlisting>
@@ -242,8 +362,7 @@ $c1 = ocilogon("scott","tiger",$db);
 $c2 = ocilogon("scott","tiger",$db);
 
 function create_table($conn)
-{ $stmt = ociparse($conn,"create table scott.hallo (test
-varchar2(64))");
+{ $stmt = ociparse($conn,"create table scott.hallo (test varchar2(64))");
   ociexecute($stmt);
   echo $conn." created table\n\n";
 }
@@ -255,7 +374,8 @@ function drop_table($conn)
 }
 
 function insert_data($conn)
-{ $stmt = ociparse($conn,"insert into scott.hallo values('$conn' || ' ' || to_char(sysdate,'DD-MON-YY HH24:MI:SS'))");
+{ $stmt = ociparse($conn,"insert into scott.hallo 
+            values('$conn' || ' ' || to_char(sysdate,'DD-MON-YY HH24:MI:SS'))");
   ociexecute($stmt,OCI_DEFAULT);
   echo $conn." inserted hallo\n\n";
 }
@@ -268,7 +388,7 @@ function delete_data($conn)
 
 function commit($conn)
 { ocicommit($conn);
-  echo $conn." commited\n\n";
+  echo $conn." committed\n\n";
 }
 
 function rollback($conn)
@@ -315,7 +435,7 @@ drop_table($c1);
 print "&lt;/PRE>&lt;/HTML>";
 ?></programlisting></example></para>
     <simpara>
-     See also <function>OCIPLogon</function> and
+     Vedere anche <function>OCIPLogon</function> e
      <function>OCINLogon</function>.</simpara>
    </refsect1>
   </refentry>
@@ -323,69 +443,75 @@ print "&lt;/PRE>&lt;/HTML>";
   <refentry id="function.ociplogon">
    <refnamediv>
     <refname>OCIPLogon</refname>
-    <refpurpose>Connect to an Oracle database and log on using a persistant connection. 
-    Returns a new session.</refpurpose>
+    <refpurpose>Stabilisce una connessione permanente a Oracle.
+    Restituisce una nuova sessione.</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCIPLogon</function></funcdef>
       <paramdef>string <parameter>username</parameter></paramdef>
       <paramdef>string <parameter>password</parameter></paramdef>
-      <paramdef>string <parameter><optional>db</optional></parameter></paramdef>
+      <paramdef>string 
+       <parameter><optional>db</optional></parameter>
+     </paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIPLogon</function> creates a persistent connection to
-     an Oracle 8 database and logs on.  The optional third parameter
-     can either contain the name of the local Oracle instance or the
-     name of the entry in tnsnames.ora to which you want to connect.
-     If the optional third parameter is not specified, PHP uses the
-     environment variables ORACLE_SID (Oracle instance) or TWO_TASK
-     (tnsnames.ora) to determine which database to connect to.
+     <function>OCIPLogon</function> crea una connessione persistente
+     a un database Oracle 8 e si autentica.  Il terzo parametro opzionale
+     puo' contenere il nome della istanza Oracle locale o il nome
+     della voce in tnsnames.ora a cui ci si vuole connettere.
+     Se il terzo parametro opzionale non e' specificato, PHP usa la
+     variabile d'ambiente ORACLE_SID (istanza di Oracle) o TWO_TASK
+     (in tnsnames.ora) per determinare a quale database collegarsi.
     </para>
     <simpara>
-     See also <function>OCILogon</function> and
-     <function>OCINLogon</function>.</simpara>
-   </refsect1></refentry>
+     Vedere anche <function>OCILogon</function> e
+     <function>OCINLogon</function>.
+    </simpara>
+   </refsect1>
+  </refentry>
 
   <refentry id="function.ocinlogon">
    <refnamediv>
     <refname>OCINLogon</refname>
-    <refpurpose>Connect to an Oracle database and log on using a new connection. 
-    Returns a new session.</refpurpose>
+    <refpurpose>Stabilisce, forzandola, una nuova connessione a Oracle. 
+    Restituisce una nuova sessione.</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCINLogon</function></funcdef>
       <paramdef>string <parameter>username</parameter></paramdef>
       <paramdef>string <parameter>password</parameter></paramdef>
-      <paramdef>string <parameter><optional>db</optional></parameter></paramdef>
+      <paramdef>string 
+       <parameter><optional>db</optional></parameter>
+      </paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCINLogon</function> creates a new connection to an
-     Oracle 8 database and logs on.  The optional third parameter can
-     either contain the name of the local Oracle instance or the name
-     of the entry in tnsnames.ora to which you want to connect.  If
-     the optional third parameter is not specified, PHP uses the
-     environment variables ORACLE_SID (Oracle instance) or TWO_TASK
-     (tnsnames.ora) to determine which database to connect to.
+     <function>OCINLogon</function> crea una nuova connessione
+     a un database Oracle 8 e si autentica.  Il terzo parametro opzionale
+     puo' contenere il nome della istanza Oracle locale o il nome
+     della voce in tnsnames.ora a cui ci si vuole connettere.
+     Se il terzo parametro opzionale non e' specificato, PHP usa la
+     variabile d'ambiente ORACLE_SID (istanza di Oracle) o TWO_TASK
+     (in tnsnames.ora) per determinare a quale database collegarsi.
     </para>
     <para>
-     <function>OCINLogon</function> forces a new connection.  This
-     should be used if you need to isolate a set of transactions.  By
-     default, connections are shared at the page level if using
-     <function>OCILogon</function> or at the web server process level
-     if using <function>OCIPLogon</function>.  If you have multiple
-     connections open using <function>OCINLogon</function>, all
-     commits and rollbacks apply to the specified connection only.
+     <function>OCINLogon</function> forza una nuova connessione. 
+     Si deve usare quando si ha necessita' di isolare un insieme di transazioni. Di
+     default, le connessioni sono condivise a livello di pagina se si usa
+     <function>OCILogon</function> o a livello di processo del web server
+     se si usa <function>OCIPLogon</function>.  Se ci sono connessioni
+     multiple aperte con <function>OCINLogon</function>, tutti i
+     commit e rollback avverranno solo sulla connessione specificata.
     </para>
     <para>
-     This example demonstrates how the connections are separated.
+     Questo esempio dimostra come le connessioni sono isolate.
      <example>
       <title>OCINLogon</title>
       <programlisting>
@@ -410,7 +536,8 @@ function drop_table($conn)
 }
 
 function insert_data($conn)
-{ $stmt = ociparse($conn,"insert into scott.hallo values('$conn' || ' ' || to_char(sysdate,'DD-MON-YY HH24:MI:SS'))");
+{ $stmt = ociparse($conn,"insert into scott.hallo 
+            values('$conn' || ' ' || to_char(sysdate,'DD-MON-YY HH24:MI:SS'))");
   ociexecute($stmt,OCI_DEFAULT);
   echo $conn." inserted hallo\n\n";
 }
@@ -423,7 +550,7 @@ function delete_data($conn)
 
 function commit($conn)
 { ocicommit($conn);
-  echo $conn." commited\n\n";
+  echo $conn." committed\n\n";
 }
 
 function rollback($conn)
@@ -467,19 +594,22 @@ select_data($c2);
 
 drop_table($c1);
 print "&lt;/PRE>&lt;/HTML>";
-?></programlisting></example></para>
+?></programlisting></example>
+    </para>
     <simpara>
-     See also <function>OCILogon</function> and
-     <function>OCIPLogon</function>.</simpara>
-   </refsect1></refentry>
+     Vedere anche <function>OCILogon</function> e
+     <function>OCIPLogon</function>.
+    </simpara>
+   </refsect1>
+  </refentry>
 
   <refentry id="function.ocilogoff">
    <refnamediv>
     <refname>OCILogOff</refname>
-    <refpurpose>Disconnects from Oracle</refpurpose>
+    <refpurpose>Disconnette da Oracle</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCILogOff</function></funcdef>
@@ -487,7 +617,7 @@ print "&lt;/PRE>&lt;/HTML>";
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCILogOff</function> closes an Oracle connection.
+     <function>OCILogOff</function> chiude una connessione Oracle.
     </para>
    </refsect1>
   </refentry>
@@ -495,23 +625,26 @@ print "&lt;/PRE>&lt;/HTML>";
   <refentry id="function.ociexecute">
    <refnamediv>
     <refname>OCIExecute</refname>
-    <refpurpose>Execute a statement</refpurpose>
+    <refpurpose>Esegue un comando SQL</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCIExecute</function></funcdef>
       <paramdef>int <parameter>statement</parameter></paramdef>
-      <paramdef>int <parameter><optional>mode</optional></parameter></paramdef>
+      <paramdef>int 
+       <parameter><optional>mode</optional></parameter>
+      </paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIExecute</function> executes a previously parsed statement. 
-	 (see <function>OCIParse</function>). The optional <parameter>mode</parameter>
-	 allows you to specify the execution-mode (default is OCI_COMMIT_ON_SUCCESS). 
-	 If you don't want statements to be commited automaticly specify OCI_DEFAULT as 
-	 your mode.
+     <function>OCIExecute</function> esegue un comando precedentemente 
+     analizzato. (vedere <function>OCIParse</function>). Il parametro optzionale 
+     <parameter>mode</parameter> permette di specificare la modalita' 
+     di esecuzione (il default e' OCI_COMMIT_ON_SUCCESS). Se non si 
+     desidera che i comandi eseguano un commit automatico, usare OCI_DEFAULT nella
+     variabile <parameter>mode</parameter>.
     </para>
    </refsect1>
   </refentry>
@@ -519,10 +652,10 @@ print "&lt;/PRE>&lt;/HTML>";
   <refentry id="function.ocicommit">
    <refnamediv>
     <refname>OCICommit</refname>
-    <refpurpose>Commits outstanding transactions</refpurpose>
+    <refpurpose>Esegue le transazioni in sospeso</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCICommit</function></funcdef>
@@ -530,8 +663,8 @@ print "&lt;/PRE>&lt;/HTML>";
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCICommit</function> commits all outstanding statements for
-	 Oracle connection <parameter>connection</parameter>.
+     <function>OCICommit</function> esegue tutte le transazioni in sospeso
+     sulla connessione Oracle <parameter>connection</parameter>.
     </para>
    </refsect1>
   </refentry>
@@ -539,10 +672,10 @@ print "&lt;/PRE>&lt;/HTML>";
   <refentry id="function.ocirollback">
    <refnamediv>
     <refname>OCIRollback</refname>
-    <refpurpose>Rolls back outstanding transactions</refpurpose>
+    <refpurpose>Annulla le transazioni in sospeso</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCIRollback</function></funcdef>
@@ -550,8 +683,8 @@ print "&lt;/PRE>&lt;/HTML>";
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIRollback</function> rolls back all outstanding statements for
-	 Oracle connection <parameter>connection</parameter>.
+     <function>OCIRollback</function> annulla tutte le transazioni in sospeso
+	 sulla connessione Oracle <parameter>connection</parameter>.
     </para>
    </refsect1>
   </refentry>
@@ -559,23 +692,28 @@ print "&lt;/PRE>&lt;/HTML>";
   <refentry id="function.ocinewdescriptor">
    <refnamediv>
     <refname>OCINewDescriptor</refname>
-    <refpurpose>Initialize a new empty descriptor LOB/FILE (LOB is default)</refpurpose>
+    <refpurpose>
+     Inizializza un nuovo descrittore LOB/FILE vuoto (LOB e' il default)
+    </refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>string <function>OCINewDescriptor</function></funcdef>
       <paramdef>int <parameter>connection</parameter></paramdef>
-      <paramdef>int <parameter><optional>type</optional></parameter></paramdef>
+      <paramdef>int 
+       <parameter><optional>type</optional></parameter>
+      </paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCINewDescriptor</function> Allocates storage to hold descriptors or LOB locators.   
-      Valid values for the valid <parameter>type</parameter> are OCI_D_FILE, OCI_D_LOB, OCI_D_ROWID.
-      For LOB desriptors, the methods load, save, and savefile are associated with the descriptor,
-      for BFILE only the load method exists. See the second example usage hints.
-
+     <function>OCINewDescriptor</function> Alloca memoria per accogliere 
+     descrittori o locatori LOB. I valori validi per il parametro 
+     <parameter>type</parameter> sono OCI_D_FILE, OCI_D_LOB, OCI_D_ROWID.
+     Per i descrittori LOB, i metodi load, save, e savefile sono 
+     associati al descrittore, per i BFILE esiste solo il 
+     metodo load. Vedere i suggerimenti nel secondo esempio.
     </para>
      <example>
       <title>OCINewDescriptor</title>
@@ -590,12 +728,12 @@ print "&lt;/PRE>&lt;/HTML>";
     $conn = OCILogon($user, $password);
     $stmt = OCIParse($conn,"select rowid from $table $where");
     $rowid = OCINewDescriptor($conn,OCI_D_ROWID);
-    OCIDefineByName($stmt,"ROWID",&$rowid);   
+    OCIDefineByName($stmt,"ROWID",&amp;$rowid);   
     OCIExecute($stmt);
     while ( OCIFetch($stmt) ) {      
        $nrows = OCIRowCount($stmt);
        $delete = OCIParse($conn,"delete from $table where ROWID = :rid");
-       OCIBindByName($delete,":rid",&$rowid,-1,OCI_B_ROWID);
+       OCIBindByName($delete,":rid",&amp;$rowid,-1,OCI_B_ROWID);
        OCIExecute($delete);      
        print "$nrows\n";
        if ( ($nrows % $commitsize) == 0 ) {
@@ -607,7 +745,8 @@ print "&lt;/PRE>&lt;/HTML>";
     OCIFreeStatement($stmt);  
     OCILogoff($conn);
 ?>  
-   </programlisting><programlisting>
+     </programlisting>
+     <programlisting>
 &lt;?php
     /* This script demonstrates file upload to LOB columns
      * The formfield used for this example looks like this
@@ -626,8 +765,9 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
      // $lob_upload contains the temporary filename of the uploaded file
      $conn = OCILogon($user, $password);
      $lob = OCINewDescriptor($conn, OCI_D_LOB);
-     $stmt = OCIParse($conn,"insert into $table (id, the_blob) values(my_seq.NEXTVAL, EMPTY_BLOB()) returning the_blob into :the_blob");
-     OCIBindByName($stmt, ':the_blob', &$lob, -1, OCI_B_BLOB);
+     $stmt = OCIParse($conn,"insert into $table (id, the_blob) 
+               values(my_seq.NEXTVAL, EMPTY_BLOB()) returning the_blob into :the_blob");
+     OCIBindByName($stmt, ':the_blob', &amp;$lob, -1, OCI_B_BLOB);
      OCIExecute($stmt);
      if($lob->savefile($lob_upload)){
         OCICommit($conn);
@@ -635,22 +775,23 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
      }else{
         echo "Couldn't upload Blob\n";
      }
-     OCIFreeDescriptor($lob);
+     OCIFreeDesc($lob);
      OCIFreeStatement($stmt);
      OCILogoff($conn);
   }
 ?>
-   </programlisting></example>
-
+   </programlisting>
+  </example>
    </refsect1>
   </refentry>
+
   <refentry id="function.ocirowcount">
    <refnamediv>
     <refname>OCIRowCount</refname>
-    <refpurpose>Gets the number of affected rows</refpurpose>
+    <refpurpose>Restituisce il numero di tuple modificate</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCIRowCount</function></funcdef>
@@ -658,9 +799,9 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIRowCounts</function> returns the number of rows affected
-	 for eg update-statements. This funtions will not tell you the number
-	 of rows that a select will return!</para>
+     <function>OCIRowCounts</function> restituisce il numero di tuple modificate,
+	 ad esempio, da un comando update. Questa funzione non riporta il numero
+	 di tuple restituite da una select!</para>
     <para>
      <example>
       <title>OCIRowCount</title>
@@ -682,18 +823,20 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
     OCIFreeStatement($stmt);
     OCILogOff($conn);
     print "&lt;/PRE>&lt;/HTML>";
-?> </programlisting></example></para>
- 
+?> </programlisting></example>
+   </para>
    </refsect1>
   </refentry>
 
   <refentry id="function.ocinumcols">
    <refnamediv>
     <refname>OCINumCols</refname>
-    <refpurpose>Return the number of result columns in a statement</refpurpose>
+    <refpurpose>
+     Restituisce il numero di campi che risultano da un comando SQL
+    </refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCINumCols</function></funcdef>
@@ -701,7 +844,9 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCINumCols</function> returns the number of columns in a statement</para>
+     <function>OCINumCols</function> restituisce il numero di campi contenuti in 
+     un'istruzione SQL
+     </para>
      <example>
       <title>OCINumCols</title>
       <programlisting>
@@ -713,7 +858,7 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
     while ( OCIFetch($stmt) ) {
         print "\n";   
         $ncols = OCINumCols($stmt);
-        for ( $i = 1; $i <= $ncols; $i++ ) {
+        for ( $i = 1; $i &lt;= $ncols; $i++ ) {
             $column_name  = OCIColumnName($stmt,$i);
             $column_value = OCIResult($stmt,$i);
             print $column_name . ': ' . $column_value . "\n";
@@ -724,18 +869,19 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
     OCILogoff($conn);   
     print "&lt;/PRE>";
     print "&lt;/HTML>\n"; 
-?>   </programlisting></example>
-
+?>   
+     </programlisting>
+    </example>
    </refsect1>
   </refentry>
  
   <refentry id="function.ociresult">
    <refnamediv>
     <refname>OCIResult</refname>
-    <refpurpose>Returns coulumn value for fetched row</refpurpose>
+    <refpurpose>Restituisce il valore di campo della tupla estratta</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>mixed <function>OCIResult</function></funcdef>
@@ -744,10 +890,11 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIResult</function> returns the data for column 
-	 <parameter>column</parameter> in the current row (see 
-	 <function>OCIFetch</function>).<function>OCIResult</function> will
-	 return everything as strings except for abstract types (ROWIDs, LOBs and FILEs).
+     <function>OCIResult</function> restituisce i dati del campo 
+	 <parameter>column</parameter> nella tupla corrente (vedere
+	 <function>OCIFetch</function>).<function>OCIResult</function> restituira'
+	 tutto come stringa, eccetto i tipi astratti (ROWIDs,
+         LOBs e FILEs).
     </para>
    </refsect1>
   </refentry>
@@ -755,10 +902,10 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
   <refentry id="function.ocifetch">
    <refnamediv>
     <refname>OCIFetch</refname>
-    <refpurpose>Fetches the next row into result-buffer</refpurpose>
+    <refpurpose>Estrae la prossima tupla opnendola nel buffer di risultato.</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCIFetch</function></funcdef>
@@ -766,8 +913,8 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIFetch</function> fetches the next row (for SELECT statements)
-	 into the internal result-buffer.
+     <function>OCIFetch</function> estrae la prossima tupla (nelle istruzioni SELECT)
+	 ponendola nel buffer interno di risultato.
     </para>
    </refsect1>
   </refentry>
@@ -775,40 +922,49 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
   <refentry id="function.ocifetchinto">
    <refnamediv>
     <refname>OCIFetchInto</refname>
-    <refpurpose>Fetches the next row into result-array</refpurpose>
+    <refpurpose>Estrae la prossima tupla ponendola in un array</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCIFetchInto</function></funcdef>
       <paramdef>int <parameter>stmt</parameter></paramdef>
-      <paramdef>array &<parameter>result</parameter></paramdef>
-      <paramdef>int <parameter><optional>mode</optional></parameter></paramdef>
+      <paramdef>array &amp;<parameter>result</parameter></paramdef>
+      <paramdef>int 
+       <parameter><optional>mode</optional></parameter>
+      </paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIFetchInto</function> fetches the next row (for SELECT statements)
-	 into the <parameter>result</parameter> array. <function>OCIFetchInto</function>
-	 will overwrite the previous content of <parameter>result</parameter>. By default 
-	 <parameter>result</parameter> will contain a one-based array of all columns 
-	 that are not NULL.
+     <function>OCIFetchInto</function> estrae la prossima tupla (nelle istruzioni 
+     SELECT) ponendola nell'array <parameter>result</parameter>. 
+     <function>OCIFetchInto</function> sovrascrivera' il preceente 
+     contenuto di <parameter>result</parameter>. Di default 
+     <parameter>result</parameter> conterra' un array (primo indice = 1) di tutti i campi 
+     che non sono NULL.
     </para>
 	<para>
-	 The <parameter>mode</parameter> parameter allows you to change the default 
-	 behaviour. You can specify more than one flag by simply addig them up 
-	 (eg OCI_ASSOC+OCI_RETURN_NULLS). The known flags are:
-
+	 Il parametro <parameter>mode</parameter> permette di cambiare il comportamento 
+	 predefinito. E' possibile specificare piu' di un'opzione sommandole 
+	 (es. OCI_ASSOC+OCI_RETURN_NULLS). Le opzioni valide 
+         sono:
      <simplelist>
-      <member><literal>OCI_ASSOC</literal> Return an associative array.</member>
-      <member><literal>OCI_NUM</literal> Return an numbered array 
-	   starting with one. (DEFAULT)</member>
-      <member><literal>OCI_RETURN_NULLS</literal> Return empty columns.</member>
-      <member><literal>OCI_RETURN_LOBS</literal> Return the value of a LOB instead of the desxriptor.</member>
+      <member>
+       <literal>OCI_ASSOC</literal> Restituisce un array associativo.
+      </member>
+      <member>
+       <literal>OCI_NUM</literal> Restituisce un array indicizzato 
+       (primo indice = 1). (DEFAULT)
+      </member>
+      <member>
+       <literal>OCI_RETURN_NULLS</literal> Restituisce anche i campi NULL.
+      </member>
+      <member>
+       <literal>OCI_RETURN_LOBS</literal> Restituisce il valore di un LOB 
+        invece del descrittore.
+      </member>
      </simplelist>
-
-	</para>
-	<para>
 	</para>
    </refsect1>
   </refentry>
@@ -816,21 +972,22 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
   <refentry id="function.ocifetchstatement">
    <refnamediv>
     <refname>OCIFetchStatement</refname>
-    <refpurpose>Fetch all rows of result data into an array.</refpurpose>
+    <refpurpose>Estrae tutte le tuple in un array.</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCIFetchStatement</function></funcdef>
       <paramdef>int <parameter>stmt</parameter></paramdef>
-      <paramdef>array &<parameter>variable</parameter></paramdef>
+      <paramdef>array &amp;<parameter>variable</parameter></paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIFetchStatement</function> fetches all the rows from a 
-     result into a user-defined array. <function>OCIFetchStatement</function> 
-     returns the number of rows fetched. 
+     <function>OCIFetchStatement</function> estrae tutte le tuple da un risultato 
+     ponendole in un array definito dall'utente. 
+     <function>OCIFetchStatement</function> restituisce il numero di tuple 
+     estratte. 
     </para>
      <example>
       <title>OCIFetchStatement</title>
@@ -870,18 +1027,19 @@ print "$nrows Records Selected&lt;BR>\n";
  
 OCIFreeStatement($stmt);
 OCILogoff($conn);
-
-?></programlisting></example>
-
+?>
+     </programlisting>
+    </example>
    </refsect1>
   </refentry>
+
   <refentry id="function.ocicolumnisnull">
    <refnamediv>
     <refname>OCIColumnIsNULL</refname>
-    <refpurpose>test whether a result column is NULL</refpurpose>
+    <refpurpose>verifica se un campo di risultato e' NULL</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCIColumnIsNULL</function></funcdef>
@@ -890,23 +1048,82 @@ OCILogoff($conn);
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIColumnIsNULL</function> returns true if the returned
-     column <parameter>col</parameter> in the result from the
-     statement <parameter>stmt</parameter> is NULL. You can either use
-	 the column-number (1-Based) or the column-name for the <parameter>col</parameter>
-	 parameter.
+     <function>OCIColumnIsNULL</function> restituisce vero se il campo 
+     <parameter>col</parameter> nel risultato dell'istruzione
+     <parameter>stmt</parameter> e' NULL. Si puo' usare il 
+     numero del campo (primo campo=1) o il nome del campo per il 
+     parametro <parameter>col</parameter>.
     </para>
    </refsect1>
   </refentry>
 
+  <refentry id="function.ocicolumnname">
+   <refnamediv>
+    <refname>OCIColumnName</refname>
+    <refpurpose>Restituisce il nome di un campo.</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>string <function>OCIColumnName</function></funcdef>
+      <paramdef>int <parameter>stmt</parameter></paramdef>
+      <paramdef>int <parameter>col</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <simpara>
+     <function>OCIColumnName</function> restituisce il nome del campo 
+      corrispondente alla posizione (1 = primo campo) specificata.
+    </simpara>
+    <para>
+     <example>
+      <title>OCIColumnName</title>
+      <programlisting>
+&lt;?php   
+    print "&lt;HTML>&lt;PRE>\n";   
+    $conn = OCILogon("scott", "tiger");
+    $stmt = OCIParse($conn,"select * from emp");
+    OCIExecute($stmt);
+    print "&lt;TABLE BORDER=\"1\">";
+    print "&lt;TR>";
+    print "&lt;TH>Name&lt;/TH>";
+    print "&lt;TH>Type&lt;/TH>";
+    print "&lt;TH>Length&lt;/TH>";
+    print "&lt;/TR>";
+    $ncols = OCINumCols($stmt);
+    for ( $i = 1; $i &lt;= $ncols; $i++ ) {
+        $column_name  = OCIColumnName($stmt,$i);
+        $column_type  = OCIColumnType($stmt,$i);
+        $column_size  = OCIColumnSize($stmt,$i);
+        print "&lt;TR>";
+        print "&lt;TD>$column_name&lt;/TD>";
+        print "&lt;TD>$column_type&lt;/TD>";
+        print "&lt;TD>$column_size&lt;/TD>";
+        print "&lt;/TR>";
+    }
+    OCIFreeStatement($stmt);  
+    OCILogoff($conn);   
+    print "&lt;/PRE>";
+    print "&lt;/HTML>\n"; 
+?>
+      </programlisting>
+     </example>
+    </para>
+    <simpara>
+     Vedere anche <function>OCINumCols</function>,
+     <function>OCIColumnType</function>, 
+     e <function>OCIColumnSize</function>.
+    </simpara>
+   </refsect1>
+  </refentry>
 
   <refentry id="function.ocicolumnsize">
    <refnamediv>
     <refname>OCIColumnSize</refname>
-    <refpurpose>return result column size</refpurpose>
+    <refpurpose>restituisce la dimensione del campo</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCIColumnSize</function></funcdef>
@@ -915,10 +1132,10 @@ OCILogoff($conn);
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIColumnSize</function> returns the size of the column
-     as given by Oracle. You can either use
-	 the column-number (1-Based) or the column-name for the <parameter>col</parameter>
-	 parameter.
+     <function>OCIColumnSize</function> restituisce la dimensione del campo
+     come riportata da Oracle. Si puo' usare il
+	 numero del campo (primo campo=1) o il nome del campo per 
+         il parametro <parameter>col</parameter>.
     </para>
     <para>
      <example>
@@ -936,7 +1153,7 @@ OCILogoff($conn);
     print "&lt;TH>Length&lt;/TH>";
     print "&lt;/TR>";
     $ncols = OCINumCols($stmt);
-    for ( $i = 1; $i <= $ncols; $i++ ) {
+    for ( $i = 1; $i &lt;= $ncols; $i++ ) {
         $column_name  = OCIColumnName($stmt,$i);
         $column_type  = OCIColumnType($stmt,$i);
         $column_size  = OCIColumnSize($stmt,$i);
@@ -951,20 +1168,87 @@ OCILogoff($conn);
     OCILogoff($conn);   
     print "&lt;/PRE>";
     print "&lt;/HTML>\n"; 
-?>   </programlisting></example></para>
+?>   
+      </programlisting>
+     </example>
+    </para>
     <simpara>
-     See also <function>OCINumCols</function>, <function>OCIColumnName</function>, 
-     and <function>OCIColumnSize</function>.</simpara>
+     Vedere anche <function>OCINumCols</function>,
+     <function>OCIColumnName</function>, e
+     <function>OCIColumnSize</function>.
+    </simpara>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.ocicolumntype">
+   <refnamediv>
+    <refname>OCIColumnType</refname>
+    <refpurpose>Restituisce il tipo di dati di un campo.</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>OCIColumnType</function></funcdef>
+      <paramdef>int <parameter>stmt</parameter></paramdef>
+      <paramdef>int <parameter>col</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>OCIColumnType</function> restituisce il tipo del campo 
+      corrispondente alla posizione (1 = primo campo) 
+      specificata.
+     </simpara>
+    <para>
+     <example>
+      <title>OCIColumnType</title>
+      <programlisting>
+&lt;?php   
+    print "&lt;HTML>&lt;PRE>\n";   
+    $conn = OCILogon("scott", "tiger");
+    $stmt = OCIParse($conn,"select * from emp");
+    OCIExecute($stmt);
+    print "&lt;TABLE BORDER=\"1\">";
+    print "&lt;TR>";
+    print "&lt;TH>Name&lt;/TH>";
+    print "&lt;TH>Type&lt;/TH>";
+    print "&lt;TH>Length&lt;/TH>";
+    print "&lt;/TR>";
+    $ncols = OCINumCols($stmt);
+    for ( $i = 1; $i &lt;= $ncols; $i++ ) {
+        $column_name  = OCIColumnName($stmt,$i);
+        $column_type  = OCIColumnType($stmt,$i);
+        $column_size  = OCIColumnSize($stmt,$i);
+        print "&lt;TR>";
+        print "&lt;TD>$column_name&lt;/TD>";
+        print "&lt;TD>$column_type&lt;/TD>";
+        print "&lt;TD>$column_size&lt;/TD>";
+        print "&lt;/TR>";
+    }
+    OCIFreeStatement($stmt);  
+    OCILogoff($conn);   
+    print "&lt;/PRE>";
+    print "&lt;/HTML>\n"; 
+?>
+      </programlisting>
+     </example>
+    </para>
+    <simpara>
+     Vedere anche <function>OCINumCols</function>,
+     <function>OCIColumnName</function>, 
+     e <function>OCIColumnSize</function>.
+    </simpara>
    </refsect1>
   </refentry>
 
   <refentry id="function.ociserverversion">
    <refnamediv>
     <refname>OCIServerVersion</refname>
-    <refpurpose>Return a string containing server version information.</refpurpose>
+    <refpurpose>Restituisce una stringa contenente informazioni sulla versione
+    del server. </refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>string <function>OCIServerVersion</function></funcdef>
@@ -979,18 +1263,20 @@ OCILogoff($conn);
    $conn = OCILogon("scott","tiger");
    print "Server Version: " . OCIServerVersion($conn);
    OCILogOff($conn);
-?></programlisting></example></para>
-
+?>
+      </programlisting>
+     </example>
+     </para>
    </refsect1>
   </refentry>
 
   <refentry id="function.ocistatementtype">
    <refnamediv>
     <refname>OCIStatementType</refname>
-    <refpurpose>Return the type of an OCI statement.</refpurpose>
+    <refpurpose>Restituisce il tipo di un'istruzione OCI.</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>string <function>OCIStatementType</function></funcdef>
@@ -998,7 +1284,8 @@ OCILogoff($conn);
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIStatementType</function> returns on of the following values:
+     <function>OCIStatementType</function> restituisce uno dei seguenti 
+     valori:
      <orderedlist>
       <listitem><simpara>			"SELECT"</simpara></listitem>
       <listitem><simpara>			"UPDATE"</simpara></listitem>
@@ -1028,18 +1315,21 @@ OCILogoff($conn);
     OCILogoff($conn);
     print "&lt;/PRE>&lt;/HTML>";
 ?>
-</programlisting></example></para>
-
+      </programlisting>
+     </example>
+    </para>
    </refsect1>
   </refentry>
 
   <refentry id="function.ocinewcursor">
    <refnamediv>
     <refname>OCINewCursor</refname>
-    <refpurpose>return a new cursor (Statement-Handle) - use this to bind ref-cursors!</refpurpose>
+    <refpurpose>
+     restituisce un nuovo cursore (Statement-Handle) - usare questa per collegare un ref-cursors
+    </refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCINewCursor</function></funcdef>
@@ -1047,8 +1337,8 @@ OCILogoff($conn);
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCINewCursor</function> allocates a new statement handle on the specified
-     connection.
+     <function>OCINewCursor</function> alloca un nuovo identificatore di istruzione sulla connessione
+     specificata.
     </para>
     <para>
      <example>
@@ -1061,19 +1351,21 @@ $conn = OCILogon("scott","tiger");
 $curs = OCINewCursor($conn);
 $stmt = OCIParse($conn,"begin info.output(:data); end;");
 
-ocibindbyname($stmt,"data",&$curs,-1,OCI_B_CURSOR);
+ocibindbyname($stmt,"data",&amp;$curs,-1,OCI_B_CURSOR);
 ociexecute($stmt);
 ociexecute($curs);
 
-while (OCIFetchInto($curs,&$data)) {
+while (OCIFetchInto($curs,&amp;$data)) {
     var_dump($data);
 }
  
 OCIFreeCursor($stmt);
 OCIFreeStatement($curs);
 OCILogoff($conn);
-?></programlisting></example></para>
-
+?>
+      </programlisting>
+     </example>
+    </para>
     <para>
      <example>
       <title>Using a REF CURSOR in a select statement</title>
@@ -1093,14 +1385,14 @@ print "&lt;TH>DEPT #&lt;/TH>";
 print "&lt;TH># EMPLOYEES&lt;/TH>";
 print "&lt;/TR>";
 
-while (OCIFetchInto($stmt,&$data,OCI_ASSOC)) {
+while (OCIFetchInto($stmt,&amp;$data,OCI_ASSOC)) {
     print "&lt;TR>";
     $dname  = $data["DNAME"];
     $deptno = $data["DEPTNO"];
     print "&lt;TD>$dname&lt;/TD>";
     print "&lt;TD>$deptno&lt;/TD>";
     ociexecute($data[ "EMPCNT" ]);
-    while (OCIFetchInto($data[ "EMPCNT" ],&$subdata,OCI_ASSOC)) {
+    while (OCIFetchInto($data[ "EMPCNT" ],&amp;$subdata,OCI_ASSOC)) {
         $num_emps = $subdata["NUM_EMPS"];
         print  "&lt;TD>$num_emps&lt;/TD>";
     }
@@ -1110,18 +1402,22 @@ print "&lt;/TABLE>";
 print "&lt;/BODY>&lt;/HTML>";
 OCIFreeStatement($stmt);
 OCILogoff($conn);
-?></programlisting></example></para>
-
+?>
+      </programlisting>
+     </example>
+    </para>
    </refsect1>
   </refentry>
 
   <refentry id="function.ocifreestatement">
    <refnamediv>
     <refname>OCIFreeStatement</refname>
-    <refpurpose>Free all resources associated with a statement.</refpurpose>
+    <refpurpose>
+     Libera tutte le risorse associate ad un'istruzione.
+    </refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCIFreeStatement</function></funcdef>
@@ -1129,8 +1425,8 @@ OCILogoff($conn);
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIFreeStatement</function> returns true if successful, or false if
-     unsuccessful.
+     <function>OCIFreeStatement</function> restituisce vero in caso di successo, falso 
+     altrimenti.
     </para>
    </refsect1>
   </refentry>
@@ -1138,10 +1434,12 @@ OCILogoff($conn);
   <refentry id="function.ocifreecursor">
    <refnamediv>
     <refname>OCIFreeCursor</refname>
-    <refpurpose>Free all resources associated with a cursor.</refpurpose>
+    <refpurpose>
+     Libera tutte le risorse associate ad un cursore.
+    </refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCIFreeCursor</function></funcdef>
@@ -1149,129 +1447,39 @@ OCILogoff($conn);
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>OCIFreeCursor</function> returns true if successful, or false if
-     unsuccessful.
+     <function>OCIFreeCursor</function> restituisce vero in caso di successo, falso
+     altrimenti.
     </para>
    </refsect1>
   </refentry>
 
-  <refentry id="function.ocicolumnname">
+  <refentry id="function.ocifreedesc">
    <refnamediv>
-    <refname>OCIColumnName</refname>
-    <refpurpose>Returns the name of a column.</refpurpose>
+   <refname>OCIFreeDesc</refname>
+    <refpurpose>Cancella un descrittore di oggetto binario (LOB).</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
-      <funcdef>string <function>OCIColumnName</function></funcdef>
-      <paramdef>int <parameter>stmt</parameter></paramdef>
-      <paramdef>int <parameter>col</parameter></paramdef>
+      <funcdef>int <function>OCIFreeDesc</function></funcdef>
+      <paramdef>object <parameter>lob</parameter></paramdef>
      </funcprototype>
     </funcsynopsis>
-    <simpara>
-     <function>OCIColumnName</function> returns the name of the column 
-      corresponding to the column number (1-based) that is passed in.</simpara>
-
     <para>
-     <example>
-      <title>OCIColumnName</title>
-      <programlisting>
-&lt;?php   
-    print "&lt;HTML>&lt;PRE>\n";   
-    $conn = OCILogon("scott", "tiger");
-    $stmt = OCIParse($conn,"select * from emp");
-    OCIExecute($stmt);
-    print "&lt;TABLE BORDER=\"1\">";
-    print "&lt;TR>";
-    print "&lt;TH>Name&lt;/TH>";
-    print "&lt;TH>Type&lt;/TH>";
-    print "&lt;TH>Length&lt;/TH>";
-    print "&lt;/TR>";
-    $ncols = OCINumCols($stmt);
-    for ( $i = 1; $i <= $ncols; $i++ ) {
-        $column_name  = OCIColumnName($stmt,$i);
-        $column_type  = OCIColumnType($stmt,$i);
-        $column_size  = OCIColumnSize($stmt,$i);
-        print "&lt;TR>";
-        print "&lt;TD>$column_name&lt;/TD>";
-        print "&lt;TD>$column_type&lt;/TD>";
-        print "&lt;TD>$column_size&lt;/TD>";
-        print "&lt;/TR>";
-    }
-    OCIFreeStatement($stmt);  
-    OCILogoff($conn);   
-    print "&lt;/PRE>";
-    print "&lt;/HTML>\n"; 
-?>   </programlisting></example></para>
-    <simpara>
-     See also <function>OCINumCols</function>, <function>OCIColumnType</function>, 
-     and <function>OCIColumnSize</function>.</simpara>
+     <function>OCIFreeDesc</function> restituisce vero in caso di successo,
+     falso altrimenti.
+    </para>
    </refsect1>
   </refentry>
 
-  <refentry id="function.ocicolumntype">
-   <refnamediv>
-    <refname>OCIColumnType</refname>
-    <refpurpose>Returns the data type of a column.</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Description</title>
-    <funcsynopsis>
-     <funcprototype>
-      <funcdef>mixed <function>OCIColumnName</function></funcdef>
-      <paramdef>int <parameter>stmt</parameter></paramdef>
-      <paramdef>int <parameter>col</parameter></paramdef>
-     </funcprototype>
-    </funcsynopsis>
-    <simpara>
-     <function>OCIColumnType</function> returns the data type of the column 
-      corresponding to the column number (1-based) that is passed in.</simpara>
-
-    <para>
-     <example>
-      <title>OCIColumnType</title>
-      <programlisting>
-&lt;?php   
-    print "&lt;HTML>&lt;PRE>\n";   
-    $conn = OCILogon("scott", "tiger");
-    $stmt = OCIParse($conn,"select * from emp");
-    OCIExecute($stmt);
-    print "&lt;TABLE BORDER=\"1\">";
-    print "&lt;TR>";
-    print "&lt;TH>Name&lt;/TH>";
-    print "&lt;TH>Type&lt;/TH>";
-    print "&lt;TH>Length&lt;/TH>";
-    print "&lt;/TR>";
-    $ncols = OCINumCols($stmt);
-    for ( $i = 1; $i <= $ncols; $i++ ) {
-        $column_name  = OCIColumnName($stmt,$i);
-        $column_type  = OCIColumnType($stmt,$i);
-        $column_size  = OCIColumnSize($stmt,$i);
-        print "&lt;TR>";
-        print "&lt;TD>$column_name&lt;/TD>";
-        print "&lt;TD>$column_type&lt;/TD>";
-        print "&lt;TD>$column_size&lt;/TD>";
-        print "&lt;/TR>";
-    }
-    OCIFreeStatement($stmt);  
-    OCILogoff($conn);   
-    print "&lt;/PRE>";
-    print "&lt;/HTML>\n"; 
-?>   </programlisting></example></para>
-    <simpara>
-     See also <function>OCINumCols</function>, <function>OCIColumnName</function>, 
-     and <function>OCIColumnSize</function>.</simpara>
-
-   </refsect1>
-  </refentry>
   <refentry id="function.ociparse">
    <refnamediv>
     <refname>OCIParse</refname>
-    <refpurpose>Parse a query and return a statement</refpurpose>
+    <refpurpose>Analizza una query e restituisce un'istruzione.</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>OCIParse</function></funcdef>
@@ -1280,40 +1488,54 @@ OCILogoff($conn);
      </funcprototype>
     </funcsynopsis>
     <simpara>
-     <function>OCIParse</function> parses the <parameter>query</parameter> 
-     using  <parameter>conn</parameter>.  It returns true if the query is 
-     valid, false if not. The <parameter>query</parameter> can be any valid 
-     SQL statement.</simpara>
+     <function>OCIParse</function> analizza la 
+     <parameter>query</parameter> rispetto alla connessione  <parameter>conn</parameter>. 
+     Restituisce un identificatore di istruzione se la query e' valida,
+     falso altrimenti. La <parameter>query</parameter> puo' essere qualsiasi 
+     comando SQL.
+    </simpara>
    </refsect1>
   </refentry>
   <refentry id="function.ocierror">
    <refnamediv>
     <refname>OCIError</refname>
-    <refpurpose>Return the last error of stmt|conn|global. 
-     If no error happened returns false.
+    <refpurpose>Restituisce l'ultimo errore di stmt|conn|global. 
+     Se non c'e' stato errire, restituisce falso.
     </refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>array <function>OCIError</function></funcdef>
-      <paramdef>int <parameter><optional>stmt|conn</optional></parameter></paramdef>
+      <paramdef>int 
+       <parameter><optional>stmt|conn|global</optional></parameter>
+      </paramdef>
      </funcprototype>
     </funcsynopsis>
     <simpara>
-     <function>OCIError</function> returns the last error found.  If the optional
-      <parameter>stmt|conn</parameter> is not provided, the last error encountered
-      is returned.  If no error is found, <function>OCIError</function> returns false.</simpara>
+     <function>OCIError</function> restituisce l'ultimo errore. Se 
+     il parametro opzionale <parameter>stmt|conn|global</parameter> non e' 
+     specificato, viene restituito l'ultimo errore generato. Se non ci sono 
+     errori, <function>OCIError</function> restituisce 
+     falso. <function>OCIError</function> restituisce l'errore in un
+     array associativo. In questo array, <parameter>code</parameter>
+     da' il codice d'errora oracle e <parameter>message</parameter>
+     da' la stringa d'errore.
+    </simpara> 
    </refsect1>
   </refentry>
+
   <refentry id="function.ociinternaldebug">
    <refnamediv>
     <refname>OCIInternalDebug</refname>
-    <refpurpose>Enables or disables internal debug output.  By default it is disabled</refpurpose>
+    <refpurpose>
+     Abilita o disabilita la visualizzazione del debug interno.  Di default e' 
+     disabilitata
+   </refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>void <function>OCIInternalDebug</function></funcdef>
@@ -1321,8 +1543,10 @@ OCILogoff($conn);
      </funcprototype>
     </funcsynopsis>
     <simpara>
-     <function>OCIInternalDebug</function> enables internal debug output.  Set <parameter>onoff</parameter>
-     to 0 to turn debug output off, 1 to turn it on.</simpara>
+     <function>OCIInternalDebug</function> abilita la visualizzazione del debug interno.  
+     Impostare <parameter>onoff</parameter> a 0 per spegnere 
+     il debug, 1 per accenderlo.
+    </simpara>
    </refsect1>
   </refentry>
  </reference>
@@ -1337,7 +1561,7 @@ sgml-always-quote-attributes:t
 sgml-indent-step:1
 sgml-indent-data:t
 sgml-parent-document:nil
-sgml-default-dtd-file:"../manual.ced"
+sgml-default-dtd-file:"../../manual.ced"
 sgml-exposed-tags:nil
 sgml-local-catalogs:nil
 sgml-local-ecat-files:nil

@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- EN-Revision: 1.18 Maintainer: calandra Status: ready -->
+ <reference id="ref.cybermut">
+  <title>Cr&eacute;dit Mutuel CyberMUT functions</title>
+  <titleabbrev>CyberMUT</titleabbrev>
+  <partintro>
+   <simpara>
+    Questa estensione vi permette di processare le transazioni delle carte di credito 
+    usando il sistema Crédit Mutuel CyberMUT (<ulink url="&url.cybermut;">&url.cybermut;</ulink>).
+   </simpara> 
+   <simpara>
+    CynerMUT, in Francia, è un popolare servizio di pagamento tramite web, fornito dalla 
+    banca Crédit Mutuel. Se siete stranieri in Francia, queste funzioni non 
+    saranno utili.
+   </simpara>
+   <simpara>
+    Queste funzioni sono disponibili se PHP è stato compilato con l'opzione 
+    <link linkend="install.configure.with-cybermut"><option role="configure">
+    --with-cybermut[=DIR]</option>, 
+    dove DIR è la locazione di <filename>libcm-mac.a</filename>
+    e <filename>cm-mac.h</filename>.
+    Verrà richiesto l'appropriato SDK per la piattaforma, che sarà spedito 
+    dopo la sottoscrizione al servizio CyberMUT (contattateli via Web, 
+    o recatevi presso il più vicino Crédit Mutuel).    
+   </simpara>
+   <simpara>
+    L'uso di queste funzioni è abbastanza simile alle funzioni originali, 
+    ad eccezione dei parametri restituiti da <function>cybermut_creerformulairecm</function>
+    e <function>cybermut_creerreponsecm</function>, 
+    che sono restituiti direttamente dalle funzioni PHP, 
+    mentre loro sono passati in riferimento nelle funzioni originali.
+   </simpara>
+   <simpara>
+    Queste funzioni sono state aggiunte in PHP 4.0.6. 
+   </simpara>
+   <note>
+    <para>
+    Queste funzioni forniscono solo un link all'SDK di CyberMUT. Assicuratevi di leggere 
+    la Guida per gli Sviluppatori del CyberMUT per i dettagli completi dei parametri richiesti.
+    </para>
+   </note>
+  </partintro>
+
+  <refentry id="function.cybermut-creerformulairecm">
+   <refnamediv>
+    <refname>cybermut_creerformulairecm</refname> 
+    <refpurpose>Genera un form HTML per la richiesta di pagamento</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>string</type><methodname>cybermut_creerformulairecm</methodname>
+      <methodparam><type>string</type><parameter>url_CM</parameter></methodparam>
+      <methodparam><type>string</type><parameter>version</parameter></methodparam>
+      <methodparam><type>string</type><parameter>TPE</parameter></methodparam>
+      <methodparam><type>string</type><parameter>montant</parameter></methodparam>
+      <methodparam><type>string</type><parameter>ref_commande</parameter></methodparam>
+      <methodparam><type>string</type><parameter>texte_libre</parameter></methodparam>
+      <methodparam><type>string</type><parameter>url_retour</parameter></methodparam>
+      <methodparam><type>string</type><parameter>url_retour_ok</parameter></methodparam>
+      <methodparam><type>string</type><parameter>url_retour_err</parameter></methodparam>
+      <methodparam><type>string</type><parameter>langue</parameter></methodparam>
+      <methodparam><type>string</type><parameter>code_societe</parameter></methodparam>
+      <methodparam><type>string</type><parameter>texte_bouton</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     <function>cybermut_creerformulairecm</function> è usato per generare il 
+     form HTML per la richiesta di pagamento. 
+    </para>
+    <example>
+     <title>Primo passo di pagamento (equiv cgi1.c)</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+// Directory dove si trovano le chiavi
+putenv("CMKEYDIR=/var/creditmut/cles");
+ 
+// Numero Versione
+$VERSION="1.2";
+
+  $retour =  cybermut_creerformulairecm(
+  "https://www.creditmutuel.fr/test/telepaiement/paiement.cgi",
+  $VERSION,
+  "1234567890",
+  "300FRF",
+  $REFERENCE,
+  $TEXTE_LIBRE,
+  $URL_RETOUR,
+  $URL_RETOUR_OK,
+  $URL_RETOUR_ERR,
+  "francais",
+  "company",
+  "Paiement par carte bancaire");
+ 
+  echo $retour;                                                               
+?>
+]]>
+     </programlisting>
+    </example>
+    <para> 
+     Vedere anche 
+     <function>cybermut_testmac</function> e 
+     <function>cybermut_creerreponsecm</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.cybermut-testmac">
+   <refnamediv>
+    <refname>cybermut_testmac</refname> 
+    <refpurpose>
+     Assicura che non siano contenuti dati manupolati 
+     nel messaggio di conferma ricevuto
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>bool</type><methodname>cybermut_testmac</methodname>
+      <methodparam><type>string</type><parameter>code_MAC</parameter></methodparam>
+      <methodparam><type>string</type><parameter>version</parameter></methodparam>
+      <methodparam><type>string</type><parameter>TPE</parameter></methodparam>
+      <methodparam><type>string</type><parameter>cdate</parameter></methodparam>
+      <methodparam><type>string</type><parameter>montant</parameter></methodparam>
+      <methodparam><type>string</type><parameter>ref_commande</parameter></methodparam>
+      <methodparam><type>string</type><parameter>texte_libre</parameter></methodparam>
+      <methodparam><type>string</type><parameter>code-retour</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     <function>cybermut_testmac</function> è usato per assicurare che non siano contenuti dati manipolati
+     nel messaggio di conferma ricevuto.
+     Prestate attenzione ai parametri <parameter>code-retour</parameter> e
+     <parameter>texte-libre</parameter>, che non possono essere valutati tal quali, 
+     a causa del trattino. Dovete recuperarli usando: 
+     <programlisting role="php">
+<![CDATA[
+<?php
+  $code_retour=$HTTP_GET_VARS["code-retour"];
+  $texte_libre=$HTTP_GET_VARS["texte-libre"];
+?>
+]]>
+     </programlisting>                                   
+    </para>
+    <example>
+     <title>Ultimo passo di pagamento (equiv cgi2.c)</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+// Make sure that Enable Track Vars is ON.
+// Directory where are located the keys
+putenv("CMKEYDIR=/var/creditmut/cles");
+ 
+// Version number
+$VERSION="1.2";
+
+$texte_libre = $HTTP_GET_VARS["texte-libre"];
+$code_retour = $HTTP_GET_VARS["code-retour"];                                     
+
+$mac_ok = cybermut_testmac($MAC,$VERSION,$TPE,$date,$montant,$reference,$texte_libre,$code_retour);
+
+if ($mac_ok) {
+
+  //
+  // insert data processing here
+  //
+  //
+
+  $result=cybermut_creerreponsecm("OK");
+} else {
+  $result=cybermut_creerreponsecm("Document Falsifie");
+}
+ 
+?>
+]]>
+     </programlisting>
+    </example>
+    <para> 
+     Vedere anche 
+     <function>cybermut_creerformulairecm</function> e
+     <function>cybermut_creerreponsecm</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.cybermut-creerreponsecm">
+   <refnamediv>
+    <refname>cybermut_creerreponsecm</refname>
+    <refpurpose>
+     Genera il riconoscimento della consegna di 
+     conferma del pagamento 
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>string</type><methodname>cybermut_creerreponsecm</methodname>
+      <methodparam><type>string</type><parameter>phrase</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     <function>cybermut_creerreponsecm</function> restituisce una stringa 
+     contenente un messaggio di riconoscimento di consegna.
+    </para>
+    <para>
+     Il parametro è "OK" se il messaggio di conferma del pagamento è 
+     stato correttamente autenticato da  <function>cybermut_testmac</function>.
+     Ogni altra catena è considerata come un messaggio di errore. 
+    </para>
+    <para> 
+     Vedere anche 
+     <function>cybermut_creerformulairecm</function> e
+     <function>cybermut_testmac</function>.
+    </para>
+   </refsect1>
+  </refentry>
+ </reference>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

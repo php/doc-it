@@ -1,29 +1,62 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- splitted from ./it/functions/ftp.xml, last change in rev 1.1 -->
-<!-- last change to 'ftp-pasv' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: colombo Status: working -->
-<!-- OLD-Revision: 1.43/EN.1.2 -->
+<!-- splitted from ./it/functions/ftp.xml, last change in rev 1.2 -->
+<!-- last change to 'ftp-pasv' in en/ tree in rev 1.7 -->
+<!-- EN-Revision: 1.5 Maintainer: afparam Status: ready -->
+<!-- CREDITS: Colombo -->
+<!-- OLD-Revision: 1.43/EN.1.7 -->
   <refentry id="function.ftp-pasv">
    <refnamediv>
     <refname>ftp_pasv</refname>
-    <refpurpose>Abilita o disabilita la modalità passiva</refpurpose>
+    <refpurpose>Attivaa o disattiva il modo passivo</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>ftp_pasv</methodname>
-      <methodparam><type>int</type><parameter>ftp_stream</parameter></methodparam>
-      <methodparam><type>int</type><parameter>pasv</parameter></methodparam>
+      <type>bool</type><methodname>ftp_pasv</methodname>
+      <methodparam><type>resource</type><parameter>ftp_stream</parameter></methodparam>
+      <methodparam><type>bool</type><parameter>pasv</parameter></methodparam>
      </methodsynopsis>
     <para>
-     <function>ftp_pasv</function>Abilita la modalità passiva se il parametro
-     <parameter>pasv</parameter> risulta &true; (disabilita la modalità 
-     passiva se <parameter>pasv</parameter> risulta &false;.)  In
-     modalità passiva la connessione viene iniziata dal client,
+     <function>ftp_pasv</function> attiva il modo passivo se
+     il parametro <parameter>pasv</parameter> e' &true;. Disattiva
+     il modo passivo se <parameter>pasv</parameter> e' &false;. Nel
+     modo passivo, le connessioni sono iniziate dal client
      piuttosto che dal server.
     </para>
     <para>
-     Restituisce &true; se a buon fine, &false; in caso di errore.
+     <example>
+      <title>Esempio di funzione <function>ftp_pasv</function></title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$file = 'somefile.txt';
+$remote_file = 'readme.txt';
+
+// stabilisce la connessione
+$conn_id = ftp_connect($ftp_server);
+
+// si collega con username and password
+$login_result = ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
+
+// attiva il modo passivo
+ftp_pasv($conn_id, true);
+
+// trasferisce un file al server
+if (ftp_put($conn_id, $remote_file, $file, FTP_ASCII)) {
+ echo "$file trasferito correttamente\n";
+} else {
+ echo "Si e' verificato un problema durante il trasferimento di $file\n";
+}
+
+// chiude la connessione
+ftp_close($conn_id);
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     &return.success;
     </para>
    </refsect1>
   </refentry>

@@ -1,40 +1,71 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- splitted from ./it/functions/ftp.xml, last change in rev 1.1 -->
-<!-- last change to 'ftp-put' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: colombo Status: working -->
-<!-- OLD-Revision: 1.43/EN.1.2 -->
+<!-- splitted from ./it/functions/ftp.xml, last change in rev 1.2 -->
+<!-- last change to 'ftp-put' in en/ tree in rev 1.7 -->
+<!-- EN-Revision: 1.7 Maintainer: afparam Status: ready -->
+<!-- CREDITS: Colombo -->
+<!-- OLD-Revision: 1.43/EN.1.7 -->
+
   <refentry id="function.ftp-put">
    <refnamediv>
     <refname>ftp_put</refname>
-    <refpurpose>Carica un file sul server FTP</refpurpose>
+    <refpurpose>Trasferisce un file al server FTP</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>ftp_put</methodname>
-      <methodparam><type>int</type><parameter>ftp_stream</parameter></methodparam>
+      <type>bool</type><methodname>ftp_put</methodname>
+      <methodparam><type>resource</type><parameter>ftp_stream</parameter></methodparam>
       <methodparam><type>string</type><parameter>remote_file</parameter></methodparam>
       <methodparam><type>string</type><parameter>local_file</parameter></methodparam>
       <methodparam><type>int</type><parameter>mode</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>startpos</parameter></methodparam>
      </methodsynopsis>
     <para>
      <function>ftp_put</function> salva <parameter>local_file</parameter>
-     sul server FTP, come <parameter>remote_file</parameter>. Il parametro 
-     <parameter>mode</parameter> che spedifica il tipo di trasferimento deve
-     essere <constant>FTP_ASCII</constant> oppure <constant>FTP_BINARY</constant>.
+     sul server FTP come <parameter>remote_file</parameter>. Il modo di trasferimento
+     <parameter>mode</parameter> specificato deve essere
+     <constant>FTP_ASCII</constant> oppure <constant>FTP_BINARY</constant>.
     </para>
+    <note>
+     <para>
+      Il parametro <parameter>startpos</parameter> e' stato aggiunto nella release PHP 4.3.0.
+     </para>
+    </note>
     <para>
-     Restituisce &true; se a buon fine, &false; in caso di errore.
+     &return.success;
     </para>
     <para>
      <example>
-      <title>Esempio di <function>ftp_put</function></title>
+      <title>Esempio di funzione <function>ftp_put</function></title>
       <programlisting role="php">
 <![CDATA[
-$upload = ftp_put ($conn_id, $destination_file, $source_file, FTP_ASCII); 
+<?php
+$file = 'somefile.txt';
+$remote_file = 'readme.txt';
+
+// stabilisce la connessione
+$conn_id = ftp_connect($ftp_server);
+
+// si collega con username and password
+$login_result = ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
+
+// trasferisce un file al server
+if (ftp_put($conn_id, $remote_file, $file, FTP_ASCII)) {
+ echo "$file trasferito correttamente\n";
+} else {
+ echo "Si e' verificato un problema durante il trasferimento di $file\n";
+}
+
+// chiude la connessione
+ftp_close($conn_id);
+?>
 ]]>
       </programlisting>
      </example>
+    </para>
+    <para>
+     Vedere anche <function>ftp_fput</function>, <function>ftp_nb_fput</function>,
+     e <function>ftp_nb_put</function>.
     </para>
    </refsect1>
   </refentry>

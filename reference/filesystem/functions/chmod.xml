@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.2 Maintainer: spisto Status: ready -->
+<!-- EN-Revision: 1.8 Maintainer: spisto Status: ready -->
 <!-- CREDITS: cortesi -->
 <!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
   <refentry id="function.chmod">
@@ -10,7 +10,7 @@
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>int</type><methodname>chmod</methodname>
+      <type>bool</type><methodname>chmod</methodname>
       <methodparam><type>string</type><parameter>filename</parameter></methodparam>
       <methodparam><type>int</type><parameter>mode</parameter></methodparam>
      </methodsynopsis>
@@ -24,12 +24,48 @@
      assunto come valore ottale, per cui le stringhe (come "g+w") non verranno
      elaborate correttamente. Per ottenere l'operazione desiderata, è necessario
      far iniziare <parameter>mode</parameter> con uno zero (0):
+    </para>
+    <para>
      <informalexample>
       <programlisting role="php">
 <![CDATA[
+<?php
 chmod ("/somedir/somefile", 755);   // decimale; probabilmente errato   
 chmod ("/somedir/somefile", "u+rwx,go+rx"); // stringa; errato       
 chmod ("/somedir/somefile", 0755);  // ottale; valore corretto di mode
+?>
+]]>
+      </programlisting>
+     </informalexample>
+    </para>
+    <para>
+     Il parametro <parameter>mode</parameter> consiste in tre numeri
+     ottali costituenti le restrizioni dell'accesso per il proprietario,
+     il gruppo utente a cui appartiene il proprietrio, e gli altri.
+     Ciascun numero può essere calcolato aggiungendo i permessi
+     al valore base per l'utente. Il numero 1 indica che si abilita all'esecuzione del file,
+     con il numero 2 si assegnano i diritti di scrittura, con il numero 4
+     si assegna il permesso di lettura del file. Aggiungere questi
+     numeri per ottenere i diritti richiesti. Si possono avere maggiori
+     dettagli sui permessi dei sistemi UNIX usando il comando 'man 1 chmod' e 'man 2 chmod'.
+    </para>
+    <para>
+     <informalexample>
+      <programlisting role="php">
+<![CDATA[
+<?php
+// Lettura e scrittura per il proprietatio, e nessun permesso per gli altri
+chmod ("/somedir/somefile", 0600);
+
+// Lettura e scrittura per il proprietatio, e lettura per gli altri
+chmod ("/somedir/somefile", 0644);
+
+// Accesso completo per il proprietatio, e lettura ed esecuzione per gli altri
+chmod ("/somedir/somefile", 0755);
+
+// Accesso completo per il proprietatio, e lettura ed esecuzione per il gruppo del proprietario
+chmod ("/somedir/somefile", 0750);
+?>
 ]]>
       </programlisting>
      </informalexample>
@@ -37,11 +73,21 @@ chmod ("/somedir/somefile", 0755);  // ottale; valore corretto di mode
     <para>
      &return.success;
     </para>
+    <note>
+     <para>
+      L'utente corrente è l'utente con il quale viene eseguito il PHP.
+      Probabilmente non è il medesimo utente che si usa da shell o
+      dall'accesso FTP.
+     </para>
+    </note>
+    
+    &note.no-remote;
+
     <para>
      Vedere anche <function>chown</function> e
      <function>chgrp</function>.
     </para>
-    &note.no-windows;
+    
    </refsect1>
   </refentry>
 

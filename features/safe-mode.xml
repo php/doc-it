@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.16 Maintainer: perugini Status: working -->
+<!-- EN-Revision: 1.17 Maintainer: cucinato Status: working -->
+<!-- CREDITS: perugini -->
  <chapter id="features.safe-mode">
   <title>Modalità sicura (Safe mode)</title>
 
@@ -11,6 +12,300 @@
    non sono realistiche, in molti, specialmente ISP (Internet Service Provider),
    utilizzano la modalità sicura. 
   </para>
+
+  <sect1 id="ini.sect.safe-mode">
+   <title>Security and Safe Mode</title>
+   <para>
+    <table>
+     <title>Direttive di configurazione della Modalità sicura e Sdella icurezza</title>
+     <tgroup cols="4">
+      <thead>
+       <row>
+        <entry>Nome</entry>
+        <entry>Default</entry>
+        <entry>Changeable</entry>
+        <entry>Changelog</entry>
+       </row>
+      </thead>
+      <tbody>
+      <row>
+       <entry>safe_mode</entry>
+       <entry>"0"</entry>
+       <entry>PHP_INI_SYSTEM</entry>
+       <entry></entry>
+      </row>
+      <row>
+       <entry>safe_mode_gid</entry>
+       <entry>"0"</entry>
+       <entry>PHP_INI_SYSTEM</entry>
+       <entry>Disponibile dal PHP 4.1.0.</entry>
+      </row>
+      <row>
+       <entry>safe_mode_include_dir</entry>
+       <entry>NULL</entry>
+       <entry>PHP_INI_SYSTEM</entry>
+       <entry>Disponibile dal PHP 4.1.0.</entry>
+      </row>
+      <row>
+       <entry>safe_mode_exec_dir</entry>
+       <entry>""</entry>
+       <entry>PHP_INI_SYSTEM</entry>
+       <entry></entry>
+      </row>
+      <row>
+       <entry>safe_mode_allowed_env_vars</entry>
+       <entry>"PHP_"</entry>
+       <entry>PHP_INI_SYSTEM</entry>
+       <entry></entry>
+      </row>
+      <row>
+       <entry>safe_mode_protected_env_vars</entry>
+       <entry>"LD_LIBRARY_PATH"</entry>
+       <entry>PHP_INI_SYSTEM</entry>
+       <entry></entry>
+      </row>
+      <row>
+       <entry>open_basedir</entry>
+       <entry>NULL</entry>
+       <entry>PHP_INI_SYSTEM</entry>
+       <entry></entry>
+      </row>
+      <row>
+       <entry>disable_functions</entry>
+       <entry>""</entry>
+       <entry>&php.ini; only</entry>
+       <entry>Disponibile dal PHP 4.0.1.</entry>
+      </row>
+      <row>
+       <entry>disable_classes</entry>
+       <entry>""</entry>
+       <entry>&php.ini; only</entry>
+       <entry>Disponibile dal PHP 4.3.2.</entry>
+      </row>
+      </tbody>
+     </tgroup>
+    </table>
+    Per ulteriori dettagli e definizione delle costanti PHP_INI_* vedere
+    <function>ini_set</function>.
+   </para>
+   
+   &ini.descriptions.title;
+   
+   <para>
+    <variablelist>
+     <varlistentry id="ini.safe-mode">
+      <term>
+       <parameter>safe_mode</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Abilita o disabilita la modalit&agrave; sicura di PHP's. Leggere il
+        capitolo <link linkend="security">Sicurezza</link> per ulteriori
+        informazioni.
+       </para>
+      </listitem>
+     </varlistentry>
+     <varlistentry id="ini.safe-mode-gid">
+      <term>
+       <parameter>safe_mode_gid</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Di default, Safe Mode does a UID compare check when
+        opening files. If you want to relax this to a GID compare,
+        then turn on safe_mode_gid.
+        Whether to use <literal>UID</literal> (&false;) or
+        <literal>GID</literal> (&true;) checking upon file
+        access.
+       </para>
+      </listitem>
+     </varlistentry>
+     <varlistentry id="ini.safe-mode-include-dir">
+      <term>
+       <parameter>safe_mode_include_dir</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        <literal>UID</literal>/<literal>GID</literal> checks are bypassed when
+        including files from this directory and its subdirectories (directory
+        must also be in <link linkend="ini.include-path">include_path</link>
+        or full path must including).
+       </para>
+       <simpara>
+        As of PHP 4.2.0, this directive can take a colon (semi-colon on
+        Windows) separated path in a fashion similar to the
+        <link linkend="ini.include-path">include_path</link> directive,
+        rather than just a single directory.
+       </simpara>
+       <simpara>
+        The restriction specified is actually a prefix, not a directory name. 
+        This means that "safe_mode_include_dir = /dir/incl" also allows
+        access to "/dir/include" and "/dir/incls" if they exist.  When you 
+        want to restrict access to only the specified directory, end with a 
+        slash. For example: "safe_mode_include_dir = /dir/incl/"
+       </simpara>
+      </listitem>
+     </varlistentry>
+     <varlistentry id="ini.safe-mode-exec-dir">
+      <term>
+       <parameter>safe_mode_exec_dir</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        If PHP is used in safe mode, <function>system</function> and the other
+        <link linkend="ref.exec">functions executing system programs</link>
+        refuse to start programs that are not in this directory.
+        You have to use <literal>/</literal> as directory separator on all
+        environments including Windows.
+       </para>
+      </listitem>
+     </varlistentry>
+     <varlistentry id="ini.safe-mode-allowed-env-vars">
+      <term>
+       <parameter>safe_mode_allowed_env_vars</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Setting certain environment variables may be a potential security breach.
+        This directive contains a comma-delimited list of prefixes. In Safe Mode,
+        the user may only alter environment variables whose names begin with the
+        prefixes supplied here. By default, users will only be able to set
+        environment variables that begin with PHP_ (e.g. PHP_FOO=BAR).
+       </para>
+       <note>
+        <para>
+         If this directive is empty, PHP will let the user modify ANY
+         environment variable!
+        </para>
+       </note>
+      </listitem>
+     </varlistentry>
+     <varlistentry id="ini.safe-mode-protected-env-vars">
+      <term>
+       <parameter>safe_mode_protected_env_vars</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        This directive contains a comma-delimited list of environment
+        variables that the end user won't be able to change using
+        <function>putenv</function>. These variables will be protected
+        even if safe_mode_allowed_env_vars is set to allow to change them.
+       </para>
+      </listitem>
+     </varlistentry>
+      <varlistentry id="ini.open-basedir">
+      <term>
+       <parameter>open_basedir</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Limit the files that can be opened by PHP to the specified
+        directory-tree, including the file itself.  This directive 
+        is <emphasis>NOT</emphasis> affected by whether Safe Mode is 
+        turned On or Off.
+       </para>
+       <para>
+        When a script tries to open a file with, for example,
+        <function>fopen</function> or <function>gzopen</function>,
+        the location of the file is checked. When the file is outside the
+        specified directory-tree, PHP will refuse to open it. All symbolic
+        links are resolved, so it's not possible to avoid this restriction
+        with a symlink.
+       </para>
+       <para>
+        The special value <systemitem class="constant">.</systemitem>
+        indicates that the working directory of the script will be used as the
+        base-directory. This is, however, a little dangerous as the working directory
+        of the script can easily be changed with <function>chdir</function>.
+       </para>
+       <para>
+        In <filename>httpd.conf</filename>, open_basedir can be turned off
+        (e.g. for some virtual hosts)
+        <link linkend="configuration.changes.apache">the same way</link> as
+        any other configuration directive with "php_admin_value open_basedir
+        none".
+       </para>
+       <para>
+        Under Windows, separate the directories with a semicolon. On all
+        other systems, separate the directories with a colon. As an Apache
+        module, open_basedir paths from parent directories are now
+        automatically inherited.
+       </para>
+       <para>
+         The restriction specified with open_basedir is actually a
+         prefix, not a directory name.  This means that "open_basedir =
+         /dir/incl" also allows access to "/dir/include" and
+         "/dir/incls" if they exist. When you want to restrict access
+         to only the specified directory, end with a slash. For example:
+         "open_basedir = /dir/incl/"
+       </para>
+       <note>
+        <para>
+         Support for multiple directories was added in 3.0.7.
+        </para>
+       </note>
+       <para>
+        The default is to allow all files to be opened.
+       </para>
+      </listitem>
+     </varlistentry>
+     <varlistentry id="ini.disable-functions">
+      <term>
+       <parameter>disable_functions</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <simpara>
+        This directive allows you to disable certain functions for 
+        <link linkend="security">security</link> reasons. It takes 
+        on a comma-delimited list of function names. disable_functions
+        is not affected by <link linkend="ini.safe-mode">Safe Mode</link>.
+       </simpara>
+       <simpara>
+        This directive must be set in &php.ini; For example, you 
+        cannot set this in &httpd.conf;.
+       </simpara>
+      </listitem>
+     </varlistentry>
+     <varlistentry id="ini.disable-classes">
+      <term>
+       <parameter>disable_classes</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <simpara>
+        This directive allows you to disable certain classes for
+        <link linkend="security">security</link> reasons.  It takes
+        on a comma-delimited list of class names.  disable_classes
+        is not affected by <link linkend="ini.safe-mode">Safe Mode</link>.
+       </simpara>
+       <simpara>
+        This directive must be set in &php.ini;  For example, you
+        cannot set this in &httpd.conf;.
+       </simpara>
+       <note>
+        <title>Availability note</title>
+        <simpara>
+         This directive became available in PHP 4.3.2
+        </simpara>
+       </note>
+      </listitem>
+     </varlistentry>
+    </variablelist>
+   </para>
+   <para>
+    See also: <link linkend="ini.register-globals">register_globals</link>,
+    <link linkend="ini.display-errors">display_errors</link>, and
+    <link linkend="ini.log-errors">log_errors</link>
+   </para>
+
   <para>
    Le direttive di configurazione che controllano la modalità sicura sono:
    <programlisting role="ini">
@@ -87,6 +382,7 @@ Warning: readfile() has been disabled for security reasons in
 ]]>
    </screen>
   </para>
+ </sect1>
 
   <sect1 id="features.safe-mode.functions">
    <title>Funzioni limitate/disabilitate dalla modalità sicura (safe-mode)</title>

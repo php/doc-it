@@ -1,91 +1,87 @@
  <chapter id="features.remote-files">
-  <title>Using remote files</title>
+  <title>Utilizzo di file remoti</title>
 
   <para>
-   As long as support for the &quot;URL fopen wrapper&quot; is enabled when
-   you configure PHP (which it is unless you explicitly pass the
-   <option>--disable-url-fopen-wrapper</option> flag to configure),
-   you can use HTTP and FTP URLs with most functions that take a
-   filename as a parameter, including the <function>require</function>
-   and <function>include</function> statements.
+   Quando viene abilitato il supporto per l "URL fopen wrapper" durante
+   la configurazione di PHP (avviene automaticamente a meno che si 
+   specifichi espressamente il flag<option>--disable-url-fopen-wrapper</option>),
+   si possono usare URL FTP e HTTP con la maggior parte delle funzioni che 
+   richiedono nomi di file come parametri, incluse le funzioni <function>require</function>
+   e <function>include</function>.
+
+  <note>
+   <para>
+    Non si possono usare i file remoti con <function>include</function> e
+    <function>require</function> sotto Windows.
+   </para>
+  </note>
   </para>
+
   <para>
-   <note>
-    <para>
-     You can't use remote files in <function>include</function> and
-     <function>require</function> statements on Windows.
-    </para>
-   </note>
+   Per esempio, si pu&ograve; usare per aprire un file da un web server remoto,
+   elaborare i dati presi da remoto, e usarli per effetuare delle query,
+   o semplicemente visualizzarli con lo stile del proprio sito web.
   </para>
-  <para>
-   For example, you can use this to open a file on a remote web server,
-   parse the output for the data you want, and then use that data in a
-   database query, or simply to output it in a style matching the rest
-   of your website.
-  </para>
+
   <para>
    <example>
-    <title>Getting the title of a remote page</title>
-    <programlisting role="php">
-<![CDATA[
-<?php
-$file = fopen ("http://www.php.net/", "r");
-if (!$file) {
-    echo "<p>Unable to open remote file.\n";
+    <title>Legere il titolo di una pagina web remota</title>
+    <programlisting>
+&lt;?php
+  $file = fopen("http://www.php.net/", "r");
+  if (!$file) {
+    echo "&lt;p>Errore nell'apertura del file remoto.\n";
     exit;
-}
-while (!feof ($file)) {
-    $line = fgets ($file, 1024);
-    /* This only works if the title and its tags are on one line */
-    if (eregi ("<title>(.*)</title>", $line, $out)) {
-        $title = $out[1];
-        break;
+  }
+  while (!feof($file)) {
+    $line = fgets($file, 1024);
+    /* Funziona solo se i tag del titolo sono sulla stessa linea. */
+    if (eregi("&lt;title>(.*)&lt;/title>", $line, $out)) {
+      $title = $out[1];
+      break;
     }
-}
-fclose($file);
+  }
+  fclose($file);
 ?&gt;
-]]>
     </programlisting>
    </example>
   </para>
+
   <para>
-   You can also write to files on an FTP as long you connect as a user
-   with the correct access rights, and the file doesn't exist already.
-   To connect as a user other than 'anonymous', you need to specify
-   the username (and possibly password) within the URL, such as
-   'ftp://user:password@ftp.example.com/path/to/file'. (You can use the
-   same sort of syntax to access files via HTTP when they require Basic
-   authentication.)
+   Si pu&ograve; anche scrivere in un file remoto via FTP se l'utente con cui ci
+   si connette ha le autorizzazioni necessarie, e il file non &egrave; gi&agrave; presente.
+   Per connettersi con un utenti specifico si ha bisogno di specificare lo username
+   (e la relativa password) dentro l'URL in questo modo:
+   'ftp://user:password@ftp.test.com/dir/del/file'. (Si pu&ograve; usare lo stesso 
+   tipo di sintassi per accedere a file via HTTP quando richiedono autenticazione).
   </para>
+
   <para>
    <example>
-    <title>Storing data on a remote server</title>
-    <programlisting role="php">
-<![CDATA[
-<?php
-$file = fopen ("ftp://ftp.php.net/incoming/outputfile", "w");
-if (!$file) {
-    echo "<p>Unable to open remote file for writing.\n";
+    <title>Salvataggio di dati su server remoto</title>
+    <programlisting>
+&lt;?php
+  $file = fopen("ftp://ftp.php.net/incoming/outputfile", "w");
+  if (!$file) {
+    echo "&lt;p>Errore nell'apertura del file remoto in scrittura.\n";
     exit;
-}
-/* Write the data here. */
-fputs ($file, "$HTTP_USER_AGENT\n");
-fclose ($file);
-?>
-]]>  
+  }
+  /* Scrittura del file. */
+  fputs($file, "$HTTP_USER_AGENT\n");
+  fclose($file);
+?&gt;
     </programlisting>
    </example>
-  </para>
-  <para>
-   <note>
-    <para>
-     You might get the idea from the example above to use this
-     technique to write to a remote log, but as mentioned above, you
-     can only write to a new file using the URL fopen() wrappers. To
-     do distributed logging like that, you should take a look at
-     <function>syslog</function>.
-    </para> 
-   </note>
+
+ <note>
+   <para>
+    Dall'esempio precedente ci si pu&ograve; fare un'idea di come usare questa
+    tecnica per effettuare dei log in remoto, ma come gi&agrave; accennato non &egrave; 
+    possibile scrivere su file gi&agrave; esistenti con questo sitema. 
+    Per fare una procedura di log distribuito &egrave; più indicata la funzione 
+    <function>syslog</function>.
+   </para>
+  </note>
   </para>
 
  </chapter>
@@ -100,7 +96,7 @@ sgml-always-quote-attributes:t
 sgml-indent-step:1
 sgml-indent-data:t
 sgml-parent-document:nil
-sgml-default-dtd-file:"../../manual.ced"
+sgml-default-dtd-file:"../manual.ced"
 sgml-exposed-tags:nil
 sgml-local-catalogs:nil
 sgml-local-ecat-files:nil

@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
- <!-- EN-Revision: 1.22 Maintainer: darvin  Status: ready -->
-<reference id="ref.odbc">
+<!-- EN-Revision: 1.27 Maintainer: darvin  Status: ready -->
+ <reference id="ref.odbc">
   <title>Funzioni ODBC Unificate</title>
   <titleabbrev>ODBC</titleabbrev>
   <partintro>
    <simpara>
     In aggiunta al normale supporto ODBC, le funzioni ODBC unificate del
     PHP consentono l'accesso a diversi database che hanno preso in prestito
-    la semantica dell'API ODBC per implementare la loro API. Invece di mantenere
-    più driver per database che sono tutti pressoché identici, questi driver sono 
-    stati riuniti in un singolo insieme di funzioni ODBC.
+    la semantica dell'API ODBC per implementare la loro API. Invece di 
+    mantenere più driver per database che sono tutti pressoché 
+    identici, questi driver sono stati riuniti in un singolo insieme di 
+    funzioni ODBC.
    </simpara>
    <simpara>
     I seguenti database sono supportati dalle funzioni ODBC unificate:
@@ -31,7 +32,12 @@
     <simpara>
      Nella connessione ai database sopra elencati non vengono coinvolte funzioni
      ODBC. Le funzioni che vengono utilizzate per collegarsi nativamente con essi
-     condividono solamente lo stesso nome e sintassi delle funzioni ODBC.
+     condividono solamente lo stesso nome e sintassi delle funzioni ODBC.L'eccezione
+     a questo è iODBC. Compilando il PHP con il supporto di iODBC,
+     si può utilizzare qualsiasi driver compatibile ODBC nelle applicazioni PHP.
+     iODBC è gestito da <ulink url="&url.openlink;">
+     OpenLink Software</ulink>. Maggiori informazioni su iODBC, e un 
+     HOWTO sono diponibili nel sito <ulink url="&url.iodbc;">www.iodbc.org</ulink>.
     </simpara>
    </note>
   </partintro>
@@ -58,13 +64,13 @@
     </para>
     <para>
      Se il campo <parameter>OnOff</parameter> è posto a vero, l' auto-commit è abilitato,
-     se è valorizzato a falso l'autocommit è disabilitato.  La funzione restituisce 
-     <literal>vero</literal> se l'operazione riesce, <literal>falso</literal> se si 
+     se è valorizzato a falso l'auto-commit è disabilitato.  La funzione restituisce 
+     &true; se l'operazione riesce, &false; se si 
      verifica un errore.
     </para>
     <para>
-     Per default, l'autocommit è abilitato. La disabilitazione 
-     dell'autocommit equivale ad iniziare una transazione.
+     Per default, l'auto-commit è abilitato. La disabilitazione 
+     dell'auto-commit equivale ad iniziare una transazione.
     </para>
     <simpara>
      Vedere inoltre
@@ -121,7 +127,7 @@
        <thead>
 	<row>
 	 <entry>Modalità</entry>
-         <entry>impostazione di longreadlen</entry>
+         <entry>Impostazione di longreadlen</entry>
 	 <entry>Comportamento</entry>
 	</row>
        </thead>
@@ -143,26 +149,30 @@
 	</row>
 	<row>
 	 <entry>ODBC_BINMODE_PASSTHRU</entry>
+	 <entry>0</entry>
+	 <entry>passthru</entry>
+	</row>
+	<row>
+	 <entry>ODBC_BINMODE_PASSTHRU</entry>
 	 <entry>>0</entry>
 	 <entry>direttamente al client</entry>
 	</row>
 	<row>
 	 <entry>ODBC_BINMODE_RETURN</entry>
 	 <entry>>0</entry>
-	 <entry>ritorna inalterato</entry>
+	 <entry>restituito inalterato</entry>
 	</row>
 	<row>
 	 <entry>ODBC_BINMODE_CONVERT</entry>
 	 <entry>>0</entry>
-	 <entry>ritorna come char</entry>
+	 <entry>restituito come char</entry>
 	</row>
        </tbody>
       </tgroup>
      </table>
     </para>
     <para>
-     Se viene utilizzata la funzione <function>odbc_fetch_into</function>, nei casi
-     in cui il dato viene inviato direttamente al client, quest'ultima 
+     Se viene utilizzata <function>odbc_fetch_into</function>, nei casi in cui il dato viene inviato direttamente al client, quest'ultima 
      restituisce una stringa vuota per le colonne binarie.
     </para>
     <para>
@@ -247,8 +257,8 @@
      </funcprototype>
     </funcsynopsis>
     <para>
-     Restituisce: <literal>vero</literal> per operazione corretta,
-     <literal>falso</literal> se si verifica un errore. Sono eseguite tutte le 
+     Restituisce: &true; per operazione corretta,
+     &false; se si verifica un errore. Sono eseguite tutte le 
      transazioni pendenti sulla connessione indicata dall'argomento <parameter>id_connessione</parameter>.
     </para>
    </refsect1>
@@ -276,9 +286,8 @@
     </para>
     <simpara>
      L'identificatore di connessione ritornato da questa funzione è 
-     utilizzato dalle altre funzioni ODBC. Si possono avere più connessioni 
-     aperte contemporaneamente. Il quarto parametro ( opzionale ), setta
-     il tipo di cursore da utilizzare per questa connessione. Normalmente
+     utilizzato dalle altre funzioni ODBC. Si possono avere più connessioni aperte contemporaneamente.
+     Il quarto parametro (opzionale), setta il tipo di cursore da utilizzare per questa connessione. Normalmente
      questo parametro non è necessario, ma può essere utilizzato per aggirare
      dei problemi che si manifestano con alcuni driver ODBC.
     </simpara>
@@ -364,6 +373,59 @@
    </refsect1>
   </refentry>
 
+  <refentry id="function.odbc-error">
+   <refnamediv>
+    <refname>odbc_error</refname>
+    <refpurpose>Restituisce l'ultimo codice di errore</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>string <function>odbc_error</function></funcdef>
+      <paramdef>int <parameter><optional>id_connessione</optional></parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <simpara>
+     La funzione restituisce un codice di 6 cifre indicante lo stato di ODBC. Se non
+     vi sono errori viene restituita una stringa vuota. Se viene passato il parametro <parameter>id_connessione</parameter>, viene 
+     restituito l'ultimo stato di questa connessione, altrimenti si ha l'ultimo stato 
+     dell'ultima operazione su una qualsiasi connessione.
+    </simpara>
+    <simpara> 
+     Vedere anche: <function>odbc_errormsg</function> e
+     <function>odbc_exec</function>.
+    </simpara>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.odbc-errormsg">
+   <refnamediv>
+    <refname>odbc_errormsg</refname>
+    <refpurpose>Restituisce l'ultimo messaggio d'errore</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>string <function>odbc_errormsg</function></funcdef>
+      <paramdef>int <parameter><optional>id_connessione</optional></parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <simpara>
+     la funzione restituisce una stringa contenente l'ultimo messaggio di 
+     errore generato da ODBC, oppure una stringa vuota se non ci sono errori. Se
+     viene passato il parametro <parameter>id_connessione</parameter>, viene restituito l'ultimo stato di questa 
+     connessione, altrimenti si ha l'ultimo stato dell'ultima operazione su una qualsiasi
+     connessione.
+    </simpara>
+    <simpara> 
+     Vedere anche: <function>odbc_error</function> and
+     <function>odbc_exec</function>.
+    </simpara>
+   </refsect1>
+  </refentry>
+
   <refentry id="function.odbc-exec">
    <refnamediv>
     <refname>odbc_exec</refname>
@@ -379,20 +441,18 @@
      </funcprototype>
     </funcsynopsis>
     <para>
-     Restituisce <literal>falso</literal> se si verifica un errore. Restituisce
-     un identificatore del risultato se l'espressione SQL viene 
-     eseguita correttamente.
+     Restituisce &false; se si verifica un errore. Restituisce un
+     identificatore del risultato ODBC se l'espressione SQL viene eseguita correttamente.
     </para>
     <para>
      <function>odbc_exec</function> invia una espressione SQL
      al server tramite la connessione specificata da
      <parameter>id_connessione</parameter>. Questo parametro deve essere
-     un identificativo valido restituito da  
-     <function>odbc_connect</function> oppure
+     un identificativo valido restituito da <function>odbc_connect</function> oppure
      <function>odbc_pconnect</function>.
     </para>
     <simpara> 
-     Vedere anche: <function>odbc_prepare</function> ed 
+     Vedere anche: <function>odbc_prepare</function> e
      <function>odbc_execute</function> per l'esecuzione di molteplici
      espressioni SQL.
     </simpara>
@@ -417,8 +477,8 @@
     <para>
      Esegue una espressione SQL memorizzata tramite la funzione 
      <function>odbc_prepare</function>.  Restituisce
-     <literal>vero</literal> se l'esecuzione riesce,
-     <literal>falso</literal> in caso negativo. L'array 
+     &true; se l'esecuzione riesce,
+     &false; in caso negativo. L'array 
      <parameter>array_parametri</parameter> occorre soltanto
      se è necessario fornire parametri all'espressione.
     </para>
@@ -442,11 +502,72 @@
     </funcsynopsis>
     <para>
      La funzione restituisce il numero di colonne presenti nel risultato;
-     <literal>falso</literal> se si verifica un errore.
+     &false; se si verifica un errore.
      Il parametro <parameter>array_dati</parameter> deve essere passato per referenza,
      ma può essere di qualsiasi tipo dato che verrà convertito     
      in array. Nell'array saranno posti i valori delle colonne di una riga tratta dalla tabella 
      risultante dalla query a partire dall'indice 0.
+    </para>
+ <para>
+    <example>
+     <title><function>odbc_fetch_into</function> Esempi pre 4.0.6</title>
+     <programlisting role="php">
+<![CDATA[
+$rc = odbc_fetch_into($id_risultato, $array_di_test);
+]]>
+     </programlisting>
+     <para>
+      oppure
+     </para>      
+     <programlisting role="php">
+<![CDATA[
+$rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
+       
+$rc = odbc_fetch_into($id_risultato, 1, $array_di_test);
+]]>
+     </programlisting>
+    </example>
+   </para>
+   <para>
+    A partire dalla versione 4.0.5 non è necessario che il parametro 
+    <parameter>result_array</parameter> sia passato per riferimento.
+   </para>
+   <para>
+    A partire dalla versione 4.0.6 il parametro <parameter>rownumber</parameter> 
+    non può essere passato come una costante, ma solo come una variabile.
+   </para>
+   <para>
+    <example>
+     <title><function>odbc_fetch_into</function> Esempi con PHP 4.0.6 </title>
+     <programlisting role="php">
+<![CDATA[
+$rc = odbc_fetch_into($id_risultato, $array_di_test);
+]]>
+     </programlisting>
+     <para>
+      oppure
+     </para>
+     <programlisting role="php">
+<![CDATA[
+$riga = 1;
+$rc = odbc_fetch_into($id_risultato, $riga, $array_di_test);
+]]>
+     </programlisting>
+    </example>
+   </para>
+   <para>
+    Versioni future:: In PHP 4.1, questa funzione assurà il seguente 
+    formato:
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>odbc_fetch_into</function></funcdef>
+      <paramdef>int <parameter>id_risultato</parameter></paramdef>
+      <paramdef>array <parameter>array_dati</parameter></paramdef>
+      <paramdef>int <parameter><optional>numero_riga</optional></parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    Notare che <parameter>numero_riga</parameter> sarà opzionale, mentre
+    <parameter>array_dati</parameter> no.
     </para>
    </refsect1>
   </refentry>
@@ -467,8 +588,8 @@
     </funcsynopsis>
     <para>
      Se <function>odbc_fetch_row</function> ha successo ( c'è almeno
-     una riga), la funzione restituisce <literal>vero</literal>. Altrimenti, se non vi sono più
-     righe, la funzione restituisce <literal>falso</literal>.
+     una riga), la funzione restituisce &true;. Altrimenti, se non vi sono più
+     righe, la funzione restituisce &false;.
     </para>
     <para>
      <function>odbc_fetch_row</function> estrae un record dai dati 
@@ -537,8 +658,7 @@
      <function>odbc_field_num</function> restituisce il numero della colonna
       in cui si trova il campo richiesto all'interno di un risultato ODBC indicato
       dall'argomento id_risultato. La numerazione delle colonne
-      parte da 1.
-      Si ottiene <literal>falso</literal> se si verifica un errore.
+      parte da 1. Si ottiene &false; se si verifica un errore.
     </para>
    </refsect1>
   </refentry>
@@ -546,7 +666,7 @@
   <refentry id="function.odbc-field-type">
    <refnamediv>
     <refname>odbc_field_type</refname>
-    <refpurpose>Tipo di campo</refpurpose>
+    <refpurpose>Tipo di dato di campo</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
@@ -560,8 +680,7 @@
     <para>
      La funzione <function>odbc_field_type</function> restituisce il tipo
      di dato SQL del campo indicato dal numero all'interno di un set di righe 
-     referenziate dall'identificativo di risultato ODBC passato. 
-     La numerazione delle colonne parte da 1.
+     referenziate dall'identificativo di risultato ODBC passato. La numerazione delle colonne parte da 1.
     </para>
    </refsect1>
   </refentry>
@@ -583,8 +702,7 @@
     <para>
      All'interno di un set di righe, referenziate dall'identificativo
      di risultato ODBC fornito, la funzione <function>odbc_field_len</function> 
-     restituisce la dimensione ( precisione ) del campo indicato dall'argomento
-     <parameter>numero_campo</parameter>. La numerazione dei campi parte da 1.
+     restituisce la dimensione (precisione) del campo indicato dall'argomento. La numerazione dei campi parte da 1.
     </para>
     <simpara>
      Vedere anche: <function>odbc_field_scale</function> per ottenere la scala di
@@ -655,7 +773,7 @@
      </funcprototype>
     </funcsynopsis>
     <para>
-     Restituisce sempre <literal>vero</literal>.
+     Restituisce sempre &true;.
     </para>
     <para>
      La funzione <function>odbc_free_result</function> permette
@@ -669,7 +787,7 @@
     <para>
      <note>
       <simpara>
-       Se si ha l'autocommit disabilitato (vedere
+       Se si ha l'auto-commit disabilitato (vedere
        <function>odbc_autocommit</function>) e si esegue
        <function>odbc_free_result</function> prima di eseguire il commit, tutte le
        transazioni pendenti saranno annullate,
@@ -689,7 +807,7 @@
    <funcsynopsis>
      <funcprototype>
      <funcdef>int <function>odbc_longreadlen</function></funcdef>
-     <paramdef>int <parameter>id_risultato </parameter></paramdef>
+     <paramdef>int <parameter>id_risultato</parameter></paramdef>
       <paramdef>int <parameter>lunghezza</parameter></paramdef>
      </funcprototype>
     </funcsynopsis>
@@ -722,10 +840,9 @@
      </funcprototype>
     </funcsynopsis>
     <para>
-     All'interno di un set di righe, referenziate dall'identificativo
-     di risultato ODBC fornito, la funzione <function>odbc_num_fields</function> 
-     restituisce il numero di campi (colonne) presenti. La funzione restituisce -1 se vi
-     è un errore. L'argomento fornito è un identificatore di esito restituito 
+     All'interno di un set di righe, referenziate dall'identificativo  di risultato ODBC fornito, la funzione <function>odbc_num_fields</function> 
+     restituisce il numero di campi (colonne) presenti. La funzione restituisce -1 se si
+     verifica un errore. L'argomento fornito è un identificatore di esito restituito 
      dalla funzione <function>odbc_exec</function>.
     </para>
    </refsect1>
@@ -748,14 +865,15 @@
      </funcprototype>
     </funcsynopsis>
     <para>
-     Restituisce un identificatore di connessione ODBC oppure 0 (<literal>falso</literal>) 
-     su errore. Questa funzione è molto simile a <function>odbc_connect</function>, 
-     eccetto che la connessione non viene realmente chiusa quando
-     lo script finisce. Future richieste di connessione che utilizzino la 
-     stessa combinazione di  <parameter>dsn</parameter>,
+     Restituisce un identificatore di connessione ODBC oppure 0 (&false;) 
+     su errore. Questa funzione è molto simile 
+     a <function>odbc_connect</function>, eccetto che la connessione non viene realmente chiusa quando
+     lo script finisce. Successive richieste di connessione che utilizzino la 
+     stessa combinazione di <parameter>dsn</parameter>,
      <parameter>utente</parameter>, <parameter>password</parameter>
      (eseguite sia utilizzando  <function>odbc_connect</function>, sia utilizzando 
-     <function>odbc_pconnect</function>) possono riutilizzare la connessione.
+     <function>odbc_pconnect</function>) possono riutilizzare la 
+     connessione.
     </para>
     <para>
      <note>
@@ -788,13 +906,12 @@
      </funcprototype>
     </funcsynopsis>
     <para>
-     La funzione ritorna <literal>falso</literal> su errore.
+     La funzione restituisce &false; su errore.
     </para>
     <para>
-     Restituisce un identificativo di risultato ODBC se l'espressione SQL
-     viene predisposta correttamente. L'identificativo restituito può essere 
-     utilizzato successivamente per eseguire l'espressione utilizzando
-     la funzione <function>odbc_execute</function>.
+     Restituisce un identificativo di risultato ODBC se l'espressione SQL viene predisposta 
+     correttamente. L'identificativo restituito può essere utilizzato successivamente per eseguire 
+     l'espressione utilizzando la funzione <function>odbc_execute</function>.
     </para>
    </refsect1>
   </refentry>
@@ -822,7 +939,8 @@
     </para>
     <para>
      Nota: Con diversi driver, la funzione <function>odbc_num_rows</function>, utilizzata con
-     lo scopo di determinare il numero di righe dopo una SELECT,  restituisce -1.
+     lo scopo di determinare il numero di righe dopo una SELECT, 
+     restituisce -1.
     </para>
    </refsect1>
   </refentry>
@@ -849,33 +967,37 @@
      indicante il numero di colonna del campo desiderato; sia una stringa
      contenente il nome del campo. Ad esempio:
      <informalexample><programlisting>
+<![CDATA[
 $item_3 = odbc_result ($Query_ID, 3);
 $item_val = odbc_result ($Query_ID, "val");
+]]>
       </programlisting>
      </informalexample>
     </para>
     <para>
-     Nel primo caso l'esecuzione di <function>odbc_result</function>
-     restituisce il terzo campo del record corrente.
-     Nel secondo, la funzione <function>odbc_result</function> restituisce il valore
-     del campo il cui nome è "val", sempre utilizzando i dati dal record corrente.
-     Si ha un errore qualora il numero di colonna fornito sia minore di 1
-     oppure sia superiore al numero delle colonne ( o campi ) presenti 
+     Nel primo caso l'esecuzione di <function>odbc_result</function> restituisce 
+     il valore del terzo campo del record corrente della 
+     query. Nel secondo, la funzione 
+     <function>odbc_result</function> restituisce il valore del campo 
+     il cui nome è "val", sempre utilizzando i dati dal record 
+     corrente. Si ha un errore qualora il numero di colonna fornito sia minore di 1
+     oppure sia superiore al numero delle colonne (o campi) presenti 
      nel record corrente. Analogamente, si ottiene un errore se il nome del campo 
-     richiesto non sia presente nella tabella/e oggetto della ricerca.
+     richiesto non sia presente nella tabella/e 
+     oggetto della ricerca.
     </para>
     <para>
      L'indice dei campi parte da 1. Per quanto riguarda la gestione dei campi
-     di tipo binario o long fare riferimento a <function>odbc_binmode
-     </function> e a <function>odbc_longreadlen</function>.
+     di tipo binario o long fare riferimento a 
+     <function>odbc_binmode</function> e a 
+     <function>odbc_longreadlen</function>.
 
 <!--
 
 Se il campo richiesto contiene dati binari o
     è un campo di tipo LONG, più lungo di 4096 bytes,
     il contenuto non viene restituito, ma invece viene
-    inviato direttamente al client.
-    Se si ha necessità di avere restituiti i dati binari, utilizzare
+    inviato direttamente al client. Se si ha necessità di avere restituiti i dati binari, utilizzare
     la funzione SQL HEX(), in modo da ottenere i dati del campo in 
      notazione esadecimale. Ad esempio: "SELECT
      HEX(binary_col) FROM mytable"
@@ -901,7 +1023,7 @@ Se il campo richiesto contiene dati binari o
     </funcsynopsis>
     <para>
      Restituisce il numero di righe elaborate, oppure
-     <literal>falso</literal> se si verifica un errore.
+     &false; se si verifica un errore.
     </para>
     <para>
      Dato un identificatore di risultato restituito da  <function>odbc_exec</function>,
@@ -928,8 +1050,9 @@ Se il campo richiesto contiene dati binari o
     </funcsynopsis>
     <para>
      Annulla tutte le operazioni pendenti sulla connessione indicata 
-     da <parameter>id_connessione</parameter>. Se ha successo ritorna 
-     <literal>vero</literal>, altrimenti <literal>falso</literal>.
+     da <parameter>id_connessione</parameter>. Se ha successo restituisce 
+     &true;, 
+     altrimenti &false;.
     </para>
    </refsect1>
   </refentry>
@@ -938,7 +1061,8 @@ Se il campo richiesto contiene dati binari o
    <refnamediv>
     <refname>odbc_setoption</refname> 
     <refpurpose>
-     Settaggio dei parametri ODBC. Restituisce falso se si verifica un errore, altrimenti vero.
+     Settaggio dei parametri ODBC. Restituisce &false; se si verifica un errore, altrimenti 
+     &true;.
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -954,12 +1078,11 @@ Se il campo richiesto contiene dati binari o
     </funcsynopsis>
     <para>
      Questa funzione permette di manipolare i parametri ODBC per
-     la connessione o il risultato di una query indicati. La funzione è stata
-     sviluppata per permettere di aggirare dei problemi emersi in alcuni 
-     driver ODBC. Pertanto si dovrebbe utilizzare questa funzione soltanto se si è
-     dei programmatori e si conoscono gli effetti generati dalle varie 
-     opzioni. Dato che ogni singola versione di driver ODBC supporta differenti 
-     parametri, occorre avere a disposizione un buon manuale del 
+     la connessione o il risultato di una query indicati. La funzione è stata sviluppata per permettere 
+     di aggirare dei problemi emersi in alcuni driver ODBC. Pertanto si dovrebbe 
+     utilizzare questa funzione soltanto se si è dei programmatori e 
+     si conoscono gli effetti generati dalle varie opzioni. Dato che 
+     ogni singola versione di driver ODBC supporta differenti parametri, occorre avere a disposizione un buon manuale del 
      driver per avere esposti tutti i differenti settaggi che possono
      essere utilizzati.
     </para>
@@ -968,7 +1091,9 @@ Se il campo richiesto contiene dati binari o
      l'uso di questa funzione in script resi pubblici. Inoltre,
      alcune opzioni di ODBC non sono gestibili da questa funzione, 
      dato che devono essere specificate prima di stabilire la 
-     connessione o prima della preparazione della query.
+     connessione o prima della preparazione della query. Tuttavia,
+     se per un particolare lavoro permette al PHP di funzionare, può evitare
+     il ricorso a prodotti commerciali.
     </para>
     <para>
      Il campo <parameter>identificativo</parameter> indica la connessione
@@ -987,8 +1112,9 @@ Se il campo richiesto contiene dati binari o
      Il campo <parameter>parametro</parameter> indica il valore per
      l'<parameter>opzione</parameter> richiesta.
      <example>
-      <title>Esempi di utilizzo </title>
+      <title>Esempi di utilizzo</title>
       <programlisting role="php">
+<![CDATA[
 // 1. Il valore 102 per il campo opzione in SQLSetConnectOption() indica SQL_AUTOCOMMIT.
 //    Il valore 1 per SQL_AUTOCOMMIT è SQL_AUTOCOMMIT_ON.
 //    Pertanto questo esempio ha il medesimo effetto di:
@@ -1002,6 +1128,7 @@ odbc_setoption ($conn, 1, 102, 1);
 $result = odbc_prepare ($conn, $sql);
 odbc_setoption ($result, 2, 0, 30);
 odbc_execute ($result);
+]]>
       </programlisting>
      </example>
     </para>
@@ -1031,7 +1158,7 @@ odbc_execute ($result);
     </funcsynopsis>
     <para>
      La funzione elenca tutte le tabelle presenti nei limiti richiesti.  Restituisce un identificatore
-     di risultato oppure <literal>falso</literal> se si verifica un errore.
+     di risultato oppure &false; se si verifica un errore.
     </para>
     <para>
      Le righe risultanti hanno i seguenti campi:
@@ -1053,10 +1180,11 @@ odbc_execute ($result);
      caratteri e  '_' per indicare un singolo carattere).
     </para>
     <para>
-     Per supportare l'enumerazione delle qualifiche, dei proprietari, 
-     e dei tipi tabelle, è stata predisposta la seguente semantica per i
-     campi <parameter>qualifica</parameter>, <parameter>proprietario</parameter>,
-     <parameter>nome</parameter>, e <parameter>tipo</parameter>:
+     Per supportare l'enumerazione delle qualifiche, dei proprietari e dei tipi tabelle, 
+     è stata predisposta la seguente semantica per i campi 
+     <parameter>qualifica</parameter>, <parameter>proprietario</parameter>,
+     <parameter>nome</parameter>, e 
+     <parameter>tipo</parameter>:
      <itemizedlist>
       <listitem>
        <simpara>
@@ -1064,8 +1192,8 @@ odbc_execute ($result);
         con il carattere percento (%) e i parametri <parameter>proprietario</parameter> 
         e <parameter>nome</parameter> sono delle stringhe vuote, il risultato sarà
         un set di righe contenente la lista delle qualifiche previste per
-        la sorgente di dati. ( Tutte le colonne tranne TABLE_QUALIFIER conterranno
-	NULLs.)
+        la sorgente di dati. (Tutte le colonne tranne TABLE_QUALIFIER conterranno
+	NULL.)
        </simpara>
       </listitem>
       <listitem>
@@ -1074,8 +1202,8 @@ odbc_execute ($result);
         con il carattere percento (%) e i parametri <parameter>qualifica</parameter>
         e <parameter>nome</parameter> sono delle stringhe vuote, il risultato sarà
         un set di righe contenente la lista dei proprietari previsti per
-        la sorgente di dati. ( Tutte le colonne tranne TABLE_OWNER conterranno
-	NULLs.) 
+        la sorgente di dati. (Tutte le colonne tranne TABLE_OWNER conterranno
+	NULL.) 
        </simpara>
       </listitem>
       <listitem>
@@ -1083,10 +1211,9 @@ odbc_execute ($result);
 	Se l'argomento <parameter>tipo</parameter> è valorizzato
         con il carattere percento (%) e i parametri <parameter>qualifica</parameter>,
 	<parameter>proprietario</parameter> e <parameter>nome</parameter>
-	sono delle stringhe vuote, il risultato sarà
-        un set di righe contenente la lista dei tipi di tabella previsti per
-        la sorgente di dati. ( Tutte le colonne tranne TABLE_TYPE conterranno
-	NULLs.) 
+	sono delle stringhe vuote, il risultato sarà un set di righe contenente la lista dei tipi di tabella 
+	previsti per la sorgente di dati. (Tutte le colonne tranne TABLE_TYPE conterranno
+	NULL.) 
        </simpara>
       </listitem>
      </itemizedlist> 
@@ -1128,7 +1255,7 @@ odbc_execute ($result);
     <para>
      Elenca le tabelle presenti nei limiti richiesti e, per ciascuna di queste, 
      ne fornisce i privilegi. La funzione ritorna un identificatore di risultato ODBC, 
-     oppure <literal>falso</literal> su errore.
+     oppure &false; su errore.
     </para>
     <para>
       Le righe risultanti dall'elaborazione hanno i seguenti campi:
@@ -1175,8 +1302,7 @@ odbc_execute ($result);
      </funcprototype>
     </funcsynopsis>
     <para>
-     Elenca i nomi di tutte le colonne presenti nei limiti richiesti. 
-     La funzione restituisce un identificatore di risultato 
+     Elenca i nomi di tutte le colonne presenti nel range richiesto. La funzione restituisce un identificatore di risultato ODBC
      oppure &false; se si verifica un errore.
     </para>
     <para>
@@ -1237,7 +1363,7 @@ odbc_execute ($result);
     <para>
      Elenca le colonne e i privilegi associati ad esse per la tabella data.
      La funzione ritorna un identificatore di risultato ODBC
-     oppure <literal>falso</literal> se si verifica un errore.
+     oppure &false; se si verifica un errore.
     </para>
     <para>
      Le righe risultanti dall'elaborazione contengono i seguenti campi:
@@ -1283,7 +1409,7 @@ odbc_execute ($result);
     <para>
      Recupera informazioni sui tipi di dati supportati dalla 
      sorgente di dati. La funzione restituisce un identificatore 
-     di risultato ODBC oppure <literal>falso</literal> su errore.
+     di risultato ODBC oppure &false; su errore.
      L'argomento opzionale <parameter>tipo_dato</parameter> può essere
      utilizzato per restringere l'informazione su un singolo tipo.
     </para>
@@ -1317,8 +1443,7 @@ odbc_execute ($result);
     <refname>odbc_primarykeys</refname>
     <refpurpose>
      Restituisce un identificatore di risultato che può essere utilizzato 
-     per ricavare il nome della colonna che contiene la chiave primaria
-     della tabella.
+     per ricavare il nome della colonna che contiene la chiave primaria della tabella.
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -1335,7 +1460,7 @@ odbc_execute ($result);
     <para>
      Restituisce il nome della colonna che contiene la chiave primaria
      per la tabella. La funzione ritorna un identificatore di risultato
-     ODBC oppure <literal>falso</literal> se si verifica un errore.
+     ODBC oppure &false; se si verifica un errore.
     </para>
     <para>
       Le righe risultanti dall'elaborazione contengono i seguenti campi:
@@ -1377,7 +1502,7 @@ odbc_execute ($result);
     <para>
      La funzione <function>odbc_foreignkeys</function> ritorna informazioni sulle
      chiavi esterne. Restituisce un identificatore di risultato oppure 
-     <literal>falso</literal> se si verifica un errore.
+     &false; se si verifica un errore.
     </para>
     <para>
       Le righe risultanti dall'elaborazione contengono i seguenti campi:
@@ -1424,9 +1549,8 @@ odbc_execute ($result);
    <refnamediv>
     <refname>odbc_procedures</refname>
     <refpurpose>
-     Restituisce l'elenco delle procedure memorizzate in una specifica
-     sorgente di dati. La funzione ritorna un identificatore di risultato che
-     punta alle informazioni reperite.
+     Restituisce l'elenco delle procedure memorizzate in una specifica sorgente di dati. 
+     La funzione ritorna un identificatore di risultato che punta alle informazioni reperite.
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -1442,8 +1566,7 @@ odbc_execute ($result);
     </funcsynopsis>
     <para> 
      Si ottiene l'elenco di tutte le procedure presenti nei limiti richiesti.
-     La funzione restituisce un identificatore di risultato, 
-     oppure &false; su errore.
+     La funzione restituisce un identificatore di risultato, oppure &false; su errore.
     </para>
     <para>
       Le righe risultanti dall'elaborazione contengono i seguenti campi:
@@ -1488,8 +1611,7 @@ odbc_execute ($result);
     <para>
      La funzione ritorna la lista dei parametri di input e di output e anche
      delle colonne che concorrono al determinazione del risultato per le procedure
-     indicate. Viene restituito un identificatore di risultato oppure
-     &false; se si è un errore.
+     indicate. Viene restituito un identificatore di risultato oppure &false; se si è un errore.
     </para>
     <para>
       Le righe risultanti dall'elaborazione contengono i seguenti campi:
@@ -1527,8 +1649,7 @@ odbc_execute ($result);
     <refpurpose>
      Restituisce sia il set di colonne che identificano in modo univoco
      una riga nella tabella, sia colonne che sono automaticamente
-     aggiornate quando un qualsiasi campo della riga viene aggiornato
-     da una transazione.
+     aggiornate quando un qualsiasi campo della riga viene aggiornato da una transazione.
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -1559,7 +1680,7 @@ odbc_execute ($result);
     </simpara>
     <simpara>
      La funzione restituisce un identificatore di risultato ODBC, 
-     oppure <literal>falso</literal> su errore.
+     oppure &false; su errore.
     </simpara>
     <para>
      Le righe risultanti dall'elaborazione contengono i seguenti campi:
@@ -1599,9 +1720,8 @@ odbc_execute ($result);
      </funcprototype>
     </funcsynopsis>
     <para>
-     Si ottengono informazioni statistiche sulla tabella e i propri indici.
-     La funzione restituisce un identificatore di risultato ODBC, 
-     oppure <literal>falso</literal> su errore.
+     Si ottengono informazioni statistiche sulla tabella e i propri indici. La funzione restituisce 
+     un identificatore di risultato ODBC,  oppure &false; su errore.
     </para>
     <para>
      Le righe risultanti dall'elaborazione contengono i seguenti campi:
@@ -1630,7 +1750,7 @@ odbc_execute ($result);
 
  </reference>
 
-<!-- Mantenere questo commento alla fine del file
+<!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml
 sgml-omittag:t

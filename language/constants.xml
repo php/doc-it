@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.23 Maintainer: cortesi Status: ready -->
+<!-- EN-Revision: 1.30 Maintainer: cortesi Status: ready -->
  <chapter id="language.constants">
   <title>Costanti</title>
 
   <simpara>
    Una costante è un identificatore (nome) per un valore. Come si può intuire, 
    tale valore non può cambiare durante l'esecuzione dello script
-   (le costanti <constant>__FILE__</constant> e 
-   <constant>__LINE__</constant> sono l'unica eccezione). Una costante è
+   (fanno eccezione le <link linkend="language.constants.predefined">costanti magiche</link>,
+   che, in realtà, non sono costanti). Una costante è
    "case-sensitive" per default. È convenzione comune che i nomi di costante
    siano sempre maiuscoli.
   </simpara>
@@ -27,20 +27,25 @@
     dal 127 al 255 (0x7f-0xff).
    </simpara>
   </note>
+
   <simpara>
-   Una costante è sempre globale.
+   Come le &link.superglobals;, costante è sempre globale.
+   Si può accedere alle costanti da qualsiasi punto dello script senza tenere conto della
+   visibilità. Per maggiori dettagli sulla visibilità, leggere la sezione 
+   <link linkend="language.variables.scope">variable scope</link>.
   </simpara>
+
   <sect1 id="language.constants.syntax">
    <title>Sintassi</title>
    <simpara>
     È possibile definire una variabile utilizzando la funzione
-    <function>define</function>. Una volta definita una variabile,
-    non è possibile cambiarne il valore o eliminarla.
+    <function>define</function>. Una volta definita, a una costante
+    non è possibile cambiare il valore o eliminarla.
    </simpara>
    <simpara>
     Le costanti possono contenere solo dati di tipo scalare
     (<type>boolean</type>, <type>integer</type>, 
-    <type>double</type> and <type>string</type>).
+    <type>float</type> e <type>string</type>).
    </simpara>
    <simpara>
     Per ottenere il valore di una costante è sufficiente specificarne il nome.
@@ -62,33 +67,40 @@
    <simpara>
     Se si utilizza il nome di una costante che non è definita, PHP assume che
     detto valore sia il nome della costante stessa. Quando ciò accade
-    PHP lo seganala il problema con con un <link linkend="features.error-handling">notice</link>.
+    PHP lo segnala il problema con un <link linkend="ref.errorfunc">notice</link>.
     Per sapere se una costante è definita, si può utilizzare la 
     funzione <function>defined</function>.
    </simpara>
    <para>
-    Di seguito sono riportate le principali differenze dalle variabili:
+    Di seguito sono riportate le principali differenze rispetto le variabili:
      <itemizedlist>
       <listitem>
        <simpara>
-    Le costanti non richiedono il simbolo di dollaro (<literal>$</literal>) anteposto al nome;
+        Le costanti non iniziano con il segno del dollaro
+        (<literal>$</literal>);
        </simpara>
       </listitem>
       <listitem>
        <simpara>
-    Le costanti si possono definire e utilizzare in qualsiasi contesto indipendentemente
-    dalle regole dello spazio dei nomi;
+        Le costanti possono essere definite solo con la funzione
+        <function>define</function> e non tramite assegnazione;
        </simpara>
       </listitem>
       <listitem>
        <simpara>
-    Le costanti non si possono ridefinire o eliminare una volta che siano 
-    state definite; e
+        Le costanti possono essere definite e utilizzate ovunque
+        senza seguire le regole di visibilità;
        </simpara>
       </listitem>
       <listitem>
        <simpara>
-    Le costanti possono contenere solo valori scalari.
+        Una volta impostate, le costanti non posso essere redefinite
+        e ne annullate;
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        Le costanti possono essere solo valori scalari;
        </simpara>
       </listitem>
      </itemizedlist>
@@ -114,162 +126,64 @@ echo Costante; // stampa "Costante" e genera una notice.
   
   <sect1 id="language.constants.predefined">
    <title>Costanti predefinite</title>
+   <simpara>
+    Il PHP mette a disposizione ad ogni script diverse costanti predefinite.
+    Alcune di queste, tuttavia, sono create dai vari moduli, e, pertanto, saranno 
+    disponibili solo quando questi moduli sono caricati, sia dinamicamente
+    sia staticamente.
+   </simpara>
   <para>
-   Le costanti predefinite (sempre disponibili) sono:
-
-   <variablelist>
-
-    <varlistentry>
-     <term>__FILE__  (case-insensitive)</term>
-     <listitem>
-      <simpara>
-       Il nome del file dello script processato. Se usato
-       in un file che è stato incluso tramite le funzioni include e require, allora corrisponde al
-       nome del file incluso e non al nome del 
-       file genitore.
-      </simpara>
-     </listitem>
-    </varlistentry>
-    
-    <varlistentry>
-     <term>__LINE__  (case-insensitive)</term>
-     <listitem>
-      <simpara>
-       Il numero di linea all'interno del file 
-       processato. Se usato in un file che è stato incluso tramite le funzioni include 
-       e require, allora corrisponde alla posizione nel file incluso.
-      </simpara>
-     </listitem>
-    </varlistentry>
-    
-    <varlistentry>
-     <term>PHP_VERSION</term>
-     <listitem>
-      <simpara>
-       La rappresentazione in formato stringa della versione del motore PHP
-       attualmente in uso: per esempio '4.1.0'.
-      </simpara>
-     </listitem>
-    </varlistentry>
-    
-    <varlistentry>
-     <term>PHP_OS</term>
-     <listitem>
-      <simpara>
-       Il nome del sistema operativo sul quale il motore PHP è
-       in esecuzione. Valori possibili possono essere: 
-       "AIX", "Darwin" (MacOS), "Linux", "SunOS", "WIN32", "WINNT".
-       Nota: potrebbero essere presenti anche altri valori.
-      </simpara>
-     </listitem>
-    </varlistentry>
-    
-    <varlistentry>
-     <term>&true;  (case-insensitive)</term>
-     <listitem>
-      <simpara>
-       Un valore &true; (vedere tipo <type>boolean</type>).
-      </simpara>
-     </listitem>
-    </varlistentry>
-    
-    <varlistentry>
-     <term>&false;  (case-insensitive)</term>
-     <listitem>
-      <simpara>
-       Un valore &false; (vedere tipo <type>boolean</type>).
-      </simpara>
-     </listitem>
-    </varlistentry>
-    
-    <varlistentry>
-     <term>&null;  (case-insensitive)</term>
-     <listitem>
-      <simpara>
-       Un valore &null; (vedere tipo <type>boolean</type>).
-      </simpara>
-     </listitem>
-    </varlistentry>
-    
-    <varlistentry>
-     <term>E_ERROR</term>
-     <listitem>
-      <simpara>
-       Denota un errore differente da un errore di parsing. 
-       Non è recuperabile. 
-      </simpara>
-     </listitem>
-    </varlistentry>
-    
-    <varlistentry>
-     <term>E_WARNING</term>
-     <listitem>
-      <simpara>
-       Denota una condizione dove il PHP sa che c'è qualcosa di sbagliato, ma
-       continua comunque l'esecuzione; Queste possono essere gestite dallo script 
-       stesso. Un esempio può essere una regexp non valida in
-       <function>ereg</function>.
-      </simpara>
-     </listitem>
-    </varlistentry>
-    
-    <varlistentry>
-     <term>E_PARSE</term>
-     <listitem>
-      <simpara>
-       Il parser ha incontrato in uno script una sintassi non valida.
-       L'errore non è recuperabile.
-      </simpara>
-     </listitem>
-    </varlistentry>
-    
-    <varlistentry>
-     <term>E_NOTICE</term>
-     <listitem>
-      <simpara>
-       &Egrave; accaduto qualcosa che può o può non essere un errore. L'esecuzione
-       continua. Esempi includono: usare una stringa non racchiusa da virgolette come indice di un array
-       o accedere ad una variabile che non è stata definita.
-      </simpara>
-     </listitem>
-    </varlistentry>
-    
-    <varlistentry>
-     <term>E_ALL</term>
-     <listitem>
-      <simpara>
-       Tutte le costanti E_* racchiuse in una sola. Se usata assieme a
-       <function>error_reporting</function>, farà si che tutti gli errori rilevati
-       dal PHP siano comunicati.
-      </simpara>
-     </listitem>
-    </varlistentry>
-
-   </variablelist>
+   Esistono quattro costanti magiche il cui valore cambia in base
+   al contesto in cui sono utilizzate. Ad esempio, il valore di <constant>__LINE__</constant>
+   dipende da quale linea si trova nel momento in cui è richiamata. Queste costanti
+   speciali sono 'case-insensitive' e sono:
   </para>
-
    <para>
-    Le costanti <literal>E_*</literal> sono tipicamente usate in congiunzione alla funzione
-    <function>error_reporting</function> per impostare il livello di
-    errori da comunicare. Vedere tutte queste costanti in
-    <link linkend="features.error-handling">Gestione errori</link>.
-
-    <example>
-     <title>Uso di __FILE__ e __LINE__</title>
-     <programlisting role="php">
-<![CDATA[
-<?php
-function comunica_errore($file, $linea, $messaggio)
-{
-    echo "È avvenuto un errore in $file alla linea $linea: $messaggio.";
-}
-
-report_error(__FILE__, __LINE__, "Qualcosa è andato storto!");
-?>
-]]>
-     </programlisting>
-    </example>
+    <table>
+     <title>Le costanti "magiche" del PHP</title>
+     <tgroup cols="2">
+      <thead>
+       <row>
+        <entry>Nome</entry>
+        <entry>Descrizione</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry><constant>__LINE__</constant></entry>
+        <entry>
+         Il numero di linea corrente.
+        </entry>
+       </row>
+       <row>
+        <entry><constant>__FILE__</constant></entry>
+        <entry>
+         Il nome e percorso assoluto del file.
+        </entry>
+       </row>
+       <row>
+        <entry><constant>__FUNCTION__</constant></entry>
+        <entry>
+         Nome della funzione. (Aggiunta nel PHP 4.3.0.)
+        </entry>
+       </row>
+       <row>
+        <entry><constant>__CLASS__</constant></entry>
+        <entry>
+         Nome della classe. (Aggiunta nel PHP 4.3.0.)
+        </entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </table>
    </para>
+
+   <simpara>
+    La lista di tutte le costanti predefinite è presente nella sezione
+    <link linkend="reserved.constants">reserved predefined constants</link>.
+   </simpara>
+
+
   </sect1>
  </chapter>
  

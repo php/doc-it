@@ -382,6 +382,33 @@ $df = diskfreespace("/"); // $df contains the number of bytes
    </refsect1>
   </refentry>
 
+  <refentry id="function.fflush">
+   <refnamediv>
+    <refname>fflush</refname>
+    <refpurpose>Flushes the output to a file</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>fflush</function></funcdef>
+      <paramdef>int <parameter>fp</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     This function forces a write of all buffered output to the 
+     to the resource pointed to by the file handle 
+     <parameter>fp</parameter>. Returns true if succesful, false
+     otherwise.
+    </para>
+    <para>
+     The file pointer must be valid, and must point to a file
+     successfully opened by <function>fopen</function>,
+     <function>popen</function>, or <function>fsockopen</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
   <refentry id="function.fgetc">
    <refnamediv>
     <refname>fgetc</refname>
@@ -438,7 +465,7 @@ $df = diskfreespace("/"); // $df contains the number of bytes
      <function>fgetcsv</function> parses the line it reads for fields
      in <acronym>CSV</acronym> format and returns an array containing
      the fields read.  The field delimiter is a comma, unless you
-     specifiy another delimiter with the optional third parameter.
+     specify another delimiter with the optional third parameter.
     </simpara>
     <simpara>
      <parameter>Fp</parameter> must be a valid file pointer to a file
@@ -454,9 +481,9 @@ $df = diskfreespace("/"); // $df contains the number of bytes
      end of file.
     </simpara>
     <simpara>
-     NB A blank line in a CSV file will be returned as an array
-     comprising just one single null field, and will not be treated as
-     an error.
+     N.B. A blank line in a CSV file will be returned as an array
+     comprising a single null field, and will not be treated as an
+     error.
     </simpara>
     <example>
      <title>
@@ -959,30 +986,30 @@ $fcontents = join ('', file ('http://www.php.net'));
      <itemizedlist>
       <listitem>
        <simpara>
-	To acquire a shared lock (reader), set
-	<parameter>operation</parameter> to LOCK_SH (set to 1 prior to
-	PHP 4.0.1).
+         To acquire a shared lock (reader), set
+         <parameter>operation</parameter> to LOCK_SH (set to 1 prior to
+         PHP 4.0.1).
        </simpara>
       </listitem>
       <listitem>
        <simpara>
-	To acquire an exclusive lock (writer), set
-	<parameter>operation</parameter> to LOCK_EX (set to 2 prior to
-	PHP 4.0.1).
+         To acquire an exclusive lock (writer), set
+         <parameter>operation</parameter> to LOCK_EX (set to 2 prior to
+         PHP 4.0.1).
        </simpara>
       </listitem>
       <listitem>
        <simpara>
-	To release a lock (shared or exclusive), set
-	<parameter>operation</parameter> to LOCK_UN (set to 3 prior to
-	PHP 4.0.1).
+         To release a lock (shared or exclusive), set
+         <parameter>operation</parameter> to LOCK_UN (set to 3 prior to
+         PHP 4.0.1).
        </simpara>
       </listitem>
       <listitem>
        <simpara>
-	If you don't want <function>flock</function> to block while
-	locking, add LOCK_NB (4 prior to PHP 4.0.1) to
-	<parameter>operation</parameter>.
+         If you don't want <function>flock</function> to block while
+         locking, add LOCK_NB (4 prior to PHP 4.0.1) to
+         <parameter>operation</parameter>.
        </simpara>
       </listitem>
      </itemizedlist>
@@ -998,6 +1025,15 @@ $fcontents = join ('', file ('http://www.php.net'));
      <function>Flock</function> returns true on success and false on
      error (e.g. when a lock could not be acquired).
     </simpara>
+    <warning>
+     <para>
+      On most operation systems <function>flock</function> is implemented
+      at the process level. When using a multithreaded server API like
+      ISAPI you cannot rely on <function>flock</function> to protect
+      files against other PHP scripts running in parallel threads of the
+      same server instance!
+     </para>
+    </warning>
    </refsect1>
   </refentry>
 
@@ -1059,42 +1095,42 @@ $fcontents = join ('', file ('http://www.php.net'));
      <itemizedlist>
       <listitem>
        <simpara>
-	'r' - Open for reading only; place the file pointer at the
-	beginning of the file.
+        'r' - Open for reading only; place the file pointer at the
+        beginning of the file.
        </simpara>
       </listitem>
       <listitem>
        <simpara>
-	'r+' - Open for reading and writing; place the file pointer at
-	the beginning of the file.
+        'r+' - Open for reading and writing; place the file pointer at
+        the beginning of the file.
        </simpara>
       </listitem>
       <listitem>
        <simpara>
-	'w' - Open for writing only; place the file pointer at the
-	beginning of the file and truncate the file to zero length.
-	If the file does not exist, attempt to create it.
+        'w' - Open for writing only; place the file pointer at the
+        beginning of the file and truncate the file to zero length.
+        If the file does not exist, attempt to create it.
        </simpara>
       </listitem>
       <listitem>
        <simpara>
-	'w+' - Open for reading and writing; place the file pointer at
-	the beginning of the file and truncate the file to zero
-	length.  If the file does not exist, attempt to create it.
+        'w+' - Open for reading and writing; place the file pointer at
+        the beginning of the file and truncate the file to zero
+        length.  If the file does not exist, attempt to create it.
        </simpara>
       </listitem>
       <listitem>
        <simpara>
-	'a' - Open for writing only; place the file pointer at the end
-	of the file. If the file does not exist, attempt to create
-	it.
+        'a' - Open for writing only; place the file pointer at the end
+        of the file. If the file does not exist, attempt to create
+        it.
        </simpara>
       </listitem>
       <listitem>
        <simpara>
-	'a+' - Open for reading and writing; place the file pointer at
-	the end of the file. If the file does not exist, attempt to
-	create it.
+        'a+' - Open for reading and writing; place the file pointer at
+        the end of the file. If the file does not exist, attempt to
+        create it.
        </simpara>
       </listitem>
      </itemizedlist>
@@ -1751,6 +1787,48 @@ if($fp){
    </refsect1>
   </refentry>
 
+  <refentry id="function.is-uploaded-file">
+   <refnamediv>
+    <refname>is_uploaded_file</refname>
+    <refpurpose>Tells whether the file was uploaded via HTTP POST.</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>bool <function>is_uploaded_file</function></funcdef>
+      <paramdef>string <parameter>filename</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+
+    <para>
+     This function is available only in versions of PHP 3 after PHP
+     3.0.16, and in versions of PHP 4 after 4.0.2.
+    </para>
+
+    <para>
+     Returns true if the file named by <varname>filename</varname> was
+     uploaded via HTTP POST. This is useful to help ensure that a
+     malicious user hasn't tried to trick the script into working on
+     files upon which it should not be working--for instance,
+     <filename>/etc/passwd</filename>.
+    </para>
+
+    <para>
+     This sort of check is especially important if there is any chance
+     that anything done with uploaded files could reveal their
+     contents to the user, or even to other users on the same
+     system.
+    </para>
+
+    <para>
+     See also <function>move_uploaded_file</function>, and the section
+     <link linkend="features.file-upload">Handling file uploads</link>
+     for a simple usage example.
+    </para>
+   </refsect1>
+  </refentry>
+
   <refentry id="function.link">
    <refnamediv>
     <refname>link</refname>
@@ -1844,6 +1922,63 @@ mkdir ("/path/to/my/dir", 0700);
     </para>
     <para>
      See also <function>rmdir</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.move-uploaded-file">
+   <refnamediv>
+    <refname>move_uploaded_file</refname>
+    <refpurpose>Moves an uploaded file to a new location.</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>bool <function>move_uploaded_file</function></funcdef>
+      <paramdef>string <parameter>filename</parameter></paramdef>
+      <paramdef>string <parameter>destination</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+
+    <para>
+     This function is available only in versions of PHP 3 after PHP
+     3.0.16, and in versions of PHP 4 after 4.0.2.
+    </para>
+
+    <para>
+     This function checks to ensure that the file designated by
+     <parameter>filename</parameter> is a valid upload file (meaning
+     that it was uploaded via PHP's HTTP POST upload mechanism). If
+     the file is valid, it will be moved to the filename given by
+     <parameter>destination</parameter>.
+    </para>
+
+    <para>
+     If <parameter>filename</parameter> is not a valid upload file,
+     then no action will occur, and
+     <function>move_uploaded_file</function> will return
+     <literal>false</literal>. 
+    </para>
+
+    <para>
+     If <parameter>filename</parameter> is a valid upload file, but
+     cannot be moved for some reason, no action will occur, and
+     <function>move_uploaded_file</function> will return
+     <literal>false</literal>. Additionally, a warning will be issued.
+    </para>
+
+    <para>
+     This sort of check is especially important if there is any chance
+     that anything done with uploaded files could reveal their
+     contents to the user, or even to other users on the same
+     system.
+    </para>
+
+    <para>
+     See also <function>is_uploaded_file</function>, and the section
+     <link linkend="features.file-upload">Handling file uploads</link>
+     for a simple usage example.
     </para>
    </refsect1>
   </refentry>
@@ -2162,6 +2297,7 @@ $fp = popen ("/bin/ls", "r");
      <orderedlist>
       <listitem><simpara>device</simpara></listitem>
       <listitem><simpara>inode</simpara></listitem>
+      <listitem><simpara>inode protection mode</simpara></listitem>
       <listitem><simpara>number of links</simpara></listitem>
       <listitem><simpara>user id of owner</simpara></listitem>
       <listitem><simpara>group id owner</simpara></listitem>
@@ -2283,9 +2419,17 @@ $tmpfname = tempnam ("/tmp", "FOO");
       </programlisting>
      </example>
     </para>
-	<para>
-	 See also <function>tmpfile</function>.
-	</para>
+    <note>
+     <simpara>
+      This function's behavior changed in 4.0.3. The temporary file is also
+      created to avoid a race condition where the file might appear in the
+      filesystem between the time the string was generated and before the
+      the script gets around to creating the file. 
+     </simpara>
+    </note>
+    <para>
+     See also <function>tmpfile</function>.
+    </para>
    </refsect1>
   </refentry>
 
@@ -2333,9 +2477,9 @@ $tmpfname = tempnam ("/tmp", "FOO");
       <funcdef>int <function>touch</function></funcdef>
       <paramdef>string <parameter>filename</parameter></paramdef>
       <paramdef>int 
-      	<parameter>
-      	 <optional>time</optional>
-      	</parameter>
+        <parameter>
+         <optional>time</optional>
+        </parameter>
       </paramdef>
      </funcprototype>
     </funcsynopsis>
@@ -2386,6 +2530,11 @@ if (touch ($FileName)) {
      <function>Umask</function> without arguments simply returns the
      current umask.
     </para>
+    <note>
+     <simpara>
+      This function may not work on Windows systems.
+     </simpara>
+    </note>
    </refsect1>
   </refentry>
 

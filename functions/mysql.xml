@@ -7,7 +7,7 @@
    </simpara>
    <simpara>
     More information about MySQL can be found at <ulink
-    url="http://www.mysql.com/">http://www.mysql.com/</ulink>.
+    url="&url.mysql;">&url.mysql;</ulink>.
    </simpara>
   </partintro>
 
@@ -189,7 +189,7 @@
        Support for &quot;:port&quot; was added in PHP 3.0B4.
       </para>
       <para>
-       Support for the &quot;:/path/to/socket&quot; was added in
+       Support for &quot;:/path/to/socket&quot; was added in
        PHP 3.0.10.
       </para>
       <para>
@@ -256,7 +256,6 @@
 &lt;?php
     $link = mysql_pconnect ("kron", "jutta", "geheim")
         or die ("Could not connect");
-
     if (mysql_create_db ("my_db")) {
         print ("Database created successfully\n");
     } else {
@@ -313,9 +312,8 @@
         or die ("Could not select database");
 
     $query = "SELECT last_name, first_name FROM friends";
-    $result = mysql_query ($query) {
+    $result = mysql_query ($query)
         or die ("Query failed");
-    }
 
     # fetch rows in reverse order
 
@@ -551,16 +549,16 @@ select t1.f1 as foo t2.f1 as bar from t1, t2
      <function>mysql_fetch_row</function>.
     </para>
     <example>
-     <title>mysql fetch array</title>
+     <title><function>Mysql_fetch_array</function></title>
      <programlisting role="php">
 &lt;?php 
-mysql_connect($host,$user,$password);
-$result = mysql_db_query("database","select * from table");
-while($row = mysql_fetch_array($result)) {
+mysql_connect ($host, $user, $password);
+$result = mysql_db_query ("database","select * from table");
+while ($row = mysql_fetch_array ($result)) {
     echo $row["user_id"];
     echo $row["fullname"];
 }
-mysql_free_result($result);
+mysql_free_result ($result);
 ?>
      </programlisting>
     </example>
@@ -661,8 +659,44 @@ mysql_free_result($result);
       </listitem>
      </itemizedlist>
     </para>
+    <example>
+     <title><function>Mysql_fetch_field</function></title>
+     <programlisting role="php">
+&lt;?php 
+mysql_connect ($host, $user, $password)
+    or die ("Could not connect");
+$result = mysql_db_query ("database", "select * from table")
+    or die ("Query failed");
+# get column metadata
+$i = 0;
+while ($i $lt; mysql_num_fields ($result)) {
+    echo "Information for column $i:&lt;BR>\n";
+    $meta = mysql_fetch_field ($result);
+    if (!$meta) {
+        echo "No information available&lt;BR>\n";
+    }
+    echo "&lt;PRE>
+blob:         $meta -> blob
+max_length:   $meta -> max_length
+multiple_key: $meta -> multiple_key
+name:         $meta -> name
+not_null:     $meta -> not_null
+numeric:      $meta -> numeric
+primary_key:  $meta -> primary_key
+table:        $meta -> table
+type:         $meta -> type
+unique_key:   $meta -> unique_key
+unsigned:     $meta -> unsigned
+zerofill:     $meta -> zerofill
+&lt;/PRE>";
+    $i++;
+}
+mysql_free_result ($result);
+?>
+     </programlisting>
+    </example>
     <para>
-     See also <function>mysql_field_seek</function>
+     See also <function>mysql_field_seek</function>.
     </para>
    </refsect1>
   </refentry>
@@ -745,7 +779,7 @@ mysql_free_result($result);
       <programlisting role="php">
 &lt;?php 
 mysql_connect ($host, $user, $password);
-$result = mysql_db_query ("database","select * from table");
+$result = mysql_db_query ("database", "select * from table");
 while ($row = mysql_fetch_object ($result)) {
     echo $row->user_id;
     echo $row->fullname;
@@ -1203,7 +1237,9 @@ mysql_close();
     </funcsynopsis>
     <para>
      <function>mysql_num_rows</function> returns the number of rows in
-     a result set.
+     a result set. This command is only valid for SELECT statements. 
+     To retrieve the number of rows returned from a INSERT, UPDATE or 
+     DELETE, use <function>mysql_affected_rows</function>.
     </para>
     <para>
      See also:  

@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- EN-Revision: 1.32 Maintainer: Darvin  Status: ready -->
+ <reference id="ref.classobj">
+  <title>Funzioni per Classi/Oggetti </title>
+  <titleabbrev>Classi/Oggetti</titleabbrev>
+
+  <partintro>
+   <sect1 id="classobj.partintro">
+    <title>Introduzione</title>
+    <sect2 id="classobj.intro">
+    <title>Obiettivo</title>
+     <para>
+      Queste funzioni permettono di ottenere informazioni sulle classi 
+      e sulle istanze degli oggetti. Si può ricavare il nome della
+      classe da cui deriva un dato oggetto, come le sue proprietà e i 
+      suoi metodi. Utilizzando queste funzioni si ottiene, non solo a 
+      quale classe appartiene un dato oggetto, ma anche i suoi "padri"
+      (ad esempio da quale classe è derivata la classe dell'oggetto).
+     </para>
+    </sect2>
+    <sect2 id="classobj.example">
+     <title>Esempio di utilizzo</title>
+     <para>
+      In questo esempio, prima si definisce una classe base, quindi una 
+      seconda che deriva dalla prima. La classe base descrive gli aspetti
+      generali degli ortaggi, se è commestibile e quale sia il colore. La
+      classe derivata <varname>Spinaci</varname> aggiunge i metodi di 
+      cottura e di verifica della completa cottura.
+     </para>
+     <para>
+      <example>
+       <title>classi.inc</title>
+       <programlisting role="php">
+<![CDATA[
+<?php
+
+// classe base con proprietà e metodi
+class Ortaggio {
+
+    var $commestibile;
+    var $colore;
+
+    function Ortaggio( $commestibile, $colore="verde" ) {
+        $this->commestibile = $commestibile;
+        $this->colore = $colore;
+    }
+
+    function e_commestibile() {
+        return $this->commestibile;
+    }
+
+    function che_colore_ha() {
+        return $this->colore;
+    }
+    
+} // Fine della classe ortaggio
+
+
+// Estensione della classe base
+class Spinaci extends Ortaggio {
+
+    var $cotto = false;
+
+    function Spinaci() {
+        $this->Ortaggio( true, "verde" );
+    }
+
+    function cuocilo() {
+        $this->cotto = true;
+    }
+
+    function e_cotto() {
+        return $this->cotto;
+    }
+    
+} // Fine della classe spinaci
+
+?>
+]]>
+       </programlisting>
+      </example>
+     </para>
+     <para>
+     A questo punto si istanziano 2 oggetti a partire da queste classi
+     e si visualizzeranno le informazioni relative a questi oggetti, compresi
+     i loro padri. Verranno anche inserite funzioni di utilità
+     principalmente con lo scopo di rendere chiara la visualizzazione delle
+     variabili.
+     </para>
+     <para>
+      <example>
+       <title>test_script.php</title>
+       <programlisting role="php">
+<![CDATA[
+<pre>
+<?php
+
+include "classi.inc";
+
+// Funzioni di utilità
+
+function visualizza_var($oggetto) {
+    $matrice = get_object_vars($oggetto);
+    while (list($prop, $val) = each($matrice))
+        echo "\t$prop = $val\n";
+}
+
+function visualiazza_metodi($oggetto) {
+    $matrice = get_class_methods(get_class($oggetto));
+    foreach ($matrice as $metodo)
+        echo "\tfunzione $metodo()\n";
+}
+
+function padri_classe($oggetto, $classe) {
+    global $$oggetto;
+    if (is_subclass_of($$oggetto, $classe)) {
+        echo "Oggetto $oggetto appartiene alla classe ".get_class($$oggetto);
+        echo " derivata da $classe\n";
+    } else {
+        echo "Oggetto $oggetto non deriva da una sottoclasse di $classe\n";
+    }
+}
+
+// Istanzia 2 oggetti
+
+$pomodoro = new Ortaggio(true,"rosso");
+$frondoso = new Spinaci();
+
+// Visualizza le informazioni sugli oggetti
+echo "pomodoro: CLASSE ".get_class($pomodoro)."\n";
+echo "frondoso: CLASSE ".get_class($frondoso);
+echo ", PADRE ".get_parent_class($frondoso)."\n";
+
+// visualizza le proprietà di pomodoro
+echo "\npomodoro: Proprietà\n";
+visualizza_var($pomodoro);
+
+// e i metodi di frondoso
+echo "\nfrondoso: Metodi\n";
+visualizza_metodi($frondoso);
+
+echo "\nPadri:\n";
+padri_classe("frondoso", "Spinaci");
+padri_classe("frondoso", "Ortaggio");
+?>
+</pre>
+]]>
+       </programlisting>
+      </example>
+     </para>
+     <para>
+      Un'aspetto da notare nell'esempio precedente è che l'oggetto
+      <varname>$frondoso</varname> è un'istanza della classe <classname>
+      Spinaci</classname> che a sua volta è una sottoclasse di
+      <classname>Ortaggio</classname>, quindi l'ultima parte dell'esempio
+      visualizzerà:
+     </para>
+     <para>
+      <informalexample>
+       <programlisting>
+<![CDATA[
+       [...]
+Padri:
+Oggetto frondoso non deriva da una sottoclasse di Spinaci
+Oggetto frondoso appartiene alla classe spinaci derivata da Ortaggio
+]]>
+       </programlisting>
+      </informalexample>
+     </para>
+    </sect2>
+   </sect1>
+  </partintro>
+   
+  <refentry id="function.call-user-method-array">
+   <refnamediv>
+    <refname>call_user_method_array</refname>
+    <refpurpose>
+     Richiama il metodo dato con un array di parametri
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>misto 
+       <function>call_user_method_array</function>
+      </funcdef>
+      <paramdef>stringa 
+       <parameter>nome_metodo</parameter>
+      </paramdef>
+      <paramdef>oggetto 
+       <parameter>oggetto</parameter>
+      </paramdef>
+      <paramdef>array 
+       <parameter><optional>array_parametri</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Richiama il metodo indicato da <parameter>nome_metodo</parameter> 
+     dell'oggetto <parameter>oggetto</parameter>, utilizzando i parametri 
+     forniti in <parameter>array_parametri</parameter>.
+    </para>
+    <para>
+     Vedere anche:
+     <function>call_user_func_array</function>,
+     <function>call_user_func</function>,
+     <function>call_user_method</function>.
+    </para>
+    <note>
+     <para>
+      Questa funzione è stata aggiunta al codice CVS dopo la release 4.0.4pl1 di PHP
+     </para>
+    </note>
+   </refsect1>
+  </refentry>
+ 
+  <refentry id="function.call-user-method">
+   <refnamediv>
+    <refname>call_user_method</refname>
+    <refpurpose>
+     Chiama un metodo dell'oggetto indicato
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>misto 
+       <function>call_user_method</function>
+      </funcdef>
+      <paramdef>stringa
+       <parameter>nome_metodo</parameter>
+      </paramdef>
+      <paramdef>oggetto 
+       <parameter>oggetto</parameter>
+      </paramdef>
+      <paramdef>misto 
+       <parameter><optional>parametro</optional></parameter>
+      </paramdef>
+      <paramdef>misto
+       <parameter><optional>...</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Richiama il metodo indicato da <parameter>nome_metodo</parameter> 
+     dell'oggetto <parameter>oggetto</parameter>. Di seguito si fornisce
+     un esempio di utilizzo. Qui si definisce una classe, si istanzia un 
+     oggetto, e si utilizza <function>call_user_method</function> per 
+     richiamare il metodo <varname>stampa_info</varname>
+     <informalexample>
+      <programlisting role="php">
+<![CDATA[
+<?php
+class Stato {
+    var $NOME;
+    var $TLD;
+    
+    function Stato($nome, $tld) {
+        $this->NOME = $nome;
+        $this->TLD = $tld;
+    }
+
+    function stampa_info($prestr="") {
+        echo $prestr."Stato: ".$this->NOME."\n";
+        echo $prestr."Dominio di primo livello: ".$this->TLD."\n";
+    }
+}
+
+$paese = new Stato("Peru","pe");
+
+echo "* Richiamo il metodo direttamente\n";
+$paese->stampa_info();
+
+echo "\n* utilizzo dello stesso metodo in modo indiretto\n";
+call_user_method("stampa_info", $paese, "\t");
+?>
+]]>
+      </programlisting>
+     </informalexample>
+    </para>
+    <simpara>
+     Vedere anche <function>call_user_func_array</function>,
+     <function>call_user_func</function>,
+     <function>call_user_method_array</function>.
+    </simpara>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.class-exists">
+   <refnamediv>
+    <refname>class_exists</refname>
+    <refpurpose>Verifica se una classe è stata definita</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>bool <function>class_exists</function></funcdef>
+      <paramdef>stringa <parameter>nome_classe</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa classe restituisce &true; se la classe indicata dal
+     parametro <parameter>nome_classe</parameter> è stata 
+     definita, altrimenti restituisce &false; .
+    </para>
+   </refsect1>
+  </refentry>
+
+
+  <refentry id="function.get-class">
+   <refnamediv>
+    <refname>get_class</refname>
+    <refpurpose>Restituisce il nome della classe di un oggetto</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>stringa <function>get_class</function></funcdef>
+      <paramdef>oggetto <parameter>oggetto</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funzione restituisce il nome della classe di cui
+     l'oggetto <parameter>oggetto</parameter> è un'istanza.
+     Restituisce &false; se <parameter>oggetto</parameter> non è
+     un oggetto.
+    </para>
+    <note>
+     <simpara>
+      <function>get_class</function> restituisce il nome delle classi
+      definite dagli utenti in minuscolo. Viceversa le classi definite
+      nelle estensioni di PHP sono restituite nella notazione originale.
+     </simpara>
+    </note>
+    <simpara>
+     Vedere anche <function>get_parent_class</function>,
+     <function>get_type</function>, e 
+     <function>is_subclass_of</function>
+    </simpara>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.get-class-methods">
+   <refnamediv>
+    <refname>get_class_methods</refname>
+    <refpurpose>Restituisce un array con i nomi dei metodi della classe</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>get_class_methods</function></funcdef>
+      <paramdef>stringa <parameter>nome_classe</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funzione restituisce un array contenente i nomi dei metodi
+     definiti per la classe specificata da <parameter>nome_classe</parameter>.
+    </para>
+    <note>
+     <para>
+      Dalla versione 4.0.6 di PHP, si può specificare direttamente
+      l'oggetto anziché la classe nel parametro <parameter>nome_classe
+      </parameter>. Ad esempio:
+      <informalexample>
+       <programlisting>
+<![CDATA[
+$metodi_della_classe = get_class_methods($mia_classe);
+]]>
+       </programlisting>
+      </informalexample>
+     </para>
+    </note>
+    <para>
+     <example>
+      <title><function>get_class_methods</function> esempio</title> 
+      <programlisting role="php">
+<![CDATA[
+<?php
+
+class miaclasse {
+    // costruttore
+    function miaclasse() {
+        return(true);
+    }
+    
+    // metodo 1
+    function funzione1() {
+        return(true);
+    }
+
+    // metodo 2
+    function funzione2() {
+        return(true);
+    }
+}
+
+$mia_classe = new miaclasse();
+
+$metodi = get_class_methods(get_class($mia_classe));
+
+foreach ($metodi as $nome_metodo) {
+    echo "$nome_metodo\n";
+}
+
+?>      
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Produrrà:
+     <informalexample>
+      <programlisting>
+<![CDATA[
+miaclasse
+funzione1
+funzione2
+]]>
+      </programlisting>
+     </informalexample>
+    </para>
+    <simpara>
+     Vedere anche <function>get_class_vars</function>,
+     <function>get_object_vars</function>
+    </simpara>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.get-class-vars">
+   <refnamediv>
+    <refname>get_class_vars</refname>
+    <refpurpose>
+     Restituisce un array con le proprietà di default della classe
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>get_class_vars</function></funcdef>
+      <paramdef>stringa <parameter>nome_classe</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funzione restituisce un array associativo contenente
+     le proprietà di default della classe. Gli elementi dell'array
+     prodotto sono nel formato <parameter>nomevariabile => valore</parameter>.
+    </para>
+    <note>
+     <para>
+      Le variabili della classe non inizializzate non sono 
+      elencate da <function>get_class_vars</function>. 
+     </para>
+    </note>
+    <para>
+     <example>
+      <title><function>get_class_vars</function> esempio</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+
+class miaclasse {
+
+    var $var1; // questa variabile non ha un valore di default...
+    var $var2 = "xyz";
+    var $var3 = 100;
+    
+    // costruttore
+    function miaclasse() {
+        return(true);
+    }
+
+}
+
+$mia_classe = new miaclasse();
+
+$variabili = get_class_vars(get_class($mia_classe));
+
+foreach ($variabili as $nome => $valore) {
+    echo "$nome : $valore\n";
+}
+
+?>      
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Produrrà:
+     <informalexample>
+      <programlisting>
+<![CDATA[
+var2 : xyz
+var3 : 100
+]]>
+      </programlisting>
+     </informalexample>
+    </para>
+    <simpara>
+     Vedere anche <function>get_class_methods</function>,
+     <function>get_object_vars</function>
+    </simpara>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.get-declared-classes">
+   <refnamediv>
+    <refname>get_declared_classes</refname>
+    <refpurpose>Restituisce un array con il nome delle classi definite</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>get_declared_classes</function></funcdef>
+      <void/>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funzione restituisce un array con i nomi delle classi definite
+     all'interno dello script corrente.
+    </para>
+    <note>
+     <para>
+      Nella versione 4.0.1pl2 di PHP, in testa all'array erano indicate
+      tre ulteriori classi:
+      <classname>stdClass</classname> (definita in 
+      <filename>Zend/zend.c</filename>),
+      <classname>OverloadedTestClass</classname> (definita in
+      <filename>ext/standard/basic_functions.c</filename>) 
+      e <classname>Directory</classname>
+      (definita in <filename>ext/standard/dir.c</filename>).
+     </para>
+     <para>
+      Occorre notare che, in base a quali librerie sono state compilate
+      in PHP, possono essere rilevate ulteriori classi
+     </para>
+    </note>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.get-object-vars">
+   <refnamediv>
+    <refname>get_object_vars</refname>
+    <refpurpose>Restituisce un array associativo con le proprietà dell'oggetto</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>get_object_vars</function></funcdef>
+      <paramdef>oggetto <parameter>oggetto</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funzione restituisce un array associativo con le proprietà
+     definite nell'oggetto passato nel parametro <parameter>oggetto
+     </parameter>.Le variabili, dichiarate nella classe di cui 
+     <parameter>oggetto</parameter> è un'istanza, a cui non sia stato 
+     ancora assegnato un valore, non saranno restituite nell'array.
+     <example>
+      <title>Utilizzo di <function>get_object_vars</function></title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+class Point2D {
+    var $x, $y;
+    var $etichetta;
+
+    function Point2D($x, $y) {
+        $this->x = $x;
+        $this->y = $y;
+    }
+
+    function setetichetta($etichetta) {
+        $this->etichetta = $etichetta;
+    }
+
+    function getPoint() {
+        return array("x" => $this->x,
+                     "y" => $this->y,
+                     "etichetta" => $this->etichetta);
+    }
+}
+
+$p1 = new Point2D(1.233, 3.445);
+print_r(get_object_vars($p1));
+// "$etichetta" è dichiarata ma non definita
+// Array
+// (
+//     [x] => 1.233
+//     [y] => 3.445
+// )
+
+$p1->setetichetta("point #1");
+print_r(get_object_vars($p1));
+// Array
+// (
+//     [x] => 1.233
+//     [y] => 3.445
+//     [etichetta] => point #1
+// )
+
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <simpara>
+     Vedere anche <function>get_class_methods</function>,
+     <function>get_class_vars</function>
+    </simpara>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.get-parent-class">
+   <refnamediv>
+    <refname>get_parent_class</refname>
+    <refpurpose>Restituisce il nome della classe genitrice di un oggetto 
+    o di una classe</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>stringa <function>get_parent_class</function></funcdef>
+      <paramdef>misto <parameter>oggetto</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Se <parameter>oggetto</parameter> è un oggetto, la funzione 
+     restituisce il nome del genitore della classe di cui 
+     <parameter>oggetto</parameter> è un'istanza.
+    </para>
+    <para>
+     Se <parameter>oggetto</parameter> è una stringa, la funzione 
+     restituisce il nome della classe genitrice della classe di 
+     cui <parameter>oggetto</parameter> indica il nome. Questa 
+     funzionalità è stata aggiunta nella versione 4.0.5 di PHP.
+    </para>
+    <simpara>
+     Vedere anche <function>get_class</function>,
+     <function>is_subclass_of</function>
+    </simpara>
+   </refsect1>
+  </refentry>
+
+ <refentry id="function.is-subclass-of">
+   <refnamediv>
+    <refname>is_subclass_of</refname>
+    <refpurpose>
+     Determina se un oggetto appartiene ad una
+     sottoclasse della classe specificata
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>bool <function>is_subclass_of</function></funcdef>
+      <paramdef>oggetto <parameter>oggetto</parameter></paramdef>
+      <paramdef>stringa <parameter>superclasse</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funzione restituisce &true; se <parameter>obj</parameter>,
+     appartiene ad una sottoclasse di <parameter>superclasse</parameter>,
+     altrimenti &false;.
+    </para>
+    <simpara>
+     Vedere anche <function>get_class</function>,
+     <function>get_parent_class</function>
+    </simpara>
+   </refsect1>
+  </refentry>
+  <refentry id="function.method-exists">
+   <refnamediv>
+    <refname>method_exists</refname>
+    <refpurpose>Verifica se il metodo esiste nella classe</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>bool <function>method_exists</function></funcdef>
+      <paramdef>oggetto <parameter>object</parameter></paramdef>
+      <paramdef>stringa <parameter>nome_metodo</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funzione restituisce &true; se il metodo indicato
+     dal parametro <parameter>nome_metodo</parameter> è stato
+     nell'oggetto indicato da <parameter>oggetto</parameter>,
+     altrimenti &false;.
+    </para>
+   </refsect1>
+  </refentry>
+
+ </reference>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

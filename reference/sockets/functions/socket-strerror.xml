@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/sockets.xml, last change in rev 1.4 -->
 <!-- last change to 'socket-strerror' in en/ tree in rev 1.8 -->
-<!-- EN-Revision: 1.2 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.4 Maintainer: darvina Status: ready -->
 <!-- OLD-Revision: 1.34/EN.1.8 -->
   <refentry id="function.socket-strerror">
    <refnamediv>
@@ -14,12 +14,12 @@
       <type>string</type><methodname>socket_strerror</methodname>
       <methodparam><type>int</type><parameter>errno</parameter></methodparam>
      </methodsynopsis>
-	&warn.experimental.func;
+    &warn.experimental.func;
     <para>
      La funzione <function>socket_strerror</function> utilizza come proprio
-     parametro <parameter>errno</parameter> il valore di ritorno di una
-     funzione dei socket, e restituisce la corrispondente descrizione.
-     E' utile potere spiegare cosa è accaduto quando qualcosa
+     parametro <parameter>errno</parameter> il codice di errore di un socket fornito da
+     <function>socket_last_error</function> e restituisce il corrispondente testo
+     descrittivo. Questo rende più semplice piegare cosa è accaduto quando qualcosa
      non funziona; ad esempio, invece di dovere cercare in tutto il
      sistema un file che contenga la spiegazione di '-111', si può semplicemente
      passare il valore a <function>socket_strerror</function>, e ottenere la
@@ -31,12 +31,12 @@
       <programlisting role="php">
 <![CDATA[
 <?php
-if (($socket = socket_create (AF_INET, SOCK_STREAM, 0)) < 0) {
-   echo "socket_create() fallito: motivo: " . socket_strerror ($socket) . "\n";
+if (false == ($socket = @socket_create (AF_INET, SOCK_STREAM, 0))) {
+   echo "socket_create() fallito: motivo: " . socket_strerror (socket_last_error()) . "\n";
 } 
 
-if (($ret = socket_bind ($socket, '127.0.0.1', 80)) < 0) {
-   echo "socket_bind() fallito: motivo: " . socket_strerror ($ret) . "\n";
+if (false == (@socket_bind ($socket, '127.0.0.1', 80))) {
+   echo "socket_bind() fallito: motivo: " . socket_strerror (socket_last_error($socket)) . "\n";
 }
 ?>
 ]]>
@@ -55,9 +55,8 @@ if (($ret = socket_bind ($socket, '127.0.0.1', 80)) < 0) {
      <function>socket_accept</function>,
      <function>socket_bind</function>,
      <function>socket_connect</function>,
-     <function>socket_listen</function>,
-     <function>socket_create</function> e
-     <function>socket_get_status</function>.
+     <function>socket_listen</function> e
+     <function>socket_create</function>. 
     </para>
    </refsect1>
   </refentry>

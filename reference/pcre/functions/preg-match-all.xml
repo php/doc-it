@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/pcre.xml, last change in rev 1.1 -->
 <!-- last change to 'preg-match-all' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.7 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.11 Maintainer: darvina Status: ready -->
 <!-- OLD-Revision: 1.78/EN.1.2 -->
   <refentry id="function.preg-match-all">
    <refnamediv>
@@ -16,6 +16,7 @@
       <methodparam><type>string </type><parameter>testo</parameter></methodparam>
       <methodparam><type>array </type><parameter>TestiRiconosciuti</parameter></methodparam>
       <methodparam choice="opt"><type>int </type><parameter>flags</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>offset</parameter></methodparam>
      </methodsynopsis>
     <para>
      La funzione ricerca tutte le espressioni regolari passate nel parametro <parameter>espressione_regolare</parameter> all'interno 
@@ -49,11 +50,11 @@
 	  <programlisting role="php">
 <![CDATA[
 <?php
-preg_match_all ("|<[^>]+>(.*)</[^>]+>|U", 
+preg_match_all("|<[^>]+>(.*)</[^>]+>|U",
     "<b>example: </b><div align=left>this is a test</div>", 
     $out, PREG_PATTERN_ORDER);
-print $out[0][0].", ".$out[0][1]."\n";
-print $out[1][0].", ".$out[1][1]."\n";
+echo $out[0][0].", ".$out[0][1]."\n";
+echo $out[1][0].", ".$out[1][1]."\n";
 ?>
 ]]>
           </programlisting>
@@ -87,11 +88,11 @@ example: , this is a test
 	  <programlisting role="php">
 <![CDATA[
 <?php
-preg_match_all ("|<[^>]+>(.*)</[^>]+>|U", 
-    "<b>example: </b><div align=left>this is a test</div>", 
+preg_match_all("|<[^>]+>(.*)</[^>]+>|U",
+    "<b>example: </b><div align=\"left\">this is a test</div>",
     $out, PREG_SET_ORDER);
-print $out[0][0].", ".$out[0][1]."\n";
-print $out[1][0].", ".$out[1][1]."\n";
+echo $out[0][0].", ".$out[0][1]."\n";
+echo $out[1][0].", ".$out[1][1]."\n";
 ?>
 ]]>
 	  </programlisting>
@@ -101,7 +102,7 @@ print $out[1][0].", ".$out[1][1]."\n";
 	  <screen role="html">
 <![CDATA[
 <b>example: </b>, example: 
-<div align=left>this is a test</div>, this is a test
+<div align="left">this is a test</div>, this is a test
 ]]>
 	  </screen>
 	 </informalexample>
@@ -136,6 +137,14 @@ print $out[1][0].", ".$out[1][1]."\n";
      Qualora non si specifichi il parametro <parameter>flags</parameter>,
      si assume per default il valore PREG_PATTERN_ORDER.
     </para>
+    <para> 
+     Normalemente la ricerca parte dall'inizio della stringa oggetto di ricerca. Con il parametro
+     opzionale <parameter>offset</parameter> si può specificare da dove cominciare
+     la ricerca. Equivale a passare <function>substr</function>($testo, $offset) alla funzione 
+     <function>preg_match</function> al posto del parametro testo.
+     Il parametro <parameter>offset</parameter> è disponibile a partire dalla versione 4.3.3 di
+     <literal>PHP</literal>.
+    </para> 
     <para>
      La funzione restituisce il numero dei riconoscimenti completi
      svolti (che possono essere zero), oppure &false; 
@@ -147,7 +156,7 @@ print $out[1][0].", ".$out[1][1]."\n";
       <programlisting role="php">
 <![CDATA[
 <?php
-preg_match_all ("/\(?  (\d{3})?  \)?  (?(1)  [\-\s] ) \d{3}-\d{4}/x",
+preg_match_all("/\(?  (\d{3})?  \)?  (?(1)  [\-\s] ) \d{3}-\d{4}/x",
                 "Call 555-1212 or 1-800-555-1212", $numeri);
 ?>
 ]]>
@@ -166,13 +175,13 @@ preg_match_all ("/\(?  (\d{3})?  \)?  (?(1)  [\-\s] ) \d{3}-\d{4}/x",
 // dei doppi apici.
 $html = "<b>bold text</b><a href=howdy.html>click me</a>";
 
-preg_match_all ("/(<([\w]+)[^>]*>)(.*)(<\/\\2>)/", $html, $matches);
+preg_match_all("/(<([\w]+)[^>]*>)(.*)(<\/\\2>)/", $html, $matches);
 
 for ($i=0; $i< count($matches[0]); $i++) {
    echo "intero criterio: ".$matches[0][$i]."\n";
-   echo "parte 1: ".$matches[1][$i]."\n";
-   echo "parte 2: ".$matches[3][$i]."\n";
-   echo "parte 3: ".$matches[4][$i]."\n\n";
+   echo "parte 1: " . $matches[1][$i] . "\n";
+   echo "parte 2: " . $matches[3][$i] . "\n";
+   echo "parte 3: " . $matches[4][$i] . "\n\n";
 }
 ?>
 ]]>

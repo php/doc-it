@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.10 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.17 Maintainer: darvina Status: ready -->
  <reference id="ref.sockets">
   <title>Funzioni relative ai Socket</title>
   <titleabbrev>Sockets</titleabbrev>
@@ -31,7 +31,7 @@
      trovare utili informazioni nelle pagine del manuale di Unix, ed inoltre
      sul web si può trovare diversi tutorial sulla programmazione
      dei socket in C, molti dei quali possono essere utilizzati, con
-     lievi modifiche, nella programmazione dei socket in PHP. Il link <ulink url="&url.socket.faq;">UNIX Socket
+     lievi modifiche, nella programmazione dei socket in PHP. Il link <ulink url="&url.socket.faq;">Unix Socket
      FAQ</ulink> può essere un buon punto di partenza.
     </para>
     &warn.experimental;
@@ -105,28 +105,28 @@ Warning - socket_bind() unable to bind address [98]: Die Adresse wird bereits ve
 <![CDATA[
 #!/usr/local/bin/php -q
 <?php
-error_reporting (E_ALL);
+error_reporting(E_ALL);
 
 /* Si indica allo script di non uscire mentre attende una connessione */
-set_time_limit (0);
+set_time_limit(0);
 
 /* Abilita lo scarico dell'output così si è in grado di vedere cosa passa
  * non appena arrivano i dati al server. */
-ob_implicit_flush ();
+ob_implicit_flush();
 
 $address = '192.168.1.53';
 $port = 10000;
 
-if (($sock = socket_create (AF_INET, SOCK_STREAM, 0)) < 0) {
-    echo "socket_create() fallito: motivo: " . socket_strerror ($sock) . "\n";
+if (($sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) < 0) {
+    echo "socket_create() fallito: motivo: " . socket_strerror($sock) . "\n";
 }
 
-if (($ret = socket_bind ($sock, $address, $port)) < 0) {
-    echo "socket_bind() fallito: motivo: " . socket_strerror ($ret) . "\n";
+if (($ret = socket_bind($sock, $address, $port)) < 0) {
+    echo "socket_bind() fallito: motivo: " . socket_strerror($ret) . "\n";
 }
 
-if (($ret = socket_listen ($sock, 5)) < 0) {
-    echo "socket_listen() fallito: motivo: " . socket_strerror ($ret) . "\n";
+if (($ret = socket_listen($sock, 5)) < 0) {
+    echo "socket_listen() fallito: motivo: " . socket_strerror($ret) . "\n";
 }
 
 do {
@@ -140,28 +140,28 @@ do {
     socket_write($msgsock, $msg, strlen($msg));
 
     do {
-        if (FALSE === ($buf = socket_read ($msgsock, 2048, PHP_NORMAL_READ))) {
-            echo "socket_read() fallito: motivo: " . socket_strerror ($ret) . "\n";
+        if (FALSE === ($buf = socket_read($msgsock, 2048, PHP_NORMAL_READ))) {
+            echo "socket_read() fallito: motivo: " . socket_strerror($ret) . "\n";
             break 2;
         }
-        if (!$buf = trim ($buf)) {
+        if (!$buf = trim($buf)) {
             continue;
         }
         if ($buf == 'quit') {
             break;
         }
         if ($buf == 'shutdown') {
-            socket_close ($msgsock);
+            socket_close($msgsock);
             break 2;
         }
         $talkback = "PHP: Testo scritto '$buf'.\n";
-        socket_write ($msgsock, $talkback, strlen ($talkback));
+        socket_write($msgsock, $talkback, strlen $talkback));
         echo "$buf\n";
     } while (true);
-    socket_close ($msgsock);
+    socket_close($msgsock);
 } while (true);
 
-socket_close ($sock);
+socket_close($sock);
 ?>
 ]]>
       </programlisting>
@@ -175,49 +175,50 @@ socket_close ($sock);
        molto semplicemente, si collega ad un server, invia una richiesta HEAD,
        visualizza la risposta ed esce.
       </para>
-      <programlisting>
+      <programlisting role="php">
 <![CDATA[
 <?php
-error_reporting (E_ALL);
+error_reporting(E_ALL);
 
 echo "<h2>Connessione TCP/IP </h2>\n";
 
 /* Ottiene la porta per il servizio WWW. */
-$service_port = getservbyname ('www', 'tcp');
+$service_port = getservbyname('www', 'tcp');
 
 /* Ottiene l'indirizzo IP per il server cercato. */
-$address = gethostbyname ('www.php.net');
+$address = gethostbyname('www.php.net');
 
 /* Crea un socket TCP/IP. */
-$socket = socket_create (AF_INET, SOCK_STREAM, 0);
+$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 if ($socket < 0) {
-    echo "socket_create() fallito: motivo: " . socket_strerror ($socket) . "\n";
+    echo "socket_create() fallito: motivo: " . socket_strerror($socket) . "\n";
 } else {
     echo "OK.\n";
 }
 
 echo "Tentativo di connessione a '$address' sulla porta '$service_port'...";
-$result = socket_connect ($socket, $address, $service_port);
+$result = socket_connect($socket, $address, $service_port);
 if ($result < 0) {
     echo "socket_connect() fallito.\nMotivo: ($result) " . socket_strerror($result) . "\n";
 } else {
     echo "OK.\n";
 }
-
-$in = "HEAD / HTTP/1.0\r\n\r\n";
+$in = "HEAD / HTTP/1.1\r\n"; 
+$in .= "Host: www.example.com\r\n"; 
+$in .= "Connection: Close\r\n\r\n";
 $out = '';
 
 echo "Invio HTTP HEAD...";
-socket_write ($socket, $in, strlen ($in));
+socket_write($socket, $in, strlen ($in));
 echo "OK.\n";
 
 echo "Lettura della risposta:\n\n";
-while ($out = socket_read ($socket, 2048)) {
+while ($out = socket_read($socket, 2048)) {
     echo $out;
 }
 
 echo "Chiusura del socket...";
-socket_close ($socket);
+socket_close($socket);
 echo "OK.\n\n";
 ?>
 ]]>

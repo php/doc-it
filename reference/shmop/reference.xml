@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.8 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.11 Maintainer: darvina Status: ready -->
 <reference id="ref.shmop">
   <title>Funzioni relative alla memoria condivisa</title>
   <titleabbrev>shmop</titleabbrev>
@@ -9,10 +9,8 @@
     &reftitle.intro;
     <para>
      Shmop è un set di funzioni di semplice utilizzo che permettono al PHP di leggere,
-     scrivere, creare e cancellare i segmenti di memoria condivisa di Unix. Solitamente queste funzioni
-     non sono attive sui sistemi Windows, dato che quest'ultimo non supporta la memoria condivisa.
-     Tuttavia sui sistemi Windows 2000, è possibile abilitare questa funzionalità abilitando
-     l'estensione <filename>php_shmop.dll</filename> nel &php.ini;
+     scrivere, creare e cancellare i segmenti di memoria condivisa di Unix. Occorre rilevare
+     che nelle versioni di Windows precedenti a Windows 2000 non supportano la memoria condivisa.
     </para>
     <note>
      <simpara>
@@ -56,29 +54,29 @@
    
 // Crea un blocco di memoria condivisa di 100 byte con id 0xff3
 $shm_id = shmop_open(0xff3, "c", 0644, 100);
-if(!$shm_id) {
+if (!$shm_id) {
     echo "Non si riesce a creare il segmento di memoria condivisa\n";
 }
 
 // Ottiene la dimensione del blocco di memoria
 $shm_size = shmop_size($shm_id);
-echo "Dimesione blocco creato: ".$shm_size. ".\n";
+echo "Dimesione blocco creato: " . $shm_size . ".\n";
 
 // Scrittura di una stringa di test nella memoria condivisa
 $shm_bytes_written = shmop_write($shm_id, "my shared memory block", 0);
-if($shm_bytes_written != strlen("my shared memory block")) {
+if ($shm_bytes_written != strlen("my shared memory block")) {
     echo "Non si riesce a scrivere tutti i dati\n";
 }
 
 // Ora si rilegge la stringa
 $my_string = shmop_read($shm_id, 0, $shm_size);
-if(!$my_string) {
+if (!$my_string) {
     echo "Non si riesce a leggere dalla memoria condivisa\n";
 }
 echo "I dati presenti nella memoria condivisa sono: ".$my_string."\n";
 
 // Ora si cancella il blocco e si chiude il segmento di memoria condivisa
-if(!shmop_delete($shm_id)) {
+if (!shmop_delete($shm_id)) {
     echo "Non si riesce a marcare il blocco di memoria condivisa per la cancellazione.";
 }
 shmop_close($shm_id);

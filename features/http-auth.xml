@@ -1,0 +1,152 @@
+ <chapter id="features.http-auth">
+  <title>Autenticazione HTTP usando PHP</title>
+
+  <simpara>
+   I meccanismi di Autenticazione HTTP sono disponibili in PHP solo quando questo
+   viene usato come un modulo di Apache ed esso non &egrave; quindi disponibile nella versione CGI.
+   In uno script PHP modulo di Apache, &egrave: possibile usare la 
+   funzione <function>header</function> per inviare un messaggio di "Authentication Required" 
+   al browser dell'utente, provocando quindi l'apertura di una finestra contenente una richiesta di
+   Nome utente/Password. Una volta che l'utente ha compilato i campi nome utente e password, 
+   l'URL contenente lo script PHP verr&agrave; richiamato nuovamente usando le variabili,
+   $PHP_AUTH_USER, $PHP_AUTH_PW e $PHP_AUTH_TYPE impostate con, rispettivamente:
+   nome, password e tipo di autenticazione. Solamente il tipo di autenticazione "Basic"
+   &egrave; al momento supportato. Fare riferimento alla funzione <function>header</function>
+   per ulteriori informazioni.</simpara>
+   
+  <para>
+   Un frammento di script di esempio che richiede l'autenticazione da parte del browser
+   su una pagina, potrebbe essere il seguente:
+
+   <example>
+    <title>Esempio di Autenticazione HTTP</title>
+    <programlisting role="php">
+&lt;?php
+  if(!isset($PHP_AUTH_USER)) {
+    Header(&quot;WWW-Authenticate: Basic realm=\&quot;Il mio Regno\&quot;&quot;);
+    Header(&quot;HTTP/1.0 401 Unauthorized&quot;);
+    echo &quot;Messaggio da inviare se si preme il tasto Cancel\n&quot;;
+    exit;
+  } else {
+    echo &quot;Ciao $PHP_AUTH_USER.&lt;P&gt;&quot;;
+    echo &quot;Hai inserito $PHP_AUTH_PW come tua password.&lt;P&gt;&quot;;
+  }
+?>
+    </programlisting>
+   </example></para>
+
+  <note>
+   <title>Note</title>
+   <para>
+    Fare molta attenzione quando si scrive codice per le intestazioni HTTP. Per ottenere la  massima
+    compatibilit&agrave; con tutti i client, la paorla-chiave "Basic" deve essere scritta con una
+    "B" maiuscola, la stringa realm deve essere racchiusa in virgolette doppie (non singole),
+    ed esattamente uno spazio deve precedere il codice "401" nella linea di intestazione "HTTP/1.0 401".
+   </para>
+  </note>
+
+  <para>
+   Invece di stampare semplicemente $PHP_AUTH_USER e
+   $PHP_AUTH_PW, probabilmente si vorr&agrave; controllare la validit&agrave; dello username e 
+   della password. Probabilemnte inviando una chiamata al database,
+   o cercando un utente in un file dbm.</para>
+
+  <para>
+   Si faccia attenzione ad alcune versioni di Internet Explorer. Sembra
+   che siano molto schizzinosi riguardo all'ordine delle intestazioni. Inviare l'intestazione
+   <emphasis>WWW-Authenticate</emphasis> prima dell'intestazione
+   <errorcode>HTTP/1.0 401</errorcode> sembra sistemare le cose per
+   il momento.</para>
+
+  <simpara>
+   Al fine di prevenire che qualcuno scriva uno script che rivela
+   la password di una pagina che era stata autenticata tramite un tradizionale
+   meccanismo esterno, le variabili PHP_AUTH non verranno
+   impostate se &egrave; abilitata l'autenticazione esterna per quella determinata
+   pagina. In questo caso, la variabile $REMOTE_USER pu&ograve; essere usata per
+   identificare un utente autenticato esternamente.</simpara>
+
+  <note>
+   <title>Nota sulla Configurazione</title>
+   <para>
+    PHP usa la presenza di una direttiva <literal>AuthType</literal>
+    per determinare se viene utilizzata l'autenticazione esterna.
+    Evitare questa direttiva nel contesto dove si intende
+    usare l'autenticazione con PHP (altrimenti ogni tentativo di autenticazione
+    fallir&agrave;).
+   </para>
+  </note>
+
+  <simpara>
+   Si fa notare, per&ograve;, che quanto scritto sopra non impedisce a qualcuno che
+   controlla un URL non autenticato di sottrarre password da
+   URL autenticati presenti sullo stesso server.</simpara>
+  <simpara>
+   Sia Netscape Navigator che Internet Explorer cancellano la cache locale
+   della finestra del browser, per quanto riguarda il realm, al ricevimento
+   di una risposta 401 da parte del server. Questo &egrave; effettivamente un meccanismo di "log out" per l'utente,
+   che lo forza a reinserire lo username e la password. Alcune persone
+   usano questo per fare il "time out" dei login, o per rendere disponibili bottoni di "log-out".
+  </simpara>
+   <example>
+     <title>Esempio di Autenticazione HTTP che impone l'inserimento di nuovo username/password</title>
+     <programlisting role="php">
+&lt;?php
+  function authenticate() {
+    Header( &quot;WWW-Authenticate: Basic realm=\&quot;Prova del Sistema di Autenticazione\&quot;&quot;);
+    Header( &quot;HTTP/1.0 401 Unauthorized&quot;);
+    echo &quot;Per poter accedere a questa risorsa occorre inserire una coppia login e password valide\n&quot;;
+    exit;
+  }
+ 
+  if(!isset($PHP_AUTH_USER) || ($SeenBefore == 1 &amp;&amp; !strcmp($OldAuth, $PHP_AUTH_USER)) ) {
+   authenticate();
+  } 
+  else {
+   echo &quot;Benvenuto: $PHP_AUTH_USER&lt;BR&gt;&quot;;
+   echo &quot;Vecchio: $OldAuth&quot;;
+   echo &quot;&lt;FORM ACTION=\&quot;$PHP_SELF\&quot; METHOD=POST&gt;\n&quot;;
+   echo &quot;&lt;INPUT TYPE=HIDDEN NAME=\&quot;SeenBefore\&quot; VALUE=\&quot;1\&quot;&gt;\n&quot;;
+   echo &quot;&lt;INPUT TYPE=HIDDEN NAME=\&quot;OldAuth\&quot; VALUE=\&quot;$PHP_AUTH_USER\&quot;&gt;\n&quot;;
+   echo &quot;&lt;INPUT TYPE=Submit VALUE=\&quot;Re Authenticate\&quot;&gt;\n&quot;;
+   echo &quot;&lt;/FORM&gt;\n&quot;;
+  }
+?>
+   </programlisting>
+  </example>
+  <simpara>
+   Questo comportamento non &egrave; richiesto dallo standard di autenticazione HTTP 
+   Basic, quindi non si dovrebbe mai fare affidamento su di esso. Test effettuati con Lynx
+   mostrano che Lynx non cancella le credenziali di autenticazione
+   al ricevimento del codice di risposta 401 da parte del server, quindi, premendo indietro e avanti
+   nuovamente, dar&agrave; nuovamente accesso alla risorsa, ammesso che le rispettive richieste di credenziali
+   non siano cambiate. L'utente pu&ograve; per&ograve; premere il
+   tasto '_' al fine di cancellare le sue informazioni di autenticazione.
+  </simpara>
+  <simpara>
+   Si noti anche che questo non funziona con il server IIS di Microsoft e
+   con la versione CGI di PHP a causa di una limitazione di IIS.
+  </simpara>
+
+ </chapter>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+sgml-parent-document:nil
+sgml-default-dtd-file:"../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+-->
+
+
+
+

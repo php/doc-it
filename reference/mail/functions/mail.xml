@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.8 Maintainer: cortesi Status: ready -->
+<!-- EN-Revision: 1.13 Maintainer: cortesi Status: ready -->
 <!-- splitted from ./it/functions/mail.xml, last change in rev 1.3 -->
   <refentry id="function.mail">
    <refnamediv>
@@ -88,7 +88,7 @@ mail("pippo@example.com", "Oggetto", "Linea 1\nLinea 2\nLinea 3");
 <![CDATA[
 mail("nessuno@example.com", "oggetto", $messaggio,
      "From: webmaster@$SERVER_NAME\r\n"
-    ."Reply-To: webmaster@$SERVER_NAME\\r\n"
+    ."Reply-To: webmaster@$SERVER_NAME\r\n"
     ."X-Mailer: PHP/" . phpversion());
 ]]>
       </programlisting>
@@ -96,7 +96,7 @@ mail("nessuno@example.com", "oggetto", $messaggio,
     </para>
     <para>
      Con il parametro <parameter>parametri_addizionali</parameter> 
-     è possibile impostare parametri addizionali a linea di comando per 
+     è possibile impostare un parametro addizionale a linea di comando per 
      il programma configurato per inviare mail usando <literal>sendmail_path</literal>. 
      Per esempio si può impostare il corretto valore per envelope sender di
      sendmail. Potrebbe essere necessario aggiungere l'utente che ha in esecuzione il server web
@@ -115,7 +115,10 @@ mail("nessuno@example.com", "oggetto", $messaggio,
     </para>
     <note>
      <para>
-      Questo quinto parametro è stato aggiunto in PHP 4.0.5.
+      Questo quinto parametro è stato aggiunto in PHP 4.0.5. A partire da PHP 4.2.3, 
+      questo parametro è disabilitato in modalità <link linkend="ini.safe-mode">safe_mode</link>
+      e la funzione <function>mail</function> darà un messaggio di errore
+      e restituirà &false; se si cerca di usarlo.
      </para>
     </note>
     <para>
@@ -126,17 +129,17 @@ mail("nessuno@example.com", "oggetto", $messaggio,
       <programlisting>
 <![CDATA[
 /* destinatari */
-$destinatari .= "Maria <maria@example.com>" . ", " ; // notare la virgola
+$destinatari  = "Maria <maria@example.com>" . ", " ; // notare la virgola
 $destinatari .= "Enrica <enrica@example.com>";
 
 /* oggetto */
-$oggetto = "Promemoria compleanni per Agosto";
+$oggetto = "Promemoria compleanni di Agosto";
 
 /* messaggio */
 $messaggio = '
 <html>
 <head>
- <title>Promemoria compleanni per Agosto</title>
+ <title>Promemoria compleanni di Agosto</title>
 </head>
 <body>
 <p>Questi sono i compleanni di Agosto!</p>
@@ -145,10 +148,10 @@ $messaggio = '
   <th>Persona</th><th>Giorno</th><th>Mese</th><th>Anno</th>
  </tr>
  <tr>
-  <td>Giovanni</td><td>3</td><td>Agosto</td><td>1970</td>
+  <td>Walter</td><td>11</td><td>Agosto</td><td>1946</td>
  </tr>
  <tr>
-  <td>Sara</td><td>17</td><td>Agosto</td><td>1973</td>
+  <td>Sara</td><td>14</td><td>Agosto</td><td>1985</td>
  </tr>
 </table>
 </body>
@@ -178,6 +181,17 @@ mail($destinatari, $oggetto, $messaggio, $intestazioni);
        o la mail non verrà spedita correttamente.
      </para>
     </note>
+    <note>
+     <para>
+      Il parametro <parameter>to</parameter> non può essere un indirizzo nella
+      forma &quot;Qualcosa &lt;qualcuno@example.com&gt;&quot;. Il comando di 
+      mail non sarebbe in grado di effettuare correttamente il parsing mentre dialoga
+      con il MTA.
+     </para>
+    </note>
+    <para>
+     Vedere anche <function>imap_mail</function>.
+    </para>
    </refsect1>
   </refentry>
 

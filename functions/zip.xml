@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- EN-Revision: 1.18 Maintainer: cortesi Status: ready -->
+ <reference id="ref.zip">
+  <title>Funzioni per File Zip (Accesso di Sola Lettura)</title>
+  <titleabbrev>Zip</titleabbrev>
+  <partintro>
+   <para>
+    Questo modulo usa le funzioni <ulink
+    url="&url.zziplib;">ZZIPlib</ulink> della libreria di Guido Draheim per
+    leggere archivi ZIP compressi e i file in essi 
+    contenuti.
+   </para>
+   <para>
+    Notare che ZZIPlib rende disponbili solo un sottogruppo di quelle funzioni
+    disponibili in una implementazione completa dell'algoritmo di compressione ZIP
+    e può solamente leggere i file in formato ZIP. Una normale utility ZIP è
+    richiesta per creare i file ZIP letti da questa libreria.
+   </para>
+   <para>
+    Il supporto Zip all'interno di PHP non è abilitato di default. Sarà necessario usare
+    l'opzione di configurazione <link
+    linkend="install.configure.with-zip">--with-zip</link>
+    durante la compilazione di PHP per abilitare tale
+    supporto. Questo modulo richiede ZZIPlib versione &gt;= 0.10.6.
+   </para>
+   <note>
+    <para>
+     Il supporto Zip precedentemente alla versione 4.1.0 di PHP è sperimentale. Questa sezione
+     riflette l'estensione Zip così come essa esiste in PHP 4.1.0 e successivi.
+    </para>
+   </note>
+
+   <sect1 id="zip-example">
+    <title>Esempio di Utilizzo</title>
+    <para>
+     Questo esempio apre un archivio ZIP, legge tutti i file presenti
+     nell'archivio e stampa il contenuto. L'archivio
+     <filename>test2.zip</filename> usato in questo esempio è
+     uno degli archivi dimostrativi presenti nella distribuzione di ZZIPlib.
+    </para>
+    <example>
+     <title>Esempio di Utilizzo Zip</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+$zip = zip_open("/tmp/test2.zip");
+
+if ($zip) {
+
+    while ($zip_entry = zip_read($zip)) {
+        echo "Nome:                    " . zip_entry_name($zip_entry) . "\n";
+        echo "Dimensione File:         " . zip_entry_filesize($zip_entry) . "\n";
+        echo "Dimensione Compressa:    " . zip_entry_compressedsize($zip_entry) . "\n";
+        echo "Metodo di Compressione:  " . zip_entry_compressionmethod($zip_entry) . "\n";
+
+        if (zip_entry_open($zip, $zip_entry, "r")) {
+            echo "Contenuto File:\n";
+            $buf = zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
+            echo "$buf\n";
+
+            zip_entry_close($zip_entry);
+        }
+        echo "\n";
+
+    }
+
+    zip_close($zip);
+
+}
+
+?>
+]]>
+     </programlisting>
+    </example>
+   </sect1>
+  </partintro>
+
+  <refentry id="function.zip-close">
+   <refnamediv>
+    <refname>zip_close</refname>
+    <refpurpose>Chiude un archivio Zip</refpurpose>
+  </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>void</type><methodname>zip_close</methodname>
+      <methodparam><type>resource</type><parameter>zip</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Chiude un file di archivio Zip. Il parametro
+     <parameter>zip</parameter> deve essere un archivio zip precedentemente
+     aperto da <function>zip_open</function>.
+    </para>
+    <para>
+     Questa funzione non restituisce alcun valore.
+    </para>
+    <para>
+     Vedere anche <function>zip_open</function> e
+     <function>zip_read</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.zip-entry-close">
+   <refnamediv>
+    <refname>zip_entry_close</refname>
+    <refpurpose>Chiude il puntatore a una directory</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>void</type><methodname>zip_entry_close</methodname>
+      <methodparam><type>resource</type><parameter>zip_entry</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Chiude il puntatore specificato da
+     <parameter>zip_entry</parameter>. Il parametro
+     <parameter>zip_entry</parameter> deve essere un puntatore valido
+     aperto in precedenza da <function>zip_entry_open</function>.
+    </para>
+    <para>
+     Questa funzione non restituisce alcun valore.
+    </para>
+    <para>
+     Vedere anche <function>zip_entry_open</function> e
+     <function>zip_entry_read</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.zip-entry-compressedsize">
+   <refnamediv>
+    <refname>zip_entry_compressedsize</refname>
+    <refpurpose>Ottiene la dimensione compressa di una Directory</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>zip_entry_compressedsize</methodname>
+      <methodparam><type>resource</type><parameter>zip_entry</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Restituisce la dimensione compressa della voce directory specificata da
+     <parameter>zip_entry</parameter>. Il parametro
+     <parameter>zip_entry</parameter> è un riferimento alla voce directory
+     valido restituito da <function>zip_read</function>.
+    </para>
+    <para>
+     Vedere anche <function>zip_open</function> e
+     <function>zip_read</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.zip-entry-compressionmethod">
+   <refnamediv>
+    <refname>zip_entry_compressionmethod</refname>
+    <refpurpose>Ottiene il metodo di compressione di una voce directory</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>string</type><methodname>zip_entry_compressionmethod</methodname>
+      <methodparam><type>resource</type><parameter>zip_entry</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Restituisce il metodo di compressione di una voce directory specificata
+     da <parameter>zip_entry</parameter>. Il parametro
+     <parameter>zip_entry</parameter> è una voce directory valida
+     restituita da <function>zip_read</function>.
+    </para>
+    <para>
+     Vedere anche <function>zip_open</function> e
+     <function>zip_read</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.zip-entry-filesize">
+   <refnamediv>
+    <refname>zip_entry_filesize</refname>
+    <refpurpose>Ottiene la dimensione attuale di una directory</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>zip_entry_filesize</methodname>
+      <methodparam><type>resource</type><parameter>zip_entry</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Restituisce la dimensione attuale della directory specificata da
+     <parameter>zip_entry</parameter>.  Il parametro
+     <parameter>zip_entry</parameter> è una voce directory valida 
+     restituita da <function>zip_read</function>.
+    </para>
+    <para>
+     Vedere anche <function>zip_open</function> e
+     <function>zip_read</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.zip-entry-name">
+   <refnamediv>
+    <refname>zip_entry_name</refname>                 
+    <refpurpose>Ottiene il nome di una directory</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>string</type><methodname>zip_entry_name</methodname>
+      <methodparam><type>resource</type><parameter>zip_entry</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Restituisce il nome di una voce directory specificata da
+     <parameter>zip_entry</parameter>.  Il parametro
+     <parameter>zip_entry</parameter> è una voce directory valida
+     restituita da <function>zip_read</function>.
+    </para>
+    <para>
+     Vedere anche <function>zip_open</function> e
+     <function>zip_read</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.zip-entry-open">
+   <refnamediv>
+    <refname>zip_entry_open</refname>
+    <refpurpose>Apre una voce directory in lettura</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>bool</type><methodname>zip_entry_open</methodname>      
+      <methodparam><type>resource</type><parameter>zip</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>zip_entry</parameter></methodparam>
+      <methodparam choice="opt"><type>string</type><parameter>mode</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Apre una voce directory in lettura in un file zip. Il parametro
+     <parameter>zip</parameter> è un resource handle valido restituito da
+     <function>zip_open</function>. Il parametro
+     <parameter>zip_entry</parameter> è una voce directory
+     restituita da <function>zip_read</function>. Il parametro
+     opzionale <parameter>mode</parameter> può essere uno qualunque dei modi
+     specificati nella documentazione relativa a <function>fopen</function>.
+    </para>
+    <note>
+     <para>
+      Attualmente, <parameter>mode</parameter> viene ignorato e viene sempre usato
+      <literal>"rb"</literal>. Questo è dato dal fatto che il supporto
+      zip in PHP è di tipo sola lettura. Fare riferimento a
+      <function>fopen</function> per una spiegazione dei vari modi,
+      incluso <literal>"rb"</literal>.
+     </para>
+    </note>
+    <para>
+     &return.success;
+    </para>
+    <note>
+     <para>
+      A differenza di <function>fopen</function> e altre funzioni simili,
+      il valore restituito da <function>zip_entry_open</function> indica 
+      solo il risultato dell'operazione e non è necessario per
+      leggere o chiudere la voce relativa alla directory.
+     </para>
+    </note>
+    <para>
+     Vedere anche <function>zip_entry_read</function> e
+     <function>zip_entry_close</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.zip-entry-read">
+   <refnamediv>
+    <refname>zip_entry_read</refname>
+    <refpurpose>Legge da una directory aperta</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>string</type><methodname>zip_entry_read</methodname>
+      <methodparam><type>resource</type><parameter>zip_entry</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>length</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Legge fino a <parameter>length</parameter> byte da una directory
+     aperta. Se <parameter>length</parameter> non è 
+     specificato, allora <function>zip_entry_read</function> tenterà
+     di leggere 1024 byte.  Il parametro
+     <parameter>zip_entry</parameter> è una voce directory valida
+     restituita da <function>zip_read</function>.
+    </para>
+    <note>
+     <para>
+      Il parametro <parameter>length</parameter> deve essere la lunghezza
+      non compressa che si desidera leggere.
+     </para>
+    </note>
+    <para>
+     Restituisce i dati letti, o &false; se viene raggiunta la fine
+     del file.
+    </para>
+    <para>
+     Vedere anche <function>zip_entry_open</function>,
+     <function>zip_entry_close</function> e
+     <function>zip_entry_filesize</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.zip-open">
+   <refnamediv>
+    <refname>zip_open</refname>
+    <refpurpose>Apre un archivio zip</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>resource</type><methodname>zip_open</methodname>
+      <methodparam><type>string</type><parameter>filename</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Apre un nuovo archivio zip in lettura. Il
+     parametro <parameter>filename</parameter> è il nome del file
+     dell'archivio zip che si desidera aprire.
+    </para>
+    <para>
+     Restituisce un resource handle da usarsi di seguito con
+     <function>zip_read</function> e <function>zip_close</function>
+     o restituisce &false; se <parameter>filename</parameter> non
+     esiste.
+    </para>
+    <para>
+     Vedere anche <function>zip_read</function> e
+     <function>zip_close</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.zip-read">
+   <refnamediv>
+    <refname>zip_read</refname>
+    <refpurpose>Legge la prossima voce in un archivio file zip</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>resource</type><methodname>zip_read</methodname>
+      <methodparam><type>resource</type><parameter>zip</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Legge il prossimo file in un archivio su file di tipo zip. Il parametro
+     <parameter>zip</parameter> deve essere un archivio zip precedentemente
+     aperto da <function>zip_open</function>.
+    </para>
+    <para>
+     Restituisce un puntatore alla risorsa directory da usarsi successivamente
+     con le varie funzioni <function>zip_entry_...</function>.
+    </para>
+    <para>
+     Vedere anche <function>zip_open</function>,
+     <function>zip_close</function>,
+     <function>zip_entry_open</function> e
+     <function>zip_entry_read</function>.
+    </para>
+   </refsect1>
+  </refentry>
+  
+ </reference>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

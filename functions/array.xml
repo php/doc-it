@@ -1,0 +1,3301 @@
+<?xml encoding="iso-8859-1"?>
+<!-- $Revision: 1.11 $ -->
+ <reference id="ref.array">
+  <title>Funzioni di Array</title>
+  <titleabbrev>Arrays</titleabbrev>
+  <partintro>
+   <simpara>
+    Queste funzioni permettono di manupolare e interagire con gli
+    array in vari modi. Gli Array sono indispensabili per immagazzinare,
+    mantenere, e operare su gruppi di variabili.
+   </simpara>
+   <simpara>
+    Sono supportati sia array semplici che multi-dimensionali, che possono
+    essere sia creati dall'utente che da funzioni.
+    Ci sono specifiche funzioni di database per riempire
+    gli array a partire da interrogazioni sui dati, e parecchie funzioni restituiscono array.
+   </simpara>
+   <para>
+   Vedere la sezione <link linkend="language.types.array">Array</link>
+   del manuale per una spiegazione dettagliata di come gli array siano
+   implementati ed usati in PHP.
+  </para>
+   <para>
+    Vedere anche <function>is_array</function>, <function>explode</function>, 
+    <function>implode</function>, <function>split</function> 
+    e <function>join</function>.
+   </para>
+  </partintro>
+
+  <refentry id="function.array">
+   <refnamediv>
+    <refname>array</refname>
+    <refpurpose>
+     Crea un array
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array</function></funcdef>
+      <paramdef>mixed 
+       <parameter><optional>...</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Restituisce un array contenente i parametri.  Ai parametri si pu&ograve; dare
+     un indice con l'operatore <literal>=&gt;</literal>.
+    </para>
+    <para>
+     <note>
+      <para>
+       <function>array</function> &egrave; un costrutto del linguaggio usato per
+       rappresentare array letterali, e non normale funzione.
+      </para>
+     </note>
+    </para>
+    <para>
+     La sintassi "indice =&gt; valori", separati da virgole, definisce indici
+     e valori. indice pu&ograve; essere di tipo string o numerico. Quando l'indice &egrave;
+     omesso, viene generato automaticamente un indice intero, a partire 
+     da 0. Se l'indice &egrave; un intero, il successivo indice generato sar&agrave;
+     il pi&ugrave; intero indice + 1. Si noti che quando due indici
+     identici vengono definiti, l'ultimo sovrascrive il primo.
+    </para>
+    <para>
+     Lesempio seguente dimostra come creare un
+     array bidimensionale, come specificare le chiavi per gli array
+     associativi, e come modificare la serie degli indici numerici negli array
+     normali.
+     <example>
+      <title>Esempio di <function>array</function></title>
+      <programlisting role="php">
+$frutta = array (
+    "frutta"  =&gt; array ("a"=&gt;"arancia", "b"=&gt;"banana", "c"=&gt;"mela"),
+    "numeri" =&gt; array (1, 2, 3, 4, 5, 6),
+    "buche"   =&gt; array ("prima", 5 =&gt; "seconda", "terza")
+);
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     <example>
+      <title>Indice automatico con <function>array</function></title>
+      <programlisting role="php">
+$array = array( 1, 1, 1, 1,  1, 8=>1,  4=>1, 19, 3=>13);
+print_r($array);
+      </programlisting>
+     </example>
+     che stamper&agrave; : 
+     <informalexample>
+      <programlisting>
+Array
+(
+    [0] => 1
+    [1] => 1
+    [2] => 1
+    [3] => 13
+    [4] => 1
+    [8] => 1
+    [9] => 19
+)
+      </programlisting>
+     </informalexample>
+     Si noti che l'indice '3' &egrave; definito due volte, e che mantiene il valore finale 13.
+     L'indice 4 &egrave; definito dopo l'indice 8, e il successivo indice generato (valore 19)
+     &egrave; 9, dal momento che l'indice pi&ugrave; era 8. 
+    </para>
+    <para>
+     Questo esempio crea un array che parte da 1 (1-based).
+     <example>
+      <title>Indice 1-based con <function>array</function></title>
+      <programlisting role="php">
+        $primotrimestre  = array(1 => 'Gennaio', 'Febbraio', 'Marzo');
+        print_r($primotrimestre);
+      </programlisting>
+     </example>
+     che stamper&agrave; : 
+     <informalexample>
+      <programlisting>
+Array 
+(
+    [1] => 'Gennaio'
+    [2] => 'Febbraio'
+    [3] => 'Marzo'
+)
+      </programlisting>
+     </informalexample>
+    </para>
+    <para>
+     Vedere anche: <function>list</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-count-values">
+   <refnamediv>
+    <refname>array_count_values</refname>
+    <refpurpose>Conta tutti i valori di un array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descriztione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_count_values</function></funcdef>
+      <paramdef>array <parameter>input</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_count_values</function> restituisce un array che ha
+     i valori dell'array <parameter>input</parameter> per chiavi e
+     la loro frequenza in <parameter>input</parameter> come valori.
+    </para>
+    <para>
+     <example>
+      <title>Esempio di <function>array_count_values</function></title>
+      <programlisting role="php">
+$array = array (1, "ciao", 1, "mondo", "ciao");
+array_count_values ($array); // restituisce l'array (1=&gt;2, "ciao"=&gt;2, "mondo"=&gt;1)
+      </programlisting>
+     </example>     
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-diff">
+   <refnamediv>
+    <refname>array_diff</refname>
+    <refpurpose>Calcola la differenza di due o pi&ugrave; array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_diff</function></funcdef>
+      <paramdef>array <parameter>array1</parameter></paramdef>
+      <paramdef>array <parameter>array2</parameter></paramdef>
+      <paramdef>array
+       <parameter><optional> ...</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_diff</function> restituisce un array
+     contenente tutti i valori di <parameter>array1</parameter>
+     che non sono presenti in alcuno degli altri array.
+     Si noti che le chiavi vengono preservate.
+    </para>
+    <para>
+     <example>
+      <title>Esempio di <function>array_diff</function></title>
+      <programlisting role="php">
+$array1 = array ("a" =&gt; "verde", "rosso", "blu", "rosso");
+$array2 = array ("b" =&gt; "verde", "giallo", "rosso");
+$risultato = array_diff ($array1, $array2);
+      </programlisting>
+     </example>
+    </para>     
+    <para>
+     In questo modo <varname>$risultato</varname> sar&grave; 
+     <literal>array ("blue");</literal>. Occorrenze multiple in
+     $array1 sono tutte trattate nello stesso modo.
+    </para>
+    <note>
+     <simpara>
+      Due elementi sono considerati uguali se e solo se
+      <literal>(string) $elem1 === (string) $elem2</literal>. Ovvero:
+      quando la rappresentazione sotto forma di stringa &egrave; la stessa.
+      <!-- TODO: un esempio... -->
+     </simpara>
+    </note>
+    <warning>
+     <simpara>
+      Questa funzione era errata nel PHP 4.0.4!
+      <!-- TODO: when exactly was this broken?... -->
+     </simpara>
+    </warning>
+    <para>
+     Vedere anche <function>array_intersect</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-filter">
+   <refnamediv>
+    <refname>array_filter</refname>
+    <refpurpose>
+      Filtra gli elementi di un array usando  una funzione callback
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_filter</function></funcdef>
+      <paramdef>array <parameter>input</parameter></paramdef>
+      <paramdef>mixed 
+       <parameter><optional>callback</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_filter</function> restituisce un array
+     contenente tutti gli elementi di <parameter>input</parameter>
+     filtrati attraverso una funzione callback. Se 
+     <parameter>input</parameter> &egrave; un array associative
+     le chiavi sono preservate.
+    </para>
+    <para>
+     <example>
+      <title>Esempio di <function>array_filter</function></title>
+      <programlisting role="php">
+function dispari($var) {
+   return ($var % 2 == 1);
+}
+
+function pari($var) {
+   return ($var % 2 == 0); 
+}
+
+$array1 = array ("a"=&gt;1, "b"=&gt;2, "c"=&gt;3, "d"=&gt;4, "e"=&gt;5);
+$array2 = array (6, 7, 8, 9, 10, 11, 12);
+
+$arr_dispari = array_filter($array1, "dispari");
+$arr_pari = array_filter($array2, "pari");
+      </programlisting>
+     </example>
+    </para>     
+    <para>
+     In questo modo <varname>$arr_dispari</varname> sar&agrave; 
+     <literal>array ("a"=&gt;1, "c"=&gt;3, "e"=&gt;5);</literal>,
+     e <varname>$arr_pari</varname> sar&agrave; 
+     <literal>array (6, 8, 10, 12);</literal>,
+    </para>
+    <para>
+     Vedere anche <function>array_map</function>,
+     <function>array_reduce</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-flip">
+   <refnamediv>
+    <refname>array_flip</refname>
+    <refpurpose>Scambia tutti i valori di un array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_flip</function></funcdef>
+      <paramdef>array <parameter>trans</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_flip</function> restituisce un array scambiato,
+     ovvero le chiavi di <parameter>trans</parameter> diventano valori e 
+     i valori di <parameter>trans</parameter> diventano chiavi.
+     </para>
+     <para>
+     Si noti che i valori di <parameter>trans</parameter> devono poter diventare chiavi
+     valide, ovvero devo essere di tipo <type>integer</type> o
+     <type>string</type>. Un errore verr&agrave; segnalato se un valore ha il tipo
+     errato, e la coppia chiave/valore in questione <emphasis>non verr&agrave;
+     scambiata</emphasis>.
+    </para>
+    <para>
+     Se un valore ha pi&ugrave; di una occorrenza, L'ultima chiave verr&agrave;
+     usata come valore, e tutte le altre verranno perse.  
+    </para>
+    <para>
+     <function>array_flip</function> restituisce <literal>FALSE</literal>
+     se fallisce.
+    </para>
+    <para>
+     <example>
+      <title>Esempio di <function>array_flip</function></title>
+      <programlisting role="php">
+$trans = array_flip ($trans);
+$original = strtr ($str, $trans);
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     <example>
+      <title>Esempio di <function>array_flip</function>: collisione</title>
+      <programlisting role="php">
+$trans = array ("a" => 1, "b" => 1, "c" => 2);
+$trans = array_flip ($trans);
+// ora $trans &egrave; : array(1 => "b", 2 => "c");
+      </programlisting>
+     </example>
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-intersect">
+   <refnamediv>
+    <refname>array_intersect</refname>
+    <refpurpose>Calcola l'intersezione degli arrays</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_intersect</function></funcdef>
+      <paramdef>array <parameter>array1</parameter></paramdef>
+      <paramdef>array <parameter>array2</parameter></paramdef>
+      <paramdef>array
+       <parameter><optional> ...</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_intersect</function> restituisce un array
+     contenente tutti i valori di <parameter>array1</parameter>
+     che siano presenti in tutti gli array passati come argomento.
+     Si noti che le chiavi sono preservate.
+    </para>
+    <para>
+     <example>
+      <title>Esempio di <function>array_intersect</function></title>
+      <programlisting role="php">
+$array1 = array ("a" =&gt; "verde", "rosso", "blu");
+$array2 = array ("b" =&gt; "verde", "giallo", "rosso");
+$risultato = array_intersect ($array1, $array2);
+      </programlisting>
+     </example>
+    </para>     
+    <para>
+     In questo modo <varname>$result</varname> sar&agrave; <literal>array ("a"
+     =&gt; "verde", "rosso");</literal>
+    </para>
+    <note>
+     <simpara>
+      Due elementi sono considerati uguali solo e solo se
+      <literal>(string) $elem1 === (string) $elem2</literal>. Ovvero:
+      quando la rappresentazione sotto forma di stringa &egrave; la stessa.
+      <!-- TODO: un esempio... -->
+     </simpara>
+    </note>
+    <warning>
+     <simpara>
+      Questa funzione era errata nel PHP 4.0.4!
+      <!-- TODO: when exactly was this broken?... -->
+     </simpara>
+    </warning>
+    <para>
+     Vedere anche <function>array_diff</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-keys">
+   <refnamediv>
+    <refname>array_keys</refname>
+    <refpurpose>Restituisce tutte le chiavi di un array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_keys</function></funcdef>
+      <paramdef>array <parameter>input</parameter></paramdef>
+      <paramdef>mixed
+       <parameter>
+        <optional>search_value</optional>
+       </parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_keys</function> rstituisce le chiavi, numeriche e
+     stringa, dell'array <parameter>input</parameter>.
+    </para>
+    <para>
+     Se il parametro opzionale  <parameter>search_value</parameter> &egrave; specificato,
+     solo le chiavi con che corrispondono a quel valore vengono restituite. Altrimenti, vengono restituite tutte
+     le chiavi dell'array <parameter>input</parameter>.
+    </para>
+    <para>
+     <example>
+      <title>Esempio di <function>array_keys</function></title>
+      <programlisting role="php">
+$array = array (0 =&gt; 100, "colore" =&gt; "rosso");
+array_keys ($array);       // restituisce array (0, "colore")
+
+$array = array ("blu", "rosso", "verde", "blu", "blu");
+array_keys ($array, "blu");  //  restituisce array (0, 3, 4) 
+
+$array = array ("colore" =&gt; array("blu", "rosso", "verde"), "misura" =&gt; array("piccola", "media", "grande"));
+array_keys ($array);  //  restituisce array ("colore", "misura") 
+      </programlisting>
+     </example>
+    </para>
+    <note>
+     <para>
+      Questa funzione &egrave; stata aggiunta in PHP 4, qui sotto c'&egrave; una implementazione per
+      coloro che usano ancora PHP 3.
+      <example>
+       <title>
+    Implementazione di <function>array_keys</function> per utenti
+    PHP 3
+       </title>
+       <programlisting role="php">
+function array_keys ($arr, $term="") {
+    $t = array();
+    while (list($k,$v) = each($arr)) {
+        if ($term &amp;&amp; $v != $term) {
+            continue;
+            $t[] = $k;
+        }
+        return $t;
+    }
+}
+       </programlisting>
+      </example>
+     </para>
+    </note>
+    <para>
+     Vedere anche <function>array_values</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-map">
+   <refnamediv>
+    <refname>array_map</refname>
+    <refpurpose>
+     Applica la funzione callback a tutti gli elementi dell'array dato
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_map</function></funcdef>
+      <paramdef>mixed <parameter>callback</parameter></paramdef>
+      <paramdef>array <parameter>arr1</parameter></paramdef>
+      <paramdef>array
+       <parameter><optional>arr2...</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_map</function> restituisce un array
+     contenente tutti gli elementi di <parameter>arr1</parameter>
+     dopo che &egrave; stata loro applicata la funzione callback.
+     Il numero di parametri che la funzione callback accetta deve
+     corrispondee al numero di array passati alla funzione <function>array_map</function>
+    </para>
+    <para>
+     <example>
+      <title>Esempio di <function>array_map</function></title>
+      <programlisting role="php">
+function cubo($n) {
+  	return $n*$n*$n;
+}
+
+$a = array(1, 2, 3, 4, 5);
+$b = array_map("cubo", $a);
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     L'array <varname>$b</varname> conterr&agrave;
+     <literal>array (1, 8, 27, 64, 125);</literal>
+    </para>
+    <para>
+     <example>
+      <title><function>array_map</function> - usare pi&ugrave; array</title>
+      <programlisting role="php">
+function mostra_Spagnolo($n, $m) {
+  	return "Il numero $n si dice $m in Spagnolo";
+}
+
+function mappa_Spagnolo($n, $m) {
+   return array ($n => $m);
+}
+
+$a = array(1, 2, 3, 4, 5);
+$b = array("uno", "dos", "tres", "cuatro", "cinco");
+
+$c = array_map("mostra_Spagnolo", $a, $b);
+
+print_r($c);
+
+// dar&agrave;:
+// Array
+// (
+//     [0] => Il numero 1 si dice uno in Spagnolo
+//     [1] => Il numero 2 si dice dos in Spagnolo
+//     [2] => Il numero 3 si dice tres in Spagnolo
+//     [3] => Il numero 4 si dice cuatro in Spagnolo
+//     [4] => Il numero 5 si dice cinco in Spagnolo
+// )
+
+$d = array_map("mappa_Spagnolo", $a , $b);
+
+print_r($d);
+
+// dar&agrave;:
+// Array
+// (
+//     [0] => Array
+//         (
+//             [1] => uno
+//         )
+// 
+//     [1] => Array
+//         (
+//             [2] => dos
+//         )
+// 
+//     [2] => Array
+//         (
+//             [3] => tres
+//         )
+// 
+//     [3] => Array
+//         (
+//             [4] => cuatro
+//         )
+// 
+//     [4] => Array
+//         (
+//             [5] => cinco
+//         )
+// 
+// )
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Generalmente, quando si usano due o pi&ugrave; array, questi devono avere eguale lunghezza
+     in quanto la funzione callback viene applicata in parallelo agli elementi
+     corrispondenti.
+     Se gli array sono di lunghezza diversa, il pi&ugrave; corto verr&agrave; esteso
+     con elementi vuoti.
+    </para>
+    <para>
+     Un uso interessante di questa funzione &egrave; quello di costruire un array di array,
+     cosa che pou&ograve; essere facilmente ottenuta usando <literal>null</literal>
+     come nome della funzione callback
+    </para>
+    <para>
+     <example>
+      <title><function>Array_map</function> - creare un array di array</title>
+      <programlisting role="php">
+$a = array(1, 2, 3, 4, 5);
+$b = array("uno", "due", "tre", "quattro", "cinque");
+$c = array("uno", "dos", "tres", "cuatro", "cinco");
+
+$d = array_map(null, $a, $b, $c);
+print_r($d);
+
+// dar&agrave;:
+// Array
+// (
+//     [0] => Array
+//         (
+//             [0] => 1
+//             [1] => uno
+//             [2] => uno
+//         )
+// 
+//     [1] => Array
+//         (
+//             [0] => 2
+//             [1] => due
+//             [2] => dos
+//         )
+// 
+//     [2] => Array
+//         (
+//             [0] => 3
+//             [1] => tre
+//             [2] => tres
+//         )
+// 
+//     [3] => Array
+//         (
+//             [0] => 4
+//             [1] => quattro
+//             [2] => cuatro
+//         )
+// 
+//     [4] => Array
+//         (
+//             [0] => 5
+//             [1] => cinque
+//             [2] => cinco
+//         )
+// 
+// )
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Vedere anche <function>array_filter</function>,
+     <function>array_reduce</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-merge">
+   <refnamediv>
+    <refname>array_merge</refname>
+    <refpurpose>Fonde due o pi&ugrave; array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_merge</function></funcdef>
+      <paramdef>array <parameter>array1</parameter></paramdef>
+      <paramdef>array <parameter>array2</parameter></paramdef>
+      <paramdef>array
+       <parameter><optional>...</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_merge</function> fonde gli elementi di due o
+     pi&ugrave; array in modo che  i valori di un array siano accodati 
+     a quelli dell'array precedente.  Restituisce l'array risultante.
+    </para>
+    <para>
+     Se gli array in input hanno le stesse chiavi stringa, l'ultimo 
+     valore di quella chiave sovrascriver&agrave; i precedenti.  Se
+     gli array hanno le stess chiavi numeriche, l'ultimo valore non
+     sovrascriver&agrave; quello originale, bens&igrave; sar&agrave; accodato.
+    </para>
+    <para>
+     <example>
+      <title>Esempio di <function>array_merge</function></title>
+      <programlisting role="php">
+$array1 = array ("colore" =&gt; "rosso", 2, 4);
+$array2 = array ("a", "b", "colore" =&gt; "verde", "forma" =&gt; "trapezio", 4);
+array_merge ($array1, $array2);
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     L'array risultante sar&agrave; <literal>array("colore" =&gt; "verde", 2, 4,
+     "a", "b", "forma" =&gt; "trapezio", 4)</literal>.
+    </para>
+    <para>
+     Vedere anche <function>array_merge_recursive</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-merge-recursive">
+   <refnamediv>
+    <refname>array_merge_recursive</refname>
+    <refpurpose>Fonde due o pi&ugrave; array in modo ricorsivo</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_merge_recursive</function></funcdef>
+      <paramdef>array <parameter>array1</parameter></paramdef>
+      <paramdef>array <parameter>array2</parameter></paramdef>
+      <paramdef>array
+       <parameter><optional>...</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>Array_merge_recursive</function> fonde gli elementi di
+     due o pi&ugrave; array in modo tale che i valori di un array siano accodati
+     all'array precedente.  Restituisce l'array risultante.
+    </para>
+    <para>
+     Se gli array in input hanno le stesse chiavi stringa, i valori di
+     queste chiavi vengono fusi in un array, e questo &egrave; fatto in modo
+     ricorsivo, cio&grave; se uno dei valori &egrave; un array, la
+     funzione lo fonder%agrave; con una voce corrispondente in un altro array
+     Comunque, se gli array hanno la stessa chiave numerica, l'ultimo valore
+     non sovrascriver&grave; il valore originale, bens&igrave; verr&agrave; accodato.
+    </para>
+    <para>
+     <example>
+      <title>Esempio di <function>array_merge_recursive</function></title>
+      <programlisting role="php">
+$ar1 = array ("colore" =&gt; array ("preferito" =&gt; "rosso"), 5);
+$ar2 = array (10, "colore" =&gt; array ("preferito" =&gt; "verde", "blu"));
+$result = array_merge_recursive ($ar1, $ar2);
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     L'array risultante sar&agrave; <literal>array ("colore" =&gt; array
+     ("preferito" =&gt; array ("rosso", "verde"), "blu"), 5, 10)</literal>.
+    </para>
+    <para>
+     Vedere anche <function>array_merge</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-multisort">
+   <refnamediv>
+    <refname>array_multisort</refname>
+    <refpurpose>Ordina array multipli o multidimensionali</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>bool <function>array_multisort</function></funcdef>
+      <paramdef>array <parameter>ar1</parameter></paramdef>
+      <paramdef>mixed
+       <parameter><optional>arg</optional></parameter>
+      </paramdef>
+      <paramdef>mixed
+       <parameter><optional>...</optional></parameter>
+      </paramdef>
+      <paramdef>array
+       <parameter><optional>...</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>Array_multisort</function> Pu&ograve; essere usata per ordinare parecchi
+     array allo stesso tempo, oppure un array multidimensionale, rispetto a una o
+     pi&ugrave; dimensioni. Mantiene le associazioni delle chiavi durante l'ordinamento.
+    </para>
+    <para>
+     Gli array in input sono trattati come campi di una tabella che vengano ordinati
+     per righe - questo assomiglia alla funzionalit&agrave; della clausola SQL ORDER BY
+     Il primo array &egrave; quello primario, rispetto a cui aordinare. Le righe
+     (valori) in questo array that siano uguali vengono ordinate secondo
+     l'array successivo, e cos&igrave; via.
+    </para>
+    <para>
+     La struttura degli argomenti di questa funzione &egrave; un po' inusuale, ma
+     flessibile. Il primo argomento deve essere un
+     array. In seguito, ogni argomento pu&ograve; essere sia un aray che
+     un flag di ordinamento, selezionabile dalla seguente lista.
+    </para>
+    <para>
+     Flag di ordinamento:
+     <itemizedlist>
+      <listitem>
+       <simpara>SORT_ASC - ordinamento crescente</simpara>
+      </listitem>
+      <listitem>
+       <simpara>SORT_DESC - ordinamento decrescente</simpara>
+      </listitem>
+     </itemizedlist>
+    </para>
+    <para>
+     Sorting type flags:
+     <itemizedlist>
+      <listitem>
+       <simpara>SORT_REGULAR - confronta gli elementi in modo normale</simpara>
+      </listitem>
+      <listitem>
+       <simpara>SORT_NUMERIC - confronta gli elementi numericamente</simpara>
+      </listitem>
+      <listitem>
+       <simpara>SORT_STRING - confronta gli elementi come stringhe</simpara>
+      </listitem>
+     </itemizedlist>
+    </para>
+    <para>
+     Dopo ogni array, non si possono specificare due flag dello stesso
+     tipo. I flag specificati dopo un array si applicano
+     solo a quell'array - sono reimpostati ai default SORT_ASC e
+     SORT_REGULAR dopo ogni nuovo array passato come argomento.
+    </para>
+    <para>
+     Restituisce &true; in caso di successo, &false;
+     altrimenti.
+    </para>
+    <para>
+     <example>
+      <title>Ordinamre pi&ugrave; array</title>
+      <programlisting role="php">
+$ar1 = array ("10", 100, 100, "a");
+$ar2 = array (1, 3, "2", 1);
+array_multisort ($ar1, $ar2);
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     In questo esempio, dopo l'ordinamento, il primo array conterr&agrave; "10",
+     "a", 100, 100. Il secondo array conterr&agrave; 1, 1, "2", 3. Gli
+     elementi nel secondo array che corrispondono agli elementi
+     identici nel primo array (100 e 100) vengono pure ordinati.
+    </para>
+    <para>
+     <example>
+      <title>Ordinare un array multi-dimensionale</title>
+      <programlisting role="php">
+$ar = array (array ("10", 100, 100, "a"), array (1, 3, "2", 1));
+array_multisort ($ar[0], SORT_ASC, SORT_STRING, 
+                 $ar[1], SORT_NUMERIC, SORT_DESC);
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     In questo esempio, dopo l'ordinamento, il primo array conterr&agrave; 10,
+     100, 100, "a" (ordinato come stringhe ordine crescente), e
+     il secondo conterr&agrave; 1, 3, "2", 1 (ordinati come numeri, in
+     ordine decrescente).
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-pad">
+   <refnamediv>
+    <refname>array_pad</refname>
+    <refpurpose>
+     Riempie con un valore un array fino alla lunghezza specificata
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_pad</function></funcdef>
+      <paramdef>array <parameter>input</parameter></paramdef>
+      <paramdef>int <parameter>pad_size</parameter></paramdef>
+      <paramdef>mixed <parameter>pad_value</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_pad</function> restituisce una copia di
+     <parameter>input</parameter> allungato alla dimensione sepcificata da
+     <parameter>pad_size</parameter> con il valore
+     <parameter>pad_value</parameter>. Se
+     <parameter>pad_size</parameter> &egrave; positivo l'array &egrave;
+     riempito sulla destra, se &egrave;  negativo sulla sinistra. Se il
+     valore assoluto di <parameter>pad_size</parameter> &egrave; minore o
+     uguale alla lunghezza di <parameter>input</parameter> non
+     viene effettuata alcuna modifica.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>array_pad</function></title>
+      <programlisting role="php">
+$input = array (12, 10, 9);
+
+$risultato = array_pad ($input, 5, 0);
+// risultato diventa array (12, 10, 9, 0, 0)
+
+$risultato = array_pad ($input, -7, -1);
+// risultato diventa array (-1, -1, -1, -1, 12, 10, 9)
+
+$risultato = array_pad ($input, 2, "noop");
+// ridimensionamento non efettuato
+      </programlisting>
+     </example>
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-pop">
+   <refnamediv>
+    <refname>array_pop</refname>
+    <refpurpose>Estrae l'elemento alla fine dell'array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>array_pop</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_pop</function> estrae e restituisce l'ultimo valore
+     di <parameter>array</parameter>, accorciando
+     <parameter>array</parameter> di un elemento. 
+     Se <parameter>array</parameter> &egrave; vuoto (o non &egrave; un array), 
+     viene restituito &null;.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>array_pop</function></title>
+      <programlisting role="php">
+$pila = array ("arancia", "mela", "lampone");
+$frutto = array_pop ($pila);
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Dopo questa operazione, <varname>$pila</varname> ha solo 2 elementi:
+     "arancia" e "mela", e <varname>$frutto</varname> contiene
+     "lampone".
+    </para>
+    <para>
+     Vedere anche <function>array_push</function>,
+     <function>array_shift</function>, e
+     <function>array_unshift</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-push">
+   <refnamediv>
+    <refname>array_push</refname>
+    <refpurpose>
+     Accoda uno o pi&ugrave; elementi ad un array
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>array_push</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+      <paramdef>mixed <parameter>var</parameter></paramdef>
+      <paramdef>mixed
+       <parameter><optional>...</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_push</function> tratta
+     <parameter>array</parameter> come una pila, e accoda le
+     variabili date alla fine di <parameter>array</parameter>. La
+     lunghezza di <parameter>array</parameter> aumenta del numero di
+     variabili accodate. Ha lo steso effetto di :
+     <programlisting role="php">
+$array[] = $var;
+     </programlisting>
+     ripetuto per ogni <parameter>var</parameter>.
+    </para>
+    <para>
+     Restituisce il nuovo numero di elementi nell'array.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>array_push</function></title>
+      <programlisting role="php">
+$pila = array (1, 2);
+array_push ($pila, "+", 3);
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Questo esempio fa s&igrave; che <varname>$pila</varname> abbia 4
+     elementi: 1, 2, "+", e 3.
+    </para>
+    <para>
+     Vedere anche: <function>array_pop</function>,
+     <function>array_shift</function>, e
+     <function>array_unshift</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-rand">
+   <refnamediv>
+    <refname>array_rand</refname>
+    <refpurpose>
+     Estrae a caso uno o pi&ugrave; elementi da un array
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>array_rand</function></funcdef>
+      <paramdef>array <parameter>input</parameter></paramdef>
+      <paramdef>int
+       <parameter><optional>num_req</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_rand</function> &egrave; piuttosto utile quando si vuole
+     estrarre a caso  uno o pi&ugrave; elementi da un array. Prende un
+     array (<parameter>input</parameter>) e un argomento ozpionale
+     (<parameter>num_req</parameter>) che specifica quanti elementi
+     estrarre - se non &egrave; specificato, &egrave; 1 per default.
+    </para>
+    <para>
+     Se si sta estraendo solo un elemento, <function>array_rand</function>
+     restituisce la chiave di un elemento. Altrimenti, restituisce un array
+     di chiavi. Questo viene fatto in modo da permettere di estrarre
+     dall'array sia le chiavi che i valori.
+    </para>
+    <para>
+     Non dimenticare di chiamare <function>srand</function> per perturbare il
+     generatore di numri casuali.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>array_rand</function></title>
+      <programlisting role="php">
+srand ((float) microtime() * 10000000);
+$input = array ("Neo", "Morpheus", "Trinity", "Cypher", "Tank");
+$chiavi = array_rand ($input, 2);
+print $input[$chiavi[0]]."\n";
+print $input[$chiavi[1]]."\n";
+      </programlisting>
+     </example>
+    </para>
+   </refsect1>
+  </refentry>
+  
+  <refentry id="function.array-reverse">
+   <refnamediv>
+    <refname>array_reverse</refname>
+    <refpurpose>
+     Restituisce un array con gli elementi in ordine invertito
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_reverse</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+      <paramdef>bool
+       <parameter><optional>mantieni_chiavi</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_reverse</function> prende 
+     <parameter>array</parameter> e restituisce un nuovo array con
+     l'ordine degli elementi invertito, mantenendo le chiavi sie
+     <parameter>mantieni_chiavi</parameter> &egrave; &true;.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>array_reverse</function></title>
+      <programlisting role="php">
+$input = array ("php", 4.0, array ("verde", "rosso"));
+$risultato = array_reverse ($input);
+$resultato_chiavi = array_reverse ($input, TRUE);
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     In questo modo sia <varname>$result</varname> che 
+     <varname>$result_keyed</varname> sono <literal>array(array
+     ("verde", "rosso"), 4.0, "php")</literal>. Ma
+     <varname>$risultato_chiavi[0]</varname> &egrave; sempre
+     <literal>"php"</literal>.
+    </para>
+    <note>
+     <para>
+      Il secondo parametro &egrave; stato aggiunto in PHP 4.0.3.
+     </para>
+    </note>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-reduce">
+   <refnamediv>
+    <refname>array_reduce</refname>
+    <refpurpose>
+     Riduce iterativamente l'array a un singolo valore utilizzando una funzione
+     callback
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>array_reduce</function></funcdef>
+      <paramdef>array <parameter>input</parameter></paramdef>
+      <paramdef>mixed <parameter>callback</parameter></paramdef>
+      <paramdef>int
+       <parameter><optional>initial</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_reduce</function> applica iterativamente la 
+     funzione <parameter>callback</parameter> agli elementi 
+     dell'array <parameter>input</parameter>, riducendo l'array a 
+     un singolo valore. Seil parametro opzionale  <parameter>intial</parameter> &egrave;
+     specificato, viene usato come valore iniziale all'inizio del processo, o come
+     risultato finale nel caso l'array sia vuoto.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>array_reduce</function></title>
+      <programlisting role="php">
+function rsum($v, $w) {
+  	$v += $w;
+	  return $v;
+}
+
+function rmul($v, $w) {
+  	$v *= $w;
+	  return $v;
+}
+
+$a = array(1, 2, 3, 4, 5);
+$x = array();
+$b = array_reduce($a, "rsum");
+$c = array_reduce($a, "rmul", 10);
+$d = array_reduce($x, "rsum", 1);
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     In questo modo <varname>$b</varname> conterr&agrave;
+     <literal>15</literal>, <varname>$c</varname> conterr&agrave;
+     <literal>1200</literal> (= 1*2*3*4*5*10), e <varname>$d</varname>
+     conterr&agrave; <literal>1</literal>.
+    </para>
+    <para>
+     Vedere anche <function>array_filter</function>,
+     <function>array_map</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-shift">
+   <refnamediv>
+    <refname>array_shift</refname>
+    <refpurpose>
+     Estrae l'elemento alla testa dell'array
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>array_shift</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_shift</function> estrae il primo elemento di 
+     <parameter>array</parameter> e lo restituisce, accordiando 
+     <parameter>array</parameter> di un elemento e spostando tutti gli altri
+     all'indietro. Se <parameter>array</parameter> &egrave; vuoto (o non &egrave; un array), 
+     viene restituito &null;.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>array_shift</function></title>
+      <programlisting role="php">
+$args = array ("-v", "-f");
+$opt = array_shift ($args);
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Il risultato sar&agrave; <varname>$args</varname> contenente un elemento
+     "-f", e <varname>$opt</varname> uguale a  "-v".
+    </para>
+    <para>
+     Vedere anche <function>array_unshift</function>,
+     <function>array_push</function>, e
+     <function>array_pop</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-slice">
+   <refnamediv>
+    <refname>array_slice</refname>
+    <refpurpose>Estrae un sottoinsieme da un array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_slice</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+      <paramdef>int <parameter>offset</parameter></paramdef>
+      <paramdef>int
+       <parameter>
+        <optional>length</optional>
+       </parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_slice</function> restituisce  una sequenza di elementi
+     di <parameter>array</parameter> specificati dai
+     parametri <parameter>offset</parameter> e <parameter>length</parameter>
+     .
+    </para>
+    <para>
+     Se <parameter>offset</parameter> &egrave; positivo, la sequenza 
+     comincer&agrave; da quell'offset in <parameter>array</parameter>.  Se
+     <parameter>offset</parameter> &egrave; negativo, la sequenza
+     comincer&agrave; alla distanza <parameter>offset</parameter> dalla fine di <parameter>array</parameter>.
+    </para>
+    <para>
+     Se <parameter>length</parameter> &egrave; specificata ed &egrave; positiva, 
+     la sequenza conterr&agrave; quel numero di elementi. Se
+     <parameter>length</parameter> &egrave; specificata ed &egrave; negativa la
+     sequenza si fermer&agrave; a quel numero di elementi dalla fine
+     dell'array. Se viene omessa, la sequenza conterr&agrave; tutto
+     da <parameter>offset</parameter> fino alla fine di
+     <parameter>array</parameter>.
+    </para>
+    <para>
+     <example>
+      <title>esempi di <function>array_slice</function></title>
+      <programlisting role="php">
+$input = array ("a", "b", "c", "d", "e");
+
+$output = array_slice ($input, 2);      // restituisce "c", "d", e "e"
+$output = array_slice ($input, 2, -1);  // restituisce "c", "d"
+$output = array_slice ($input, -2, 1);  // restituisce "d"
+$output = array_slice ($input, 0, 3);   // restituisce "a", "b", e "c"
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Vedere anche <function>array_splice</function>.
+    </para>     
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-splice">
+   <refnamediv>
+    <refname>array_splice</refname>
+    <refpurpose>
+     Rimuove una porzione dell'array e la sostituisce con
+     altro
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_splice</function></funcdef>
+      <paramdef>array <parameter>input</parameter></paramdef>
+      <paramdef>int <parameter>offset</parameter></paramdef>
+      <paramdef>int
+       <parameter><optional>length</optional></parameter>
+      </paramdef>
+      <paramdef>array
+       <parameter>
+        <optional>replacement</optional>
+       </parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_splice</function> rimuove gli elementi specificati
+     da <parameter>offset</parameter> e
+     <parameter>length</parameter> 
+     dall'array <parameter>input</parameter>, e li sostituisce con gli
+     elementi dell'array <parameter>replacement</parameter>, se
+     fornito.
+    </para>
+    <para>
+     Se <parameter>offset</parameter> &egrave; positivo l'inizio 
+     della porzione rimossa &grave; a quella distanza dall'inizio
+     dell'array <parameter>input</parameter>.  Se
+     <parameter>offset</parameter> &egrave; negativo inizia a quella distanza
+     dalla fine dell'array <parameter>input</parameter>.
+    </para>
+    <para>
+     Se <parameter>length</parameter> &egrave; omessa, rimuove tutti gli elementi
+     da <parameter>offset</parameter> alla fine dell'array.  Se
+     <parameter>length</parameter> &egrave; specificata a positiva,
+     quel numero di elementi vengono rimossi. Se
+     <parameter>length</parameter> &egrave; specificata e negativa
+     la porzione da rimuovere terminer&agrave; a <parameter>length</parameter> elementi dalla
+     fine dell'array.  Suggerimento: per rimuovere tutti gli elementi tra
+     <parameter>offset</parameter> e la fine dell'array quando
+     &egrave; specificato pure <parameter>replacement</parameter>, usare
+     <literal>count($input)</literal> nel parametro
+     <parameter>length</parameter>.
+    </para>
+    <para>
+     Se l'array <parameter>replacement</parameter> &egrave; specificato,
+     gli elementi rimossi sono sostituiti dagli elementi di questo array.
+     Se <parameter>offset</parameter> e
+     <parameter>length</parameter> sono tali per cui niente viene rimosso,
+     gli elementi dell'array <parameter>replacement</parameter>
+     sono inseriti nella posizione specificata da
+     <parameter>offset</parameter>. Suggerimento: se <parameter>replacement</parameter> &egrave; composto solo da
+     un elemento non &egrave; necessario porlo nel costrutto <literal>array()</literal>,
+     a meno che l'elemento stesso non sia un array.
+    </para>
+    <para>
+     Valgono le seguenti equivalenze:
+     <programlisting>
+array_push ($input, $x, $y)     array_splice ($input, count ($input), 0, 
+                                             array ($x, $y))
+array_pop ($input)              array_splice ($input, -1)
+array_shift ($input)            array_splice ($input, 0, 1)
+array_unshift ($input, $x, $y)  array_splice ($input, 0, 0, array ($x, $y))
+$a[$x] = $y                     array_splice ($input, $x, 1, $y)
+     </programlisting>
+    </para>
+    <para>
+     Restituisce un array contenente gli elementi rimossi.
+    </para>
+    <para>
+     <example>
+      <title>esempi di <function>array_splice</function></title>
+      <programlisting role="php">
+$input = array ("rosso", "verde", "blu", "giallo");
+array_splice ($input, 2);      
+// $input &egrave; ora array ("rosso", "verde")
+
+$input = array ("rosso", "verde", "blu", "giallo");
+array_splice ($input, 1, -1);  
+// $input &egrave; ora array ("rosso", "giallo")
+
+$input = array ("rosso", "verde", "blu", "giallo");
+array_splice ($input, 1, count($input), "arancio");  
+// $input &egrave; ora array ("rosso", "arancio")
+
+$input = array ("rosso", "verde", "blu", "giallo");
+array_splice ($input, -1, 1, array("nero", "marrone")); 
+// $input &egrave; ora array ("rosso", "verde", 
+//          "blu", "nero", "marrone")
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Vedere anche <function>array_slice</function>.
+    </para>
+   </refsect1>
+  </refentry>
+ 
+  <refentry id="function.array-sum">
+   <refnamediv>
+    <refname>array_sum</refname>
+    <refpurpose>
+     Calcola la somma dei valori di un array. 
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>array_sum</function></funcdef>
+      <paramdef>array <parameter>arr</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_sum</function> restituisce la somma dei valori
+     dell'array sotto forma di integer o float.
+    </para>
+    <para>
+     <example>
+      <title>esempi di <function>array_sum</function></title>
+      <programlisting role="php">
+$a = array(2,4,6,8);
+echo "sum(a) = ".array_sum($a)."\n";
+// stampa: sum(a) = 20
+
+$b = array("a"=>1.2,"b"=>2.3,"c"=>3.4);
+echo "sum(b) = ".array_sum($b)."\n";
+// stampa: sum(b) = 6.9
+      </programlisting>
+     </example>
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-unique">
+   <refnamediv>
+    <refname>array_unique</refname>
+    <refpurpose>Rimuove i valori duplicati di un array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_unique</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_unique</function> prende
+     <parameter>array</parameter> and restituisce un nuovo array
+     senza i valori duplicati.
+    </para>
+    <para>
+     Si noti che le chiavi sono mantenute. <function>array_unique</function>
+     manterr&agrave; la prima chiave trovata per ogni valore, e ignorer&agrave; tutte
+     lechiavi successive.
+    </para>
+    <note>
+     <simpara>
+      Due elementi sono considerati uguali se e solo se
+      <literal>(string) $elem1 === (string) $elem2</literal>. Ovvero:
+      quando la rappresentazione sotto forma di stringa &egrave; la stessa.
+      <!-- TODO: example of it... -->
+     </simpara>
+     <simpara>
+      Verr&agrave; usato il primo elemento.
+     </simpara>
+    </note>
+    <warning>
+     <simpara>
+      Questa funzione era errata nel PHP 4.0.4!
+      <!-- TODO: when exactly was this broken?... -->
+     </simpara>
+    </warning>
+    <para>
+     <example>
+      <title>esempio di <function>array_unique</function></title>
+      <programlisting role="php">
+$input = array ("a" =&gt; "verde", "rosso", "b" =&gt; "verde", "blu", "rosso");
+$risultato = array_unique ($input);
+print_r($result);
+// il risultato sar&agrave; :
+//Array
+//(
+//    [a] => verde
+//    [0] => rosso
+//    [1] => blu
+//)
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     <example>
+      <title><function>array_unique</function> e i tipi</title>
+      <programlisting role="php">
+$input = array (4,"4","3",4,3,"3");
+$risultato = array_unique ($input);
+var_dump($risultato);
+
+/* risultato:
+array(2) {
+   [0]=>
+   int(4)
+   [1]=>
+   string(1) "3"
+}
+*/
+      </programlisting>
+     </example>
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-unshift">
+   <refnamediv>
+    <refname>array_unshift</refname>
+    <refpurpose>
+     Inserisce uno o pi&ugrave; elementi all'inizio dell'array
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>array_unshift</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+      <paramdef>mixed <parameter>var</parameter></paramdef>
+      <paramdef>mixed
+       <parameter>
+        <optional>...</optional>
+       </parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_unshift</function> aggiunge gli elementi specificati in
+     testa ad <parameter>array</parameter>. Si noti che la lista
+     di elementi &egrave; aggiunta in blocco, in modo tale che gli
+     elementi rimangono nello stesso ordine.
+    </para>
+    <para>
+     Restituisce il nuovo numero di elementi in
+     <parameter>array</parameter>.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>array_unshift</function></title>
+      <programlisting role="php">
+$lista = array ("p1", "p3");
+array_unshift ($lista, "p4", "p5", "p6");
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     <varname>$lista</varname> conter&agrave; 5
+     elementi: "p4", "p5", "p6", "p1", e "p3".
+    </para>
+    <para>
+     Vedere anche <function>array_shift</function>,
+     <function>array_push</function>, e
+     <function>array_pop</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-values">
+   <refnamediv>
+    <refname>array_values</refname>
+    <refpurpose>Restituisce tutti i valori di un array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>array_values</function></funcdef>
+      <paramdef>array <parameter>input</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>array_values</function> restituisce tutti i valori
+     dell'array <parameter>input</parameter>.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>array_values</function></title>
+      <programlisting role="php">
+$array = array ("taglia" =&gt; "XL", "colore" =&gt; "oro");
+array_values ($array);    // restituisce l'array ("XL", "oro")
+      </programlisting>
+     </example>
+    </para>
+    <note>
+     <para>
+      Questa funzione &egrave; stata aggiunta in PHP 4, qui sotto si trova una implementazione
+      per chi usa ancora PHP 3.
+      <example>
+       <title>
+    Implementazone di <function>array_values</function> per gli utenti
+    PHP 3
+       </title>
+       <programlisting role="php">
+function array_values ($arr) {
+    $t = array();
+    while (list($k, $v) = each ($arr)) {
+        $t[] = $v;
+    }
+    return $t;
+}
+       </programlisting>
+      </example>
+     </para>
+    </note>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-walk">
+   <refnamediv>
+    <refname>array_walk</refname>
+    <refpurpose>
+     Esegue una funzione su ogni elemento dell'array
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>array_walk</function></funcdef>
+      <paramdef>array <parameter>arr</parameter></paramdef>
+      <paramdef>string <parameter>funzione</parameter></paramdef>
+      <paramdef>mixed 
+       <parameter><optional>datiutente</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <simpara>
+     Esegue la funzione definita dall'utente identificata da <parameter>funzione</parameter> 
+     su ogni elemento di <parameter>arr</parameter>.
+     A <parameter>funzione</parameter> varr&agrave; passato il valore dell'elemento come
+     primo parametro e la chiavecome secondo parametro.  Se
+     <parameter>datiutente</parameter> egrave; specificato, verr&agrave; passato come
+     terzo parametro alla funzione. <parameter>funzione</parameter> 
+     deve essere una funzione definita dall'utente, e non pu&ograve; essere una funzione nativa PHP.
+     Quindi, non si pu&ograve; usare <function>array_walk</function> direttamente con
+     <function>str2lower</function>, bens&igrave; occorre  cstruire una funzione utente
+     con tale istruzione, e passarla come argomento.
+    </simpara>
+    <simpara>
+     Se <parameter>funzione</parameter> richiede pi&ugrave; di due o tre
+     argomenti, a seconda di <parameter>datiutente</parameter>, un
+     warning verr&agrave; generato ogni qualvolta
+     <function>array_walk</function> chiama
+     <parameter>funzione</parameter>. Questi warnings possono essere soppressi
+     apponendo il simbolo '@' alla chiamata di <function>array_walk</function>,
+     oppure usando <function>error_reporting</function>.
+    </simpara>
+    <note>
+     <para>
+      Se <parameter>funzione</parameter> deve lavorare con i 
+      reali valori dell'array, specificare che il primo parametro di 
+      <parameter>funzione</parameter> deve essere passato come riferimento. A qesto punto
+      ogni modifica a questi elementi verr&agrave; effettuata sull'array
+      stesso.
+     </para>
+    </note>
+    <note>
+     <para>
+      Il passaggio della chiave e di <parameter>datiutente</parameter> a <parameter>func</parameter> &egrave;
+      stato aggiunto nella versione 4.0.
+     </para>
+     <para>
+      In PHP 4 la funzione <function>reset</function> deve essere chiamata 
+      obbligatoriamente, in quanto <function>array_walk</function> non reinizializza 
+      automaticamente l'array.
+     </para>
+    </note>
+    <para>
+     <example>
+      <title>esempio di <function>array_walk</function></title>
+      <programlisting role="php">
+$frutta = array ("d"=&gt;"limone", "a"=&gt;"arancia", "b"=&gt;"banana", "c"=&gt;"mela");
+
+function modifica (&amp;$elemento1, $chiave, $prefisso) {
+    $elemento1 = "$prefisso: $elemento1";
+}
+
+function stampa ($elemento2, $chiave) {
+    echo "$chiave. $elemento2&lt;br&gt;\n";
+}
+
+array_walk ($frutta, 'stampa');
+reset ($frutta);
+array_walk ($frutta, 'modifica', 'frutto');
+reset ($frutta);
+array_walk ($frutta, 'stampa');
+      </programlisting>
+     </example>
+    </para>
+    <simpara>
+     Vedere anche <function>each</function> e <function>list</function>.
+    </simpara>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.arsort">
+   <refnamediv>
+    <refname>arsort</refname>
+    <refpurpose>
+     Ordina un array in ordine decrescente e mantiene le associazioni degli indici
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>arsort</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+      <paramdef>int 
+       <parameter><optional>sort_flags</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funzione ordina un array in modo tale che i suoi indici mantengano
+     la loro correlazione con gli elementi ai quali sono associati.
+     Viene usata principalmente nell'ordinamento degli array associativi, quando
+     la disposizione originaria degli elementi &egrave; importante .
+     <example>
+      <title>esempio di <function>arsort</function></title>
+      <programlisting role="php">
+$frutta = array ("d"=&gt;"limone", "a"=&gt;"arancia", "b"=&gt;"banana", "c"=&gt;"mela");
+arsort ($frutta);
+reset ($frutta);
+while (list ($chiave, $valore) = each ($frutta)) {
+    echo "$chiave = $valore\n";
+}
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Questo esempio mostrer&agrave;:
+    </para>
+    <para>
+     <informalexample>
+      <programlisting>
+frutta[c] = mela
+frutta[d] = limone
+frutta[b] = banana
+frutta[a] = arancia
+      </programlisting>
+     </informalexample>
+    </para>
+    <para>
+     I frutti sono ordinati in ordine alfabetico decrescente, e
+     l'indice associato a ogni elemento &egrave; stato mantenuto.
+    </para>
+    <para>
+     &Egrave; possibile modificare il comportamento dell'ordinamento usando il parametro
+     opzionale <parameter>sort_flags</parameter>, per maggiori dettagli
+     vedere <function>sort</function>.
+    </para>
+    <para>
+     vedere anche: <function>asort</function>, <function>rsort</function>,
+     <function>ksort</function>, e <function>sort</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.asort">
+   <refnamediv>
+    <refname>asort</refname>
+    <refpurpose>Ordina un array e mantiene le associazioni degli indici</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>asort</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+      <paramdef>int
+       <parameter><optional>sort_flags</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funzione ordina un array in modo tale che i suoi indici mantengano
+     la loro correlazione con gli elementi ai quali sono associati.
+     Viene usata principalmente nell'ordinamento degli array associativi, quando
+     la disposizione originaria degli elementi &egrave; importante .
+     <example>
+      <title>esempio di <function>asort</function></title>
+      <programlisting role="php">
+$frutta = array ("d"=&gt;"limone", "a"=&gt;"arancia", "b"=&gt;"banana", "c"=&gt;"mela");
+asort ($frutta);
+reset ($frutta);
+while (list ($chiave, $valore) = each ($frutta)) {
+    echo "$chiave = $valore\n";
+}
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Questo esempio mostrer&agrave;:
+    </para>
+    <para>
+     <informalexample>
+      <programlisting>
+fruits[a] = arancia
+fruits[b] = banana
+fruits[d] = limone
+fruits[c] = mela
+      </programlisting>
+     </informalexample>
+    </para>
+    <para>
+     I frutti sono ordinati in ordine alfabetico , e l'indice
+     associato ad ogni elemento &egrave stato mantenuto.
+    </para>
+    <para>
+     &Egrave; possibile modificare il comportamento dell'ordinamento usando il parametro
+     opzionale <parameter>sort_flags</parameter>, per maggiori dettagli
+     vedere <function>sort</function>.
+    </para>
+    <para>
+     Vedere anche <function>arsort</function>, <function>rsort</function>,
+     <function>ksort</function>, e <function>sort</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.compact">
+   <refnamediv>
+    <refname>compact</refname>
+    <refpurpose>
+     Crea un array contenente variabili e il loro valore
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>compact</function></funcdef>
+      <paramdef>mixed <parameter>varname</parameter></paramdef>
+      <paramdef>mixed
+       <parameter><optional>...</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>compact</function> accetta un numero variabile di 
+     parametri. Ogni parametro pu&ograve; essere una stringa contenente il
+     nome della variabile, o un array di nomi di variabile.  L'array
+     pu&ograve; contenere altri array di nomi di variabile;
+     <function>compact</function> se ne occupa in modo ricorsivo.
+    </para>
+    <para>
+     Per ogniuno di questi, <function>compact</function> cerca la
+     variabile con quel nome nella tabella dei simboli corrente, e la aggiunge
+     all'array di output in modo tale che  il nome della variabile diventa la chiave
+     e i contenuti della variabile diventano il valore associato a quella chiave.
+     In breve, In short, <function>compact</function> &grave; l'opposto di <function>extract</function>.
+     Restituisce l'array di output con tutte le variabili aggiunte a quest'ultimo.
+    </para>
+    <para>
+     Qualsiasi stringa non valorizzata verr&agrave; semplicemente ignorata.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>compact</function></title>
+      <programlisting role="php">
+$citta = "Milano";
+$provincia = "MI";
+$evento = "SMAU";
+
+$var_luoghi = array ("citta", "provincia");
+
+$risultato = compact ("evento", "niente", $var_luoghi);
+      </programlisting>
+      <para>
+       In questo modo, <varname>$risultato</varname> sar&agrave; <literal>array
+       ("evento" =&gt; "SMAU", "citta" =&gt; "Milano",
+       "provincia" =&gt; "MI")</literal>.
+      </para>
+     </example>
+    </para>
+    <para>
+     Vedere anche <function>extract</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.count">
+   <refnamediv>
+    <refname>count</refname>
+    <refpurpose>Conta gli elementi in una variabile</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>count</function></funcdef>
+      <paramdef>mixed <parameter>var</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Restituisce il numero di elementi in <parameter>var</parameter>,
+     la quale &egrave; di norma un array (dal momento che qualsiasi altro oggetto avr&agrave; un
+     elemento).
+    </para>
+    <para>
+    Se <parameter>var</parameter> non &egrave; un array, verr&agrave restituito <literal>1</literal> 
+    (eccezzione: <literal>count(&null;)</literal> restituisce
+    <literal>0</literal>
+    </para>
+    <warning>
+      <para>
+       <function>count</function> pu&ograve; restituire 0 per una variabile che
+       non &egrave; impostata, ma pu&ograve; anche restituire 0 per una variabile che &egrave;
+       stata inizializzata con un array vuoto. Usare
+       <function>isset</function> per verificare se una variabile &egrave; impostata.
+      </para>
+    </warning>
+    <para>
+    Vedere la sezione <link linkend="language.types.array">Arrays</link>
+    nel manuala per una spiegazione dettagliata di come gli array siano 
+    implementati ed usati in PHP.
+   </para>
+    <para>
+     <example>
+      <title>esempio di <function>count</function></title>
+      <programlisting role="php">
+      <!-- TODO: examples about count(null), count(false), count(object).. -->
+$a[0] = 1; 
+$a[1] = 3; 
+$a[2] = 5; 
+$risultato = count ($a);
+//$risultato == 3
+
+$b[0] = 7;
+$b[5] = 9;
+$b[10] = 11;
+$risultato = count ($b);
+// $result == 3;
+      </programlisting>
+     </example>
+    </para>
+   <note>
+    <para>
+     La funzione <function>sizeof</function> &egrave; un alias per
+     <function>count</function>.
+    </para>
+   </note>
+    <para>
+     Vedere anche: <function>sizeof</function>,
+     <function>isset</function>, e
+     <function>is_array</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.current">
+   <refnamediv>
+    <refname>current</refname>
+    <refpurpose>Restituisce l'elemento corrente di un array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>current</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Ogni array ha un puntatore interno all'elemento "corrente",
+     Che &egrave; inizializzato al primo elemento inserito
+     nell'array.
+    </para>
+    <para>
+     La funzione <function>current</function> restituisce 
+     l'elemento che &egrave; attualmente puntato dal puntatore
+     interno. In ogni caso non muove il puntatore.  Se il
+     puntatore interno punta oltre la fine della lista di elementi,
+     <function>current</function> restituisce &false;.
+     <warning>
+      <para> 
+       Se l'array contiene elementi vuoti (0 o "", la stringa
+       vuota) la funzione restituir&agrave; &false; 
+       pure per questi elementi.  Questo rende impossibile
+       stabilire se si &egrave; veramente alla fine della lista in un 
+       array di questo tipo usando <function>current</function>.  Per attraversare
+       in modo corretto un array che pu&ograve; contenere elementi vuoti, usare la
+       funzione <function>each</function>.
+      </para>
+     </warning>
+    </para>
+    <para>
+     Vedere anche: <function>end</function>, <function>next</function>,
+     <function>prev</function>, e <function>reset</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.each">
+   <refnamediv>
+    <refname>each</refname> 
+    <refpurpose>
+     Restituisce la successiva coppia chiave/valore di un array e incrementa
+     il puntatore dell'array
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>each</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Restituisce la corrente coppia chiave/valore corrente di
+     <parameter>array</parameter> e incrementa il puntatore interno dell'array. Questa
+     coppia &egrave; restituita in un array di quattro elementi, con le chiavi
+     <emphasis>0</emphasis>, <emphasis>1</emphasis>,
+     <emphasis>key</emphasis>, and
+     <emphasis>value</emphasis>. Gli elementi <emphasis>0</emphasis> e
+     <emphasis>key</emphasis> contengono il nome della chiave dell'elemento
+     dell'array, mentre <emphasis>1</emphasis> e
+     <emphasis>value</emphasis> contengono i dati.
+    </para>
+    <para>
+     Se il puntatore interno dell'array punta oltre la fine dei
+     contenuti dell'array, <function>each</function> restituisce 
+     &false;.
+    </para>
+    <para>
+     <example>
+      <title>esempi di<function>each</function></title>
+      <programlisting role="php">
+$foo = array ("bob", "fred", "jussi", "jouni", "egon", "marliese");
+$bar = each ($foo);
+      </programlisting>
+      <para>
+       <varname>$bar</varname> ora contiene la seguente coppia 
+       chiave/valore:
+       <itemizedlist spacing="compact">
+        <listitem><simpara>0 =&gt; 0</simpara></listitem>
+        <listitem><simpara>1 =&gt; 'bob'</simpara></listitem>
+        <listitem><simpara>key =&gt; 0</simpara></listitem>
+        <listitem><simpara>value =&gt; 'bob'</simpara></listitem>
+       </itemizedlist>
+       <programlisting role="php">
+$foo = array ("Robert" =&gt; "Bob", "Seppo" =&gt; "Sepi");
+$bar = each ($foo);
+       </programlisting>
+      </para>
+      <para>
+       <varname>$bar</varname> ora contiene la seguente coppia 
+       chiave/valore:
+       <itemizedlist spacing="compact">
+        <listitem><simpara>0 =&gt; 'Robert'</simpara></listitem>
+        <listitem><simpara>1 =&gt; 'Bob'</simpara></listitem>
+        <listitem><simpara>key =&gt; 'Robert'</simpara></listitem>
+        <listitem><simpara>value =&gt; 'Bob'</simpara></listitem>
+       </itemizedlist>
+      </para>
+     </example>
+    </para>
+    <para>
+     <function>each</function> viene normalmente usata in congiunzione con
+     <function>list</function> nell'attraversamento di un array; per esempio,
+     <varname>$HTTP_POST_VARS</varname>: 
+     <example>
+      <title>
+       Attraversamento di <varname>$HTTP_POST_VARS</varname> con
+       <function>each</function>
+      </title>
+      <programlisting role="php">
+echo "Valori inviati con il metodo POST:&lt;br&gt;";
+reset ($HTTP_POST_VARS);
+while (list ($chiave, $valore) = each ($HTTP_POST_VARS)) {
+    echo "$chiave =&gt; $valore&lt;br&gt;";
+}
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Dopo l'esecuzione di <function>each</function>, il puntatore dell'array
+     viene lasciato sull'elemento successivo, o sull'ultimo
+     elemento se si &egrave; alla fine dell'array.
+    </para>
+    <para>
+     Vedere anche <function>key</function>, <function>list</function>,
+     <function>current</function>, <function>reset</function>,
+     <function>next</function>, e <function>prev</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.end">
+   <refnamediv>
+    <refname>end</refname>
+    <refpurpose>
+     Sposta il puntatore interno dell'array all'ultimo elemento
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>end</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>end</function> fa avanzare il puntatore di <parameter>array</parameter>
+     all'ultimo elemento, e restituisce l'elemento.
+    </para>
+    <para>
+     Vedere anche: <function>current</function>,
+     <function>each</function>, <function>end</function>,
+     <function>next</function>, e <function>reset</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.extract">
+   <refnamediv>
+    <refname>extract</refname>
+    <refpurpose>
+     Importa le variabili nella tabella dei simboli
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>extract</function></funcdef>
+      <paramdef>array <parameter>var_array</parameter></paramdef>
+      <paramdef>int 
+       <parameter><optional>extract_type</optional></parameter>
+      </paramdef>
+      <paramdef>string 
+       <parameter><optional>prefix</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funzione viene usata per importare delle variabili da un array nella
+     tabella dei simbloi corrente. Riceve un array associativo
+     <parameter>var_array</parameter> e interpreta le chiavi come nomi di
+     variabile e i valori come valori di variabile. Per ogni coppia chiave/valore
+     verr&agrave; creata una variabile nella tabella dei simboli corrente, coerentemente con
+     i parametri <parameter>extract_type</parameter> e
+     <parameter>prefix</parameter>.
+    </para>
+    <note>
+     <para>
+      Since version 4.0.5 this function returns the number of
+      variables extracted.
+     </para>
+    </note>
+    <para>
+     <function>extract</function> controlla ogni chiave per stabilire se 
+     costituisce un nome valido di variabile e se ci sono collisioni con
+     variabili gi&agrave; esistenti nella tabella dei simboli. Il modo in cui vengono trattate le
+     chiavi invalide/numeriche e le collisioni &egrave; determinato da
+     <parameter>extract_type</parameter>. Pu&ograve; essere uno dei
+     seguenti valori:
+     <variablelist>
+      <varlistentry>
+       <term>EXTR_OVERWRITE</term>
+       <listitem>
+        <simpara>
+         Se avviene una collisione, sovrascrive la variabile esistente.
+        </simpara>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>EXTR_SKIP</term>
+       <listitem>
+        <simpara>
+         Se avviene una collisione, non sovrascrive la variabile
+         esistente.
+        </simpara>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>EXTR_PREFIX_SAME</term>
+       <listitem>
+        <simpara>Se avviene una collisione, mette come prefisso al nome della variabile il
+        parametro <parameter>prefix</parameter>.
+        </simpara>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>EXTR_PREFIX_ALL</term>
+       <listitem>
+        <simpara>
+         Mette come prefisso di tutte le variabili il parametro 
+         <parameter>prefix</parameter>. Dal PHP 4.0.5 questo avviene
+         anche per i valori numerici.
+        </simpara>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>EXTR_PREFIX_INVALID</term>
+       <listitem>
+        <simpara>
+         Mette come prefisso, solo per i nomi di variabili invalidi/numerici, 
+         il paramentro <parameter>prefix</parameter>. Questa opzione &egrave; stata aggiunta in 
+         PHP 4.0.5.
+        </simpara>
+       </listitem>
+      </varlistentry>
+     </variablelist>
+    </para>
+    <para>
+     Se <parameter>extract_type</parameter> non egrave; specificato, si
+     assume che sia EXTR_OVERWRITE.
+    </para>
+    <para>
+     Si noti che <parameter>prefix</parameter> &egrave; richiesto solo se
+     <parameter>extract_type</parameter> &egrave; EXTR_PREFIX_SAME,
+      EXTR_PREFIX_ALL, o EXTR_PREFIX_INVALID. Se il risultato
+     non &egrave; un nome di variabile valido, non viene importato nella tabella
+     dei simboli.
+    </para>
+    <para>
+     <function>extract</function> restituisce il numero di variabili importate
+     con successo nella tabella dei simboli.
+    </para>
+    <para>
+     Un possibile uso di <function>extract</function> &egrave; quello di importare nella tabella dei simboli
+     variabili contenute in un array associativo restituito da
+     <function>wddx_deserialize</function>.
+    </para>
+    <para>
+     <example>
+      <title>esempio di<function>extract</function></title>
+      <programlisting role="php">
+&lt;?php
+
+/* Si supponga che $array_variabili sia un array restituito da
+   wddx_deserialize */
+
+$dimensione = "grande";
+$array_variabili = array ("colore" =&gt; "blu",
+                    "dimensione"  =&gt; "media",
+                    "forma" =&gt; "sfera");
+extract ($array_variabili, EXTR_PREFIX_SAME, "wddx");
+
+print "$colore, $dimensione, $forma, $wddx_dimensione\n";
+
+?>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Questo esempio mostrer&agrave;:
+     <programlisting>
+blu, grande, sfera, media
+     </programlisting>
+    </para>
+    <para>
+     La variabile <varname>$dimensione</varname> non &egrave; stata sovrascritta, in quanto &egrave;
+     specificato EXTR_PREFIX_SAME, che ha portato alla
+     creazione di <varname>$wddx_dimensione</varname>.  Se fosse stato specificato EXTR_SKIP,
+     $wddx_dimensione non sarebbe stata creata.
+     EXTR_OVERWRITE avrebbe portato <varname>$dimensione</varname> ad assumere
+     il valore "medio", e EXTR_PREFIX_ALL avrebbe fatto creare nuove variabili
+     chiamate <varname>$wddx_colore</varname>,
+     <varname>$wddx_dimensione</varname>, e
+     <varname>$wddx_forma</varname>.
+    </para>
+    <para>
+     Si deve usare un array associativo, un array indicizzato numericamente
+     non produce risultati.
+    </para>
+    <para>
+     Vedere anche: <function>compact</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.in-array">
+   <refnamediv>
+    <refname>in_array</refname>
+    <refpurpose>Restituisce &true; se un valore &egrave; presente in un array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>bool <function>in_array</function></funcdef>
+      <paramdef>mixed <parameter>ago</parameter></paramdef>
+      <paramdef>array <parameter>pagliaio</parameter></paramdef>
+      <paramdef>bool 
+       <parameter><optional>strict</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Cerca in <parameter>pagliaio</parameter> per trovare
+     <parameter>ago</parameter> e restituisce &true; 
+     se viene trovato nell'array, &false; altrimenti.
+    </para>
+    <para>
+     Se il terzo parametri <parameter>strict</parameter> &egrave;
+     &true; la funzione <function>in_array</function>
+     controller&agrave; anche il tipo di <parameter>ago</parameter>
+     nell'array <parameter>haystack</parameter>.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>in_array</function></title>
+      <programlisting role="php">
+$os = array ("Mac", "NT", "Irix", "Linux");
+if (in_array ("Irix", $os)){
+    print "trovato Irix";
+    }
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>in_array</function> con strict</title>
+      <programlisting role="php">
+&lt;?php
+$a = array('1.10', 12.4, 1.13);
+
+if (in_array('12.4', $a, TRUE))
+    echo &quot;'12.4' trovato con controllo strict\n&quot;;
+if (in_array(1.13, $a, TRUE))
+    echo &quot;1.13 trovto con controllo strict\n&quot;;
+?&gt;
+
+// Questo ritorner&agrave;:
+
+1.13 troato con controllo strict
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Vedere anche <function>array_search</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-search">
+   <refnamediv>
+    <refname>array_search</refname>
+    <refpurpose>
+     Ricerca un dato valore in un array e ne restituisce la 
+     chiave corrispondente, se la ricerca ha successo
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title> 
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>array_search</function></funcdef>
+      <paramdef>mixed <parameter>ago</parameter></paramdef>
+      <paramdef>array <parameter>pagliaio</parameter></paramdef>
+      <paramdef>bool <parameter>strict</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Cerca in <parameter>pagliaio</parameter> per trovare
+     <parameter>ago</parameter> e restituisce la chiave se viene trovato
+     nell'array, &false; altrimenti.
+    </para>
+    <para>
+     Se il terzo parametro <parameter>strict</parameter> &egrave; impostato a
+     &true; la funzione <function>array_search</function>
+     controller&egrave; anche il tipo di <parameter>needle</parameter>
+     nell'array <parameter>pagliaio</parameter>.
+    </para>
+    <para>
+     Vedere anche <function>in_array</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.key">
+   <refnamediv>
+    <refname>key</refname>
+    <refpurpose>Estrae la chiave corrente da un array associativo</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>key</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>key</function> restituisce la chiave corrispondente
+     all'attuale posizione del puntatore interno all'array.
+    </para>
+    <para>
+     Vedere anche <function>current</function> e <function>next</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.krsort">
+   <refnamediv>
+    <refname>krsort</refname>
+    <refpurpose>Ordina rispetto alle chiavi di un array in ordine inverso</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>krsort</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+      <paramdef>int 
+       <parameter><optional>sort_flags</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Ordina un array rispeto alle sue chiavi, in ordine inverso, mantenendo
+     le associazioni. Questa funzione &egrave; utile con gli array associativi.
+     <example>
+      <title>Esempio di <function>krsort</function></title>
+      <programlisting role="php">
+$frutti = array ("d"=&gt;"limone", "a"=&gt;"arancio", "b"=&gt;"banana", "c"=&gt;"mela");
+krsort ($frutti);
+reset ($frutti);
+while (list ($chiave, $valore) = each ($frutti)) {
+    echo "$chiave -&gt; $valore\n";
+}
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Questo esempio mostrer&agrave;:
+    </para>
+    <para>
+     <informalexample>
+      <programlisting>
+d = limone
+c = mela
+b = banana
+a = arancio
+      </programlisting>
+     </informalexample>
+    </para>
+    <para>
+     Si pu&ograve; modificare il comportamento dell'ordinamento usando il parametro
+     opzionale <parameter>sort_flags</parameter>, per ulteriori dettagli 
+     vedere <function>sort</function>.
+    </para>
+    <simpara>
+     Vedere anche <function>asort</function>, <function>arsort</function>,
+     <function>ksort</function> <function>sort</function>, 
+     <function>natsort</function> e <function>rsort</function>.
+    </simpara>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.ksort">
+   <refnamediv>
+    <refname>ksort</refname>
+    <refpurpose>Ordina rispetto alle chiavi di un array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ksort</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+      <paramdef>int 
+       <parameter><optional>sort_flags</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Ordina un array rispeto alle sue chiavi, mantenendo le associazioni. Questa 
+     funzione &egrave; utile con gli array associativi.
+     <example>
+      <title>esempio di <function>ksort</function></title>
+      <programlisting role="php">
+$frutti = array ("d"=&gt;"limone", "a"=&gt;"arancia", "b"=&gt;"banana", "c"=&gt;"mela");
+ksort ($frutti);
+reset ($frutti);
+while (list ($chiave, $valore) = each ($frutti)) {
+    echo "$chiave = $valore\n";
+}
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Questo esempio mostrer&agrave;:
+    </para>
+    <para>
+     <informalexample>
+      <programlisting>
+a = arancia
+b = banana
+c = mela
+d = limone
+      </programlisting>
+     </informalexample>     
+    </para>
+    <para>
+     Si pu&ograve; modificare il comportamento dell'ordinamento usando il parametro
+     opzionale <parameter>sort_flags</parameter>, per ulteriori dettagli 
+     vedere <function>sort</function>.
+    </para>
+    <simpara>
+     Vedere anche <function>asort</function>, <function>arsort</function>, 
+     <function>sort</function>, <function>natsort</function>, e 
+     <function>rsort</function>.
+    </simpara>
+    <note>
+     <para>
+      Il secondo parametro &egrave; stato aggiunto in PHP 4.
+     </para>
+    </note>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.list">
+   <refnamediv>
+    <refname>list</refname>
+    <refpurpose>
+     Assegna valori a delle variabili come se fossero un array
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>list</function></funcdef>
+      <varargs/>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Come <function>array</function>, questa non &egrave; in realt$agrave; una funzione,
+     bens&igrave; un costrutto del linguaggio.  <function>list</function> &egrave; usata per
+     assegnare valori ad una lista di variabili in una sola operazione.
+     <example>
+      <title>esempio di <function>list</function></title>
+      <programlisting role="php">
+&lt;table>
+ &lt;tr>
+  &lt;th>Nome dell'impiegato&lt;/th>
+  &lt;th>Stipendio&lt;/th>
+ &lt;/tr>
+
+&lt;?php
+
+$risultato = mysql_query ($conn, "SELECT id, nome, stipendio FROM impiegati");
+while (list ($id, $nome, $stipendio) = mysql_fetch_row ($risultato)) {
+    print (" &lt;tr>\n".
+           "  &lt;td>&lt;a href=\"info.php3?id=$id\">$nome&lt;/a>&lt;/td>\n".
+           "  &lt;td>$stipendio&lt;/td>\n".
+           " &lt;/tr>\n");
+}
+
+?>
+
+&lt;/table>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Vedere anche <function>each</function> e <function>array</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.natsort">
+   <refnamediv>
+    <refname>natsort</refname>
+    <refpurpose>
+     Ordina un array usando un algoritmo di "ordine naturale"
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>natsort</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funziona implementa un algoritmo di ordinamento che ordina
+     le stringhe alfanumeriche come lo farebbe un essere umano. Questo egrave;
+     chamato "ordine naturale". un esempio della differenza
+     tra questo algoritmo e e quello normalmente usato dai computer
+     (usato in <function>sort</function>) &egrave; dato qui sotto:
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>natsort</function></title>
+      <programlisting role="php">
+$array1 = $array2 = array ("img12.png","img10.png","img2.png","img1.png");          
+
+sort($array1);
+echo "Ordinamento standard\n";
+print_r($array1);
+
+natsort($array2);
+echo "\nOrdinamento naturale\n";
+print_r($array2);
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Questo codice generer&agrave; il seguente risultato:
+    </para>
+    <para>
+     <informalexample>
+      <programlisting>
+Ordinamento standard
+Array
+(
+    [0] =&gt; img1.png
+    [1] =&gt; img10.png
+    [2] =&gt; img12.png
+    [3] =&gt; img2.png
+)
+
+Ordinamento naturale
+Array
+(
+    [3] =&gt; img1.png
+    [2] =&gt; img2.png
+    [1] =&gt; img10.png
+    [0] =&gt; img12.png
+)
+      </programlisting>
+     </informalexample>
+     Per ulteriori informazioni vedere la pagina di Martin Pool <ulink
+     url="&url.strnatcmp;">Natural Order String Comparison</ulink>
+     .
+    </para>
+    <para>
+     Vedere anche <function>natcasesort</function>,
+     <function>strnatcmp</function> e
+     <function>strnatcasecmp</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.natcasesort">
+   <refnamediv>
+    <refname>natcasesort</refname>
+    <refpurpose>
+     Ordina un array usando un algoritmo di "ordine naturale" non sensibile alle maiuscole/minuscole
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>natcasesort</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funziona implementa un algoritmo di ordinamento che ordina
+     le stringhe alfanumeriche come lo farebbe un essere umano. Questo egrave;
+     chamato "ordine naturale".
+    </para>
+    <para>
+     <function>natcasesort</function> &grave; una versione, non sensibile alle maiuscole/minuscole, di
+     <function>natsort</function>.  Vedere <function>natsort</function>
+     per un esempio della differenza tra questo algoritmo e quello
+     normalmente usato dai computer.
+    </para>
+    <para>
+     Per maggiori informazioni vedere la pagina di Martin Pool <ulink
+     url="&url.strnatcmp;">Natural Order String Comparison</ulink>
+     .
+    </para>
+    <para>
+     Vedere anche <function>sort</function>,
+     <function>natsort</function>,
+     <function>strnatcmp</function> e
+     <function>strnatcasecmp</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.next">
+   <refnamediv>
+    <refname>next</refname>
+    <refpurpose>
+     Incrementa il puntatore interno dell'array
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>next</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Restituisce l'elemento dell'array che sta nella posizione successiva a quella attuale
+     indicata dal puntatore interno, oppure &false; se
+     non ci sono altri elementi.
+    </para>
+    <para>
+     <function>next</function> si comporta come
+     <function>current</function>, con una differenza.  Incrementa
+     il puntatore interno dell'array di una posizione, prima di restituire
+     l'elemento. Ci&ograve; significa che restituisce l'elemento successivo e
+     incrementa il puntatore di una posizione. Se l'incremento fa s&igrave;
+     che il puntatore vada oltre la fine della
+     lista di elementi, <function>next</function> restituisce &false;.
+     <warning>
+      <para>
+       Se l'array contiene elementi vuoti, o elementi che hanno il valore
+       chiave uguale a 0 allora questa funzione restituisce &false; 
+       anche per questi elementi.  Per esplorare correttaemnte un array che
+       pu&ograve; contenere elementi vuoti o con chiave uguale a 0 vedere la
+       funzione <function>each</function>.
+      </para>
+     </warning>
+    </para>
+    <para>
+     Vedere anche:
+     <function>current</function>, <function>end</function>,
+     <function>prev</function>, e <function>reset</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.pos">
+   <refnamediv>
+    <refname>pos</refname>
+    <refpurpose>Restituisce l'elemento corrente di un array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>pos</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <simpara>
+     Questo &egrave; un alias di <function>current</function>.
+    </simpara>
+    <para>
+     Vedere anche:
+     <function>end</function>, <function>next</function>,
+     <function>prev</function> e <function>reset</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.prev">
+   <refnamediv>
+    <refname>prev</refname>
+    <refpurpose>Decrementa il puntatore interno dell'array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>prev</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Restituisce l'elemento dell'array che sta nella posizione precedente
+     a quella attuale indicata dal puntatore interno, oppure &false; se non ci sono altri
+     elementi.
+     <warning>
+      <para>
+       Se l'array contiene degli elementi vuoti la funzione
+       restituir&agrave; &false; per questi valori. 
+       Per esplorare correttaemnte un array che pu&ograve; contenere elementi vuoti
+       vedere la funzione <function>each</function>.
+      </para>
+     </warning>
+    </para>
+    <para>  
+     <function>prev</function> si comporta come
+     <function>next</function>, tranne per il fatto di decrementare il puntatore
+     interno di una posizione, invece che incrementarlo.
+    </para>
+    <para>
+     Vedere anche: <function>current</function>, <function>end</function>,
+     <function>next</function>, e <function>reset</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.range">
+   <refnamediv>
+    <refname>range</refname>
+    <refpurpose>
+     Crea un array contenente una serie di elementi
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>range</function></funcdef>
+      <paramdef>mixed <parameter>min</parameter></paramdef>
+      <paramdef>mixed <parameter>max</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>range</function> restituisce una serie di elementi da
+     <parameter>min</parameter> a <parameter>max</parameter>,
+     inclusiva.  Se <parameter>min</parameter> > <parameter>max</parameter>, la sequenza sar&agrave; decrescente.
+     <example>
+      <title>esempi di <function>range</function></title>
+      <programlisting role="php">
+foreach(range(0,9) as $numero) {
+	echo $numero;
+}
+foreach(range('a','z') as $lettera) {
+	echo $lettera;
+}
+foreach(range('z','a') as $lettera) {
+	echo $lettera;
+}
+      </programlisting>
+     </example>
+    </para>
+	<note>
+	<para>
+      Prima della versione 4.0.7 la funzione range() generava solo
+      array di interi crescenti.  Il supporto per le sequenze di caratter
+      e per le sequenza decrescenti &egrave; stato aggiunto nella 4.0.7.
+    </para>
+	</note>
+    <para>
+     Vedere <function>shuffle</function> per un altro esempio d'uso.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.reset">
+   <refnamediv>
+    <refname>reset</refname>
+    <refpurpose>
+     Reimposta il puntatore interno di un array sulla posizione iniziale
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>reset</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>reset</function> riporta il puntatore di <parameter>array</parameter>
+     sul primo elemento.
+    </para>
+    <para>
+     <function>reset</function> restituisce il volore del primo elemento
+     dell'array.
+    </para>
+    <para>
+     Vedere anche: <function>current</function>,
+     <function>each</function>, <function>next</function>,
+     e <function>prev</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.rsort">
+   <refnamediv>
+    <refname>rsort</refname>
+    <refpurpose>Odina un array in ordine decrescente</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>rsort</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+      <paramdef>int 
+       <parameter><optional>sort_flags</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funzione ordina un array in ordine decrescente.
+     <example>
+      <title>esempio di <function>rsort</function></title>
+      <programlisting role="php">
+$fruitti = array ("limone", "arancia", "banana", "mela");
+rsort ($frutti);
+reset ($frutti);
+while (list ($chiave, $valore) = each ($frutti)) {
+    echo "$chiave = $valore\n";
+}
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Questo esempio mostrer&agrave;:
+    </para>
+    <para>
+     <informalexample>
+      <programlisting>
+0 = mela
+1 = limone
+2 = banana
+3 = arancia
+      </programlisting>
+     </informalexample>
+    </para>
+    <para>
+     I frutti sono stati ordinati in ordine alfabetico decrescente.
+    </para>
+    <para>
+     Si pu&ograve; modificare il comportamento dell'ordinamento usando il parametro opzionale
+     <parameter>sort_flags</parameter>, per maggiori dettagli
+     vedere <function>sort</function>.
+    </para>
+    <para>
+     Vedere anche: <function>arsort</function>,
+     <function>asort</function>, <function>ksort</function>,
+     <function>sort</function>, e <function>usort</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.shuffle">
+   <refnamediv>
+    <refname>shuffle</refname>
+    <refpurpose>Mescola un array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>shuffle</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funzione mescola un array (rende casuale l'ordine
+     degli elementi). Si deve usare <function>srand</function> per inizializzare
+     il generatore di numeri casuali.
+     <example>
+      <title>esempio di <function>shuffle</function></title>
+      <programlisting role="php">
+$numeri = range (1,20);
+srand ((float)microtime()*1000000);
+shuffle ($numeri);
+while (list (, $numeero) = each ($numeri)) {
+    echo "$numero ";
+}
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Vedere anche <function>arsort</function>, <function>asort</function>,
+     <function>ksort</function>, <function>rsort</function>,
+     <function>sort</function> e <function>usort</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.sizeof">
+   <refnamediv>
+    <refname>sizeof</refname>
+    <refpurpose>Conta gli elementi in una variabile</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrztione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>sizeof</function></funcdef>
+      <paramdef>mixed <parameter>var</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     La funzione <function>sizeof</function> &egrave; un alias di
+     <function>count</function>.
+    </para>
+    <para>
+     Vedere anche <function>count</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.sort">
+   <refnamediv>
+    <refname>sort</refname>
+    <refpurpose>Ordina un array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>sort</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+      <paramdef>int 
+       <parameter><optional>sort_flags</optional></parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funzione ordina un array. Gli emeneti vengono disposti dal
+     pi&grave; piccolo al pi&ugrave; grande.
+     <example>
+      <title>esempio di <function>sort</function></title>
+    <programlisting role="php">
+&lt;?php
+
+$frutti = array ("limon", "arancia", "banana", "mela");
+sort ($frutti);
+reset ($frutti);
+while (list ($chiave, $valore) = each ($frutti)) {
+    echo "frutti[".$chiave."] = ".$valore; 
+}
+ 
+?&gt;
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Questo esempio mostrer&agrave;:
+    </para>
+    <para>
+     <informalexample>
+      <programlisting>
+frutti[0] = arancia
+frutti[1] = banana
+frutti[2] = limone
+frutti[3] = mela
+      </programlisting>
+     </informalexample>
+    </para>
+    <para>
+     I frutti sono stati ordinati in ordine alfabetico.
+    </para>
+    <para>
+     Il secondo parametro opzionale <parameter>sort_flags</parameter>
+     pu&ograve; essere usato per modificare il comportamento dell'ordinamento, usando i seguenti valori:
+    </para>
+    <para>
+     flag d'ordinamento:
+     <itemizedlist>
+      <listitem>
+       <simpara>SORT_REGULAR - compara gli elementi in modo normale</simpara>
+      </listitem>
+      <listitem>
+       <simpara>SORT_NUMERIC - compara gli elementi numericamente</simpara>
+      </listitem>
+      <listitem>
+       <simpara>SORT_STRING - compara gli elementi convertiti in stringa</simpara>
+      </listitem>
+     </itemizedlist>
+    </para>
+    <para>
+     Vedere anche: <function>arsort</function>,
+     <function>asort</function>, <function>ksort</function>,
+     <function>natsort</function>, <function>natcasesort</function>,
+     <function>rsort</function>, <function>usort</function>,
+     <function>array_multisort</function>, e
+     <function>uksort</function>.
+    </para>
+    <note>
+     <para>
+      Il secondo parametro &egrave; stato aggiunto nel PHP 4.
+     </para>
+    </note>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.uasort">
+   <refnamediv>
+    <refname>uasort</refname>
+    <refpurpose>
+     Ordina un array mediante una funzione definita dall'utente e
+     mantiene le associazioni
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>uasort</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+      <paramdef>function <parameter>cmp_function</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Questa funzione ordina un array in modo tale che le chiavi mantengano
+     la loro correlazione con gli elementi dell'array a cui sono 
+     associate. Questo &egave; utile quando si ordinano array associativi in cui
+     l'ordine degli elementi egrave; importante.  La funzione di comparazione
+     deve essere fornita dall'utente.
+    </para>
+    <note>
+     <para>
+      Vedere <function>usort</function> e
+      <function>uksort</function> per esempio di funzioni
+      di comparazione.
+     </para>
+    </note>
+    <para>
+     Vedere anche: <function>usort</function>, <function>uksort</function>, 
+     <function>sort</function>, <function>asort</function>, 
+     <function>arsort</function>, <function>ksort</function> 
+     e <function>rsort</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.uksort">
+   <refnamediv>
+    <refname>uksort</refname>
+    <refpurpose>
+     Ordina rispetto alle chiavi di un array mediante una funzione definita dall'utente
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>uksort</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+      <paramdef>function <parameter>cmp_function</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Ordina rispetto alle chiavi di un array mediante una
+     funzione di comparazione definita dall'utente.  Se si vuole ordinare un array
+     con dei criteri non usuali, si deve usare
+     questa funzione.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>uksort</function></title>
+      <programlisting role="php">
+function cmp ($a, $b) {   
+    if ($a == $b) return 0;
+    return ($a > $b) ? -1 : 1;
+}
+
+$a = array (4 =&gt; "quattro", 3 =&gt; "tre", 20 =&gt; "venti", 10 =&gt; "dieci");
+
+uksort ($a, "cmp");
+
+while (list ($chiave, $valore) = each ($a)) {
+    echo "$chiave: $valore\n";
+}
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Questo esempio mostrer&agrave;:
+    </para>
+    <para>
+     <informalexample>
+      <programlisting>
+20: venti
+10: dieci
+4: quattro
+3: tre
+      </programlisting>
+     </informalexample>
+    </para>
+    <para>
+     Vedere anche: <function>usort</function>, <function>uasort</function>, 
+     <function>sort</function>, <function>asort</function>, 
+     <function>arsort</function>, <function>ksort</function>,
+     <function>natsort</function> e <function>rsort</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.usort">
+   <refnamediv>
+    <refname>usort</refname>
+    <refpurpose>
+     Ordina un array mediante una funzione definita dall'utente
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>void <function>usort</function></funcdef>
+      <paramdef>array <parameter>array</parameter></paramdef>
+      <paramdef>string <parameter>cmp_function</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Ordina i valori di un array mediante una
+     funzione di comparazione definita dall'utente. Se si vuole ordinare un array
+     con dei criteri non usuali, si deve usare
+     questa funzione.
+    </para>
+    <para>
+     La funzione di comparazione deve restituire un intero minure, uguale 
+     o maggiore di zero a seconda che il primo argomento sia considerato
+     rispettivaemnte minore, uguale o maggiore del
+     secondo. Se due elementi risultano uguali, il loro ordine
+     dnell'array ordinato &egrave; indefinito.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>usort</function></title>
+      <programlisting role="php">
+function cmp ($a, $b) {   
+    if ($a == $b) return 0;
+    return ($a &lt; $b) ? -1 : 1;
+}
+
+$a = array (3, 2, 5, 6, 1);
+
+usort ($a, "cmp");
+
+while (list ($chiave, $valore) = each ($a)) {
+    echo "$chiave: $valore\n";
+}
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Questo esempio mostrer&agrave;:
+    </para>
+    <para>
+     <informalexample>
+      <programlisting>
+0: 6
+1: 5
+2: 3
+3: 2
+4: 1
+      </programlisting>
+     </informalexample>
+    </para>
+    <note>
+     <para>
+      Ovviamente, in questo caso banale di ordinamento decrescente la funzione <function>rsort</function>
+      sarebbe stata pi&ugrave; appropriata.
+     </para>
+    </note>
+    <para>
+     <example>
+      <title>
+       esempio di <function>usort</function> con un array multidimensionale
+      </title>
+      <programlisting role="php">
+function cmp ($a, $b) {
+    return strcmp($a["frutto"],$b["frutto"]);
+} 
+
+$frutti[0]["frutto"] = "limoni";
+$frutti[1]["frutto"] = "arance";
+$frutti[2]["frutto"] = "uva";
+
+usort($frutti, "cmp"); 
+
+while (list ($chiave, $valore) = each ($frutti)) {
+    echo "\$frutti[$chiave]: " . $valore["frutto"] . "\n";
+}
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Quando si ordina un array multidimensionale, $a e $b contengono
+     rierimenti al primo indice dell'array.
+    </para>
+    <para>
+     Questo esempio mostrer&agrave;:
+    </para>
+    <para>
+     <informalexample>
+      <programlisting>
+$fruits[0]: arance
+$fruits[1]: limoni
+$fruits[2]: uva
+      </programlisting>
+     </informalexample>
+    </para>
+    <para>
+     <warning>
+      <para>
+       La sottostante funzione di quicksort pu&grave ausare, inalcune librerie C
+       (per esempio, sui sistemi Solaris) un grash del PHP se la funzione di comparazione
+       non restituisce valori coerenti.
+      </para>
+     </warning>
+    </para>
+    <para>
+     Vedere anche: <function>uasort</function>,
+     <function>uksort</function>, <function>sort</function>,
+     <function>asort</function>,
+     <function>arsort</function>,<function>ksort</function>,
+     <function>natsort</function>, e <function>rsort</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+ </reference>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

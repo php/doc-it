@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
- <!-- EN-Revision: 1.150 Maintainer: cucinato  Status: ready -->
+ <!-- EN-Revision: 1.159 Maintainer: cucinato  Status: ready -->
  <reference id="ref.array">
   <title>Funzioni di Array</title>
   <titleabbrev>Arrays</titleabbrev>
@@ -1582,7 +1582,7 @@ $frutto = array_shift ($pila);
 ]]>
       </programlisting>
       <para>
-       In questo modo <varname>$frutto</varname> rimarrà con 3 elementi:
+       In questo modo <varname>$pila</varname> rimarrà con 3 elementi:
        <screen role="php">
 <![CDATA[
 Array
@@ -1622,8 +1622,8 @@ Array
        </parameter></methodparam>
      </methodsynopsis>
     <para>
-     <function>array_slice</function> restituisce  una sequenza di elementi
-     di <parameter>array</parameter> specificati dai
+     <function>array_slice</function> restituisce la sequenza di elementi
+     dell'array <parameter>array</parameter> come specificato dai
      parametri <parameter>offset</parameter> e <parameter>length</parameter>
      .
     </para>
@@ -1641,6 +1641,11 @@ Array
      dell'array. Se viene omessa, la sequenza conterr&agrave; tutto
      da <parameter>offset</parameter> fino alla fine di
      <parameter>array</parameter>.
+    </para>
+    <para>
+     Si noti che <function>array_slice</function> ignorerà le chiavi
+     dell'array, e calcolerè gli spiazzamenti e le lunghezze basandosi sulle
+     posizioni correnti degli elementi nell'array.
     </para>
     <para>
      <example>
@@ -1688,7 +1693,7 @@ $output = array_slice ($input, 0, 3);   // restituisce "a", "b", e "c"
      <parameter>length</parameter> 
      dall'array <parameter>input</parameter>, e li sostituisce con gli
      elementi dell'array <parameter>replacement</parameter>, se
-     fornito.
+     fornito. Restituisce un array contenente gli elementi estratti.
     </para>
     <para>
      Se <parameter>offset</parameter> &egrave; positivo l'inizio 
@@ -2601,6 +2606,12 @@ while (list ($chiave, $valore) = each ($HTTP_POST_VARS)) {
       variables extracted.
      </para>
     </note>
+    <note>
+     <para>
+      EXTRE_IF_EXISTS e EXTR_PREFIX_IF_EXISTS sono stati introdotti nella versione 4.2.0.
+
+     </para>
+    </note>
     <para>
      <function>extract</function> controlla ogni chiave per stabilire se 
      costituisce un nome valido di variabile e se ci sono collisioni con
@@ -2649,8 +2660,30 @@ while (list ($chiave, $valore) = each ($HTTP_POST_VARS)) {
        <listitem>
         <simpara>
          Mette come prefisso, solo per i nomi di variabili invalidi/numerici, 
-         il paramentro <parameter>prefix</parameter>. Questa opzione &egrave; stata aggiunta in 
+         il parametro <parameter>prefix</parameter>. Questa opzione &egrave; stata aggiunta in 
          PHP 4.0.5.
+        </simpara>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>EXTR_IF_EXISTS</term>
+       <listitem>
+        <simpara>
+         Sovrascrive la variabile solo se già esiste nella
+         tabella dei simboli, altrimenti non fa nulla. Questo è utile
+         per definire una lista di variabili valide e quindi estrarre
+         solo quelle variabili definite in $_REQUEST, per
+         esempio. Questa opzione è stata aggiunta in PHP 4.2.0.
+        </simpara>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>EXTR_PREFIX_IF_EXISTS</term>
+       <listitem>
+        <simpara>
+         Crea nomi di variabili con il prefisso solo se la versione senza prefisso
+         della stessa variable esiste nella tabella dei simboli. Questa
+         opzione è stata aggiunta in PHP 4.2.0.
         </simpara>
        </listitem>
       </varlistentry>
@@ -2663,7 +2696,7 @@ while (list ($chiave, $valore) = each ($HTTP_POST_VARS)) {
     <para>
      Si noti che <parameter>prefix</parameter> &egrave; richiesto solo se
      <parameter>extract_type</parameter> &egrave; EXTR_PREFIX_SAME,
-      EXTR_PREFIX_ALL, o EXTR_PREFIX_INVALID. Se il risultato
+     EXTR_PREFIX_ALL, EXTR_PREFIX_INVALID o EXTR_PREFIX_IF_EXISTS. Se il risultato
      non &egrave; un nome di variabile valido, non viene importato nella tabella
      dei simboli.
     </para>
@@ -2720,7 +2753,8 @@ blu, grande, sfera, media
     </para>
     <para>
      Si deve usare un array associativo, un array indicizzato numericamente
-     non produce risultati.
+     non produce risultati a meno di non usare EXTR_PREFIX_ALL o
+     EXTR_PREFIX_INVALID.
     </para>
     <para>
      Vedere anche <function>compact</function>.
@@ -2756,6 +2790,12 @@ blu, grande, sfera, media
      <para>
       Se <parameter>ago</parameter> &egrave; una stringa, il confronto &egrave; effettuato
       tenendo conto delle maiuscole/minuscole.
+     </para>
+    </note>
+    <note>
+     <para>
+      Nelle versioni di PHP precedenti la 4.2.0. <parameter>ago</parameter> non
+      poteva essere un array.
      </para>
     </note>
     <para>

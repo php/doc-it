@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
- <!-- EN-Revision: 1.35 Maintainer: cucinato Status: ready -->
+ <!-- EN-Revision: 1.36 Maintainer: cucinato Status: ready -->
 <reference id="ref.oci8">
   <title>Funzioni Oracle 8</title>
   <titleabbrev>OCI8</titleabbrev>
@@ -97,21 +97,21 @@
    </note>
    <para>
     <example>
-     <title>OCI Hints</title>
+     <title>Trucchi OCI</title>
      <programlisting role="php">
 <![CDATA[
 <?php
 // by sergo@bacup.ru
 
-// Use option: OCI_DEFAULT for execute command to delay execution
+// Usare l'opzione OCI_DEFAULT nel comando execute per ritardare l'esicuzione
 OCIExecute($stmt, OCI_DEFAULT);
 
-// for retrieve data use (after fetch):
+// per ricevere i dati utilizzare (dopo il fetch):
 
 $result = OCIResult($stmt, $n);
 if (is_object ($result)) $result = $result->load();
 
-// For INSERT or UPDATE statement use:
+// come comandi  INSERT o UPDATE usare:
 
 $sql = "insert into table (field1, field2) values (field1 = 'value',
  field2 = empty_clob()) returning field2 into :field2";
@@ -132,27 +132,29 @@ OCICommit($conn);
     would from the commands line.
     <example>
      <title>Using Stored Procedures</title>
-      <programlisting role="php">
-&lt;?php
+     <programlisting role="php">
+<![CDATA[
+<?php
 // by webmaster@remoterealty.com
 $sth = OCIParse ( $dbh, "begin sp_newaddress( :address_id, '$firstname',
  '$lastname', '$company', '$address1', '$address2', '$city', '$state',
  '$postalcode', '$country', :error_code );end;" );
 
-// This calls stored procedure sp_newaddress, with :address_id being an
-// in/out variable and :error_code being an out variable. 
-// Then you do the binding:
+// Questo codice richiama la stord procedure sp_newaddress, dove :address_id è
+// una variabile in/out e :error_code è una variabile out.
+// Quindi si effettua il binding:
 
    OCIBindByName ( $sth, ":address_id", $addr_id, 10 );
    OCIBindByName ( $sth, ":error_code", $errorcode, 10 );
    OCIExecute ( $sth );
 
-?&gt;
+?>
+]]>
      </programlisting>
     </example>
    </para>
   </partintro>
-	
+
   <refentry id="function.ocidefinebyname">
    <refnamediv>
     <refname>OCIDefineByName</refname>
@@ -190,14 +192,15 @@ $sth = OCIParse ( $dbh, "begin sp_newaddress( :address_id, '$firstname',
      <example>
       <title>OCIDefineByName</title>
       <programlisting>
-&lt;?php
+<![CDATA[
+<?php
 /* OCIDefineByPos example thies@thieso.net (980219) */
 
 $conn = OCILogon("scott","tiger");
 
 $stmt = OCIParse($conn,"select empno, ename from emp");
 
-/* the define MUST be done BEFORE ociexecute! */
+/* il  define DEVE essere eseguito PRIMA di ociexecute! */
 
 OCIDefineByName($stmt,"EMPNO",$empno);
 OCIDefineByName($stmt,"ENAME",$ename);
@@ -212,6 +215,7 @@ while (OCIFetch($stmt)) {
 OCIFreeStatement($stmt);
 OCILogoff($conn);
 ?>
+]]>
      </programlisting>
     </example>
    </refsect1>
@@ -259,13 +263,14 @@ OCILogoff($conn);
      (Character-File), OCI_B_CLOB (Character-LOB), OCI_B_BLOB
      (Binary-LOB) e OCI_B_ROWID (ROWID).
     </para>
-     <example>
-      <title>OCIDefineByName</title>
-      <programlisting>
-&lt;?php
+    <example>
+     <title>OCIDefineByName</title>
+     <programlisting>
+<![CDATA[
+<?php
 /* OCIBindByPos example thies@thieso.net (980221)
-  inserts 3 records into emp, and uses the ROWID for updating the 
-  records just after the insert.
+  inserisce 3 tuple in emp, e usa ROWID per aggiornare le
+  tuple subito dopo l'inserimento.
 */
 
 $conn = OCILogon("scott","tiger");
@@ -312,8 +317,9 @@ OCIFreeStatement($stmt);
 
 OCILogoff($conn);
 ?>
-    </programlisting>
-   </example>
+]]>
+     </programlisting>
+    </example>
     <warning>
      <para>
       It is a bad idea to use magic quotes and
@@ -363,8 +369,9 @@ OCILogoff($conn);
      <example>
       <title>OCILogon</title>
       <programlisting>
-&lt;?php
-print "&lt;HTML>&lt;PRE>";
+<![CDATA[
+<?php
+print "<HTML><PRE>";
 $db = "";
 
 $c1 = ocilogon("scott","tiger",$db);
@@ -410,7 +417,7 @@ function select_data($conn)
   ociexecute($stmt,OCI_DEFAULT);
   echo $conn."----selecting\n\n";
   while (ocifetch($stmt))
-    echo $conn." &lt;".ociresult($stmt,"TEST").">\n\n";
+    echo $conn." <".ociresult($stmt,"TEST").">\n\n";
   echo $conn."----done\n\n";
 }
 
@@ -441,8 +448,12 @@ select_data($c2);   // no rows returned
 
 
 drop_table($c1);
-print "&lt;/PRE>&lt;/HTML>";
-?></programlisting></example></para>
+print "</PRE></HTML>";
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
     <simpara>
      Vedere anche <function>OCIPLogon</function> e
      <function>OCINLogon</function>.</simpara>
@@ -462,9 +473,9 @@ print "&lt;/PRE>&lt;/HTML>";
       <funcdef>int <function>OCIPLogon</function></funcdef>
       <paramdef>string <parameter>username</parameter></paramdef>
       <paramdef>string <parameter>password</parameter></paramdef>
-      <paramdef>string 
+      <paramdef>string
        <parameter><optional>db</optional></parameter>
-     </paramdef>
+      </paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
@@ -496,7 +507,7 @@ print "&lt;/PRE>&lt;/HTML>";
       <funcdef>int <function>OCINLogon</function></funcdef>
       <paramdef>string <parameter>username</parameter></paramdef>
       <paramdef>string <parameter>password</parameter></paramdef>
-      <paramdef>string 
+      <paramdef>string
        <parameter><optional>db</optional></parameter>
       </paramdef>
      </funcprototype>
@@ -524,8 +535,9 @@ print "&lt;/PRE>&lt;/HTML>";
      <example>
       <title>OCINLogon</title>
       <programlisting>
-&lt;?php
-print "&lt;HTML>&lt;PRE>";
+<![CDATA[
+<?php
+print "<HTML><PRE>";
 $db = "";
 
 $c1 = ocilogon("scott","tiger",$db);
@@ -572,7 +584,7 @@ function select_data($conn)
   ociexecute($stmt,OCI_DEFAULT);
   echo $conn."----selecting\n\n";
   while (ocifetch($stmt))
-    echo $conn." &lt;".ociresult($stmt,"TEST").">\n\n";
+    echo $conn." <".ociresult($stmt,"TEST").">\n\n";
   echo $conn."----done\n\n";
 }
 
@@ -602,8 +614,11 @@ select_data($c2);
 
 
 drop_table($c1);
-print "&lt;/PRE>&lt;/HTML>";
-?></programlisting></example>
+print "</PRE></HTML>";
+?>
+]]>
+      </programlisting>
+     </example>
     </para>
     <simpara>
      Vedere anche <function>OCILogon</function> e
@@ -642,7 +657,7 @@ print "&lt;/PRE>&lt;/HTML>";
      <funcprototype>
       <funcdef>int <function>OCIExecute</function></funcdef>
       <paramdef>int <parameter>statement</parameter></paramdef>
-      <paramdef>int 
+      <paramdef>int
        <parameter><optional>mode</optional></parameter>
       </paramdef>
      </funcprototype>
@@ -711,7 +726,7 @@ print "&lt;/PRE>&lt;/HTML>";
      <funcprototype>
       <funcdef>string <function>OCINewDescriptor</function></funcdef>
       <paramdef>int <parameter>connection</parameter></paramdef>
-      <paramdef>int 
+      <paramdef>int
        <parameter><optional>type</optional></parameter>
       </paramdef>
      </funcprototype>
@@ -724,25 +739,26 @@ print "&lt;/PRE>&lt;/HTML>";
      associati al descrittore, per i BFILE esiste solo il 
      metodo load. Vedere i suggerimenti nel secondo esempio.
     </para>
-     <example>
-      <title>OCINewDescriptor</title>
-      <programlisting>
-&lt;?php   
-    /* This script is designed to be called from a HTML form.
-     * It expects $user, $password, $table, $where, and $commitsize
-     * to be passed in from the form.  The script then deletes
-     * the selected rows using the ROWID and commits after each
-     * set of $commitsize rows. (Use with care, there is no rollback)
+    <example>
+     <title>OCINewDescriptor</title>
+     <programlisting>
+<![CDATA[
+<?php   
+    /* Questo codice deve essere richiamato da un form HTML.
+     * Richiede che $user, $password, $table, $where, e $commitsize
+     * siano passati dalla form.  Il codice quindi cancella
+     * le tuple selezionate usando ROWID ed esegue un commit ogni
+     * $commitsize righe. (Usare con attenzione, non si può fare rollback)
      */
     $conn = OCILogon($user, $password);
     $stmt = OCIParse($conn,"select rowid from $table $where");
     $rowid = OCINewDescriptor($conn,OCI_D_ROWID);
-    OCIDefineByName($stmt,"ROWID",&amp;$rowid);   
+    OCIDefineByName($stmt,"ROWID",&$rowid);   
     OCIExecute($stmt);
     while ( OCIFetch($stmt) ) {      
        $nrows = OCIRowCount($stmt);
        $delete = OCIParse($conn,"delete from $table where ROWID = :rid");
-       OCIBindByName($delete,":rid",&amp;$rowid,-1,OCI_B_ROWID);
+       OCIBindByName($delete,":rid",&$rowid,-1,OCI_B_ROWID);
        OCIExecute($delete);      
        print "$nrows\n";
        if ( ($nrows % $commitsize) == 0 ) {
@@ -754,29 +770,31 @@ print "&lt;/PRE>&lt;/HTML>";
     OCIFreeStatement($stmt);  
     OCILogoff($conn);
 ?>  
+]]>
      </programlisting>
      <programlisting>
-&lt;?php
-    /* This script demonstrates file upload to LOB columns
-     * The formfield used for this example looks like this
-     * &lt;form action="upload.php3" method="post" enctype="multipart/form-data">
-     * &lt;input type="file" name="lob_upload">
+<![CDATA[
+<?php
+    /* Questo codice dimostra l'upload di file verso campi LOB.
+     * Il form usato per questo esempio è del tipo seguente:
+     * <form action="upload.php3" method="post" enctype="multipart/form-data">
+     * <input type="file" name="lob_upload">
      * ...
      */
   if(!isset($lob_upload) || $lob_upload == 'none'){
 ?>
-&lt;form action="upload.php3" method="post" enctype="multipart/form-data">
-Upload file: &lt;input type="file" name="lob_upload">&lt;br>
-&lt;input type="submit" value="Upload"> - &lt;input type="reset">
-&lt;/form>
-&lt;?php
+<form action="upload.php3" method="post" enctype="multipart/form-data">
+Upload file: <input type="file" name="lob_upload"><br>
+<input type="submit" value="Upload"> - <input type="reset">
+</form>
+<?php
   } else {
-     // $lob_upload contains the temporary filename of the uploaded file
+     // $lob_upload contiene il nome del file temporaneo
      $conn = OCILogon($user, $password);
      $lob = OCINewDescriptor($conn, OCI_D_LOB);
      $stmt = OCIParse($conn,"insert into $table (id, the_blob) 
                values(my_seq.NEXTVAL, EMPTY_BLOB()) returning the_blob into :the_blob");
-     OCIBindByName($stmt, ':the_blob', &amp;$lob, -1, OCI_B_BLOB);
+     OCIBindByName($stmt, ':the_blob', &$lob, -1, OCI_B_BLOB);
      OCIExecute($stmt, OCI_DEFAULT);
      if($lob->savefile($lob_upload)){
         OCICommit($conn);
@@ -789,11 +807,44 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
      OCILogoff($conn);
   }
 ?>
-   </programlisting>
-  </example>
+]]>
+     </programlisting>
+    </example>
+    <example>
+     <title>OCINewDescriptor</title>
+     <programlisting>
+<![CDATA[
+<?php   
+    /* Chiamatai di una stored procedure PL/SQLs che contiene clobs come parametri
+    * di input (PHP 4 >= 4.0.6). 
+    * La signature della stored prodedure PL/SQL d'esempio è:
+     *
+     * PROCEDURE save_data
+     *   Argument Name                  Type                    In/Out Default?
+     *   ------------------------------ ----------------------- ------ --------
+     *   KEY                            NUMBER(38)              IN
+     *   DATA                           CLOB                    IN
+     *
+     */
+
+    $conn = OCILogon($user, $password);
+    $stmt = OCIParse($conn, "begin save_data(:key, :data); end;");
+    $clob = OCINewDescriptor($conn, OCI_D_LOB);
+	OCIBindByName($stmt, ':key', $key);
+	OCIBindByName($stmt, ':data', $clob, -1, OCI_B_CLOB);
+	$clob->WriteTemporary($data);
+	OCIExecute($stmt, OCI_DEFAULT);
+	OCICommit($conn);
+	$clob->close();
+	$clob->free();
+	OCIFreeStatement($stmt);
+?>
+]]>
+     </programlisting>
+    </example>
    </refsect1>
   </refentry>
-
+  
   <refentry id="function.ocirowcount">
    <refnamediv>
     <refname>OCIRowCount</refname>
@@ -815,24 +866,28 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
      <example>
       <title>OCIRowCount</title>
       <programlisting>
-&lt;?php
-    print "&lt;HTML>&lt;PRE>";
+<![CDATA[
+<?php
+    print "<HTML><PRE>";
     $conn = OCILogon("scott","tiger");
     $stmt = OCIParse($conn,"create table emp2 as select * from emp");
     OCIExecute($stmt);
-    print OCIRowCount($stmt) . " rows inserted.&lt;BR>";
+    print OCIRowCount($stmt) . " rows inserted.<BR>";
     OCIFreeStatement($stmt);
     $stmt = OCIParse($conn,"delete from emp2");
     OCIExecute($stmt);
-    print OCIRowCount($stmt) . " rows deleted.&lt;BR>";
+    print OCIRowCount($stmt) . " rows deleted.<BR>";
     OCICommit($conn);
     OCIFreeStatement($stmt);
     $stmt = OCIParse($conn,"drop table emp2");
     OCIExecute($stmt);
     OCIFreeStatement($stmt);
     OCILogOff($conn);
-    print "&lt;/PRE>&lt;/HTML>";
-?> </programlisting></example>
+    print "</PRE></HTML>";
+?>
+]]>
+      </programlisting>
+     </example>
    </para>
    </refsect1>
   </refentry>
@@ -855,19 +910,20 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
     <para>
      <function>OCINumCols</function> restituisce il numero di campi contenuti in 
      un'istruzione SQL
-     </para>
-     <example>
-      <title>OCINumCols</title>
-      <programlisting>
-&lt;?php   
-    print "&lt;HTML>&lt;PRE>\n";   
+    </para>
+    <example>
+     <title>OCINumCols</title>
+     <programlisting>
+<![CDATA[
+<?php   
+    print "<HTML><PRE>\n";   
     $conn = OCILogon("scott", "tiger");
     $stmt = OCIParse($conn,"select * from emp");
     OCIExecute($stmt);
     while ( OCIFetch($stmt) ) {
         print "\n";   
         $ncols = OCINumCols($stmt);
-        for ( $i = 1; $i &lt;= $ncols; $i++ ) {
+        for ( $i = 1; $i <= $ncols; $i++ ) {
             $column_name  = OCIColumnName($stmt,$i);
             $column_value = OCIResult($stmt,$i);
             print $column_name . ': ' . $column_value . "\n";
@@ -876,9 +932,10 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
     }
     OCIFreeStatement($stmt);  
     OCILogoff($conn);   
-    print "&lt;/PRE>";
-    print "&lt;/HTML>\n"; 
-?>   
+    print "</PRE>";
+    print "</HTML>\n"; 
+   ?>
+]]>
      </programlisting>
     </example>
    </refsect1>
@@ -1001,7 +1058,8 @@ Upload file: &lt;input type="file" name="lob_upload">&lt;br>
      <example>
       <title>OCIFetchStatement</title>
       <programlisting>
-&lt;?php
+<![CDATA[
+<?php
 /* OCIFetchStatement example mbritton@verinet.com (990624) */
 
 $conn = OCILogon("scott","tiger");
@@ -1012,36 +1070,37 @@ OCIExecute($stmt);
 
 $nrows = OCIFetchStatement($stmt,$results);
 if ( $nrows > 0 ) {
-   print "&lt;TABLE BORDER=\"1\">\n";
-   print "&lt;TR>\n";
+   print "<TABLE BORDER=\"1\">\n";
+   print "<TR>\n";
    while ( list( $key, $val ) = each( $results ) ) {
-      print "&lt;TH>$key&lt;/TH>\n";
+      print "<TH>$key</TH>\n";
    }
-   print "&lt;/TR>\n";
+   print "</TR>\n";
    
-   for ( $i = 0; $i &lt; $nrows; $i++ ) {
+   for ( $i = 0; $i < $nrows; $i++ ) {
       reset($results);
-      print "&lt;TR>\n";
+      print "<TR>\n";
       while ( $column = each($results) ) {   
          $data = $column['value'];
-         print "&lt;TD>$data[$i]&lt;/TD>\n";
+         print "<TD>$data[$i]</TD>\n";
       }
-      print "&lt;/TR>\n";
+      print "</TR>\n";
    }
-   print "&lt;/TABLE>\n";
+   print "</TABLE>\n";
 } else {
-   echo "No data found&lt;BR>\n";
+   echo "No data found<BR>\n";
 }      
-print "$nrows Records Selected&lt;BR>\n";
+print "$nrows Records Selected<BR>\n";
  
 OCIFreeStatement($stmt);
 OCILogoff($conn);
 ?>
+]]>
      </programlisting>
     </example>
    </refsect1>
   </refentry>
-
+  
   <refentry id="function.ocicolumnisnull">
    <refnamediv>
     <refname>OCIColumnIsNULL</refname>
@@ -1088,33 +1147,35 @@ OCILogoff($conn);
      <example>
       <title>OCIColumnName</title>
       <programlisting>
-&lt;?php   
-    print "&lt;HTML>&lt;PRE>\n";   
+<![CDATA[
+<?php   
+    print "<HTML><PRE>\n";   
     $conn = OCILogon("scott", "tiger");
     $stmt = OCIParse($conn,"select * from emp");
     OCIExecute($stmt);
-    print "&lt;TABLE BORDER=\"1\">";
-    print "&lt;TR>";
-    print "&lt;TH>Name&lt;/TH>";
-    print "&lt;TH>Type&lt;/TH>";
-    print "&lt;TH>Length&lt;/TH>";
-    print "&lt;/TR>";
+    print "<TABLE BORDER=\"1\">";
+    print "<TR>";
+    print "<TH>Name</TH>";
+    print "<TH>Type</TH>";
+    print "<TH>Length</TH>";
+    print "</TR>";
     $ncols = OCINumCols($stmt);
-    for ( $i = 1; $i &lt;= $ncols; $i++ ) {
+    for ( $i = 1; $i <= $ncols; $i++ ) {
         $column_name  = OCIColumnName($stmt,$i);
         $column_type  = OCIColumnType($stmt,$i);
         $column_size  = OCIColumnSize($stmt,$i);
-        print "&lt;TR>";
-        print "&lt;TD>$column_name&lt;/TD>";
-        print "&lt;TD>$column_type&lt;/TD>";
-        print "&lt;TD>$column_size&lt;/TD>";
-        print "&lt;/TR>";
+        print "<TR>";
+        print "<TD>$column_name</TD>";
+        print "<TD>$column_type</TD>";
+        print "<TD>$column_size</TD>";
+        print "</TR>";
     }
     OCIFreeStatement($stmt);  
     OCILogoff($conn);   
-    print "&lt;/PRE>";
-    print "&lt;/HTML>\n"; 
+    print "</PRE>";
+    print "</HTML>\n"; 
 ?>
+]]>
       </programlisting>
      </example>
     </para>
@@ -1150,34 +1211,36 @@ OCILogoff($conn);
      <example>
       <title>OCIColumnSize</title>
       <programlisting>
-&lt;?php   
-    print "&lt;HTML>&lt;PRE>\n";   
+<![CDATA[
+<?php   
+    print "<HTML><PRE>\n";   
     $conn = OCILogon("scott", "tiger");
     $stmt = OCIParse($conn,"select * from emp");
     OCIExecute($stmt);
-    print "&lt;TABLE BORDER=\"1\">";
-    print "&lt;TR>";
-    print "&lt;TH>Name&lt;/TH>";
-    print "&lt;TH>Type&lt;/TH>";
-    print "&lt;TH>Length&lt;/TH>";
-    print "&lt;/TR>";
+    print "<TABLE BORDER=\"1\">";
+    print "<TR>";
+    print "<TH>Name</TH>";
+    print "<TH>Type</TH>";
+    print "<TH>Length</TH>";
+    print "</TR>";
     $ncols = OCINumCols($stmt);
-    for ( $i = 1; $i &lt;= $ncols; $i++ ) {
+    for ( $i = 1; $i <= $ncols; $i++ ) {
         $column_name  = OCIColumnName($stmt,$i);
         $column_type  = OCIColumnType($stmt,$i);
         $column_size  = OCIColumnSize($stmt,$i);
-        print "&lt;TR>";
-        print "&lt;TD>$column_name&lt;/TD>";
-        print "&lt;TD>$column_type&lt;/TD>";
-        print "&lt;TD>$column_size&lt;/TD>";
-        print "&lt;/TR>";
+        print "<TR>";
+        print "<TD>$column_name</TD>";
+        print "<TD>$column_type</TD>";
+        print "<TD>$column_size</TD>";
+        print "</TR>";
     }
-    print "&lt;/TABLE>";
+    print "</TABLE>";
     OCIFreeStatement($stmt);  
     OCILogoff($conn);   
-    print "&lt;/PRE>";
-    print "&lt;/HTML>\n"; 
-?>   
+    print "</PRE>";
+    print "</HTML>\n"; 
+   ?>
+]]>
       </programlisting>
      </example>
     </para>
@@ -1207,38 +1270,40 @@ OCILogoff($conn);
      <function>OCIColumnType</function> restituisce il tipo del campo 
       corrispondente alla posizione (1 = primo campo) 
       specificata.
-     </simpara>
+    </simpara>
     <para>
      <example>
       <title>OCIColumnType</title>
       <programlisting>
-&lt;?php   
-    print "&lt;HTML>&lt;PRE>\n";   
+<![CDATA[
+<?php   
+    print "<HTML><PRE>\n";   
     $conn = OCILogon("scott", "tiger");
     $stmt = OCIParse($conn,"select * from emp");
     OCIExecute($stmt);
-    print "&lt;TABLE BORDER=\"1\">";
-    print "&lt;TR>";
-    print "&lt;TH>Name&lt;/TH>";
-    print "&lt;TH>Type&lt;/TH>";
-    print "&lt;TH>Length&lt;/TH>";
-    print "&lt;/TR>";
+    print "<TABLE BORDER=\"1\">";
+    print "<TR>";
+    print "<TH>Name</TH>";
+    print "<TH>Type</TH>";
+    print "<TH>Length</TH>";
+    print "</TR>";
     $ncols = OCINumCols($stmt);
-    for ( $i = 1; $i &lt;= $ncols; $i++ ) {
+    for ( $i = 1; $i <= $ncols; $i++ ) {
         $column_name  = OCIColumnName($stmt,$i);
         $column_type  = OCIColumnType($stmt,$i);
         $column_size  = OCIColumnSize($stmt,$i);
-        print "&lt;TR>";
-        print "&lt;TD>$column_name&lt;/TD>";
-        print "&lt;TD>$column_type&lt;/TD>";
-        print "&lt;TD>$column_size&lt;/TD>";
-        print "&lt;/TR>";
+        print "<TR>";
+        print "<TD>$column_name</TD>";
+        print "<TD>$column_type</TD>";
+        print "<TD>$column_size</TD>";
+        print "</TR>";
     }
     OCIFreeStatement($stmt);  
     OCILogoff($conn);   
-    print "&lt;/PRE>";
-    print "&lt;/HTML>\n"; 
+    print "</PRE>";
+    print "</HTML>\n"; 
 ?>
+]]>
       </programlisting>
      </example>
     </para>
@@ -1268,14 +1333,16 @@ OCILogoff($conn);
      <example>
       <title>OCIServerVersion</title>
       <programlisting>
-&lt;?php
+<![CDATA[
+<?php
    $conn = OCILogon("scott","tiger");
    print "Server Version: " . OCIServerVersion($conn);
    OCILogOff($conn);
 ?>
+]]>
       </programlisting>
      </example>
-     </para>
+    </para>
    </refsect1>
   </refentry>
 
@@ -1311,19 +1378,21 @@ OCILogoff($conn);
      <example>
       <title>Code examples</title>
       <programlisting>
-&lt;?php
-    print "&lt;HTML>&lt;PRE>";
+<![CDATA[
+<?php
+    print "<HTML><PRE>";
     $conn = OCILogon("scott","tiger");
     $sql  = "delete from emp where deptno = 10";
    
     $stmt = OCIParse($conn,$sql);
     if ( OCIStatementType($stmt) == "DELETE" ) {
-        die "You are not allowed to delete from this table&lt;BR>";
+        die "You are not allowed to delete from this table<BR>";
     }
    
     OCILogoff($conn);
-    print "&lt;/PRE>&lt;/HTML>";
+    print "</PRE></HTML>";
 ?>
+]]>
       </programlisting>
      </example>
     </para>
@@ -1353,18 +1422,19 @@ OCILogoff($conn);
      <example>
       <title>Using a REF CURSOR from a stored procedure</title>
       <programlisting>
-&lt;?php   
+<![CDATA[
+<?php   
 // suppose your stored procedure info.output returns a ref cursor in :data
 
 $conn = OCILogon("scott","tiger");
 $curs = OCINewCursor($conn);
 $stmt = OCIParse($conn,"begin info.output(:data); end;");
 
-ocibindbyname($stmt,"data",&amp;$curs,-1,OCI_B_CURSOR);
+ocibindbyname($stmt,"data",&$curs,-1,OCI_B_CURSOR);
 ociexecute($stmt);
 ociexecute($curs);
 
-while (OCIFetchInto($curs,&amp;$data)) {
+while (OCIFetchInto($curs,&$data)) {
     var_dump($data);
 }
  
@@ -1372,6 +1442,7 @@ OCIFreeStatement($stmt);
 OCIFreeCursor($curs);
 OCILogoff($conn);
 ?>
+]]>
       </programlisting>
      </example>
     </para>
@@ -1379,39 +1450,41 @@ OCILogoff($conn);
      <example>
       <title>Using a REF CURSOR in a select statement</title>
       <programlisting>
-&lt;?php   
-print "&lt;HTML>&lt;BODY>";
+<![CDATA[
+<?php   
+print "<HTML><BODY>";
 $conn = OCILogon("scott","tiger");
 $count_cursor = "CURSOR(select count(empno) num_emps from emp " .
                 "where emp.deptno = dept.deptno) as EMPCNT from dept";
 $stmt = OCIParse($conn,"select deptno,dname,$count_cursor");
 
 ociexecute($stmt);
-print "&lt;TABLE BORDER=\"1\">";
-print "&lt;TR>";
-print "&lt;TH>DEPT NAME&lt;/TH>";
-print "&lt;TH>DEPT #&lt;/TH>";
-print "&lt;TH># EMPLOYEES&lt;/TH>";
-print "&lt;/TR>";
+print "<TABLE BORDER=\"1\">";
+print "<TR>";
+print "<TH>DEPT NAME</TH>";
+print "<TH>DEPT #</TH>";
+print "<TH># EMPLOYEES</TH>";
+print "</TR>";
 
 while (OCIFetchInto($stmt,&amp;$data,OCI_ASSOC)) {
-    print "&lt;TR>";
+    print "<TR>";
     $dname  = $data["DNAME"];
     $deptno = $data["DEPTNO"];
-    print "&lt;TD>$dname&lt;/TD>";
-    print "&lt;TD>$deptno&lt;/TD>";
+    print "<TD>$dname</TD>";
+    print "<TD>$deptno</TD>";
     ociexecute($data[ "EMPCNT" ]);
     while (OCIFetchInto($data[ "EMPCNT" ],&amp;$subdata,OCI_ASSOC)) {
         $num_emps = $subdata["NUM_EMPS"];
-        print  "&lt;TD>$num_emps&lt;/TD>";
+        print  "<TD>$num_emps</TD>";
     }
-    print "&lt;/TR>";
+    print "</TR>";
 }
-print "&lt;/TABLE>";
-print "&lt;/BODY>&lt;/HTML>";
+print "</TABLE>";
+print "</BODY></HTML>";
 OCIFreeStatement($stmt);
 OCILogoff($conn);
 ?>
+]]>
       </programlisting>
      </example>
     </para>
@@ -1531,8 +1604,8 @@ OCILogoff($conn);
      array associativo. In questo array, <parameter>code</parameter>
      d&agrave; il codice d'errora oracle e <parameter>message</parameter>
      d&agrave; la stringa d'errore.
-    </simpara> 
-   </refsect1>
+    </simpara>
+</refsect1>
   </refentry>
 
   <refentry id="function.ociinternaldebug">

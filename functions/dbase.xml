@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- EN-Revision: 1.17 Maintainer: calandra Status: ready -->
+ <reference id="ref.dbase">
+  <title>Funzioni dBase</title>
+  <titleabbrev>dBase</titleabbrev>
+
+  <partintro>
+   <simpara>
+    Queste funzioni consentono di accedere ai records memorizzati in dBase-format 
+    (dbf) database.  Per poter usare queste funzioni, si deve prima compilare il 
+    PHP con l'opzione <option role="configure">--enable-dbase</option> option.
+   </simpara>
+   <simpara>
+    Non è previsto il supporto per indici o campi memo. Manca anche il 
+    supporto per il locking. E' probabile che due processi concorrenti 
+    da parte del webserver sugli stessi file dBase, finiscano con il rovinare il Database. 
+   </simpara>
+   <simpara>
+    I files dBase sono semplici files sequenziali o records a lunghezza 
+    fissa. I record sono appesi alla fine del file e quelli cancellati sono conservati 
+    fino alla chiamata della funzione 
+    <function>dbase_pack</function>.
+   </simpara>
+   <simpara>
+    Vi raccomandiamo di non usare i files dBase come database di lavoro. Scegliete 
+    piuttosto qualsiasi reale SQL server; MySQL o Postgres sono scelte comuni con PHP. 
+    Il supporto dBase è presente per permettervi di importare ed 
+    esportare dati da e verso il vostro web database, perchè il formato 
+    del file è comunemente ben interpretato dai fogli 
+    elettronici e dagli organizers di Windows. 
+   </simpara>
+  </partintro>
+
+  <refentry id="function.dbase-create">
+   <refnamediv>
+    <refname>dbase_create</refname>
+    <refpurpose>Crea un database dBase</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>dbase_create</methodname>
+      <methodparam><type>string</type><parameter>filename</parameter></methodparam>
+      <methodparam><type>array</type><parameter>fields</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Il parametro <parameter>fields</parameter> è un array di arrays, 
+     ciascun array descrive il formato di un campo nel database. Ogni campo 
+     consiste di un nome, un carattere che indica il tipo di campo, una 
+     lunghezza, e una precisione. 
+    </para>
+    <para>
+     I tipi di campo disponibili sono: 
+     <variablelist>
+      <varlistentry>
+       <term>L</term>
+       <listitem>
+        <simpara>
+         Boolean. Questi non hanno una lunghezza o una precisione. 
+        </simpara>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>M</term>
+       <listitem>
+        <simpara>
+         Memo. (Nota che non sono supportati da PHP.) Questi non hanno una 
+         lunghezza o una precisione. 
+        </simpara>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>D</term>
+       <listitem>
+        <simpara>
+         Date (memorizzate nel formato YYYYMMDD). Questi non hanno una lunghezza o 
+         una precisione. 
+        </simpara>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>N</term>
+       <listitem>
+        <simpara>
+         Number. Questi hanno sia una lunghezza sia una precisione 
+         (il numero di decimali).
+        </simpara>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>C</term>
+       <listitem>
+        <simpara>
+         String.
+        </simpara>
+       </listitem>
+      </varlistentry>
+     </variablelist>
+    </para>
+    <para>
+     Se il database è creato con successo, è restituito un dbase_identifier, altrimenti è restituito 
+     &false;.
+     <example>
+      <title>Creare un file di database dBase</title>
+      <programlisting role="php">
+<![CDATA[
+// "database" name
+$dbname = "/tmp/test.dbf";
+
+// database "definition"
+$def =
+    array(
+        array("date",     "D"),
+        array("name",     "C",  50),
+        array("age",      "N",   3, 0),
+        array("email",    "C", 128),
+        array("ismember", "L")
+    );
+
+// creation
+if (!dbase_create($dbname, $def))
+    print "<strong>Error!</strong>";
+]]>
+      </programlisting>
+     </example>
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.dbase-open">
+   <refnamediv>
+    <refname>dbase_open</refname>
+    <refpurpose>Apre un database dBase</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>dbase_open</methodname>
+      <methodparam><type>string</type><parameter>filename</parameter></methodparam>
+      <methodparam><type>int</type><parameter>flags</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     I flags corrispondono a quelli per la chiamata all' open() system. 
+     (Tipicamente 0 significa sola lettura, 1 sola scrittura e 2 
+     lettura e scrittura.) 
+    </para>
+    <para>
+     Restituisce un dbase_identifier per il database aperto, o &false; se il database non 
+     può essere aperto 
+    </para>
+    &note.sm.uidcheck;
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.dbase-close">
+   <refnamediv>
+    <refname>dbase_close</refname>
+    <refpurpose>Chiude un database dBase</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>bool</type><methodname>dbase_close</methodname>
+      <methodparam><type>int</type><parameter>dbase_identifier</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Chiude il database associato con il
+     <parameter>dbase_identifier</parameter>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.dbase-pack">
+   <refnamediv>
+    <refname>dbase_pack</refname>
+    <refpurpose>Stabilizza un database dBase</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>bool</type><methodname>dbase_pack</methodname>
+      <methodparam><type>int</type><parameter>dbase_identifier</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Stabilizza il database specificato (cancellando permanentemente tutti i records marcati per la 
+     cancellazione usando 
+     <function>dbase_delete_record</function>).
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.dbase-add-record">
+   <refnamediv>
+    <refname>dbase_add_record</refname>
+    <refpurpose>Aggiunge un record ad un database dBase</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>bool</type><methodname>dbase_add_record</methodname>
+      <methodparam><type>int</type><parameter>dbase_identifier</parameter></methodparam>
+      <methodparam><type>array</type><parameter>record</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Aggiunge i dati nel <parameter>record</parameter> al database. 
+     Se il numero di items nel record non è uguale al numero di campi 
+     nel database, l'operazione fallirà e sarà restituito 
+     &false;.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.dbase-replace-record">
+   <refnamediv>
+    <refname>dbase_replace_record</refname>
+    <refpurpose>Sostituisce un record in un database dBase</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>bool</type><methodname>dbase_replace_record</methodname>
+      <methodparam><type>int</type><parameter>dbase_identifier</parameter></methodparam>
+      <methodparam><type>array</type><parameter>record</parameter></methodparam>
+      <methodparam><type>int</type><parameter>dbase_record_number</parameter></methodparam>
+     </methodsynopsis>
+    <simpara>
+     Sostituisce i dati associati con il record 
+     <parameter>record_number</parameter> con i dati nel 
+     <parameter>record</parameter> nel database. Se il numero di items 
+     nel record non è uguale al numero di campi nel database, l'operazione 
+     fallirà e sarà restituito &false;.
+    </simpara>
+    <simpara>
+     <parameter>dbase_record_number</parameter> è un integer che va da 1 al numero di 
+     records nel database (come restituito 
+     da <function>dbase_numrecords</function>).
+    </simpara>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.dbase-delete-record">
+   <refnamediv>
+    <refname>dbase_delete_record</refname>
+    <refpurpose>Cancella un record da un database dBase</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>bool</type><methodname>dbase_delete_record</methodname>
+      <methodparam><type>int</type><parameter>dbase_identifier</parameter></methodparam>
+      <methodparam><type>int</type><parameter>record</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Marca il <parameter>record</parameter> da cancellare dal database. 
+     Per rimuovere il record dal database, è necessario chiamare 
+     la funzione  <function>dbase_pack</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.dbase-get-record">
+   <refnamediv>
+    <refname>dbase_get_record</refname>
+    <refpurpose>Estrae un record da un database dBase</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>array</type><methodname>dbase_get_record</methodname>
+      <methodparam><type>int</type><parameter>dbase_identifier</parameter></methodparam>
+      <methodparam><type>int</type><parameter>record</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Restituisce i dati da <parameter>record</parameter> in un array. 
+     L'array è indicizzato partendo da 0, e include un membro associativo 
+     chiamato 'deleted' che è settato a 1 se il record è stato marcato per 
+     la cancellazione (vedere 
+     <function>dbase_delete_record</function>).
+    </para>
+    <para>
+     Ogni campo è convertito all'appropriato tipo PHP, Fanno eccezione:
+     <itemizedlist>
+      <listitem>
+       <simpara>
+        Le date, che sono lasciate come stringhe.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        Gli interi che avrebbero causato un overflow (> 32 bits) 
+        sono restituiti come stringhe.
+       </simpara>
+      </listitem>
+     </itemizedlist>
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.dbase-get-record-with-names">
+   <refnamediv>
+    <refname>dbase_get_record_with_names</refname>
+    <refpurpose>
+     Estrae un record da un database dBase come un array associativo 
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>array</type><methodname>dbase_get_record_with_names</methodname>
+      <methodparam><type>int</type><parameter>dbase_identifier</parameter></methodparam>
+      <methodparam><type>int</type><parameter>record</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Restituisce i dati da <parameter>record</parameter> in un array 
+     associativo. L'array include anche un membro associativo chiamato 'deleted' 
+     che è settato a 1 se il record è stato marcato per la cancellazione 
+     (vedere <function>dbase_delete_record</function>).
+    </para>
+    <para>
+     Ogni campo è convertito all'appropriato tipo PHP, Fanno eccezione:
+     <itemizedlist>
+      <listitem>
+       <simpara>
+        Le date, che sono lasciate come stringhe.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        Gli interi che avrebbero causato un overflow (> 32 bits) 
+	sono restituiti come stringhe.
+       </simpara>
+      </listitem>
+     </itemizedlist>
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.dbase-numfields">
+   <refnamediv>
+    <refname>dbase_numfields</refname>
+    <refpurpose>
+     Restituisce il numero di campi in un database dBase. 
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>dbase_numfields</methodname>
+      <methodparam><type>int</type><parameter>dbase_identifier</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Restituisce il numero di campi (colonne) nel databaase specificato. 
+     I numeri dei campi sono compresi tra 0 e dbase_numfields($db)-1, mentre i numeri 
+     dei records sono compresi tra 1 e dbase_numrecords($db). 
+     <example>
+      <title>Usare <function>dbase_numfields</function></title>
+      <programlisting role="php">
+<![CDATA[
+$rec = dbase_get_record($db, $recno);
+$nf  = dbase_numfields($db);
+for ($i=0; $i < $nf; $i++) {
+    print $rec[$i]."<br>\n";
+}
+]]>
+      </programlisting>
+     </example>
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.dbase-numrecords">
+   <refnamediv>
+    <refname>dbase_numrecords</refname>
+    <refpurpose>
+     Restituisce il numero di records in un database dBase.
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>dbase_numrecords</methodname>
+      <methodparam><type>int</type><parameter>dbase_identifier</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Restituisce il numero di records (righe) nel database specificato. 
+     I numeri dei records sono compresi tra 1 e dbase_numrecords($db), mentre i numeri 
+     dei campi sono compresi tra 0 e dbase_numfields($db)-1. 
+    </para>
+   </refsect1>
+  </refentry>
+
+ </reference>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->
+

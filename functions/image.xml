@@ -5,9 +5,9 @@
   <partintro>
    <simpara>
     You can use the image functions in PHP to get the size of
-    <acronym>JPEG</acronym>, <acronym>GIF</acronym>, and
-    <acronym>PNG</acronym> images, and if you have the
-    <acronym>GD</acronym> library (available at <ulink
+    <acronym>JPEG</acronym>, <acronym>GIF</acronym>,
+    <acronym>PNG</acronym>, and <acronym>SWF</acronym> images, and if
+    you have the <acronym>GD</acronym> library (available at <ulink
     url="&url.gd;">&url.gd;</ulink>) you will also be able to create
     and manipulate images.
    </simpara>
@@ -16,7 +16,7 @@
   <refentry id="function.getimagesize">
    <refnamediv>
     <refname>GetImageSize</refname>
-    <refpurpose>Get the size of a GIF, JPEG or PNG image</refpurpose>
+    <refpurpose>Get the size of a GIF, JPEG, PNG or SWF image</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Description</title>
@@ -31,23 +31,24 @@
     </funcsynopsis>
     <para>
      The <function>GetImageSize</function> function will determine the
-     size of any <acronym>GIF</acronym>, <acronym>JPG</acronym> or
-     <acronym>PNG</acronym> image file and return the dimensions along
-     with the file type and a height/width text string to be used
-     inside a normal <acronym>HTML</acronym> <sgmltag>IMG</sgmltag>
-     tag.
+     size of any <acronym>GIF</acronym>, <acronym>JPG</acronym>,
+     <acronym>PNG</acronym> or <acronym>SWF</acronym> image file and
+     return the dimensions along with the file type and a height/width
+     text string to be used inside a normal <acronym>HTML</acronym>
+     <sgmltag>IMG</sgmltag> tag.
     </para>
     <para>
      Returns an array with 4 elements.  Index 0 contains the width of
-     the image in pixels.  Index 1 contains the height.  Index 2 a flag
-     indicating the type of the image.  1 = GIF, 2 = JPG, 3 = PNG.
-     Index 3 is a text string with the correct  "height=xxx width=xxx"
-     string that can be used directly in an IMG tag.
+     the image in pixels.  Index 1 contains the height.  Index 2 a
+     flag indicating the type of the image.  1 = GIF, 2 = JPG, 3 =
+     PNG, 4 = SWF.  Index 3 is a text string with the correct
+     "height=xxx width=xxx" string that can be used directly in an IMG
+     tag.
      <example>
       <title>GetImageSize</title>
       <programlisting role="php">
 &lt;?php $size = GetImageSize ("img/flag.jpg"); ?>
-&lt;IMG SRC="img/flag.jpg" &lt;?php echo $size[3]; ?>>
+&lt;IMG SRC="img/flag.jpg" &lt;?php echo $size[3]; ?>
       </programlisting>
      </example>
     </para>
@@ -66,12 +67,12 @@
       <title>GetImageSize returning IPTC</title>
       <programlisting>
 &lt;?php 
-    $size = GetImageSize ("testimg.jpg",&$info);
+    $size = GetImageSize ("testimg.jpg",&amp;$info);
     if (isset ($info["APP13"])) {
         $iptc = iptcparse ($info["APP13"]);
         var_dump ($iptc);
     }
-?>
+?&gt;
       </programlisting>
      </example>
      <note>
@@ -213,6 +214,41 @@ $black = ImageColorAllocate ($im, 0, 0, 0);
     </para>
    </refsect1>
   </refentry>
+  
+  <refentry id="function.imagecolordeallocate">
+    <refnamediv>
+      <refname>ImageColorDeAllocate</refname>
+      <refpurpose>
+        De-allocate a color for an image
+      </refpurpose>
+    </refnamediv>
+    <refsect1>
+      <title>Description</title>
+      <funcsynopsis>
+     <funcprototype>
+         <funcdef>int 
+           <function>imagecolordeallocate</function>
+         </funcdef>
+         <paramdef>int 
+           <parameter>im</parameter>
+         </paramdef>
+         <paramdef>int 
+           <parameter>index</parameter>
+         </paramdef>
+     </funcprototype>
+      </funcsynopsis>
+      <para>
+        The <function>ImageColorDeAllocate</function> function de-allocates a color previously
+        allocated with the <function>ImageColorAllocate</function> function.
+        <informalexample>
+          <programlisting role="php">
+$white = ImageColorAllocate($im, 255, 255, 255);
+ImageColorDeAllocate($im, $white);
+          </programlisting>
+        </informalexample>
+      </para>
+    </refsect1>
+  </refentry>
 
   <refentry id="function.imagecolorat">
    <refnamediv>
@@ -333,6 +369,40 @@ $black = ImageColorAllocate ($im, 0, 0, 0);
    </refsect1>
   </refentry>
 
+  <refentry id="function.imagegammacorrect">
+    <refnamediv>
+      <refname>ImageGammaCorrect</refname>
+      <refpurpose>
+        Apply a gamma correction to a GD image
+      </refpurpose>
+    </refnamediv>
+    <refsect1>
+      <title>Description</title>
+      <funcsynopsis>
+     <funcprototype>
+         <funcdef>int 
+           <function>imagegammacorrect</function>
+         </funcdef>
+         <paramdef>int 
+           <parameter>im</parameter>
+         </paramdef>
+         <paramdef>double 
+           <parameter>inputgamma</parameter>
+         </paramdef>
+         <paramdef>double 
+           <parameter>outputgamma</parameter>
+         </paramdef>
+     </funcprototype>
+      </funcsynopsis>
+      <para>
+        The <function>ImageGammaCorrect</function> function applies gamma correction
+        to a gd image stream (<parameter>im</parameter>) given an input gamma, the 
+        parameter <parameter>inputgamma</parameter> and an output gamma, the parameter
+        <parameter>outputgamma</parameter>.
+      </para>
+    </refsect1>
+  </refentry>
+
   <refentry id="function.imagecolorset">
    <refnamediv>
     <refname>ImageColorSet</refname>
@@ -445,6 +515,56 @@ $black = ImageColorAllocate ($im, 0, 0, 0);
      transparent color is returned.
     </para>
    </refsect1>
+  </refentry>
+
+  <refentry id="function.imagecopy">
+    <refnamediv>
+      <refname>ImageCopy</refname>
+      <refpurpose>
+        Copy part of an image
+      </refpurpose>
+    </refnamediv>
+    <refsect1>
+      <title>Description</title>
+      <funcsynopsis>
+     <funcprototype>
+         <funcdef>int 
+           <function>ImageCopy</function>
+         </funcdef>
+         <paramdef>int 
+           <parameter>dst_im</parameter>
+         </paramdef>
+         <paramdef>int
+           <parameter>src_im</parameter>
+         </paramdef>
+         <paramdef>int
+           <parameter>dst_x</parameter>
+         </paramdef>
+         <paramdef>int 
+           <parameter>dst_y</parameter>
+         </paramdef>
+         <paramdef>int 
+           <parameter>src_x</parameter>
+         </paramdef>
+         <paramdef>int 
+           <parameter>src_y</parameter>
+         </paramdef>
+         <paramdef>int 
+           <parameter>src_w</parameter>
+         </paramdef>
+         <paramdef>int 
+           <parameter>src_h</parameter>
+         </paramdef>
+     </funcprototype>
+      </funcsynopsis>
+      <para>
+        Copy a part of <parameter>src_im</parameter> onto <parameter>dst_im</parameter>
+        starting at the x,y coordinates <parameter>src_x</parameter>, <parameter>src_y
+        </parameter> with a width of <parameter>src_w</parameter> and a height of 
+        <parameter>src_h</parameter>.  The portion defined will be copied onto 
+        the x,y coordinates, <parameter>dst_x</parameter> and <parameter>dst_y</parameter>.
+      </para>
+    </refsect1>
   </refentry>
 
   <refentry id="function.imagecopyresized">
@@ -903,6 +1023,38 @@ function LoadPNG ($imgname) {
    </refsect1>
   </refentry>
 
+  <refentry id="function.imagepng">
+    <refnamediv>
+      <refname>ImagePng</refname>
+      <refpurpose>
+        Output a PNG image to either the browser or a file
+      </refpurpose>
+    </refnamediv>
+    <refsect1>
+      <title>Description</title>
+      <funcsynopsis>
+     <funcprototype>
+         <funcdef>int 
+           <function>imagepng</function>
+         </funcdef>
+         <paramdef>int <parameter>im</parameter></paramdef>
+         <paramdef>string <parameter><optional>filename</optional></parameter></paramdef>
+     </funcprototype>
+      </funcsynopsis>
+      <para>
+        The <function>ImagePng</function> outputs a GD image stream (<parameter>im</parameter>)
+        in PNG format to standard output (usually the browser) or, if a filename is given by the
+        <parameter>filename</parameter> it outputs the image to the file.
+        <informalexample>
+          <programlisting role="php">
+$im = ImageCreateFromPng("test.png");
+ImagePng($im);
+          </programlisting>
+        </informalexample>
+      </para>
+    </refsect1>
+  </refentry>
+
   <refentry id="function.imagejpeg">
    <refnamediv>
     <refname>ImageJPEG</refname>
@@ -1125,9 +1277,9 @@ function LoadPNG ($imgname) {
       <paramdef>string <parameter>text</parameter></paramdef>
       <paramdef>int <parameter>font</parameter></paramdef>
       <paramdef>int <parameter>size</parameter></paramdef>
-      <paramdef>int <parameter>space</parameter></paramdef>
-      <paramdef>int <parameter>width</parameter></paramdef>
-      <paramdef>float <parameter>angle</parameter></paramdef>
+      <paramdef>int <parameter><optional>space</optional></parameter></paramdef>
+      <paramdef>int <parameter><optional>tightness</optional></parameter></paramdef>
+      <paramdef>float <parameter><optional>angle</optional></parameter></paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
@@ -1139,7 +1291,7 @@ function LoadPNG ($imgname) {
      value and can also be negative.
     </para>
     <para>
-     <parameter>tightness</parameter> allows you to control the amount
+     <parameter>Tightness</parameter> allows you to control the amount
      of white space between characters. This amount is added to the
      normal character width and can also be negative.
     </para>
@@ -1316,6 +1468,65 @@ permits to find a solution.
      See also <function>ImagePSFreeFont</function>.
     </para>
    </refsect1>
+  </refentry>
+
+  <refentry id="function.imagepsextendfont">
+    <refnamediv>
+      <refname>ImagePsExtendFont</refname>
+      <refpurpose>
+        Extend or condense a font
+      </refpurpose>
+    </refnamediv>
+    <refsect1>
+      <title>Description</title>
+      <funcsynopsis>
+     <funcprototype>
+         <funcdef>bool
+           <function>imagepsextendfont</function>
+         </funcdef>
+         <paramdef>int 
+           <parameter>font_index</parameter>
+         </paramdef>
+         <paramdef>double 
+           <parameter>extend</parameter>
+         </paramdef>
+     </funcprototype>
+      </funcsynopsis>
+      <para>
+        Extend or condense a font (<parameter>font_index</parameter>), if the value of
+        the <parameter>extend</parameter> parameter is less than one you will be condensing
+        the font.
+      </para>
+    </refsect1>
+  </refentry>
+  
+  <refentry id="function.imagepsslantfont">
+    <refnamediv>
+      <refname>ImagePsSlantFont</refname>
+      <refpurpose>
+        Slant a font
+      </refpurpose>
+    </refnamediv>
+    <refsect1>
+      <title>Description</title>
+      <funcsynopsis>
+     <funcprototype>
+         <funcdef>bool 
+           <function>imagepsslantfont</function>
+         </funcdef>
+         <paramdef>int 
+           <parameter>font_index</parameter>
+         </paramdef>
+         <paramdef>double 
+           <parameter>slant</parameter>
+         </paramdef>
+     </funcprototype>
+      </funcsynopsis>
+      <para>
+        Slant a font given by the <parameter>font_index</parameter> parameter with a slant of
+        the value of the <parameter>slant</parameter> parameter.
+      </para>
+    </refsect1>
   </refentry>
 
   <refentry id="function.imagepstext">

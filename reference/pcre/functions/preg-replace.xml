@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/pcre.xml, last change in rev 1.5 -->
 <!-- last change to 'preg-replace' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.3 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.7 Maintainer: darvina Status: ready -->
 <!-- OLD-Revision: 1.78/EN.1.2 -->
   <refentry id="function.preg-replace">
    <refnamediv>
@@ -38,6 +38,37 @@
      riconosciuto tramite tutta l'espressione regolare passata. Nel conteggio
      dei criteri di riconoscimento presenti, sono contate le parentesi 
      aperte da sinistra verso destra partendo da 1.
+     <note>
+      <para>
+       Quando si lavora con un criterio di sostituzione in cui un riferimento all'indietro
+       è immediatamente seguito da un'altro numero (ad esempio un numero che segue immediatamente
+       il criterio riconosciuto), non si possono utilizzare le solite notazioni,  <literal>\\1</literal>,
+       per i riferimenti all'indietro. Ad esempio, il testo <literal>\\11</literal>
+       confonderebbe <function>preg_replace</function> poichè non saprebbe se si desidera il riferimento
+       all'indietro <literal>\\1</literal> seguito dal numero <literal>1</literal>, oppure
+       se è desiderato il riferimento <literal>\\11</literal> seguito da niente. In questi
+       casi la soluzione consiste nell'uso di <literal>\${1}1</literal>. In questo modo si
+       crea un riferimento all'indietro <literal>$1</literal> isolato dal numero <literal>1</literal>.
+      </para>
+     </note>
+     <example>
+      <title>Uso dei riferimenti all'indietro seguiti da numeri</title>
+       <programlisting role="php">
+<![CDATA[ 
+<?php 
+$string = "April 15, 2003"; 
+$pattern = "/(\w+) (\d+), (\d+)/i";
+$replacement = "\${1}1,\$3";
+print preg_replace($pattern, $replacement, $string);
+  
+/* Output 
+  ======
+April1,2003
+*/
+?>
+]]>
+      </programlisting>
+     </example>
     </para>
     <para>
      Se verranno riconosciuti dei testi, la funzione restituisce la nuova
@@ -47,6 +78,65 @@
     <para>
      Ogni parametro passato alla funzione <function>preg_replace</function>,
      (eccetto <parameter>limite</parameter>) può essere una matrice.
+    </para> 
+    <para>
+     <note>
+      <para>
+       Quando si utilizzano matrici con <parameter>espressione_regolare</parameter>
+       e <parameter>sostituto</parameter>, le chiavi sono processate
+       nell'ordine con cui appaiono nella matrice. Questo 
+       <emphasis>non è necessariamente</emphasis> l'ordine
+       numerico dell'indice. Se si utilizzano degli indici per 
+       identificare quale <parameter>espressione_regolare</parameter> debba
+       essere sostituita da <parameter>sostituto</parameter>, occorre eseguire
+       la funzione <function>ksort</function> su ciascuna matrice
+       prima di eseguire <function>preg_replace</function>.
+      </para>
+     </note>
+    <example>
+     <title>Uso di matrici indicizzate con <function>preg_replace</function></title> 
+    <programlisting role="php">
+ 
+<![CDATA[
+<?php
+$string = "The quick brown fox jumped over the lazy dog.";
+ 
+$patterns[0] = "/quick/";
+$patterns[1] = "/brown/";
+$patterns[2] = "/fox/";
+ 
+$replacements[2] = "bear";
+$replacements[1] = "black";
+$replacements[0] = "slow";
+ 
+print preg_replace($patterns, $replacements, $string);
+ 
+/* Output
+  ======
+ 
+The bear black slow jumped over the lazy dog.
+ 
+*/
+ 
+/* utilizzando ksort su entrambe le matrici
+  otteniamo cio che vogliamo. */
+ 
+ksort($patterns);
+ksort($replacements);
+ 
+print preg_replace($patterns, $replacements, $string);
+ 
+/* Output
+  ======
+ 
+The slow black bear jumped over the lazy dog.
+ 
+*/
+ 
+?>
+]]>
+       </programlisting>
+     </example>
     </para>
     <para>
      Se il campo <parameter>testo</parameter> è una matrice, la ricerca

@@ -225,7 +225,7 @@ if ($ds) {
      attributes. In case of multiple values for an attribute, they are
      indexed using integers starting with 0.
     </para>
-	<informalexample>
+    <informalexample>
 <literallayout>
     entry["attribute1"] = value
     entry["attribute2"][0] = value1
@@ -359,7 +359,7 @@ if ($ds) {
         // prepare data
         $dn = "cn=Matti Meikku, ou=My Unit, o=My Company, c=FI";
         $value = "secretpassword";
-        $attr = "password";	
+        $attr = "password"; 
 
         // compare value
         $r=ldap_compare($ds, $dn, $attr, $value);
@@ -424,6 +424,12 @@ if ($ds) {
      already opened link will be returned. If only
      <parameter>hostname</parameter> is specified, then the port
      defaults to 389.</para>
+    <para>
+     If you are using OpenLDAP 2.x.x you can specify a URL instead of the
+     hostname. To use LDAP with SSL, compile OpenLDAP 2.x.x with SSL
+     support, configure PHP with SSL, and use ldaps://hostname/ as
+     host parameter. The port parameter is not used when using URLs.
+     URL and SSL support were added in 4.0.4.</para>
    </refsect1>
   </refentry>
 
@@ -528,7 +534,7 @@ if ($ds) {
 <programlisting role="php">
 &lt;?php
   for($i=0; $i&lt;100; $i++) {
-    printf("Error $i: %s&lt;br>\n", ldap_str2err($i));
+    printf("Error $i: %s&lt;br>\n", ldap_err2str($i));
   }
 ?>
 </programlisting>
@@ -895,10 +901,58 @@ return_value[i]["attribute"]["count"] = number of values for
 return_value[i]["attribute"][j] = jth value of attribute in ith entry
 </literallayout>
     </informalexample></para>
-	
+    
      <para>
       see also <function>ldap_first_entry</function> and
       <function>ldap_next_entry</function></para>
+   </refsect1>
+  </refentry>
+
+
+  <refentry id="function.ldap-get-option">
+   <refnamediv>
+    <refname>ldap_get_option</refname>
+    <refpurpose>Get the current value for given option</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>boolean <function>ldap_get_option</function></funcdef>
+      <paramdef>int <parameter>link_identifier</parameter></paramdef>
+      <paramdef>int <parameter>option</parameter></paramdef>
+      <paramdef>mixed <parameter>retval</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Sets <parameter>retval</parameter> to the value of the specified option,
+     and returns true on success and false on error.</para>  
+    <para>
+     The parameter <parameter>option</parameter> can be one of:
+     LDAP_OPT_DEREF, LDAP_OPT_SIZELIMIT, LDAP_OPT_TIMELIMIT,
+     LDAP_OPT_PROTOCOL_VERSION, LDAP_OPT_ERROR_NUMBER, LDAP_OPT_REFERRALS,
+     LDAP_OPT_RESTART, LDAP_OPT_HOST_NAME, LDAP_OPT_ERROR_STRING,
+     LDAP_OPT_MATCHED_DN. These are described in 
+     <ulink url="&url.ldap.openldap-c-api;">draft-ietf-ldapext-ldap-c-api-xx.txt</ulink>
+     </para>
+    <para>This function is only available when using OpenLDAP 2.x.x OR Netscape Directory SDK x.x, and was
+     added in PHP 4.0.4</para>
+
+     <para>
+     <example>
+      <title>Check protocol version</title>
+<programlisting role="php">
+// $ds is a valid link identifier for a directory server
+if (ldap_get_option($ds, LDAP_OPT_PROTOCOL_VERSION, $version))
+    echo "Using protocol version $version";
+else
+    echo "Unable to determine protocol version";
+</programlisting>
+     </example>
+     </para>
+
+     <para>
+      See also <function>ldap_set_option</function>.</para>
    </refsect1>
   </refentry>
 
@@ -1130,11 +1184,11 @@ for ($i=0; $i&lt;$info["count"]; $i++)
     </funcsynopsis>
     <para>
      returns true on success and false on error.</para>  
-	<para>
-	 This function adds attribute(s) to the specified dn.  It
-	 performs the modification at the attribute level as opposed to the 
-	 object level.  Object-level additions are done by the 
-	<function>ldap_add</function> function.</para>
+    <para>
+     This function adds attribute(s) to the specified dn.  It
+     performs the modification at the attribute level as opposed to the 
+     object level.  Object-level additions are done by the 
+    <function>ldap_add</function> function.</para>
    </refsect1>
   </refentry>
 
@@ -1155,11 +1209,11 @@ for ($i=0; $i&lt;$info["count"]; $i++)
     </funcsynopsis>
     <para>
      returns true on success and false on error.</para>  
-	<para>
-	 This function removes attribute(s) from the specified dn.  It
-	 performs the modification at the attribute level as opposed to the 
-	 object level.  Object-level deletions are done by the 
-	<function>ldap_del</function> function.</para>
+    <para>
+     This function removes attribute(s) from the specified dn.  It
+     performs the modification at the attribute level as opposed to the 
+     object level.  Object-level deletions are done by the 
+    <function>ldap_del</function> function.</para>
    </refsect1>
   </refentry>
 
@@ -1180,11 +1234,11 @@ for ($i=0; $i&lt;$info["count"]; $i++)
     </funcsynopsis>
     <para>
      returns true on success and false on error.</para>  
-	<para>
-	 This function replaces attribute(s) from the specified dn.  It
-	 performs the modification at the attribute level as opposed to the 
-	 object level.  Object-level modifications are done by the 
-	<function>ldap_modify</function> function.</para>
+    <para>
+     This function replaces attribute(s) from the specified dn.  It
+     performs the modification at the attribute level as opposed to the 
+     object level.  Object-level modifications are done by the 
+    <function>ldap_modify</function> function.</para>
    </refsect1>
   </refentry>
 
@@ -1301,7 +1355,7 @@ for ($i=0; $i&lt;$info["count"]; $i++)
     </para>
     <note>
      <para>
-	  These optional parameters were added in 4.0.2:
+      These optional parameters were added in 4.0.2:
       <parameter>attrsonly</parameter>,
       <parameter>sizelimit</parameter>,
       <parameter>timelimit</parameter>,
@@ -1419,7 +1473,7 @@ for ($i=0; $i&lt;$info["count"]; $i++)
      </itemizedlist>
     </para>  
     <para>
-	  These optional parameters were added in 4.0.2:
+      These optional parameters were added in 4.0.2:
       <parameter>attrsonly</parameter>,
       <parameter>sizelimit</parameter>,
       <parameter>timelimit</parameter>,
@@ -1456,6 +1510,54 @@ print $info["count"]." entries returned&lt;p>";
 </programlisting>
       </example></para>
 
+   </refsect1>
+  </refentry>
+
+
+  <refentry id="function.ldap-set-option">
+   <refnamediv>
+    <refname>ldap_set_option</refname>
+    <refpurpose>Set the value of the given option</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>boolean <function>ldap_set_option</function></funcdef>
+      <paramdef>int <parameter>link_identifier</parameter></paramdef>
+      <paramdef>int <parameter>option</parameter></paramdef>
+      <paramdef>mixed <parameter>newval</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Sets the value of the specified option to be
+     <parameter>newval</parameter>, and returns true on success and false
+     on error.</para>  
+    <para>
+     The parameter <parameter>option</parameter> can be one of:
+     LDAP_OPT_DEREF, LDAP_OPT_SIZELIMIT, LDAP_OPT_TIMELIMIT,
+     LDAP_OPT_PROTOCOL_VERSION, LDAP_OPT_ERROR_NUMBER, LDAP_OPT_REFERRALS,
+     LDAP_OPT_RESTART, LDAP_OPT_HOST_NAME, LDAP_OPT_ERROR_STRING,
+     LDAP_OPT_MATCHED_DN. These are described in 
+     <ulink url="&url.ldap.openldap-c-api;">draft-ietf-ldapext-ldap-c-api-xx.txt</ulink></para>
+    <para>This function is only available when using OpenLDAP 2.x.x OR Netscape Directory SDK x.x, and was
+     added in PHP 4.0.4</para>
+
+     <para>
+     <example>
+      <title>Set protocol version</title>
+<programlisting role="php">
+// $ds is a valid link identifier for a directory server
+if (ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3))
+    echo "Using LDAPv3";
+else
+    echo "Failed to set protocol version to 3";
+</programlisting>
+     </example>
+     </para>
+
+     <para>
+      See also <function>ldap_get_option</function>.</para>
    </refsect1>
   </refentry>
 

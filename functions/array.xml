@@ -13,6 +13,11 @@
     There are specific database handling functions for populating
     arrays from database queries, and several functions return arrays.
    </simpara>
+   <para>
+    See also <function>is_array</function>, <function>explode</function>, 
+    <function>implode</function>, <function>split</function> 
+    and <function>join</function>.
+   </para>
   </partintro>
 
   <refentry id="function.array">
@@ -45,6 +50,14 @@
      </note>
     </para>
     <para>
+     Syntax "index =&gt; values", separated by commas, define index
+     and values. index may be of type string or numeric. When index is
+     omitted, a integer index is automatically generated, starting
+     at 0. If index is an integer, next generated index will
+     be the biggest integer index + 1. Note that when two identical
+     index are defined, the last overwrite the first.
+    </para>
+    <para>
      The following example demonstrates how to create a
      two-dimensional array, how to specify keys for associative
      arrays, and how to skip-and-continue numeric indices in normal
@@ -53,12 +66,60 @@
       <title><function>Array</function> example</title>
       <programlisting role="php">
 $fruits = array (
-    "fruits"  => array ("a"=>"orange", "b"=>"banana", "c"=>"apple"),
-    "numbers" => array (1, 2, 3, 4, 5, 6),
-    "holes"   => array ("first", 5 => "second", "third")
+    "fruits"  =&gt; array ("a"=&gt;"orange", "b"=&gt;"banana", "c"=&gt;"apple"),
+    "numbers" =&gt; array (1, 2, 3, 4, 5, 6),
+    "holes"   =&gt; array ("first", 5 =&gt; "second", "third")
 );
       </programlisting>
      </example>
+    </para>
+    <para>
+     <example>
+      <title>Automatic index with <function>Array</function></title>
+      <programlisting role="php">
+$array = array( 1, 1, 1, 1,  1, 8=>1,  4=>1, 19, 3=>13);
+print_r($array);
+      </programlisting>
+     </example>
+     which will display : 
+     <informalexample>
+      <programlisting>
+Array
+(
+    [0] => 1
+    [1] => 1
+    [2] => 1
+    [3] => 13
+    [4] => 1
+    [8] => 1
+    [9] => 19
+)
+      </programlisting>
+     </informalexample>
+     Note that index '3' is defined twice, and keep its final value of 13.
+     Index 4 is defined after index 8, and next generated index (value 19)
+     is 9, since biggest index was 8. 
+    </para>
+    <para>
+     This example creates a 1-based array.
+     <example>
+      <title>1-based index with <function>Array</function></title>
+      <programlisting role="php">
+        $firstquarter  = array(1 => 'January', 'February', 'March');
+        print_r($firstquarter);
+      </programlisting>
+     </example>
+     which will display : 
+     <informalexample>
+      <programlisting>
+Array 
+(
+    [1] => 'January'
+    [2] => 'February'
+    [3] => 'March'
+)
+      </programlisting>
+     </informalexample>
     </para>
     <para>
      See also: <function>list</function>.
@@ -89,7 +150,7 @@ $fruits = array (
       <title><function>Array_count_values</function> example</title>
       <programlisting role="php">
 $array = array (1, "hello", 1, "world", "hello");
-array_count_values ($array); // returns array (1=>2, "hello"=>2, "world"=>1)
+array_count_values ($array); // returns array (1=&gt;2, "hello"=&gt;2, "world"=&gt;1)
       </programlisting>
      </example>     
     </para>
@@ -123,8 +184,8 @@ array_count_values ($array); // returns array (1=>2, "hello"=>2, "world"=>1)
      <example>
       <title><function>Array_diff</function> example</title>
       <programlisting role="php">
-$array1 = array ("a" => "green", "red", "blue");
-$array2 = array ("b" => "green", "yellow", "red");
+$array1 = array ("a" =&gt; "green", "red", "blue");
+$array2 = array ("b" =&gt; "green", "yellow", "red");
 $result = array_diff ($array1, $array2);
       </programlisting>
      </example>
@@ -194,15 +255,15 @@ $original = strtr ($str, $trans);
      <example>
       <title><function>Array_intersect</function> example</title>
       <programlisting role="php">
-$array1 = array ("a" => "green", "red", "blue");
-$array2 = array ("b" => "green", "yellow", "red");
+$array1 = array ("a" =&gt; "green", "red", "blue");
+$array2 = array ("b" =&gt; "green", "yellow", "red");
 $result = array_intersect ($array1, $array2);
       </programlisting>
      </example>
     </para>     
     <para>
      This makes <varname>$result</varname> have <literal>array ("a"
-     => "green", "red");</literal>
+     =&gt; "green", "red");</literal>
     </para>
     <para>
      See also <function>array_diff</function>.
@@ -241,14 +302,40 @@ $result = array_intersect ($array1, $array2);
      <example>
       <title><function>Array_keys</function> example</title>
       <programlisting role="php">
-$array = array (0 => 100, "color" => "red");
+$array = array (0 =&gt; 100, "color" =&gt; "red");
 array_keys ($array);       // returns array (0, "color")
 
 $array = array ("blue", "red", "green", "blue", "blue");
 array_keys ($array, "blue");  //  returns array (0, 3, 4) 
+
+$array = array ("color" =&gt; array("blue", "red", "green"), "size" =&gt; array("small", "medium", "large"));
+array_keys ($array);  //  returns array ("color", "size") 
       </programlisting>
      </example>
     </para>
+    <note>
+     <para>
+      This function was added to PHP 4, below is an implementation for
+      those still using PHP 3.
+      <example>
+       <title>
+    Implementation of <function>array_keys</function> for PHP 3
+    users
+       </title>
+       <programlisting role="php">
+function array_keys ($arr, $term="") {
+    $t = array();
+    while (list($k,$v) = each($arr)) {
+        if ($term &amp;&amp; $v != $term)
+            continue;
+            $t[] = $k;
+        }
+        return $t;
+}
+       </programlisting>
+      </example>
+     </para>
+    </note>
     <para>
      See also <function>array_values</function>.
     </para>
@@ -287,15 +374,15 @@ array_keys ($array, "blue");  //  returns array (0, 3, 4)
      <example>
       <title><function>array_merge</function> example</title>
       <programlisting role="php">
-$array1 = array ("color" => "red", 2, 4);
-$array2 = array ("a", "b", "color" => "green", "shape" => "trapezoid", 4);
+$array1 = array ("color" =&gt; "red", 2, 4);
+$array2 = array ("a", "b", "color" =&gt; "green", "shape" =&gt; "trapezoid", 4);
 array_merge ($array1, $array2);
       </programlisting>
      </example>
     </para>
     <para>
-     Resulting array will be <literal>array("color" => "green", 2, 4,
-     "a", "b", "shape" => "trapezoid", 4)</literal>.
+     Resulting array will be <literal>array("color" =&gt; "green", 2, 4,
+     "a", "b", "shape" =&gt; "trapezoid", 4)</literal>.
     </para>
     <para>
      See also <function>array_merge_recursive</function>.
@@ -337,15 +424,15 @@ array_merge ($array1, $array2);
      <example>
       <title><function>Array_merge_recursive</function> example</title>
       <programlisting role="php">
-$ar1 = array ("color" => array ("favorite" => "red"), 5);
-$ar2 = array (10, "color" => array ("favorite" => "green", "blue"));
+$ar1 = array ("color" =&gt; array ("favorite" =&gt; "red"), 5);
+$ar2 = array (10, "color" =&gt; array ("favorite" =&gt; "green", "blue"));
 $result = array_merge_recursive ($ar1, $ar2);
       </programlisting>
      </example>
     </para>
     <para>
-     Resulting array will be <literal>array ("color" => array
-     ("favorite" => array ("red", "green"), "blue"), 5, 10)</literal>.
+     Resulting array will be <literal>array ("color" =&gt; array
+     ("favorite" =&gt; array ("red", "green"), "blue"), 5, 10)</literal>.
     </para>
     <para>
      See also <function>array_merge</function>.
@@ -425,7 +512,8 @@ $result = array_merge_recursive ($ar1, $ar2);
      SORT_REGULAR after before each new array argument.
     </para>
     <para>
-     Returns true on success, false on failure.
+     Returns <literal>TRUE</literal> on success, <literal>FALSE</literal>
+     on failure.
     </para>
     <para>
      <example>
@@ -526,7 +614,9 @@ $result = array_pad ($input, 2, "noop");
     <para>
      <function>Array_pop</function> pops and returns the last value of
      the <parameter>array</parameter>, shortening the
-     <parameter>array</parameter> by one element.
+     <parameter>array</parameter> by one element. 
+     If <parameter>array</parameter> is empty (or is not an array), 
+     <varname>NULL</varname> will be returned.
     </para>
     <para>
      <example>
@@ -667,12 +757,14 @@ print $input[$rand_keys[1]]."\n";
      <funcprototype>
       <funcdef>array <function>array_reverse</function></funcdef>
       <paramdef>array <parameter>array</parameter></paramdef>
+      <paramdef>bool <parameter><optional>preserve_keys</optional></parameter></paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
      <function>Array_reverse</function> takes input
      <parameter>array</parameter> and returns a new array with the
-     order of the elements reversed.
+     order of the elements reversed, preserving the keys if
+     <parameter>preserve_keys</parameter> is <literal>TRUE</literal>.
     </para>
     <para>
      <example>
@@ -680,13 +772,21 @@ print $input[$rand_keys[1]]."\n";
       <programlisting role="php">
 $input = array ("php", 4.0, array ("green", "red"));
 $result = array_reverse ($input);
+$result_keyed = array_reverse ($input, TRUE);
       </programlisting>
      </example>
     </para>
     <para>
      This makes <varname>$result</varname> have <literal>array
-     (array ("green", "red"), 4.0, "php")</literal>.
+     (array ("green", "red"), 4.0, "php")</literal>. But
+     <varname>$result2[0]</varname> is still
+     <literal>"php"</literal>.
     </para>
+    <note>
+     <para>
+      The second parameter was added in PHP 4.0.3.
+     </para>
+    </note>
    </refsect1>
   </refentry>
 
@@ -710,6 +810,8 @@ $result = array_reverse ($input);
      <parameter>array</parameter> off and returns it, shortening the
      <parameter>array</parameter> by one element and moving everything
      down.
+     If <parameter>array</parameter> is empty (or is not an array), 
+     <varname>NULL</varname> will be returned.
     </para>
     <para>
      <example>
@@ -890,6 +992,42 @@ array_splice ($input, -1, 1, array("black", "maroon"));
     </para>
    </refsect1>
   </refentry>
+ 
+  <refentry id="function.array-sum">
+   <refnamediv>
+    <refname>array_sum</refname>
+    <refpurpose>
+     Calculate the sum of values in an array. 
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>array_sum</function></funcdef>
+      <paramdef>array <parameter>arr</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     <function>Array_sum</function> returns the sum of values
+     in an array as an integer or float.
+    </para>
+    <para>
+     <example>
+      <title><function>Array_sum</function> examples</title>
+      <programlisting role="php">
+$a = array(2,4,6,8);
+echo "sum(a) = ".array_sum($a)."\n";
+// prints: sum(a) = 20
+
+$b = array("a"=>1.2,"b"=>2.3,"c"=>3.4);
+echo "sum(b) = ".array_sum($b)."\n";
+// prints: sum(b) = 6.9
+      </programlisting>
+     </example>
+    </para>
+   </refsect1>
+  </refentry>
 
   <refentry id="function.array-unique">
    <refnamediv>
@@ -914,14 +1052,14 @@ array_splice ($input, -1, 1, array("black", "maroon"));
      <example>
       <title><function>Array_unique</function> example</title>
       <programlisting role="php">
-$input = array ("a" => "green", "red", "b" => "green", "blue", "red");
+$input = array ("a" =&gt; "green", "red", "b" =&gt; "green", "blue", "red");
 $result = array_unique ($input);
       </programlisting>
      </example>
     </para>
     <para>
-     This makes <varname>$result</varname> have <literal>array ("a" =>
-     "green", "red", "blue");</literal>
+     This makes <varname>$result</varname> have <literal>array ("a" =&gt;
+     "green", "red", "blue");</literal>.
     </para>
    </refsect1>
   </refentry>
@@ -992,18 +1130,39 @@ array_unshift ($queue, "p4", "p5", "p6");
      </funcprototype>
     </funcsynopsis>
     <para>
-     <function>Array_values</function> returns all the values from the
+     <function>array_values</function> returns all the values from the
      <parameter>input</parameter> array.
     </para>
     <para>
      <example>
       <title><function>Array_values</function> example</title>
       <programlisting role="php">
-$array = array ("size" => "XL", "color" => "gold");
+$array = array ("size" =&gt; "XL", "color" =&gt; "gold");
 array_values ($array);    // returns array ("XL", "gold")
       </programlisting>
      </example>
     </para>
+    <note>
+     <para>
+      This function was added to PHP 4, below is an implementation for
+      those still using PHP 3.
+      <example>
+       <title>
+    Implementation of <function>array_values</function> for PHP 3
+    users
+       </title>
+       <programlisting role="php">
+function array_values ($arr) {
+    $t = array();
+    while (list($k, $v) = each ($arr)) {
+        $t[] = $v;
+        return $t;
+    }
+}
+       </programlisting>
+      </example>
+     </para>
+    </note>
    </refsect1>
   </refentry>
 
@@ -1065,14 +1224,14 @@ array_values ($array);    // returns array ("XL", "gold")
      <example>
       <title><function>Array_walk</function> example</title>
       <programlisting role="php">
-$fruits = array ("d"=>"lemon", "a"=>"orange", "b"=>"banana", "c"=>"apple");
+$fruits = array ("d"=&gt;"lemon", "a"=&gt;"orange", "b"=&gt;"banana", "c"=&gt;"apple");
 
 function test_alter (&amp;$item1, $key, $prefix) {
-   $item1 = "$prefix: $item1";
+    $item1 = "$prefix: $item1";
 }
 
 function test_print ($item2, $key) {
-   echo "$key. $item2&lt;br&gt;\n";
+    echo "$key. $item2&lt;br&gt;\n";
 }
 
 array_walk ($fruits, 'test_print');
@@ -1115,7 +1274,7 @@ array_walk ($fruits, 'test_print');
      <example>
       <title><function>Arsort</function> example</title>
       <programlisting role="php">
-$fruits = array ("d"=>"lemon", "a"=>"orange", "b"=>"banana", "c"=>"apple");
+$fruits = array ("d"=&gt;"lemon", "a"=&gt;"orange", "b"=&gt;"banana", "c"=&gt;"apple");
 arsort ($fruits);
 reset ($fruits);
 while (list ($key, $val) = each ($fruits)) {
@@ -1175,7 +1334,7 @@ fruits[c] = apple
      <example>
       <title><function>Asort</function> example</title>
       <programlisting role="php">
-$fruits = array ("d"=>"lemon", "a"=>"orange", "b"=>"banana", "c"=>"apple");
+$fruits = array ("d"=&gt;"lemon", "a"=&gt;"orange", "b"=&gt;"banana", "c"=&gt;"apple");
 asort ($fruits);
 reset ($fruits);
 while (list ($key, $val) = each ($fruits)) {
@@ -1247,6 +1406,9 @@ fruits[a] = orange
      It returns the output array with all the variables added to it.
     </para>
     <para>
+     Any strings that are not set will simply be skipped.
+    </para>
+    <para>
      <example>
       <title><function>Compact</function> example</title>
       <programlisting role="php">
@@ -1256,11 +1418,11 @@ $event = "SIGGRAPH";
 
 $location_vars = array ("city", "state");
 
-$result = compact ("event", $location_vars);
+$result = compact ("event", "nothing_here", $location_vars);
       </programlisting>
       <para>
        After this, <varname>$result</varname> will be <literal>array ("event"
-       => "SIGGRAPH", "city" => "San Francisco", "state" => "CA")</literal>.
+       =&gt; "SIGGRAPH", "city" =&gt; "San Francisco", "state" =&gt; "CA")</literal>.
       </para>
      </example>
     </para>
@@ -1303,6 +1465,18 @@ $result = compact ("event", $location_vars);
      </warning>
     </para>
     <para>
+     <example>
+      <title><function>Count</function> example</title>
+      <programlisting role="php">
+$a[0] = 1; 
+$a[1] = 3; 
+$a[2] = 5; 
+$result = count ($a);
+//$result == 3
+      </programlisting>
+     </example>
+    </para>
+    <para>
      See also: <function>sizeof</function>,
      <function>isset</function>, and
      <function>is_array</function>.
@@ -1333,15 +1507,15 @@ $result = compact ("event", $location_vars);
      array element that's currently being pointed by the internal
      pointer.  It does not move the pointer in any way.  If the
      internal pointer points beyond the end of the elements list,
-     <function>current</function> returns false.
+     <function>current</function> returns <literal>FALSE</literal>.
      <warning>
       <para> 
        If the array contains empty elements (0 or "", the empty
-       string) then this function will return false for these elements
-       as well.  This makes it impossible to determine if you are
-       really at the end of the list in such an array using
-       <function>current</function>.  To properly traverse an array
-       that may contain empty elements, use the
+       string) then this function will return <literal>FALSE</literal> 
+       for these elements as well.  This makes it impossible to 
+       determine if you are really at the end of the list in such 
+       an array using <function>current</function>.  To properly 
+       traverse an array that may contain empty elements, use the
        <function>each</function> function.  
       </para>
      </warning>
@@ -1381,7 +1555,8 @@ $result = compact ("event", $location_vars);
     </para>
     <para>
      If the internal pointer for the array points past the end of the
-     array contents, <function>each</function> returns false.
+     array contents, <function>each</function> returns 
+     <literal>FALSE</literal>.
     </para>
     <para>
      <example>
@@ -1394,13 +1569,13 @@ $bar = each ($foo);
        <varname>$bar</varname> now contains the following key/value
        pairs:
        <itemizedlist spacing="compact">
-        <listitem><simpara>0 => 0</simpara></listitem>
-        <listitem><simpara>1 => 'bob'</simpara></listitem>
-        <listitem><simpara>key => 0</simpara></listitem>
-        <listitem><simpara>value => 'bob'</simpara></listitem>
+        <listitem><simpara>0 =&gt; 0</simpara></listitem>
+        <listitem><simpara>1 =&gt; 'bob'</simpara></listitem>
+        <listitem><simpara>key =&gt; 0</simpara></listitem>
+        <listitem><simpara>value =&gt; 'bob'</simpara></listitem>
        </itemizedlist>
        <programlisting role="php">
-$foo = array ("Robert" => "Bob", "Seppo" => "Sepi");
+$foo = array ("Robert" =&gt; "Bob", "Seppo" =&gt; "Sepi");
 $bar = each ($foo);
        </programlisting>
       </para>
@@ -1408,10 +1583,10 @@ $bar = each ($foo);
        <varname>$bar</varname> now contains the following key/value
        pairs:
        <itemizedlist spacing="compact">
-        <listitem><simpara>0 => 'Robert'</simpara></listitem>
-        <listitem><simpara>1 => 'Bob'</simpara></listitem>
-        <listitem><simpara>key => 'Robert'</simpara></listitem>
-        <listitem><simpara>value => 'Bob'</simpara></listitem>
+        <listitem><simpara>0 =&gt; 'Robert'</simpara></listitem>
+        <listitem><simpara>1 =&gt; 'Bob'</simpara></listitem>
+        <listitem><simpara>key =&gt; 'Robert'</simpara></listitem>
+        <listitem><simpara>value =&gt; 'Bob'</simpara></listitem>
        </itemizedlist>
       </para>
      </example>
@@ -1429,7 +1604,7 @@ $bar = each ($foo);
 echo "Values submitted via POST method:&lt;br&gt;";
 reset ($HTTP_POST_VARS);
 while (list ($key, $val) = each ($HTTP_POST_VARS)) {
-    echo "$key => $val&lt;br&gt;";
+    echo "$key =&gt; $val&lt;br&gt;";
 }
       </programlisting>
      </example>
@@ -1458,13 +1633,13 @@ while (list ($key, $val) = each ($HTTP_POST_VARS)) {
     <title>Description</title>
     <funcsynopsis>
      <funcprototype>
-      <funcdef><function>end</function></funcdef>
+      <funcdef>mixed <function>end</function></funcdef>
       <paramdef>array <parameter>array</parameter></paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
      <function>End</function> advances <parameter>array</parameter>'s
-     internal pointer to the last element.
+     internal pointer to the last element, and returns that element.
     </para>
     <para>
      See also: <function>current</function>,
@@ -1485,7 +1660,7 @@ while (list ($key, $val) = each ($HTTP_POST_VARS)) {
     <title>Description</title>
     <funcsynopsis>
      <funcprototype>
-      <funcdef>void <function>extract</function></funcdef>
+      <funcdef>int <function>extract</function></funcdef>
       <paramdef>array <parameter>var_array</parameter></paramdef>
       <paramdef>int 
        <parameter><optional>extract_type</optional></parameter>
@@ -1504,43 +1679,60 @@ while (list ($key, $val) = each ($HTTP_POST_VARS)) {
      <parameter>extract_type</parameter> and
      <parameter>prefix</parameter> parameters.
     </para>
+    <note>
+     <para>
+      Since version 4.0.5 this function returns the number of
+      variables extracted.
+     </para>
+    </note>
     <para>
-     <function>Extract</function> checks for colissions with existing
-     variables.  The way collisions are treated is determined by
-     <parameter>extract_type</parameter>. It can be one of the
+     <function>extract</function> checks each key to see whether if constitutes
+     a valid variable name and also for collisions with existing variables in
+     the symbol table. The way invalid/numeric keys and collisions are treated
+     is determined by <parameter>extract_type</parameter>. It can be one of the
      following values:
      <variablelist>
       <varlistentry>
        <term>EXTR_OVERWRITE</term>
        <listitem>
-	<simpara>
-	 If there is a collision, overwrite the existing variable.
-	</simpara>
+        <simpara>
+         If there is a collision, overwrite the existing variable.
+        </simpara>
        </listitem>
       </varlistentry>
       <varlistentry>
        <term>EXTR_SKIP</term>
        <listitem>
-	<simpara>
-	 If there is a collision, don't overwrite the existing
-	 variable.
-	</simpara>
+        <simpara>
+         If there is a collision, don't overwrite the existing
+         variable.
+        </simpara>
        </listitem>
       </varlistentry>
       <varlistentry>
        <term>EXTR_PREFIX_SAME</term>
        <listitem>
-	<simpara>If there is a collision, prefix the new variable with
-	<parameter>prefix</parameter>.
-	</simpara>
+        <simpara>If there is a collision, prefix the variable name with
+        <parameter>prefix</parameter>.
+        </simpara>
        </listitem>
       </varlistentry>
       <varlistentry>
        <term>EXTR_PREFIX_ALL</term>
        <listitem>
-	<simpara>
-	 Prefix all variables with <parameter>prefix</parameter>.
-	</simpara>
+        <simpara>
+         Prefix all variable names with <parameter>prefix</parameter>. Since PHP
+         4.0.5 this includes numeric ones as well.
+        </simpara>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>EXTR_PREFIX_INVALID</term>
+       <listitem>
+        <simpara>
+         Only prefix invalid/numeric variable names with
+         <parameter>prefix</parameter>. This flag has been added in PHP 4.0.5.
+        </simpara>
        </listitem>
       </varlistentry>
      </variablelist>
@@ -1551,13 +1743,13 @@ while (list ($key, $val) = each ($HTTP_POST_VARS)) {
     </para>
     <para>
      Note that <parameter>prefix</parameter> is only required if
-     <parameter>extract_type</parameter> is EXTR_PREFIX_SAME or
-     EXTR_PREFIX_ALL.
+     <parameter>extract_type</parameter> is EXTR_PREFIX_SAME, EXTR_PREFIX_ALL,
+     or EXTR_PREFIX_INVALID. If the prefixed result is not a valid variable
+     name, it is not imported into the symbol table.
     </para>
     <para>
-     <function>Extract</function> checks each key to see if it
-     constitues a valid variable name, and if it does only then does
-     it proceed to import it.
+     <function>extract</function> returns the number of variables successfully
+     imported into the symbol table.
     </para>
     <para>
      A possible use for extract is to import into symbol table
@@ -1568,15 +1760,15 @@ while (list ($key, $val) = each ($HTTP_POST_VARS)) {
      <example>
       <title><function>Extract</function> example</title>
       <programlisting role="php">
-&lt;php?
+&lt;?php
 
 /* Suppose that $var_array is an array returned from
    wddx_deserialize */
 
 $size = "large";
-$var_array = array ("color" => "blue",
-                    "size"  => "medium",
-                    "shape" => "sphere");
+$var_array = array ("color" =&gt; "blue",
+                    "size"  =&gt; "medium",
+                    "shape" =&gt; "sphere");
 extract ($var_array, EXTR_PREFIX_SAME, "wddx");
 
 print "$color, $size, $shape, $wddx_size\n";
@@ -1602,13 +1794,20 @@ blue, large, sphere, medium
      <varname>$wddx_size</varname>, and
      <varname>$wddx_shape</varname>.
     </para>
+    <para>
+     You must use an associative array, a numerically indexed array
+     will not produce results.
+    </para>
+    <para>
+     See also: <function>compact</function>.
+    </para>
    </refsect1>
   </refentry>
 
   <refentry id="function.in-array">
    <refnamediv>
     <refname>in_array</refname>
-    <refpurpose>Return true if a value exists in an array</refpurpose>
+    <refpurpose>Return TRUE if a value exists in an array</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Description</title>
@@ -1617,22 +1816,86 @@ blue, large, sphere, medium
       <funcdef>bool in_array</funcdef>
       <paramdef>mixed <parameter>needle</parameter></paramdef>
       <paramdef>array <parameter>haystack</parameter></paramdef>
+      <paramdef>bool <parameter>strict</parameter></paramdef>
      </funcprototype>
     </funcsynopsis>
     <para>
      Searches <parameter>haystack</parameter> for
-     <parameter>needle</parameter> and returns true if it is found in
-     the array, false otherwise.
+     <parameter>needle</parameter> and returns <literal>TRUE</literal> 
+     if it is found in the array, <literal>FALSE</literal> otherwise.
+    </para>
+    <para>
+     If the third parameter <parameter>strict</parameter> is set to
+     <literal>TRUE</literal> then the <function>in_array</function>
+     will also check the types of the <parameter>needle</parameter>
+     in the <parameter>haystack</parameter>.
     </para>
     <para>
      <example>
       <title><function>In_array</function> example</title>
       <programlisting role="php">
 $os = array ("Mac", "NT", "Irix", "Linux");
-if (in_array ("Irix", $os))
+if (in_array ("Irix", $os)){
     print "Got Irix";
+    }
       </programlisting>
      </example>
+    </para>
+    <para>
+     <example>
+      <title><function>In_array</function> with strict example</title>
+      <programlisting role="php">
+<?php
+$a = array('1.10', 12.4, 1.13);
+
+if (in_array('12.4', $a, TRUE))
+    echo &quot;'12.4' found with strict check\n&quot;;
+if (in_array(1.13, $a, TRUE))
+    echo &quot;1.13 found with strict check\n&quot;;
+?>
+
+// This will output:
+
+1.13 found with strict check
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     See also <function>array_search</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.array-search">
+   <refnamediv>
+    <refname>array_search</refname>
+    <refpurpose>
+     Searches the array for a given value and returns the corresponding key if successful
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Description</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>mixed <function>array_search</function></funcdef>
+      <paramdef>mixed <parameter>needle</parameter></paramdef>
+      <paramdef>array <parameter>haystack</parameter></paramdef>
+      <paramdef>bool <parameter>strict</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Searches <parameter>haystack</parameter> for
+     <parameter>needle</parameter> and returns the key if it is found in
+     the array, <literal>FALSE</literal> otherwise.
+    </para>
+    <para>
+     If the third parameter <parameter>strict</parameter> is set to
+     <literal>TRUE</literal> then the <function>array_search</function>
+     will also check the types of the <parameter>needle</parameter>
+     in the <parameter>haystack</parameter>.
+    </para>
+    <para>
+     See also <function>in_array</function>.
     </para>
    </refsect1>
   </refentry>
@@ -1682,11 +1945,11 @@ if (in_array ("Irix", $os))
      <example>
       <title><function>Krsort</function> example</title>
       <programlisting role="php">
-$fruits = array ("d"=>"lemon", "a"=>"orange", "b"=>"banana", "c"=>"apple");
+$fruits = array ("d"=&gt;"lemon", "a"=&gt;"orange", "b"=&gt;"banana", "c"=&gt;"apple");
 krsort ($fruits);
 reset ($fruits);
 while (list ($key, $val) = each ($fruits)) {
-    echo "$key -> $val\n";
+    echo "$key -&gt; $val\n";
 }
       </programlisting>
      </example>
@@ -1739,11 +2002,11 @@ fruits[a] = orange
      <example>
       <title><function>Ksort</function> example</title>
       <programlisting role="php">
-$fruits = array ("d"=>"lemon", "a"=>"orange", "b"=>"banana", "c"=>"apple");
+$fruits = array ("d"=&gt;"lemon", "a"=&gt;"orange", "b"=&gt;"banana", "c"=&gt;"apple");
 ksort ($fruits);
 reset ($fruits);
 while (list ($key, $val) = each ($fruits)) {
-    echo "$key -> $val\n";
+    echo "$key -&gt; $val\n";
 }
       </programlisting>
      </example>
@@ -1771,6 +2034,11 @@ fruits[d] = lemon
      <function>sort</function>, <function>natsort</function>, and 
      <function>rsort</function>.
     </simpara>
+    <note>
+     <para>
+      The second parameter was added in PHP 4.
+     </para>
+    </note>
    </refsect1>
   </refentry>
 
@@ -1871,19 +2139,19 @@ print_r($array2);
 Standard sorting
 Array
 (
-    [0] => img1.png
-    [1] => img10.png
-    [2] => img12.png
-    [3] => img2.png
+    [0] =&gt; img1.png
+    [1] =&gt; img10.png
+    [2] =&gt; img12.png
+    [3] =&gt; img2.png
 )
 
 Natural order sorting
 Array
 (
-    [3] => img1.png
-    [2] => img2.png
-    [1] => img10.png
-    [0] => img12.png
+    [3] =&gt; img1.png
+    [2] =&gt; img2.png
+    [1] =&gt; img10.png
+    [0] =&gt; img12.png
 )
       </programlisting>
      </informalexample>
@@ -1956,7 +2224,8 @@ Array
     </funcsynopsis>
     <para>
      Returns the array element in the next place that's pointed by the
-     internal array pointer, or false if there are no more elements.
+     internal array pointer, or <literal>FALSE</literal> if 
+     there are no more elements.
     </para>
     <para>
      <function>Next</function> behaves like
@@ -1965,13 +2234,13 @@ Array
      element.  That means it returns the next array element and
      advances the internal array pointer by one.  If advancing the
      internal array pointer results in going beyond the end of the
-     element list, <function>next</function> returns false.
+     element list, <function>next</function> returns <literal>FALSE</literal>.
      <warning>
       <para>
        If the array contains empty elements, or elements that have a key
-       value of 0 then this function will return false for these elements 
-       as well.  To properly traverse an array which may contain empty 
-       elements or elements with key values of 0 see the
+       value of 0 then this function will return <literal>FALSE</literal> 
+       for these elements as well.  To properly traverse an array which 
+       may contain empty  elements or elements with key values of 0 see the
        <function>each</function> function.
       </para>
      </warning>
@@ -2023,14 +2292,14 @@ Array
     </funcsynopsis>
     <para>
      Returns the array element in the previous place that's pointed by
-     the internal array pointer, or false if there are no more
+     the internal array pointer, or <literal>FALSE</literal> if there are no more
      elements.
      <warning>
       <para>
        If the array contains empty elements then this function will
-       return false for these elements as well.  To properly traverse
-       an array which may contain empty elements see the
-       <function>each</function> function.
+       return <literal>FALSE</literal> for these elements as well. 
+       To properly traverse an array which may contain empty elements
+       see the <function>each</function> function.
       </para>
      </warning>
     </para>
@@ -2129,7 +2398,7 @@ $fruits = array ("lemon", "orange", "banana", "apple");
 rsort ($fruits);
 reset ($fruits);
 while (list ($key, $val) = each ($fruits)) {
-    echo "$key -> $val\n";
+    echo "$key -&gt; $val\n";
 }
       </programlisting>
      </example>
@@ -2178,12 +2447,13 @@ fruits[3] = apple
     </funcsynopsis>
     <para>
      This function shuffles (randomizes the order of the elements in)
-     an array.
+     an array. You must use <function>srand</function> to seed this
+     function.
      <example>
       <title><function>Shuffle</function> example</title>
       <programlisting role="php">
 $numbers = range (1,20);
-srand (time());
+srand ((double)microtime()*1000000);
 shuffle ($numbers);
 while (list (, $number) = each ($numbers)) {
     echo "$number ";
@@ -2240,13 +2510,17 @@ while (list (, $number) = each ($numbers)) {
      lowest to highest when this function has completed.
      <example>
       <title><function>Sort</function> example</title>
-	<programlisting role="php">
+    <programlisting role="php">
+&lt;?php
+
 $fruits = array ("lemon", "orange", "banana", "apple");
 sort ($fruits);
 reset ($fruits);
 while (list ($key, $val) = each ($fruits)) {
-    echo "$key -> $val\n";
+    echo "fruits[".$key."] = ".$val; 
 }
+ 
+?&gt;
       </programlisting>
      </example>
     </para>
@@ -2287,9 +2561,15 @@ fruits[3] = orange
     <para>
      See also: <function>arsort</function>,
      <function>asort</function>, <function>ksort</function>,
-     <function>natsort</function>,<function>rsort</function>,
-     and <function>usort</function>.
+     <function>natsort</function>, <function>natcasesort</function>,
+     <function>rsort</function>, <function>usort</function>,
+     <function>array_multisort</function>, and <function>uksort</function>.
     </para>
+    <note>
+     <para>
+      The second parameter was added in PHP 4.
+     </para>
+    </note>
    </refsect1>
   </refentry>
 
@@ -2364,7 +2644,7 @@ function cmp ($a, $b) {
     return ($a > $b) ? -1 : 1;
 }
 
-$a = array (4 => "four", 3 => "three", 20 => "twenty", 10 => "ten");
+$a = array (4 =&gt; "four", 3 =&gt; "three", 20 =&gt; "twenty", 10 =&gt; "ten");
 
 uksort ($a, "cmp");
 

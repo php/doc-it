@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.21 Maintainer: fabio Status: ready -->
+<!-- EN-Revision: 1.42 Maintainer: cortesi Status: ready -->
+<!-- CREDITS: fabio -->
 <reference id="ref.ibase">
   <title>Funzioni InterBase</title>
   <titleabbrev>InterBase</titleabbrev>
@@ -14,6 +15,18 @@
    <note>
     <para>
      Il supporto completo per  InterBase 6 è stato aggiunto in PHP 4.0.
+    </para>
+    <para>
+     Questo database usa il carattere di singolo apice (') come carattere di escape, un
+     comportamento simile al database Sybase, aggiungere al proprio
+     file <filename>php.ini</filename> la seguente direttiva:
+     <informalexample>
+      <programlisting>
+<![CDATA[
+magic_quotes_sybase = On
+]]>
+      </programlisting>
+     </informalexample>
     </para>
    </note>
   </partintro>
@@ -68,7 +81,7 @@
      e il suo valore predefinito è il più alto supportato dalle librerie del client.
     </para>
     <para>
-     In caso di una seconda chiamata fatta con
+     Nel caso di una seconda chiamata fatta con
      <function>ibase_connect</function> con gli stessi parametri, non verrà creato
      alcun nuovo collegamento, bensì, l'identificatore del collegamento già aperto
      verrà restituito. Il collegamento al server verrà chiuso appena termina
@@ -77,32 +90,35 @@
      <example>
       <title>Esempio di <function>ibase_connect</function></title>
       <programlisting role="php">
-&lt;?php
-    $dbh = ibase_connect ($host, $username, $password);
+<![CDATA[
+<?php
+    $dbh = ibase_connect($host, $username, $password);
     $stmt = 'SELECT * FROM tblname';
-    $sth = ibase_query ($dbh, $stmt);
-    while ($row = ibase_fetch_object ($sth)) {
-        print $row->email . "\n";
+    $sth = ibase_query($dbh, $stmt);
+    while ($row = ibase_fetch_object($sth)) {
+        echo $row->email . "\n";
     }
-    ibase_close ($dbh);
+    ibase_free_result($sth);
+    ibase_close($dbh);
 ?>
+]]>
       </programlisting>
      </example>
     </para>
     <note>
      <para>
-      <parameter>buffers</parameter> è stato aggiunto in PHP4-RC2.
+      <parameter>buffers</parameter> è stato aggiunto in PHP4RC2.
      </para>
     </note>
     <note>
      <para>
-      <parameter>dialect</parameter> è stato aggiunto in PHP4-RC2. E' funzionante
+      <parameter>dialect</parameter> è stato aggiunto in PHP4RC2. E' funzionante
        solo con InterBase 6 e versioni successive.
      </para>
     </note>
     <note>
      <para>
-      <parameter>role</parameter> è stato aggiunto in PHP4-RC2. E' funzionante
+      <parameter>role</parameter> è stato aggiunto in PHP4RC2. E' funzionante
        solo con InterBase 5 e versioni successive.
      </para>
     </note>
@@ -134,6 +150,12 @@
       <paramdef>string 
        <parameter><optional>charset</optional></parameter>
       </paramdef>
+      <paramdef>int 
+       <parameter><optional>buffers</optional></parameter>
+      </paramdef>
+      <paramdef>int 
+       <parameter><optional>dialect</optional></parameter>
+      </paramdef>
       <paramdef>string 
        <parameter><optional>role</optional></parameter>
       </paramdef>
@@ -152,6 +174,23 @@
      da <function>ibase_pconnect</function>). Questo tipo di collegamento è
      perciò chiamato  'persistente'.
     </para>
+    <note>
+     <para>
+      <parameter>buffers</parameter> è stato aggiunto in PHP4-RC2.
+     </para>
+    </note>
+    <note>
+     <para>
+      <parameter>dialect</parameter> è stato aggiunto in PHP4-RC2. Funziona soltanto
+       con InterBase 6 e superiori.
+     </para>
+    </note>
+    <note>
+     <para>
+      <parameter>role</parameter> è stato aggiunto in PHP4-RC2. Funziona soltanto
+       con InterBase 5 e superiori.
+     </para>
+    </note>
     <para>
      Vedere anche <function>ibase_connect</function> per il significato dei parametri
      passati a questa funzione. Sono esattamente gli stessi.
@@ -208,21 +247,39 @@
      </funcprototype>
     </funcsynopsis>
     <simpara>
-     Esegue una query su di un database InterBase, restituendo un identificatore di
-     result da usare con <function>ibase_fetch_row</function>,
-     <function>ibase_fetch_object</function>,
-     <function>ibase_free_result</function> e
-     <function>ibase_free_query</function>.
+     Esegue una query su di un database InterBase. Se la query non ha
+     successo, restituisce &false;. Se ha successo e vi sono 
+     riga di risultato (come si ha ad esempio con le query SELECT), restituisce un identificatore di risorsa. Se
+     la query ha avuto successo, ma non ci sono risultati, restituisce &true;.
+     Restutuisce &false; se la query fallisce.
     </simpara>
-    <note>
-     <para>
-      Sebbene questa funzione supporti il binding di variabile sui "segnaposto"
-      dei parametri, non ha molto senso usare questa possibilità con essa.
-      Per un uso reale e un esempio, vedere
-      <function>ibase_prepare</function> e
-      <function>ibase_execute</function>.
-     </para>
-    </note>
+    <para>
+     Vedere anche <function>ibase_errmsg</function>,
+     <function>ibase_fetch_row</function>,
+     <function>ibase_fetch_object</function> e
+     <function>ibase_free_result</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.ibase-errmsg">
+   <refnamediv>
+    <refname>ibase_errmsg</refname>
+    <refpurpose>
+     Restituisce messaggi di errore
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>string <function>ibase_errmsg</function></funcdef>
+      <void/>
+     </funcprototype>
+    </funcsynopsis>
+    <simpara>
+     Restituisce una stringa contenente un messaggio di errore.
+    </simpara>
    </refsect1>
   </refentry>
 
@@ -270,7 +327,8 @@
      <function>ibase_execute</function>.
      <informalexample>
       <programlisting role="php">
-&lt;php
+<![CDATA[
+<php
     $dbh = ibase_connect ($host, $username, $password);
     $stmt = 'SELECT * FROM tblname';
     $sth = ibase_query ($dbh, $stmt);
@@ -279,12 +337,76 @@
     }
     ibase_close ($dbh);
 ?>
+]]>
       </programlisting>
      </informalexample>
     </para>
     <para>
      Vedere anche <function>ibase_fetch_row</function>.
     </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.ibase-field-info">
+   <refnamediv>
+    <refname>ibase_field_info</refname>
+    <refpurpose>
+     Ottiene informazioni su un campo
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>array <function>ibase_field_info</function></funcdef>
+      <paramdef>int <parameter>result</parameter></paramdef>
+      <paramdef>int <parameter>field number</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Restituisce un array con informazioni relative a un campo dopo che una query
+     select è stata eseguita. L'array ha la forma name, alias,
+     relation, length e type.
+     <informalexample>
+      <programlisting role="php">
+<![CDATA[
+$rs=ibase_query("SELECT * FROM tablename"); 
+$coln = ibase_num_fields($rs);
+for ($i=0; $i < $coln; $i++) {
+    $col_info = ibase_field_info($rs, $i); 
+    echo "name: ".$col_info['name']."\n"; 
+    echo "alias: ".$col_info['alias']."\n"; 
+    echo "relation: ".$col_info['relation']."\n"; 
+    echo "length: ".$col_info['length']."\n"; 
+    echo "type: ".$col_info['type']."\n"; 
+    }
+]]>
+      </programlisting>
+     </informalexample>
+    </para>
+   </refsect1>
+  </refentry>
+  
+  <refentry id="function.ibase-free-query">
+   <refnamediv>
+    <refname>ibase_free_query</refname>
+    <refpurpose>
+     Libera la memoria allocata da una query preparata
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ibase_free_query</function></funcdef>
+      <paramdef>int
+       <parameter>query</parameter>
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <simpara>
+     Libera una query preparata da <function>ibase_prepare</function>.
+    </simpara>
    </refsect1>
   </refentry>
 
@@ -361,7 +483,8 @@
      alcuni parametri.
      <informalexample>
       <programlisting role="php">
-&lt;?php
+<![CDATA[
+<?php
     $updates = array(
         1 => 'Eric',
         5 => 'Filip',
@@ -374,32 +497,82 @@
         ibase_execute($query, $bar, $baz);
     }
 ?>
+]]>
       </programlisting>
      </informalexample>
     </para>
    </refsect1>
   </refentry>
 
-  <refentry id="function.ibase-free-query">
+  <refentry id="function.ibase-trans">
    <refnamediv>
-    <refname>ibase_free_query</refname>
-    <refpurpose>
-     Libera la memoria allocata da una query preparata
-    </refpurpose>
+    <refname>ibase_trans</refname>
+    <refpurpose>Inizia una transazione</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
-      <funcdef>int <function>ibase_free_query</function></funcdef>
-      <paramdef>int
-       <parameter>query</parameter>
+      <funcdef>int <function>ibase_trans</function></funcdef>
+      <paramdef>int 
+       <parameter><optional>trans_args</optional></parameter> 
+      </paramdef>
+      <paramdef>int 
+       <parameter><optional>link_identifier</optional></parameter> 
       </paramdef>
      </funcprototype>
     </funcsynopsis>
-    <simpara>
-     Libera la memoria allocata da una query preparata da <function>ibase_prepare</function>.
-    </simpara>
+    <para>
+     Inizia una transazione.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.ibase-commit">
+   <refnamediv>
+    <refname>ibase_commit</refname>
+    <refpurpose>Esegue il commit di una transazione</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ibase_commit</function></funcdef>
+      <paramdef>int 
+       <parameter><optional>link_identifier</optional></parameter> 
+      </paramdef>
+      <paramdef>int <parameter>trans_number</parameter> 
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Esegue il commit della transazione <parameter>trans_number</parameter> che è stata
+     creata con <function>ibase_trans</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.ibase-rollback">
+   <refnamediv>
+    <refname>ibase_rollback</refname>
+    <refpurpose>Esegue il roll back di una transazione</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ibase_rollback</function></funcdef>
+      <paramdef>int 
+       <parameter><optional>link_identifier</optional></parameter> 
+      </paramdef>
+      <paramdef>int <parameter>trans_number</parameter> 
+      </paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Rolls back transaction <parameter>trans_number</parameter> which was
+     created with <function>ibase_trans</function>.
+    </para>
    </refsect1>
   </refentry>
 
@@ -432,11 +605,13 @@
      è predefinita a IBASE_TIMESTAMP per motivi di compatibilità con il passato.
      <informalexample>
       <programlisting role="php">
-&lt;?php
-    // Le colonne di tipo TIME di InterBase vengono restituite nella
-    // forma '05 hours 37 minutes'. 
-    ibase_timefmt("%H hours %M minutes", IBASE_TIME);
-?>
+       <![CDATA[
+       <?php
+       // Le colonne di tipo TIME di InterBase vengono restituite nella
+       // forma '05 hours 37 minutes'. 
+       ibase_timefmt("%H hours %M minutes", IBASE_TIME);
+       ?>
+       ]]>
       </programlisting>
      </informalexample>
     </para>
@@ -482,35 +657,242 @@
      set.
      <informalexample>
       <programlisting role="php">
-&lt;?php
-    $dbh = ibase_connect ($host, $username, $password);
-    $stmt = 'SELECT * FROM tblname';
-    $sth = ibase_query ($dbh, $stmt);
+       <![CDATA[
+       <?php
+       $dbh = ibase_connect ($host, $username, $password);
+       $stmt = 'SELECT * FROM tblname';
+       $sth = ibase_query ($dbh, $stmt);
 
-    if (ibase_num_fields($sth) > 0) {
-        while ($row = ibase_fetch_object ($sth)) {
-            print $row->email . "\n";
-        }
-    } else {
-        die ("Nessun result è stato trovato per la tua query");
-    }
+       if (ibase_num_fields($sth) > 0) {
+       while ($row = ibase_fetch_object ($sth)) {
+       print $row->email . "\n";
+       }
+       } else {
+       die ("Nessun result è stato trovato per la tua query");
+       }
 
-    ibase_close ($dbh);
-?>
+       ibase_close ($dbh);
+       ?>
+       ]]>       
       </programlisting>
      </informalexample>
     </para>
     <para>
      Vedere anche: <function>ibase_field_info</function>.
     </para>
-    <note>
-     <para>
-      <function>ibase_num_fields</function> è attualmente non funzionante
-      in PHP 4.
-     </para>
-    </note>
    </refsect1>
   </refentry>
+
+  <refentry id='function.ibase-blob-add'>
+   <refnamediv>
+    <refname>ibase_blob_add</refname>
+    <refpurpose>
+     Aggiunge dati in un blob creato
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ibase_blob_add</function></funcdef>
+      <paramdef>int <parameter>blob_id</parameter></paramdef>
+      <paramdef>string <parameter>data</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     &warn.undocumented.func;
+    </para>
+   </refsect1>
+  </refentry>
+
+
+
+  <refentry id='function.ibase-blob-cancel'>
+   <refnamediv>
+    <refname>ibase_blob_cancel</refname>
+    <refpurpose>
+     Cancella la creazione di un blob
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ibase_blob_cancel</function></funcdef>
+      <paramdef>int <parameter>blob_id</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     &warn.undocumented.func;
+    </para>
+   </refsect1>
+  </refentry>
+
+
+
+  <refentry id='function.ibase-blob-close'>
+   <refnamediv>
+    <refname>ibase_blob_close</refname>
+    <refpurpose>
+     Chiude un blob
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ibase_blob_close</function></funcdef>
+      <paramdef>int <parameter>blob_id</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     &warn.undocumented.func;
+    </para>
+   </refsect1>
+  </refentry>
+
+
+
+  <refentry id='function.ibase-blob-create'>
+   <refnamediv>
+    <refname>ibase_blob_create</refname>
+    <refpurpose>
+     Crea un blob per aggiungerci dei dati
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ibase_blob_create</function></funcdef>
+      <paramdef>int <parameter><optional>link_identifier</optional></parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     &warn.undocumented.func;
+    </para>
+   </refsect1>
+  </refentry>
+
+
+
+  <refentry id='function.ibase-blob-echo'>
+   <refnamediv>
+    <refname>ibase_blob_echo</refname>
+    <refpurpose>
+     Visualizza il contenuto di un blob sul browser
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ibase_blob_echo</function></funcdef>
+      <paramdef>string <parameter>blob_id_str</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     &warn.undocumented.func;
+    </para>
+   </refsect1>
+  </refentry>
+
+
+
+  <refentry id='function.ibase-blob-get'>
+   <refnamediv>
+    <refname>ibase_blob_get</refname>
+    <refpurpose>
+     Ottiene len byte di dati dal blob aperto
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>string <function>ibase_blob_get</function></funcdef>
+      <paramdef>int <parameter>blob_id</parameter></paramdef>
+      <paramdef>int <parameter>len</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     &warn.undocumented.func;
+    </para>
+   </refsect1>
+  </refentry>
+
+
+
+  <refentry id='function.ibase-blob-import'>
+   <refnamediv>
+    <refname>ibase_blob_import</refname>
+    <refpurpose>
+     Create un blob, copy il file al suo interno e lo chiude
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>string <function>ibase_blob_import</function></funcdef>
+      <paramdef>int 
+       <parameter><optional>link_identifier</optional></parameter>
+      </paramdef>
+      <paramdef>int <parameter>file_id</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     &warn.undocumented.func;
+    </para>
+   </refsect1>
+  </refentry>
+
+
+
+  <refentry id='function.ibase-blob-info'>
+   <refnamediv>
+    <refname>ibase_blob_info</refname>
+    <refpurpose>
+     Restituisce la lunghezza del blob e altre informazioni utlili
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>object <function>ibase_blob_info</function></funcdef>
+      <paramdef>string <parameter>blob_id_str</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     &warn.undocumented.func;
+    </para>
+   </refsect1>
+  </refentry>
+
+
+
+  <refentry id='function.ibase-blob-open'>
+   <refnamediv>
+    <refname>ibase_blob_open</refname>
+    <refpurpose>
+     Apre un blob per ricavare parte di dati
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>int <function>ibase_blob_open</function></funcdef>
+      <paramdef>string <parameter>blob_id</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     &warn.undocumented.func;
+    </para>
+   </refsect1>
+  </refentry>
+
 
  </reference>
 
@@ -530,4 +912,7 @@ sgml-exposed-tags:nil
 sgml-local-catalogs:nil
 sgml-local-ecat-files:nil
 End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
 -->

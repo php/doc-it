@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- EN-Revision: 1.18 Maintainer: maxim  Status: ready -->
+<!-- 
+
+   TODO:
+   
+     There's still a need to precise better the terms:
+
+     Start/End tags   (tradotto: "tag di inizio/fine")
+     greater-than   (tradotto: "superiore-che")
+     less-than   (tradotto: "inferiore-che")
+     Short-circuited boolean evaluation   (tradotto: "valutazione booleana è cortocircuita")
+
+-->
+<appendix id="migration">
+ <title>Migrazione da PHP/FI 2 a PHP 3</title>
+
+ <section id="migration.about">
+  <title>Incompatibilià in 3.0</title>
+
+  <simpara>
+   PHP 3.0 è rescritto da terra in su. Ha un proprio parser che è
+   molto più robusto è consistente della 2.0. 3.0 che è anche significativamente
+   più veloce ed usa meno memoria. Tuttavia, alcuni di questi miglioramenti
+   non sarebbero resi possibili senza i cambiamenti delle compatibilità,
+   sia in sintassi che nelle funzionalità.
+  </simpara>
+
+  <simpara>
+   In più, gli sviluppatori di PHP hanno cercato di pulire sia sintassi del PHP
+   che la semantica nella versione 3.0, e questo ha anche causato alcune
+   incompatibilità. A lungo termine, crediamo che questi cambiamenti siano
+   per il migliore.
+ </simpara>
+
+  <simpara>
+   Questo capitolo proverà a guidarti tra le incompatibilità che potresti trovare
+   passando da PHP/FI 2.0 a PHP 3.0 ed auitarti a resolverli. Almeno dove è
+   necessario, le nuove funzionalità non vi sono accennate.
+  </simpara>
+
+  <simpara>
+   Un programma di conversione che può convertire automaticamente i vostri
+   vecchi script di PHP/FI 2.0 esiste già.  Può essere trovato in
+   <filename class="directory">convertor</filename> sottodirectory della
+   distribuzione di PHP 3.0. Questo programma, comunque, interferisce soltanto
+   sui cambiamenti di sintassi, per ciò bisogna legere questo capitolo lo stesso. 
+  </simpara>
+ </section>
+
+ <section id="migration.startendtags">
+  <title>Inizio/fine tags di PHP</title>
+
+  <para>
+   La prima cosa che probabilmente noterete è la modificha dei tag
+   del inizio e della fine di PHP.  Il vecchio <literal>&lt;? &gt;</literal>
+   è stato sostituito da tre nuove forme possibili: 
+   <example>
+    <title>Migrazione: vecchio inizio/fine tag</title>
+    <programlisting role="php">
+<![CDATA[
+<? echo "Questo è il codice di PHP/FI 2.0\n"; ?>
+]]>
+    </programlisting>
+   </example>
+   La versione 2.0, PHP/FI supporta anche questa variazione:
+   <example>
+    <title>Migrazione: primo nuovo inizio/fine tag</title>
+    <programlisting role="php">
+<![CDATA[
+<? echo "Questo è il codice di PHP 3.0\n"; ?>
+]]>
+    </programlisting>
+   </example>
+
+   Nota che il tag della fine ora consiste di un punto interrogativo
+   e di un superiore-che carattere anziché solamente un superiore-che.
+   Comunque, se pensate di usare XML sul vostro server, avrete dei problemi
+   con la prima nuova variazione perché PHP potrebbe provare ad eseguire
+   il XML markup nei documenti XML come un codice PHP. Per questa
+   raggione, la seguente variazione è stata introdotta:
+
+   <example>
+    <title>Migrazione: secondo nuovo inizio/fine tag</title>
+    <programlisting role="php">
+<![CDATA[
+<?php echo "Questo è il codice di PHP 3.0\n"; ?>
+]]>
+    </programlisting>
+   </example>
+
+   Alcune persone hanno avuto dei problemi con gli editor che
+   non capiscono affatto i tag di istruzione del processo.
+   Microsoft FrontPage è un tale editor. Per evitare un suo
+   comportamento scoretto la seguente variazione è anche stata
+   introdotta:
+
+   <example>
+    <title>Migrazione: terzo nuovo inizio/fine tag</title>
+    <programlisting role="php">
+<![CDATA[
+<script language="php">
+
+  echo "Questo è il codice di PHP 3.0\n";
+
+</script>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </section>
+
+ <section id="migration.if-endif">
+  <title>Sintassi di if..endif</title>
+
+  <para>
+   Un modo `alternativo' di scrivere le istruzioni if/elseif/else usando
+   if(); elseif(); else; endif; non può essere implementato efficientemente
+   senza aggiungere una gran parte di complessità nel parser 3.0.
+   Per questo, la sintassi è stata cambiata:
+   <example>
+    <title>Migrazione: vecchia sintassi di if..endif</title>
+    <programlisting role="php">
+<![CDATA[
+if ($foo);
+    echo "Si\n";
+elseif ($bar);
+    echo "Quasi\n";
+else;
+    echo "No\n";
+endif;
+]]>
+    </programlisting>
+   </example>
+   <example>
+    <title>Migrazione: nuova sintassi di if..endif</title>
+    <programlisting role="php">
+<![CDATA[
+if ($foo):
+    echo "Si\n";
+elseif ($bar):
+    echo "Quasi\n";
+else:
+    echo "No\n";
+endif;
+]]>
+    </programlisting>
+   </example>
+   Nota che il punto e virgola e stata sostituita dai due punti in tutte
+   le istruzioni tranne quella che termina l'espressione (endif).
+  </para>
+ </section>
+
+ <section id="migration-while">
+  <title>Sintassi di while</title>
+  <para>
+   Stesso come con if..endif, la sintassi di while..endwhile è anche cambiata:
+   <example>
+    <title>Migrazione: vecchia sintassi di while..endwhile</title>
+    <programlisting role="php">
+<![CDATA[
+while ($piu_roba_qui);
+    ...
+endwhile;
+]]>
+    </programlisting>
+   </example>
+   <example>
+    <title>Migrazione: nuova sintassi di while..endwhile</title>
+    <programlisting role="php">
+<![CDATA[
+while ($piu_roba_qui):
+    ...
+endwhile;
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <warning>
+   <simpara>
+    Usando la vecchia sintassi di while..endwhile in PHP 3.0,
+	otterreste un ciclo infinito.
+   </simpara>
+  </warning>
+ </section>
+
+ <section id="migration.expr">
+  <title>Tipi di espressione</title>
+  <simpara>
+   PHP/FI 2.0 usava il lato sinistro delle espressioni per
+   determinare che tipo il risultato dovrebbe essere. PHP 3.0
+   prende entrambi i lati in considerazione quando determina
+   i tipi del risultato, e questo può causare un comportamento
+   inaspettato dei script 2.0 in versione 3.0.
+  </simpara>
+  <para>
+   Considera questo exampio:
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+$a[0]=5;
+$a[1]=7;
+
+$key = key($a);
+while ("" != $key) {
+    echo "$keyn";
+    next($a);
+}
+]]>
+    </programlisting>
+   </informalexample>
+
+   In PHP/FI 2.0, questo visualizzerebbe entrambi gli indici di $a.
+   In PHP 3.0, invece, non visualizzerebbe nulla. Il motivo è che in
+   PHP 2.0, siccome il tipo del'argomento sinistro è una stringa, è stato
+   fatto una paragono tra le stringhe, ed infatti, <literal>""</literal>
+   non è uguale a <literal>"0"</literal>, per ciò il ciclo è continuato.
+   In PHP 3.0, quando una stringa è paragonata ad un intero,
+   viene fatto un paragone fra gli interi (la stringa è convertita in intero).
+   Ciò provoca una confrontazione di <literal>atoi("")</literal> che è
+   <literal>0</literal>, e <literal>variablelist</literal> che è anche 
+   <literal>0</literal>, e siccome <literal>0==0</literal>, il ciclo non
+   passa neanche una volta.
+  </para>
+  <para>
+   La soluzione è semplice.  Sostituisci l'espressione while con:
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+while ((string)$key != "") {
+]]>
+    </programlisting>
+   </informalexample>
+  </para>
+ </section>
+
+ <section id="migration.errors">
+  <title>I messaggi di errore sono cambiati</title>
+  <simpara>
+   I messaggi di errore in PHP 3.0 sono spesso più esatti di quanto erano
+   quelli di 2.0, anche se non è più possibile di visuallizare
+   il codice che causa l'errore. Si visuallizerano comunque il nome del file
+   e la linea sulla quale l'errore è accaduto.
+  </simpara>
+ </section>
+
+ <section id="migration.booleval">
+  <title>Valutazione cortocircuita booleana</title>
+  <simpara>
+   In PHP 3.0 valutazione booleana è cortocircuita.  Questo significa che
+   in una espressione come <literal>(1 || testami())</literal>, la
+   funzione <function>testami</function> non sarebbe eseguita poiché
+   niente può cambiare il risultato dell'espressione dopo<literal>1</literal>.
+  </simpara>
+
+  <simpara>
+   Questa è una questione di compatibilità minore, ma può causare dei effetti laterali inattesi.
+  </simpara>
+ </section>
+
+ <section id="migration.truefalse">
+  <title>&true;/&false; valori ritornati dalle funzioni</title>
+  <simpara>
+   La maggior parte delle funzioni interne sono state riscritte in modo
+   che ritornino &true; al successo e &false; al fallimento, invece
+   di 0 e -1 come nel PHP/FI 2.0. Il nuovo comportamento
+   aggevola un codice più logico, come <literal>$fp = fopen("/tuo/file") or
+   fail("fallito!");</literal>. Datto che PHP/FI 2.0 non ha avuto una chiara
+   regola su cosa deve ritornare una funzione fallita, la maggior parte dei
+   tali scritti probabilmente dovranno essere verificate manualmente dopo
+   aver usato il convertitore 2.0 - 3.0.
+  </simpara>
+  <para>
+   <example>
+    <title>Migrazione da 2.0: valori di ritorno, vecchio codice</title>
+    <programlisting role="php">
+<![CDATA[
+$fp = fopen($file, "r");
+if ($fp == -1);
+    echo("Apertura per la lettura del $file fallita<br>\n");
+endif;
+]]>
+    </programlisting>
+   </example>
+   <example>
+    <title>Migrazione da 2.0: valori di ritorno, nuovo codice</title>
+    <programlisting role="php">
+<![CDATA[
+$fp = @fopen($file, "r") or print("Apertura per la lettura del $file fallita<br>\n");
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </section>
+
+ <section id="migration-other">
+  <title>Altre incompatibilità</title>
+
+  <itemizedlist>
+   <listitem><simpara>
+    Il modulo  Apache per PHP 3.0 non supporta più le versioni Apache 
+    inferiori a 1.2.  Apache 1.2 e superiore è necessario.
+   </simpara></listitem>
+
+   <listitem><simpara>
+    <function>echo</function> non supporta più una stringa formattata.
+    Usa per questo la funzione <function>printf</function>.
+   </simpara></listitem>
+
+   <listitem><simpara>
+    In PHP/FI 2.0, un implementazione collateranea causava
+    <literal>$foo[0]</literal> di avere lo stesso effetto di
+    <literal>$foo</literal>. Questo non è più cosi in PHP 3.0.
+   </simpara></listitem>
+
+   <listitem>
+    <simpara>
+     Leggere gli array con <literal>$array[]</literal> non è piu supportato
+    </simpara>
+    <simpara>
+     Cioè, non si puo aprire un array con un ciclo che fà
+     <literal>$data = $array[]</literal>.  Usa <function>current</function>
+     e <function>next</function> per avere questo effetto.
+    </simpara>
+    <simpara>
+     Inoltre, <literal>$array1[] = $array2</literal> non
+     aggiunge i valori di <literal>$array2</literal> a
+     <literal>$array1</literal>, ma invece aggiunge
+     <literal>$array2</literal> come làultima entrata di
+     <literal>$array1</literal>. Vedi anche il supporto di array multidimensionali.
+    </simpara>
+   </listitem>
+
+   <listitem>
+    <simpara>
+     <literal>"+"</literal> non è più usato come un operatore
+	 di concatenazione per le stringhe, invece converte i suoi argumenti
+	 in numeri e realizza l'aggiunta numerica. Usa <literal>"."</literal> al posto suo.
+    </simpara>
+   </listitem>
+  </itemizedlist>
+
+  <example>
+   <title>Migrazione da 2.0: concatenazione delle stringhe</title>
+   <programlisting role="php">
+<![CDATA[
+echo "1" + "1";
+]]>
+   </programlisting>
+   <para> 
+    In PHP 2.0 avrebbe emettesso 11, in PHP 3.0 invece emetterebbe 2.
+	Perciò si usa:
+    <programlisting role="php">
+<![CDATA[
+echo "1"."1";
+]]>
+    </programlisting>
+    <programlisting role="php">
+<![CDATA[
+$a = 1;
+$b = 1;
+echo $a + $b;
+]]>
+    </programlisting>
+   </para>
+   <para>
+    Emette 2 in entrambi PHP 2.0 e 3.0.
+    <programlisting role="php">
+<![CDATA[
+$a = 1;
+$b = 1;
+echo $a.$b;
+]]>
+    </programlisting>
+    Questo emettera 11 in PHP 3.0.
+   </para>
+  </example>
+ </section>
+
+</appendix>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"../../manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

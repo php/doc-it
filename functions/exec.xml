@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.22 Maintainer: giacomo Status: ready -->
+<!-- EN-Revision: 1.24 Maintainer: giacomo Status: ready -->
  <reference id="ref.exec">
   <title>Funzioni per l'esecuzione di programmi</title>
   <titleabbrev>Esecuzione di programmi</titleabbrev>
 
   <partintro>
    <simpara>
-    Queste funzioni permettono l'esecuzione di comandi sul sistema stasso,
+    Queste funzioni permettono l'esecuzione di comandi sul sistema stesso,
 	e rendono sicuri tali comandi. Queste funzioni sono anche strettamente 
 	correlate al 
     <link linkend="language.operators.execution">operatore backtick</link>.
@@ -16,8 +16,7 @@
   <refentry id="function.escapeshellarg">
    <refnamediv>
     <refname>escapeshellarg</refname>
-    <refpurpose>Estrae una stringa da usare come un argomento della shell.
-	escape a string to be used as a shell argument</refpurpose>
+    <refpurpose>estrae una stringa da usare come un argomento della shell</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
@@ -31,8 +30,8 @@
      <function>escapeshellarg</function> aggiunge le virgolette singole
 	 attorno ad una stringa ed elude ogni virgoletta semplice per permetterti di
 	 passare una stringa direttamente ad una funzione della shell a che questa 
-	 veng trattata come un singolo argomento.
-	 Questa funzione può essere usata per eludere argomenti individuali per funzioni
+	 venga trattata come un singolo argomento.
+	 Questa funzione dovrebbe essere usata per eludere argomenti individuali per funzioni
 	 della shell che giungano dall'input del utente. Le funzioni della shell includono
 	 <function>exec</function>, <function>system</function> e 
 	 <link linkend="language.operators.execution">l'operatore backtick</link>. 
@@ -70,13 +69,13 @@ system("ls ".escapeshellarg($dir));
     </funcsynopsis>
     <para>
      <function>escapeshellcmd</function> elude ogni carattere di una stringa che
-	 potrebbe essere usata per ingannare un comando shell ad eseguire comandi
+	 potrebbe essere usata per indurre un comando shell ad eseguire comandi
 	 arbitrari. Questa funzione dovrebbe essere usata per assicurarsi che ogni dato
-	 che giunga dall'input dell utente sia elusa prima che tali dati vengano passati
+	 che giunga dall'input dell utente venga nutralizzato prima prima di venir passato
 	 a funzioni come <function>exec</function> o
      <function>system</function>, o al <link
      linkend="language.operators.execution">operatore backtick
-     </link>. Un utilizzo frequente sarebbe:</para>
+     </link>. Un modello d'utilizzo potrebbe essere:</para>
     <para>
      <informalexample>
       <programlisting role="php">
@@ -120,13 +119,13 @@ system("touch \"/tmp/$f\"; ls -l \"/tmp/$f\""); // e qui invece lo facciamo, usa
     </funcsynopsis>
     <para>
      <function>exec</function> esegue il comando passato da 
-     <parameter>command</parameter>, sebbene esso non restituisca nulla in output
-	 Ritorna semplicemente l'ultima linea dal risultato del comando.
+     <parameter>command</parameter>, sebbene esso non invii nulla in output
+	 Restituisce semplicemente l'ultima linea dal risultato del comando.
 	 Se hai bisogno di eseguire un comando ed avere tutti i dati dal comando passato
 	 direttamente senza alcuna interferenza, usa la funzione <function>passthru</function>.
     </para>
     <para>
-     Se l'argomento <parameter>array</parameter> è presente, allora il vettore specificato
+     Se l'argomento <parameter>array</parameter> è presente, allora tale vettore specificato
      verrà riempito con ogni linea del output del comando.  
 	 Nota che se il vettore contiene già degli elementi,
      <function>exec</function> li aggiungerà in coda vettore.
@@ -143,12 +142,12 @@ system("touch \"/tmp/$f\"; ls -l \"/tmp/$f\""); // e qui invece lo facciamo, usa
      Osserva che se intendi allocare dati che giungano dal utente
 	 per essere passate a questa funzione, dovresti usare
      <function>escapeshellcmd</function> per assicurarti che l'utente
-     non possa ingannare il sistema per eseguire comandi arbitrari.
+     non possa forzare il sistema ad eseguire comandi arbitrari.
     </para>
     <para>
      Nota anche che se inizi un programma usando questa funzione e lo vuoi lasciare
 	 in esecuzione in sottofondo, devi assicurarti che l'output del programa venga rediretto
-	 ad un file o a qualche altro flusso di output, altrimenti PHP attendera la fine
+	 ad un file o a qualche altro flusso di output, altrimenti PHP attendera fino alla fine
 	 fine dell'esecuzione del programma.
     </para>
     <para>
@@ -186,7 +185,7 @@ system("touch \"/tmp/$f\"; ls -l \"/tmp/$f\""); // e qui invece lo facciamo, usa
 	 Unix verrà posto lì. Questa funzione deve essere usata al posto di <function>exec</function>
 	 o di <function>system</function> quando l'output del comando Unix consiste
 	 in dati binari da passare direttamente al browser.
-	 Un suo uso frequente è di eseguire qualcosa come le utility 
+	 Un suo uso frequente consiste nel eseguire, ad esempio, le utility 
      pbmplus che possono restituire un flusso diretto all'immagine.
 	 Impostado il tipo di contenuto a <emphasis>image/gif</emphasis> e successivamente
 	 chiamando un programma pbmplus per generare una gif puoi realizzare uno script
@@ -241,7 +240,7 @@ system("touch \"/tmp/$f\"; ls -l \"/tmp/$f\""); // e qui invece lo facciamo, usa
     </para>
     <para>
      La chiamata a <function>system</function> tenta anche di ripulire automaticamente
-	 il buffer di output del web server dopo che ogni linea di output se PHP 
+	 il buffer di output del web server dopo ogni linea di output se PHP 
 	 gira come un modulo server.
     </para>
     <para>
@@ -262,6 +261,27 @@ system("touch \"/tmp/$f\"; ls -l \"/tmp/$f\""); // e qui invece lo facciamo, usa
    </refsect1>
   </refentry>
 
+  <refentry id='function.shell-exec'>
+   <refnamediv>
+    <refname>shell_exec</refname>
+    <refpurpose>
+     Esegue un comando attraverso la shell e restituisce l'output come stringa
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>string <function>shell_exec</function></funcdef>
+      <paramdef>string <parameter>cmd</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     &warn.undocumented.func;
+    </para>
+   </refsect1>
+  </refentry>
+  
  </reference>
 
 <!-- Keep this comment at the end of the file

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/apache.xml, last change in rev 1.1 -->
 <!-- last change to 'apache-lookup-uri' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: cucinato Status: ready -->
+<!-- EN-Revision: 1.4 Maintainer: cucinato Status: ready -->
 <!-- OLD-Revision: 1.24/EN.1.2 -->
   <refentry id="function.apache-lookup-uri">
    <refnamediv>
@@ -21,7 +21,7 @@
      Questa funzione esegue una richiesta parziale per una URI. Esegue l'operazione 
      finch&eacute; ottiene tutte le informazioni importanti sulla
      risorsa e restituisce queste informazioni in una classe. Le propriet&agrave;
-     della classe restituista sono:
+     della classe restituita sono:
      <simplelist>
       <member>status</member>
       <member>the_request</member>
@@ -46,10 +46,55 @@
       <member>request_time</member>
      </simplelist>
     </para>
+    <para>
+     <example>
+      <title>esempio di <function>apache_lookup_uri</function></title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$info = apache_lookup_uri('index.php?var=value');
+print_r($info);
+
+if (file_exists($info->filename)) {
+    echo 'file exists!';
+}
+?>
+]]>
+      </programlisting>
+      <para>
+       Questo esempio produrrà un risultato simile al seguente:
+      </para>
+      <screen>
+<![CDATA[
+stdClass Object
+(
+    [status] => 200
+    [the_request] => GET /dir/file.php HTTP/1.1
+    [method] => GET
+    [mtime] => 0
+    [clength] => 0
+    [chunked] => 0
+    [content_type] => application/x-httpd-php
+    [no_cache] => 0
+    [no_local_copy] => 1
+    [unparsed_uri] => /dir/index.php?var=value
+    [uri] => /dir/index.php
+    [filename] => /home/htdocs/dir/index.php
+    [args] => var=value
+    [allowed] => 0
+    [sent_bodyct] => 0
+    [bytes_sent] => 0
+    [request_time] => 1074282764
+)
+file exists!
+]]>
+      </screen>
+     </example>
+    </para>
     <note>
      <simpara>
       <function>apache_lookup_uri</function> funziona solo quando PHP
-      &egrave; installato come modulo Apache.
+     è installato come modulo Apache.
      </simpara>
     </note>
    </refsect1>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.30 Maintainer: cortesi  Status: ready -->
+<!-- EN-Revision: 1.32 Maintainer: cortesi  Status: ready -->
  <reference id="ref.dir">
   <title>Funzioni per le directory</title>
   <titleabbrev>Directory</titleabbrev>
@@ -209,7 +209,20 @@ if ($dir = @opendir("/tmp")) {
      </methodsynopsis>
     <para>
      Restituisce il nomefile del file successivo della directory. I nomi
-     dei file non vengono restituiti in nessun particolare ordine.
+     dei file vengono restituiti secondo l'ordine in cui sono memorizzati
+     nel filesystem.
+    </para>
+    <para>
+     Si faccia caso al modo in cui il valore restituito da <function>readdir</function>
+     viene controllato negli esempi successivi. Viene controllato esplicitamente
+     che il valore restituito sia identico a (uguale a e dello
+     stesso tipo di (vedere <link
+     linkend="language.operators.comparison">Comparison
+     Operators</link> per maggiori informazioni) &false; altrimenti avverrebbe che
+     ogni nome di directory il cui nome fosse valutato &false; interromperebbe il
+     loop.
+    </para>
+    <para>
      <example>
       <title>Elenca tutti i file presenti nella directory in uso</title>
       <programlisting role="php">
@@ -219,9 +232,17 @@ if ($dir = @opendir("/tmp")) {
 $handle=opendir('.');
 echo "Handle della directory: $handle\n";
 echo "File:\n";
+
+/* Questa è la maniera corretta di eseguire un loop all'interno di una directory. */
 while (false !== ($file = readdir($handle))) { 
     echo "$file\n";
 }
+
+/* Questa è la maniera SCORRETTA di eseguire un loop all'interno di una directory. */
+while ($file = readdir($handle)) { 
+    echo "$file\n";
+}
+
 closedir($handle); 
 ?>
 ]]>

@@ -1,4 +1,4 @@
-<!-- EN-Revision: 1.28 Maintainer: perugini Status: ready -->
+<!-- EN-Revision: 1.42 Maintainer: perugini Status: ready -->
 
 <!ENTITY warn.experimental '<warning><simpara>Questo modulo &egrave;
 <emphasis>SPERIMENTALE</emphasis>. Ovvero, il comportamento di queste
@@ -18,10 +18,14 @@ non &egrave; documentata; &egrave; disponibile soltanto la lista degli
 argomenti.</simpara></warning>'>
 
 <!ENTITY warn.no-win32-fopen-wrapper '<warning><para> la versione per Windows
-i <literal>PHP</literal> non supporta, al momento, l&apos;accesso remoto
+di <literal>PHP</literal> antecedente la 4.3.0 non supporta l&apos;accesso remoto
 ai file da parte di questa funzione, anche se
 <link linkend="ini.allow-url-fopen">allow_url_fopen</link> &egrave; abilitato.
 </para></warning>'>
+
+<!ENTITY note.no-remote '<note><simpara>Questa funzione non &egrave; eseguibile con 
+<link linkend="features.remote-files">file remoti</link>, ma con file 
+accessibili attraverso il filesystem del server.</simpara></note>'>
 
 <!ENTITY tip.ob-capture '<tip><simpara>Come con qualsiasi cosa che invia
 il risultato direttamente al browser, &egrave; possibile utilizzare la
@@ -30,10 +34,21 @@ l&apos;uscita di questa funzione e salvarla - per esempio - in una
 <type>stringa</type>.</simpara></tip>'>
 
 <!ENTITY tip.fopen-wrapper '<tip><simpara>&Egrave; possibile utilizzare una URL come un
-nome di file con questa funzione se &egrave; stata abilitata l&apos;opzione "fopen wrappers".
-Per maggiori informazioni vedere <function>fopen</function>.</simpara></tip>'>
+nome di file con questa funzione se <link linkend="ini.allow-url-fopen"
+>fopen wrappers</link> &egrave; stata abilitata.
+Per maggiori informazioni su come specificare i nomi di file vedere <function>fopen</function>
+e <xref linkend="wrappers"/> per avere la lista dei protocolli URL
+supportati.</simpara></tip>'>
 
 <!ENTITY return.success 'Restituisce &true; in caso di successo, &false; in caso di fallimento.'>
+
+<!ENTITY array.resetspointer '<note><simpara>Questa funzione farà il 
+<function>reset</function> del puntatore dell&apos;<type>array</type> dopo 
+l&apos;uso.</simpara></note>'>
+
+<!ENTITY note.clearstatcache '<note><simpara>I risultati di questa funzione 
+saranno memorizzati. Vedere <function>clearstatcache</function> per  
+maggiori dettagli.</simpara></note>'>
 
 <!ENTITY return.falseproblem '<warning><simpara>Questa funzione pu&ograve;
 restituire il Booleano &false;, ma pu&ograve; anche restituire un valore non-Booleano valutato
@@ -44,6 +59,12 @@ informazioni. Usare <link linkend="language.operators.comparison">l&apos;operato
 === </link> per controllare il valore restituito da questa 
 funzione.</simpara></warning>'>
 
+<!ENTITY warn.imaprecodeyaz '<warning><simpara>Il modulo <link
+linkend="ref.imap">IMAP</link> non può essere utilizzato in congiunzione con
+i moduli <link linkend="ref.recode">recode</link> o <link
+linkend="ref.yaz">YAZ</link>. Poich&egrave; questi moduli condividono
+i medesimi simboli interni.</simpara></warning>'>
+
 <!-- Note varie -->
 <!ENTITY note.not-bin-safe '<warning><simpara>Questa funzione
  non &egrave; (ancora) binary-safe! (non gestisce correttamente i file binari)</simpara></warning>'>
@@ -51,9 +72,16 @@ funzione.</simpara></warning>'>
 <!ENTITY note.bin-safe '<note><simpara>Questa funzione &egrave;
  binary-safe (gestisce correttamente i file binari)</simpara></note>'>
 
+<!ENTITY note.line-endings '<note><simpara>Se il <literal>PHP</literal> ha
+dei problemi a riconoscere la fine riga nella lettura di file su
+o creati da computer Macintosh, si pu&ograve; abilitare il parametro
+di configurazione <link linkend="ini.auto-detect-line-endings"
+>auto_detect_line_endings</link>.</simpara>
+</note>'> 
+
 <!ENTITY note.no-windows '<note><simpara>Questa funzione non &egrave;
  implementata su piattaforme Windows</simpara></note>'>
-
+ 
 <!ENTITY note.no-windows.extension '<note><simpara>Questo modulo non &egrave;
 disponibile su piattaforme Windows.</simpara></note>'>
 
@@ -90,11 +118,10 @@ linkend="features.safe-mode">safe-mode</link>'>
 
 <!-- Parti comuni della sezione di introduzione -->
 <!ENTITY no.config '<para>Questa estensione non definisce
-alcuna direttiva di configurazione</para>'>
+alcuna direttiva di configurazione in &php.ini;</para>'>
 <!ENTITY no.resource '<para>Questa estensione non definisce alcun tipo di risorsa.</para>'>
 <!ENTITY no.constants '<para>Questa estensione non definisce alcuna costante.</para>'>
-<!ENTITY no.requirement '<para>Queste funzioni sono disponibili nei moduli standard,
-che sono sempre disponibili.</para>'>
+<!ENTITY no.requirement '<para>Non sono necessarie librerie esterne per utilizzare questo modulo.</para>'>
 <!ENTITY no.install '<para>Non &egrave; necessaria nessuna installazione per usare queste
 funzioni, esse fanno parte del core di PHP.</para>'>
 
@@ -122,9 +149,13 @@ sono disponibili solo quando l&apos;estensione &egrave; stata
 compilata nel PHP o caricata come modulo dinamico al runtime.
 </simpara>'>
 
-<!ENTITY windows.builtin '<simpara> The windows version of <literal>PHP</literal>
-has built in support for this extension. You do not need to load any additional
-extension in order to use these functions.</simpara>'>
+<!ENTITY windows.builtin '<simpara> La versione per Windows di <literal>PHP</literal>
+ha gi&agrave; compilato il supporto per questo modulo. Non occorre caricare alcun modulo
+addizionale per potere utilizzare queste funzioni.</simpara>'>
+
+<!-- These are here as helpers for manual consistency and brievety-->
+<!ENTITY php '<literal>PHP</literal>'>
+<!ENTITY safemode '<link linkend="ini.safe-mode">safe mode</link>'>
 
 <!-- These are using in reference/$extname/reference.xml and other
 supplemental files to mark section titles -->
@@ -132,7 +163,7 @@ supplemental files to mark section titles -->
 <!ENTITY reftitle.required  '<title>Requisiti</title>'>
 <!ENTITY reftitle.install   '<title>Installazione</title>'>
 <!ENTITY reftitle.runtime   '<title>Configurazione Runtime</title>'>
-<!ENTITY reftitle.resources '<title>Resource Type</title>'>
+<!ENTITY reftitle.resources '<title>Tipi di risorse</title>'>
 <!ENTITY reftitle.constants '<title>Costanti Predefinite</title>'>
 <!ENTITY reftitle.classes '<title>Classi Predefinite</title>'>
 <!ENTITY reftitle.examples  '<title>Esempi</title>'>

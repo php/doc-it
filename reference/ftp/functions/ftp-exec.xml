@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/ftp.xml, last change in rev 1.12 -->
-<!-- last change to 'ftp-exec' in en/ tree in rev 1.32 -->
-<!-- EN-Revision: 1.2 Maintainer: colombo Status: working -->
-<!-- OLD-Revision: 1.43/EN.1.32 -->
+<!-- last change to 'ftp-exec' in en/ tree in rev 1.9 -->
+<!-- EN-Revision: 1.9 Maintainer: afparam Status: ready -->
+<!-- CREDITS: Colombo -->
+<!-- OLD-Revision: 1.43/EN.1.9 -->
+
   <refentry id='function.ftp-exec'>
    <refnamediv>
     <refname>ftp_exec</refname>
@@ -12,13 +14,41 @@
     <title>Descrizione</title>
      <methodsynopsis>
       <type>bool</type><methodname>ftp_exec</methodname>
-      <methodparam><type>resource</type><parameter>stream</parameter></methodparam>
-      <methodparam><type>string</type><parameter>comando</parameter></methodparam>
+      <methodparam><type>resource</type><parameter>ftp_stream</parameter></methodparam>
+      <methodparam><type>string</type><parameter>command</parameter></methodparam>
      </methodsynopsis>
     <para>
-     Invia una richiesta SITE EXEC <parameter>comando</parameter> al server
-     ftp. Restituisce &false; se la richiesta fallisce, altrimenti restituisce l'output 
-     del comando.
+     Invia una richiesta SITE EXEC <parameter>command</parameter> al server FTP.
+     Restituisce &true; se il comando viene eseguito correttamente (codice di risposta:
+     <literal>200</literal> da parte del server); altrimenti restituisce &false;.
+    </para>
+    <para>
+     <example>
+      <title> Esempio di funzione <function>ftp_exec</function> </title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+
+$command = 'ls -al';
+
+$conn_id = ftp_connect($ftp_server);
+
+$login_result = ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
+
+if ($res = ftp_exec($conn_id, $command)) {
+    echo "$comando eseguito correttamente<br />\n";
+    echo nl2br($res);
+} else {
+    echo 'impossibile eseguire ' . $command;
+}
+
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Vedere anche <function>ftp_raw</function>.
     </para>
    </refsect1>
   </refentry>

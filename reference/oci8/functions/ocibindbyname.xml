@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/oci8.xml, last change in rev 1.1 -->
 <!-- last change to 'ocibindbyname' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.4 Maintainer: cucinato Status: ready -->
+<!-- EN-Revision: 1.11 Maintainer: cucinato Status: ready -->
 <!-- OLD-Revision: 1.45/EN.1.2 -->
   <refentry id="function.ocibindbyname">
    <refnamediv>
-    <refname>OCIBindByName</refname>
+    <refname>ocibindbyname</refname>
     <refpurpose>
      Lega una variabile PHP ad un segnaposto Oracle
     </refpurpose>
@@ -13,13 +13,12 @@
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
-      <type>bool</type><methodname>OCIBindByName</methodname>
-      <methodparam><type>int</type><parameter>stmt</parameter></methodparam>
+      <type>bool</type><methodname>ocibindbyname</methodname>
+      <methodparam><type>resource</type><parameter>stmt</parameter></methodparam>
       <methodparam><type>string</type><parameter>ph_name</parameter></methodparam>
-      <methodparam><type>mixed &amp;</type><parameter>variable</parameter></methodparam>
-      <methodparam><type>int</type><parameter>length</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>
-       type</parameter></methodparam>
+      <methodparam><type>mixed</type><parameter>&amp;variable</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>maxlength</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>type</parameter></methodparam>
      </methodsynopsis>
     <para>
      <function>ocibindbyname</function> collega la variabile PHP 
@@ -43,37 +42,38 @@
      (Character-File), OCI_B_CLOB (Character-LOB), OCI_B_BLOB
      (Binary-LOB) e OCI_B_ROWID (ROWID).
     </para>
-    <example>
-     <title>OCIDefineByName</title>
-     <programlisting>
+    <para>
+     <example>
+      <title>esempio di <function>ocibindbyname</function></title>
+      <programlisting role="php">
 <![CDATA[
 <?php
-/* OCIBindByPos example thies@thieso.net (980221)
+/* OCIBindByPos example thies at thieso dot net (980221)
   inserisce 3 tuple in emp, e usa ROWID per aggiornare le
   tuple subito dopo l'inserimento.
 */
 
-$conn = OCILogon("scott","tiger");
+$conn = OCILogon("scott", "tiger");
 
-$stmt = OCIParse($conn,"insert into emp (empno, ename) ".
-					   "values (:empno,:ename) ".
+$stmt = OCIParse($conn, "insert into emp (empno, ename) " .
+					   "values (:empno,:ename) " .
 					   "returning ROWID into :rid");
 
 $data = array(1111 => "Larry", 2222 => "Bill", 3333 => "Jim");
 
-$rowid = OCINewDescriptor($conn,OCI_D_ROWID);
+$rowid = OCINewDescriptor($conn, OCI_D_ROWID);
 
-OCIBindByName($stmt,":empno",&$empno,32);
-OCIBindByName($stmt,":ename",&$ename,32);
-OCIBindByName($stmt,":rid",&$rowid,-1,OCI_B_ROWID);
+OCIBindByName($stmt, ":empno", $empno, 32);
+OCIBindByName($stmt, ":ename", $ename, 32);
+OCIBindByName($stmt, ":rid", $rowid, -1, OCI_B_ROWID);
 
-$update = OCIParse($conn,"update emp set sal = :sal where ROWID = :rid");
-OCIBindByName($update,":rid",&$rowid,-1,OCI_B_ROWID);
-OCIBindByName($update,":sal",&$sal,32);
+$update = OCIParse($conn, "update emp set sal = :sal where ROWID = :rid");
+OCIBindByName($update, ":rid", $rowid, -1, OCI_B_ROWID);
+OCIBindByName($update, ":sal", $sal, 32);
 
 $sal = 10000;
 
-while (list($empno,$ename) = each($data)) {
+while (list($empno, $ename) = each($data)) {
 	OCIExecute($stmt);
 	OCIExecute($update);
 } 
@@ -83,23 +83,24 @@ $rowid->free();
 OCIFreeStatement($update);
 OCIFreeStatement($stmt);
 
-$stmt = OCIParse($conn,"select * from emp where empno in (1111,2222,3333)");
+$stmt = OCIParse($conn, "select * from emp where empno in (1111,2222,3333)");
 OCIExecute($stmt);
-while (OCIFetchInto($stmt,&$arr,OCI_ASSOC)) {
+while (OCIFetchInto($stmt, &$arr, OCI_ASSOC)) {
 	var_dump($arr);
 }
 OCIFreeStatement($stmt);
 
 /* delete our "junk" from the emp table.... */
-$stmt = OCIParse($conn,"delete from emp where empno in (1111,2222,3333)");
+$stmt = OCIParse($conn, "delete from emp where empno in (1111,2222,3333)");
 OCIExecute($stmt);
 OCIFreeStatement($stmt);
 
 OCILogoff($conn);
 ?>
 ]]>
-     </programlisting>
-    </example>
+      </programlisting>
+     </example>
+    </para>
     <warning>
      <para>
       Non è una buona idea utilizzare le magic quotes e

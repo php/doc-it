@@ -1,82 +1,114 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.5 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.7 Maintainer: darvina Status: ready -->
  <reference id="ref.sockets">
   <title>Funzioni relative ai Socket</title>
   <titleabbrev>Sockets</titleabbrev>
 
   <partintro>
-   &warn.experimental;
-   <simpara>
-    Questa estensione implementa una interfaccia a basso livello
-    verso i socket, fornendo la possibilità di agire sia come
-    server sia come client.
-   </simpara>
-   <para>
-    Le funzioni relative ai socket qui descritte, sono parte di una estensione
-    di PHP che deve essere abilitata durante la fase di compila tramite
-    l'opzione <option role="configure">--enable-sockets</option> di 
-    <command>configure</command>.
-   </para>
-   <para>
-    Per un esempio di una interfaccia generica lato client, 
-    vedere <function>fsockopen</function> e
-    <function>pfsockopen</function>.
-   </para>
-   <para>
-    Per l'utilizzo di queste funzioni, è importante ricordare che
-    molte di esse hanno il medesimo nome della loro controparte in C,
-    ma spesso hanno dichiarazioni differenti. Ricordarsi di leggere
-    la descrizione per evitare confusione.
-   </para>
-   <para>
-    L'estensione dei socket è stata scritta per fornire una pratica intefaccia
-    ai potenti socket BSD. Si noti che le funzioni girano correttamente
-    sia su sistemi Unix che sistemi Win32. Quasi tutte le funzioni dei socket
-    possono fallire in certe situazioni e quindi generare un messaggio di tipo
-    <constant>E_WARNING</constant> per descrivere l'errore. Qualche volta 
-    ciò non accada secondo le aspettative dello sviluppatore. Ad esempio la funzione
-    <function>socket_read</function> improvvisamente può generare un messaggio di 
-    <constant>E_WARNING</constant> a causa di una interruzione inaspettata della
-    connessione. E' prassi comune sopprimere i messaggi di warning con l'operatore
-    <literal>@</literal> ed intercettare il codice dell'errore utilizzando
-    la funzione <function>socket_last_error</function>. Si può anche richiamare
-    la funzione <function>socket_strerror</function> con questo codice di errore
-    per avere un testo descrittivo del problema. Per maggiori dettagli vedere la descrizione
-    delle funzioni.
-   </para>
-   <note>
+
+   <section id="sockets.intro">
+    &reftitle.intro;
     <para>
-     I messaggi <constant>E_WARNING</constant> generati dal modulo dei
-     socket sono in inglese, mentre i messaggi di errore recuperati dipenderanno
-     dalle impostazioni locali correnti (<constant>LC_MESSAGES</constant>):
-     <programlisting role="php">
+     Questa estensione implementa una interfaccia a basso livello
+     verso i socket, fornendo la possibilità di agire sia come
+     server sia come client.
+    </para>
+    <para>
+     Per un esempio di una interfaccia generica lato client, 
+     vedere <function>fsockopen</function> e
+     <function>pfsockopen</function>.
+    </para>
+    <para>
+     Per l'utilizzo di queste funzioni, è importante ricordare che
+     molte di esse hanno il medesimo nome della loro controparte in C,
+     ma spesso hanno dichiarazioni differenti. Ricordarsi di leggere
+     la descrizione per evitare confusione.
+    </para>
+    <para>
+     Per chi non ha familiarità con la programmazione dei socket, può 
+     trovare utili informazioni nelle pagine del manuale di Unix, ed inoltre
+     sul web si può trovare diversi tutorial sulla programmazione
+     dei socket in C, molti dei quali possono essere utilizzati, con
+     lievi modifiche, nella programmazione dei socket in PHP. Il link <ulink url="&url.socket.faq;">UNIX Socket
+     FAQ</ulink> può essere un buon punto di partenza.
+    </para>
+    &warn.experimental;
+   </section>
+
+   <section id="sockets.requirements">
+    &reftitle.required;
+    &no.requirement;
+   </section>
+   
+   <section id="sockets.installation">
+    &reftitle.install;
+    <para>
+     Le funzioni relative ai socket qui descritte sono parte di una
+     estensione del PHP che occorre abilitare durante la fase di compila 
+     usando l'opzione <option role="configure">--enable-sockets</option>
+     del comando <command>configure</command>.
+    </para>
+   </section>
+   
+   <section id="sockets.configuration">
+    &reftitle.runtime;
+    &no.config;
+   </section>
+
+   <section id="sockets.resources">
+    &reftitle.resources;
+    &no.resource;
+   </section>
+
+   &reference.sockets.constants;
+
+   <section id="sockets.errors">
+    <title>Errori dei socket</title>
+    <para>
+     L'estensione dei socket è stata scritta per fornire una pratica interfaccia
+     ai potenti socket BSD. Si noti che le funzioni girano correttamente
+     sia su sistemi Unix sia su sistemi Win32. Quasi tutte le funzioni dei socket
+     possono fallire in certe situazioni e quindi generare un messaggio di tipo
+     <constant>E_WARNING</constant> per descrivere l'errore. Qualche volta 
+     ciò non accade secondo le aspettative dello sviluppatore. Ad esempio la funzione
+     <function>socket_read</function> improvvisamente può generare un messaggio di 
+     <constant>E_WARNING</constant> a causa di una interruzione inaspettata della
+     connessione. E' prassi comune sopprimere i messaggi di warning con l'operatore
+     <literal>@</literal> ed intercettare il codice dell'errore utilizzando
+     la funzione <function>socket_last_error</function>. Si può anche richiamare
+     la funzione <function>socket_strerror</function> con questo codice di errore
+     per avere un testo descrittivo del problema. Per maggiori dettagli vedere la descrizione
+     delle funzioni.
+    </para>
+    <note>
+     <para>
+      I messaggi <constant>E_WARNING</constant> generati dal modulo dei
+      socket sono in inglese, mentre i messaggi di errore recuperati dipendono
+      dalle correnti impostazioni locali (<constant>LC_MESSAGES</constant>):
+      <programlisting role="php">
 <![CDATA[
 Warning - socket_bind() unable to bind address [98]: Die Adresse wird bereits verwendet
 ]]>
-     </programlisting>
-    </para>
-   </note>
-   <para>
-    Per chi non ha familiarità con la programmazione dei socket, può 
-    trovare utili informazioni nelle pagine del manuale di Unix, ed inoltre
-    sul web si può trovare diversi tutorial sulla programmazione
-    dei socket in C, molti dei quali possono essere utilizzati, con
-    lievi modifiche, nella programmazione dei socket in PHP. Il link <ulink url="http://www.developerweb.net/sock-faq/">UNIX Socket
-    FAQ</ulink> può essere un buon punto di partenza.
-   </para>
-   <para>
-    <example>
-     <title>Esempio di programma con i socket: semplice server TCP/IP</title>
-     <para>
-      Questo esempio mostra un semplice server. Occorre modificare
-      le variabili <varname>address</varname> e <varname>port</varname>
-      per adeguarle ai parametri della macchina su cui sarà eseguito.  Ci si può
-      connettere al server con un comando simile a <command>telnet 192.168.1.53
-      10000</command> (dove l'indirizzo e la porta devono essere uguali a quanto
-      indicato nel setup). Qualsiasi lettara sarà digitata, verrà visualizzata sul server
-      e sul client. Per disconnettersi digitare 'quit'.
+      </programlisting>
      </para>
-     <programlisting role="php">
+    </note>
+   </section>
+
+   <section id="sockets.examples">
+    &reftitle.examples;
+    <para>
+     <example>
+      <title>Esempio di programma con i socket: semplice server TCP/IP</title>
+      <para>
+       Questo esempio illustra un semplice server. Occorre modificare
+       le variabili <varname>address</varname> e <varname>port</varname>
+       per adeguarle ai parametri della macchina su cui sarà eseguito.  Ci si può
+       connettere al server con un comando simile a <command>telnet 192.168.1.53
+       10000</command> (dove l'indirizzo e la porta devono essere uguali a quanto
+       indicato nel setup). Qualsiasi lettera sarà digitata, verrà visualizzata sul server
+       e sul client. Per disconnettersi, digitare 'quit'.
+      </para>
+      <programlisting role="php">
 <![CDATA[
 #!/usr/local/bin/php -q
 <?php
@@ -139,18 +171,18 @@ do {
 socket_close ($sock);
 ?>
 ]]>
-     </programlisting>
-    </example>
-   </para>
-   <para>
-    <example>
-     <title>Esempio di programma con i socket: semplice client TCP/IP</title>
-     <para>
-      In questo esempio sarà illustrato un semplice client HTTP. Questo,
-      molto semplicemente, si collega ad un server, invia una richiesta HEAD,
-      visualizza la risposta ed esce.
-     </para>
-     <programlisting>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     <example>
+      <title>Esempio di programma con i socket: semplice client TCP/IP</title>
+      <para>
+       In questo esempio sarà illustrato un semplice client HTTP. Questo,
+       molto semplicemente, si collega ad un server, invia una richiesta HEAD,
+       visualizza la risposta ed esce.
+      </para>
+      <programlisting>
 <![CDATA[
 <?php
 error_reporting (E_ALL);
@@ -199,7 +231,9 @@ echo "OK.\n\n";
       </programlisting>
      </example>
     </para>
+   </section>
   </partintro>
+
 
 &reference.sockets.functions;
 

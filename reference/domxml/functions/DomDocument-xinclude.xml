@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.3 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.5 Maintainer: darvina Status: ready -->
   <refentry id="function.domdocument-xinclude">
    <refnamediv>
     <refname>DomDocument->xinclude</refname>
@@ -14,8 +14,58 @@
         <void/>
      </methodsynopsis>
     &warn.experimental.func;
-    &warn.undocumented.func;
+    <para>
+     Questa funzione sostituisce gli XInclude in un oggetto DomDocument.
+    </para>
+    <para>
+     <example>
+      <title>Sostituisce</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
 
+// include.xml contains :
+// <child>test</child>
+	 
+$xml = '<?xml version="1.0"?>
+<root xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="include.xml">
+    <xi:fallback>
+      <error>xinclude: include.xml not found</error>
+    </xi:fallback>
+  </xi:include>
+</root>';
+ 
+$domxml = domxml_open_mem($xml);
+$domxml->xinclude();
+	 
+echo $domxml->dump_mem();
+	 
+?>
+]]>
+      </programlisting>
+      &example.outputs;
+      <screen role="xml">
+<![CDATA[
+<?xml version="1.0"?>
+<root xmlns:xi="http://www.w3.org/2001/XInclude">
+  <child>test</child>
+</root>
+]]>
+      </screen>
+      <para>
+       Se <filename>include.xml</filename> non esiste si avrà::
+      </para>
+      <screen role="xml">
+<![CDATA[
+<?xml version="1.0"?>
+<root xmlns:xi="http://www.w3.org/2001/XInclude">
+  <error>xinclude:dom.xml not found</error>
+</root>
+]]>
+      </screen>
+     </example>
+    </para>
    </refsect1>
   </refentry>
 

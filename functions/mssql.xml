@@ -1,8 +1,27 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.15 Maintainer: darvin  Status: ready -->
-<reference id="ref.mssql">
+<!-- EN-Revision: 1.22 Maintainer: darvin  Status: ready -->
+ <reference id="ref.mssql">
   <title>Funzioni per Microsoft SQL Server</title>
   <titleabbrev>MS SQL Server</titleabbrev>
+  <partintro>
+   <simpara>
+    L'estensione per MSSQL è disponibile solamente sui sistemi Win32.
+    Sulle altre piattaforme si può utilizzare il modulo Sybase per 
+    connettersi con database MSSQL.
+   </simpara>
+   <simpara>
+    Queste funzioni permettono di accedere a database MS SQL Server.
+    Per potere funzionare è richiesto che sia installato il MS SQL Client Tools
+    sullo stesso sistema su cui è il installato il PHP. Il Client Tools può essere installato 
+    o dal cd di MS SQL Server, o copiando il file ntwdblib.dll dalla directory \winnt\system32 del
+    server alla directory \winnt\system32 della macchina su cui è installato 
+    il PHP. La copia del file ntwdblib.dll permette solo l'accesso al database.
+    La configurazione del client richiede comunque l'installazione di tutto il pacchetto MS SQL Client Tools.
+   </simpara>
+   <simpara>
+    Il modulo MSSQL si abilita aggiungendo extension=php_mssql.dll al file di configurazione php.ini.
+   </simpara>
+  </partintro>
 
   <refentry id="function.mssql-close">
    <refnamediv>
@@ -20,12 +39,11 @@
      </funcprototype>
     </funcsynopsis>
     <para>
-     Restituisce: vero se l'operazione riesce, falso se si verifica un errore.
+     Restituisce: &true; se l'operazione riesce, falso se si verifica un errore.
     </para>
     <para> 
      La funzione <function>mssql_close</function> chiude la connessione
-     ad un database MS SQL
-     Server che è associata all' argomento id_connessione.
+     ad un database MS SQL Server che è associata all' argomento id_connessione.
      Se l' id_connessione non viene indicato, si fa riferimento all'ultima connessione 
      aperta.     
     </para>
@@ -141,8 +159,7 @@
     </para>
     <para>
      La funzione <function>mssql_fetch_array</function> è un' estensione 
-     della funzione 
-     <function>mssql_fetch_row</function>. Oltre a memorizzare i dati in un array 
+     della funzione <function>mssql_fetch_row</function>. Oltre a memorizzare i dati in un array 
      con indice numerico, la funzione memorizza i dati in un array associativo
      in cui la chiave è costituita dal nome del campo.
     </para>
@@ -236,10 +253,9 @@
     <para> 
      La funzione <function>mssql_fetch_object</function> è simile a
      <function>mssql_fetch_array</function>, tranne che per una
-     differenza, la prima restituisce un oggetto, la seconda un array.
-     Indirettamente questo significa che si può accedere ai dati solo 
-     attraverso il nome dei campi e non tramite il loro offset ( i numeri non
-     sono dei validi nomi di proprietà ).
+     differenza, la prima restituisce un oggetto, la seconda un array. Indirettamente questo significa 
+     che si può accedere ai dati solo attraverso il nome dei campi e non tramite il loro offset (i numeri non
+     sono dei validi nomi di proprietà).
     </para>
     <para>
       A livello di velocità il comportamento è simile a
@@ -347,8 +363,7 @@
     <para>
      Si posiziona sul campo richiesto. Eseguendo successivamente la 
      funzione <function>mssql_fetch_field</function> senza indicare alcun campo,
-     quest'ultima restituirà il campo richiesto tramite 
-     <function>mssql_fetch_field</function>.</para>
+     quest'ultima restituirà il campo richiesto tramite <function>mssql_fetch_field</function>.</para>
     <para></para>
     <para>
      Vedere anche <function>mssql_fetch_field</function>.</para>
@@ -388,15 +403,12 @@
      </funcprototype>
     </funcsynopsis>
     <para>
-     La funzione <function>mssql_free_result</function> permette
-     di non utilizzare molta memoria durante l'esecuzione di uno script. 
-     Infatti, se si è sicuri di non avere più bisogno dei dati del risultato, 
-     si può eseguire <function>mssql_free_result</function>, e la memoria associata
-     a <parameter>id_risultato</parameter> sarà liberata. Se la funzione
-     non viene utilizzata, le aree di memoria resteranno disponibili per tutta
-     la durata dello script. Al termine verranno liberate in modo automatico.
-     Tuttavia utilizzando la funzione <function>mssql_free_result</function>, 
-     l'area di memoria del risultato associato a id_risultato, sarà liberata.
+     E' necessario l'utilizzo della funzione <function>mssql_free_result</function> 
+     solo quando si è preoccupati dell'occupazione di memoria durante l'esecuzione
+     dello script. Normalmente tutti i dati verranno rimossi automaticamente dalla
+     memoria al termine dell'esecuzione dello script.E' tuttavia possibile eseguire 
+     <function>mssql_free_result</function>, per liberare la memoria occupata dai dati
+     indicati dal parametro <parameter>id_risultato</parameter> 
     </para>
    </refsect1>
   </refentry>
@@ -405,7 +417,8 @@
    <refnamediv>
     <refname>mssql_get_last_message</refname>
     <refpurpose>
-     Restituisce l'ultimo messaggio dal server ( oltre min_message_severity?)
+     Restituisce l'ultimo messaggio dal server (oltre 
+     min_message_severity?)
     </refpurpose>
    </refnamediv>
    <refsect1>
@@ -454,6 +467,52 @@
       <paramdef>int <parameter>livello_critico</parameter></paramdef>
      </funcprototype>
     </funcsynopsis>
+   </refsect1>
+  </refentry>
+
+  <refentry id="function.mssql-next-result">
+   <refnamediv>
+    <refname>mssql_next_result</refname>
+    <refpurpose>Muove il puntatore interno al risultato successivo</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <funcsynopsis>
+     <funcprototype>
+      <funcdef>bool 
+       <function>mssql_next_result</function>
+      </funcdef>
+      <paramdef>int <parameter>id_risultato</parameter></paramdef>
+     </funcprototype>
+    </funcsynopsis>
+    <para>
+     Nel caso in cui si eseguano più di una istruzione SQL al server, oppure si eseguano 
+     delle procedure memorizzate (stored procedure) con possibilità di molteplici risultati, il server restituirà un set di diversi risultati.
+     Questa funzione verifica se esistono ulteriori risultati dal server. Se effettivamente
+     esiste un'altro risultato, questa funzione libera la memoria dal risultato corrente
+     e si predispone per la ricezione del risultato successivo.
+     La funzione restituisce &true; se è disponibile un'altro risultato, 
+     &false; in caso contrario.
+    </para>
+    <example>
+     <title><function>mssql_next_result</function> Esempio di utilizzo</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+    $link = mssql_connect ("localhost", "utente", "password");
+    mssql_select_db("MyDB", $link);
+    $SQL = "Select * from tabella1 select * from tabella2";
+    $rs = mssql_query($SQL, $link);
+    do {
+        while ($row = mssql_fetch_row($rs)) {
+        }
+    } while (mssql_next_result($rs));
+    mssql_free_result($rs);
+    mssql_close ($link);
+?>
+]]>
+     </programlisting>
+    </example>
    </refsect1>
   </refentry>
 
@@ -531,7 +590,7 @@
     </funcsynopsis>
     <para> 
      La funzione restituisce: o un identificativo di connessione persistente, 
-     o falso se si verifica un errore.
+     o &false; se si verifica un errore.
     </para>
     <para>
      La funzione <function>mssql_pconnect</function> agisce come 
@@ -539,9 +598,8 @@
     </para>
     <para> 
      Prima differenza, quando si cerca di stabilire la connessione, la funzione
-     per prima cosa cerca di trovare una connessione ( persistente ) già
-     aperta verso lo stesso server con i medesimi utenti e password.
-     Se ne viene trovata una, la funzione restituisce l'identificativo di 
+     per prima cosa cerca di trovare una connessione (persistente) già aperta verso lo stesso server,
+     con i medesimi utenti e password. Se ne viene trovata una, la funzione restituisce l'identificativo di 
      quella connessione, invece di stabilirne una nuova.
     </para>
     <para> 
@@ -566,7 +624,7 @@
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>mssql_query</function></funcdef>
-      <paramdef>string <parameter>teso_query</parameter></paramdef>
+      <paramdef>string <parameter>testo_query</parameter></paramdef>
       <paramdef>int 
        <parameter><optional>id_connessione</optional></parameter>
       </paramdef>
@@ -582,8 +640,7 @@
      Se l'argomento id_connessione non viene fornito, si utilizza l'ultima connessione
      aperta in ordine di tempo. Se non vi sono connessioni aperte, 
      la funzione tenta di stabilire una connessione, come se fosse 
-     utilizzata la funzione <function>mssql_connect</function>, e utilizza
-     quella.
+     utilizzata la funzione <function>mssql_connect</function>, e utilizza quella.
     </para>
     <para>
      Vedere anche: <function>mssql_db_query</function>,
@@ -608,10 +665,6 @@
       <paramdef>mixed <parameter>campo</parameter></paramdef>
      </funcprototype>
     </funcsynopsis>
-    <para> 
-     La funzione restituisce il contenuto della cella ( identificata dalla riga
-     e dal campo indicato) dal risultato associato a id_risultato.
-    </para>
     <para>
      La funzione <function>mssql_result</function> restituisce il contenuto di una
      cella da un risultato di una query a MS SQL. 
@@ -624,9 +677,10 @@
      Quando si lavora con risultati abbastanza grossi, si dovrebbe considerare
      l'utilizzo di funzioni che restituiscono l'intera riga ( indicate di seguito ),
      dato che queste restituiscono il contenuto di molte celle in una chiamata sola.
-     Pertanto sono MOLTO più veloci di <function>mssql_result</function>.
-     Da notare inoltre, che specificando la posizione per l'argomento campo, la funzione
-     è molto più veloce rispetto al caso in cui si indica il nome del campo o della tabella.   
+     Pertanto sono MOLTO più veloci di 
+     <function>mssql_result</function>. Da notare inoltre, che specificando 
+     la posizione per l'argomento campo, la funzione è molto più veloce 
+     rispetto al caso in cui si indica il nome del campo o della tabella.   
     </para>
     <para>
      Le alternative più veloci raccomandate sono:
@@ -661,8 +715,7 @@
      Se l'argomento id_connessione non viene fornito, si utilizza l'ultima connessione
      aperta in ordine di tempo. Se non vi sono connessioni aperte, 
      la funzione tenta di stabilire una connessione, come se fosse 
-     utilizzata la funzione <function>mssql_connect</function>, e utilizza
-     quella.
+     utilizzata la funzione <function>mssql_connect</function>, e utilizza quella.
     </para>
     <para>
      Ciascuna esecuzione di <function>mssql_query</function> sarà

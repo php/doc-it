@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- EN-Revision: 1.8 Maintainer: cortesi Status: ready -->
 <!-- splitted from ./it/functions/mail.xml, last change in rev 1.3 -->
-<!-- last change to 'mail' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: ready -->
-<!-- OLD-Revision: 1.38/EN.1.2 -->
   <refentry id="function.mail">
    <refnamediv>
     <refname>mail</refname>
@@ -22,7 +20,8 @@
      <function>mail</function> invia automaticamente il messaggio specificato
      in <parameter>messaggio</parameter> al destinatario specificato in
      <parameter>a</parameter>. Destinatari multipli possono essere specificati
-     mettendo una virgola tra ogni indirizzo in <parameter>a</parameter>. Email con allegati e tipi speciali di
+     mettendo una virgola tra ogni indirizzo in <parameter>a</parameter>. 
+     Email con allegati e tipi speciali di
      contenuto possono essere spedite usando questa funzione. Questo è
      possibile tramite la codifica MIME. Per maggiori informazioni, fare riferimento a
      <ulink url="&url.email.mime.zend;">
@@ -39,9 +38,26 @@
      <ulink url="&url.rfc2049;">RFC 2049</ulink>.
     </simpara>
     <para>
-     <function>mail</function> restituisce &true; se la mail è stata spedita con
-     successo, altrimenti restituisce &false;.
+     <function>mail</function> restituisce &true; se la mail è stata accettata per
+     la spedizione con successo, altrimenti restituisce &false;.
     </para>
+    <warning>
+     <para>
+      L'implementazione Windows della funzione <function>mail</function> differisce sotto molti
+      aspetti dall'implementazione Unix. Primo, non usa una un programma in locale
+      per comporre i messaggi, ma opera soltanto direttamente sui socket, il che significa che deve 
+      essere presente in ascolto un <literal>MTA</literal> su un socket di rete (che può
+      essere su localhost o su una macchina remota). Secondo, gli header custom
+      quali <literal>From:</literal>, <literal>Cc:</literal>,
+      <literal>Bcc:</literal> e <literal>Date:</literal> <emphasis
+      role="strong">non</emphasis> vengono interpretati subito dal 
+      <literal>MTA</literal>, ma ne viene fatto prima il parsing da parte di <literal>PHP</literal>.
+      <literal>PHP</literal> &lt; 4.3 supportava solo gli header <literal>Cc:</literal>
+      (ed era case-sensitive). <literal>PHP</literal> &gt;= 4.3
+      supporta tutti gli header e non è più
+      case-sensitive.
+     </para>
+    </warning>
     <para>
      <example>
       <title>Inviare mail.</title>
@@ -50,7 +66,8 @@
 mail("pippo@example.com", "Oggetto", "Linea 1\nLinea 2\nLinea 3");
 ]]>
       </programlisting>
-     </example></para>
+     </example>
+    </para>
     <simpara>
      Se viene passata come parametro una quarta stringa, questa stringa viene inserita
      alla fine dell'intestazione (header).  Ciò viene tipicamente usato per aggiungere intestazioni
@@ -58,13 +75,11 @@ mail("pippo@example.com", "Oggetto", "Linea 1\nLinea 2\nLinea 3");
      di "a capo" (sia newline che carriage return).
     </simpara>
     <note>
-    <para>
+     <para>
      &Egrave; necessario usare <literal>\r\n</literal> per separare le intestazioni,
      alcuni mail transfer agent sotto Unix potrebbero funzionare anche solo con un singolo newline
-     (<literal>\n</literal>). L'intestazione Cc: è case sensitive e deve essere scritta
-     esattamente così <literal>Cc:</literal> sui sistemi Win32. L'intestazione Bcc:
-     non è supportata dai sistemi Win32.
-    </para>
+     (<literal>\n</literal>).
+     </para>
     </note>
     <para>
      <example>
@@ -131,6 +146,8 @@ $messaggio = '
  </tr>
  <tr>
   <td>Giovanni</td><td>3</td><td>Agosto</td><td>1970</td>
+ </tr>
+ <tr>
   <td>Sara</td><td>17</td><td>Agosto</td><td>1973</td>
  </tr>
 </table>

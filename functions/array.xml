@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
- <!-- EN-Revision: 1.167 Maintainer: cucinato  Status: ready -->
+ <!-- EN-Revision: 1.171 Maintainer: cucinato  Status: ready -->
  <reference id="ref.array">
   <title>Funzioni di Array</title>
   <titleabbrev>Array</titleabbrev>
@@ -490,7 +490,7 @@ Array
     <para>
      Gli utenti non possono modificare l'array attraverso la funzione
      di callback, ad esempio aggiungere/togliere un elemento, o cancellare l'array su cui
-     <function>array_walk</function> è applicata. Se l'array viene
+     <function>array_filter</function> è applicata. Se l'array viene
      cambiato, il comportamento di questa funzione non è definito.
     </para>
     <para>
@@ -2955,6 +2955,12 @@ if (in_array('o', $a))
      <parameter>ago</parameter> e restituisce la chiave se viene trovato
      nell'array, &false; altrimenti.
     </para>
+    <note>
+     <para>
+      Nelle versioni di PHP  antecedenti la 4.2.0, <function>array_search</function> restituisce
+      <constant>NULL</constant> invece di &false; in caso di fallimento.
+     </para>
+    </note>
     <para>
      Se il terzo parametro opzionale <parameter>strict</parameter> &egrave; impostato a
      &true; la funzione <function>array_search</function>
@@ -3122,8 +3128,42 @@ d = limone
      Come <function>array</function>, questa non &egrave; in realt&agrave; una funzione,
      bens&igrave; un costrutto del linguaggio.  <function>list</function> &egrave; usata per
      assegnare valori ad una lista di variabili in una sola operazione.
+    </para>
+    <note>
+     <para>
+      <function>list</function> funziona solo su array numerici e si aspetta
+      che gli indici numerici partano da 0.
+     </para>
+    </note>
+    <para>
      <example>
       <title>esempio di <function>list</function></title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+
+$info = array('caffè', 'scuro', 'caffeina');
+
+// assegna a tutte le variabili
+list($bevanda, $colore, $componente) = $info;
+print "Il $bevanda è $colore e la $componente lo rende speciale.\n";
+
+// assegna solo in parte
+list($bevanda, , $componente) = $info;
+print "Il $bevanda ha la $componente.\n";
+
+// oppure assegnamo solo l'ultima variabile
+list( , , $componente) = $info;
+print "Ho voglia di $bevanda!\n";
+
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     <example>
+      <title>Esempio di uso di <function>list</function></title>
       <programlisting role="php">
 <![CDATA[
 <table>
@@ -3150,7 +3190,8 @@ while (list ($id, $nome, $stipendio) = mysql_fetch_row ($risultato)) {
      </example>
     </para>
     <para>
-     Vedere anche <function>each</function> e <function>array</function>.
+     Vedere anche <function>each</function> e <function>array</function>
+     e <function>extract</function>.
     </para>
    </refsect1>
   </refentry>

@@ -1,108 +1,133 @@
  <reference id="ref.mail">
-  <title>Mail functions</title>
+  <title>Funzioni di Mail</title>
   <titleabbrev>Mail</titleabbrev>
   <partintro>
-  <simpara>
-    The <function>mail</function> function allows you to send mail.</simpara>
+   <simpara>
+     La funzione <function>mail</function> consente di inviare mail.
+   </simpara>
   </partintro>
 
 
   <refentry id="function.mail">
    <refnamediv>
     <refname>mail</refname>
-    <refpurpose>send mail</refpurpose>
+    <refpurpose>Invio mail</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>bool <function>mail</function></funcdef>
-      <paramdef>string <parameter>to</parameter></paramdef>
-      <paramdef>string <parameter>subject</parameter></paramdef>
-      <paramdef>string <parameter>message</parameter></paramdef>
+      <paramdef>string <parameter>a</parameter></paramdef>
+      <paramdef>string <parameter>soggetto</parameter></paramdef>
+      <paramdef>string <parameter>messaggio</parameter></paramdef>
       <paramdef>string 
-       <parameter><optional>additional_headers</optional>
+       <parameter><optional>header_addizionali</optional></parameter>
+      </paramdef>
+      <paramdef>string 
+       <parameter><optional>parametri_addizionali</optional>
        </parameter>
       </paramdef>
      </funcprototype>
     </funcsynopsis>
     <simpara>
-      <function>Mail</function> automatically mails the message specified
-      in <parameter>message</parameter> to the receiver specified in
-      <parameter>to</parameter>. Multiple recipients can be specified by
-      putting a comma between each address in <parameter>to</parameter>.
+      <function>Mail</function> invia automaticamente il messaggio specificato
+      in <parameter>messaggio</parameter> al destinatario specificato in
+      <parameter>a</parameter>. Destinatari multipli possono essere specificati
+      mettendo una virgola tra ogni indirizzo in <parameter>a</parameter>.
     </simpara>
     <para>
      <example>
-      <title>Sending mail.</title>
+      <title>Inviare mail.</title>
       <programlisting>
-mail("rasmus@lerdorf.on.ca", "My Subject", "Line 1\nLine 2\nLine 3");
+mail("rasmus@lerdorf.on.ca", "Soggetto", "Linea 1\nLinea 2\nLinea 3");
       </programlisting>
      </example></para>
     <simpara>
-     If a fourth string argument is passed, this string is inserted at
-     the end of the header.  This is typically used to add extra
-     headers.  Multiple extra headers are separated with a newline.</simpara>
+     Se viene passata come parametro una quarta stringa, questa stringa viene inserita
+     alla fine dell'intestazione (header).  Ciò viene tipicamente usato per aggiungere intestazioni
+     supplementari.  Multipli intestazioni supplementari sono separati da un carattere di "a capo" (newline).
+    </simpara>
     <para>
      <example>
-      <title>Sending mail with extra headers.</title>
+      <title>Invio di mail con intestazioni supplementari.</title>
       <programlisting>
-mail("nobody@aol.com", "the subject", $message,
+mail("nobody@aol.com", "soggetto", $messaggio,
      "From: webmaster@$SERVER_NAME\nReply-To: webmaster@$SERVER_NAME\nX-Mailer: PHP/" . phpversion());
       </programlisting>
      </example>
-     You can also use fairly simple string building techniques to
-     build complex email messages.
+     Con il quinto parametro è possibile impostare dei parametri addizionali a linea di comando per 
+     l'attuale mailer. Nell'esempio che segue viene impostato il corretto valore per il Return-Path per 
+     sendmail. Normalmente sendmail aggiunge l'intestazione X-Authentication-Warning
+     quando si utilizza il parametro -f, questo perchè l'utente del webserver probabilmente non è
+     membro degli utenti trusted. Per annullare questo warning, occorre inserire l'utente del web server
+     tra gli utenti trusted nel file di configurazione di sendmail.
+    </para>
+    <note>
+     <para>
+      Questo quinto parametro è stato aggiunto in PHP 4.0.5.
+     </para>
+    </note>
+    <para>
      <example>
-      <title>Sending complex email.</title>
+      <title>Invio di mail con intestazioni supplementari e impostazione dei parametri addizionali a linea di comando.</title>
       <programlisting>
-/* recipients */
-$recipient .= "Mary &lt;mary@u.college.edu>" . ", " ; //note the comma
-$recipient .= "Kelly &lt;kelly@u.college.edu> . ", ";
-$recipient .= "ronabop@php.net";
+mail("nobody@aol.com", "soggetto", $messaggio,
+     "From: webmaster@$SERVER_NAME", "-fwebmaster@$SERVERNAME");
+      </programlisting>
+     </example>
+     E' possibile costruire messaggi complessi utilizzando la tecnica di concatenazione delle stringhe. 
+     <example>
+      <title>Invio di mail complessa.</title>
+      <programlisting>
+/* destinatari */
+$destinatari .= "Mary &lt;mary@u.college.edu>" . ", " ; //note the comma
+$destinatari .= "Kelly &lt;kelly@u.college.edu>" . ", ";
+$destinatari .= "ronabop@php.net";
 
-/* subject */
-$subject = "Birthday Reminders for August";
+/* soggetto */
+$soggetto = "Promemoria compleanno per Agosto";
 
-/* message */
-$message .= "The following email includes a formatted ASCII table\n";
-$message .= "Day \t\tMonth \t\tYear\n";
-$message .= "3rd \t\tAug \t\t1970\n";
-$message .= "17rd\t\tAug \t\t1973\n";
+/* messaggio */
+$messaggio .= "La seguente mail include una tabella ASCII formattata\n";
+$messaggio .= "Giorno \t\tMese \t\tAnno\n";
+$messaggio .= "3-terzo \t\tAgo \t\t1970\n";
+$messaggio .= "17-esimo\t\tAgo \t\t1973\n";
 
-/* you can add a stock signature */ 
-$message .= "--\r\n"; //Signature delimiter
-$message .= "Birthday reminder copylefted by public domain";
+/* è possibile inserire una blocco con la firma */ 
+$messaggio .= "--\r\n"; //Delimitatore di firma
+$messaggio .= "Promemoria di compleanno con senza proprietà d'autore ma di pubblico dominio";
 
-/* additional header pieces for errors, From cc's, bcc's, etc */
+/* intestazioni addizionali per errori, campo CC, BCC, etc */
 
-$headers .= "From: Birthday Reminder &lt;birthday@php.net>\n";
-$headers .= "X-Sender: &lt;birthday@php.net>\n"; 
-$headers .= "X-Mailer: PHP\n"; // mailer
-$headers .= "X-Priority: 1\n"; // Urgent message!
-$headers .= "Return-Path: &lt;birthday@php.net>\n";  // Return path for errors
+$intestazioni .= "From: Birthday Reminder &lt;birthday@php.net>\n";
+$intestazioni .= "X-Sender: &lt;birthday@php.net>\n"; 
+$intestazioni .= "X-Mailer: PHP\n"; // mailer
+$intestazioni .= "X-Priority: 1\n"; // Messaggio urgente!
+$intestazioni .= "Return-Path: &lt;birthday@php.net>\n";  // Indirizzo di ritorno per errori
 
-/* If you want to send html mail, uncomment the following line */
-// $headers .= "Content-Type: text/html; charset=iso-8859-1\n"; // Mime type
+/* Se si vuole inviare una mail in formato html, togliere il commento alla seguente linea */
+// $intestazioni .= "Content-Type: text/html; charset=iso-8859-1\n"; // Tipo Mime
 
-$headers .= "cc:birthdayarchive@php.net\n"; // CC to
-$headers .= "bcc:birthdaycheck@php.net, birthdaygifts@php.net\n"; // BCCs to
+$intestazioni .= "cc:birthdayarchive@php.net\n"; // CC in copia a
+$intestazioni .= "bcc:birthdaycheck@php.net, birthdaygifts@php.net\n"; // BCC in copia cieca a
 
-/* and now mail it */
-mail($recipient, $subject, $message, $headers);
+/* ed infine l'invio */
+mail($destinatari, $soggetto, $mesaggio, $intestazioni);
       </programlisting>
      </example>
     </para>
+    
    </refsect1>
   </refentry>
 
   <refentry id="function.ezmlm-hash">
    <refnamediv>
     <refname>ezmlm_hash</refname>
-    <refpurpose>Calculate the hash value needed by EZMLM</refpurpose>
+    <refpurpose>Calcola il valore hash che occorre a EZMLM</refpurpose>
    </refnamediv>
    <refsect1>
-    <title>Description</title>
+    <title>Descrizione</title>
     <funcsynopsis>
      <funcprototype>
       <funcdef>int <function>ezmlm_hash</function></funcdef>
@@ -110,17 +135,17 @@ mail($recipient, $subject, $message, $headers);
      </funcprototype>
     </funcsynopsis>
     <simpara>
-     <function>ezmlm_hash</function> calculates the hash value needed
-     when keeping EZMLM mailing lists in a MySQL database.
+     <function>ezmlm_hash</function> calcola il valore hash che occorre
+     quando si mantengono mailing list EZMLM in un database MySQL.
     </simpara>
     <para>
      <example>
-      <title>Calculating the hash and subscribing a user</title>
+      <title>Calcolare l'hash e sottoscrivere un utente</title>
       <programlisting>
-$user = "kris@koehntopp.de";
-$hash = ezmlm_hash ($user);
-$query = sprintf ("INSERT INTO sample VALUES (%s, '%s')", $hash, $user);
-$db->query($query); // using PHPLIB db interface
+$utente = "kris@koehntopp.de";
+$hash = ezmlm_hash ($utente);
+$query = sprintf ("INSERT INTO esempio VALUES (%s, '%s')", $hash, $utente);
+$db->query($query); // tramite l'interfaccia db PHPLIB
       </programlisting>
      </example>
     </para>

@@ -1,23 +1,67 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- splitted from ./it/functions/session.xml, last change in rev 1.10 -->
-<!-- last change to 'session-cache-expire' in en/ tree in rev 1.38 -->
-<!-- EN-Revision: 1.2 Maintainer: penzo Status: ready -->
-<!-- OLD-Revision: 1.83/EN.1.38 -->
+<!-- EN-Revision: 1.7 Maintainer: FernandoMarinò Status: ready -->
+<!-- CREDITS: penzo -->
+<!-- splitted from ./en/functions/session.xml, last change in rev 1.38 -->
   <refentry id='function.session-cache-expire'>
    <refnamediv>
     <refname>session_cache_expire</refname>
-    <refpurpose>Restituisce l'espirazione della cache corrente</refpurpose>
+    <refpurpose>Ritorna il valore corrente di scadenza della cache</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
      <methodsynopsis>
       <type>int</type><methodname>session_cache_expire</methodname>
-      <methodparam choice="opt"><type>int</type><parameter>new_cache_expire</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>nuova_scadenza_cache</parameter></methodparam>
      </methodsynopsis>
     <para>
-     <function>session_cache_expire</function> restituisce l'espirazione della cache corrente.
-     Se è data <parameter>new_cache_expire</parameter> , l'espirazione della
-     cache corrente è rimpiazzata da <parameter>new_cache_expire</parameter>.
+     <function>session_cache_expire</function> ritorna il valore corrente di
+     <literal>session.cache_expire</literal>. Il valore ritornato deve essere espressio
+     in minuti, di default 180. Se si assegna <parameter>nuova_scadenza_cache</parameter>
+     , il valore corrente di scadenza della cache viene sostituito con
+     <parameter>nuova_scadenza_cache</parameter>.
+    </para>
+    <para>
+     La scadenza della cache viene reimpostata al valore predefinito di 180 memorizzato in
+     <literal>session.cache_limiter</literal> ad ogni richiesta di pagina. Quindi,
+     è necessario chiamare <function>session_cache_expire</function> in ogni pagina
+     (e prima di invocare <function>session_start</function>).
+    </para>
+    <example>
+     <title><function>session_cache_expire</function> esempio</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+/* assegna il limite della cache su 'private' */
+
+session_cache_limiter('private');
+$cache_limiter = session_cache_limiter();
+
+/* imposta la scadenza della cache su 30 minuti */
+session_cache_expire(30);
+$cache_expire = session_cache_expire();
+
+/* avvia la sessione */
+
+session_start();
+
+echo "Il limite della cache ora è impostato su $cache_limiter<br />";
+echo "Le pagine di sessione nella cache scadranno dopo $cache_expire minutes";
+?>
+]]>
+     </programlisting>
+    </example>
+    <note>
+     <simpara>
+      Impostazione <parameter>nuova_scadenza_cache</parameter> è utile soltanto, se
+      <literal>session.cache_limiter</literal> è impostato su un valore
+      <emphasis>diverso</emphasis> da <literal>nocache</literal>.
+     </simpara>
+    </note>
+    <para>
+     Vedere inoltre le impostazioni di configurazione <link linkend="ini.session.cache-expire">
+     session.cache_expire</link>, <link linkend="ini.session.cache-limiter">
+     session.cache_limiter</link> e <function>session_cache_limiter</function>.
     </para>
    </refsect1>
   </refentry>

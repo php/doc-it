@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/dir.xml, last change in rev 1.1 -->
 <!-- last change to 'opendir' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: cortesi Status: ready -->
+<!-- EN-Revision: 1.10 Maintainer: cortesi Status: ready -->
 <!-- OLD-Revision: 1.38/EN.1.2 -->
   <refentry id="function.opendir">
    <refnamediv>
     <refname>opendir</refname>
-    <refpurpose>apre l'handle della directory</refpurpose>
+    <refpurpose>Apre l'handle della directory</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
@@ -23,8 +23,9 @@
      Se <parameter>percorso</parameter> non &egrave; una directory valida o la
      directory non pu&ograve; essere aperta a causa di restrizioni sui permessi di accesso o
      a causa di errori del filesystem, <function>opendir</function> restituisce &false; e
-     genera un errore PHP. Si pu&ograve; sopprimere l'output dell'errore di
-     <function>opendir</function> anteponendo `@' davanti al nome della
+     genera un errore PHP di tipo <link linkend="errorfunc.constants">
+     E_WARNING</link>. Si pu&ograve; sopprimere l'output dell'errore di
+     <function>opendir</function> anteponendo '<link linkend="language.operators.errorcontrol">@</link>'  davanti al nome della
      funzione.
     </para>
     <para>
@@ -33,12 +34,15 @@
       <programlisting role="php">
 <![CDATA[
 <?php
-
-if ($dir = @opendir("/tmp")) {
-  while (($file = readdir($dir)) !== false) { 
-    echo "$file\n";
-  }  
-  closedir($dir);
+$dir = "/tmp/";
+// Open a known directory, and proceed to read its contents
+if (is_dir($dir)) {
+   if ($dh = opendir($dir)) {
+      while (($file = readdir($dh)) !== false) {
+             echo "filename: $file : filetype: " . filetype($dir . $file) . "\n";
+        }
+        closedir($dh);
+    }
 }
 
 ?>
@@ -46,7 +50,18 @@ if ($dir = @opendir("/tmp")) {
       </programlisting>
      </example>
     </para>
-    <para>Vedere anche <function>is_dir</function>.</para>
+    <para>
+     Dal PHP 4.3.0 <parameter>path</parameter> può essere anche un
+     URL che suuporto la visualizzazione del contenuto della directory, tuttavia, in PHP 4.3.0,
+     soltanto il wrapper URL <literal>file://</literal> supporta ciò. A partire
+     da PHP 5.0.0, sarà disponibile il supporto per
+     <literal>ftp://</literal>.
+    </para>
+    <para>
+     Vedere anche: <function>is_dir</function>,
+     <function>readdir</function> e
+     <link linkend="class.dir">Dir</link>
+   </para>
    </refsect1>
   </refentry>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/var.xml, last change in rev 1.16 -->
 <!-- last change to 'unserialize' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.2 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.5 Maintainer: darvina Status: ready -->
 <!-- OLD-Revision: 1.104/EN.1.2 -->
   <refentry id="function.unserialize">
    <refnamediv>
@@ -22,8 +22,10 @@
      a valore PHP. La funzione restituisce il valore ottenuto, che può essere
      di tipo <type>integer</type>, <type>float</type>,
      <type>string</type>, <type>array</type> oppure <type>object</type>.
+     Nel caso in cui la stringa passata non sia deserializzabile la funzione restituisce &false;.
     </simpara>
     <note>
+     <title>Direttiva unserializa_callback_func</title>
      <para>
       E' possibile impostare una funzione di callback che possa essere richiamata
       se, durante la fase di deserializzazione, occorre istanziare una classe indefinita.
@@ -31,7 +33,7 @@
       Per definire il parametro 'unserialize_callback_func' si può agire sul
       &php.ini;, o usare <function>ini_set</function> oppure con .htaccess-file 
       Verrà  utilizzata questa funzione ogni volta che occorre istanziare una classe indefinita.
-      Per disabilitare questa opzione, lasciare vuoto questo settaggio.
+      Per disabilitare questa opzione, lasciare vuoto questo settaggio. Notare la direttiva unserialize_callback_func disponibile dalla versione 4.2.0 di PHP.
      </para>
     </note>
     <para>
@@ -39,14 +41,17 @@
       <title>Esempio di unserialize_callback_func</title>
       <programlisting role="php">
 <![CDATA[
+<?php
 $serialized_object='O:1:"a":1:{s:5:"value";s:3:"100";}';
 
+// direttiva unserialize_callback_func disponibile dalla versione 4.2.0
 ini_set('unserialize_callback_func','mycallback'); // imposta la funzione di callback
 
 function mycallback($classname) {
     // semplicemente include un file contenente la definizione della classe
     // la variabile $classname indica di quale classe occorre la definizione
 }
+?>
 ]]>
       </programlisting>
      </example>
@@ -66,6 +71,7 @@ function mycallback($classname) {
       <title>Esempio di uso di <function>unserialize</function></title>
       <programlisting role="php">
 <![CDATA[
+<?php
 // In quest esempio si usa unserialize() per caricare i dati di una sessione da un database
 // alla variabile $session_data. Questo esempio è complementare a quello illustrato
 // nella funzione <function>serialize</function>.
@@ -84,6 +90,7 @@ if (!odbc_execute ($stmt, &$sqldata) || !odbc_fetch_into ($stmt, &$tmp)) {
        $session_data = array();
     }
 }
+?>
 ]]>
       </programlisting>
      </example>

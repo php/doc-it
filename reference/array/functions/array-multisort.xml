@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/array.xml, last change in rev 1.1 -->
 <!-- last change to 'array-multisort' in en/ tree in rev 1.11 -->
-<!-- EN-Revision: 1.9 Maintainer: cucinato Status: ready -->
+<!-- EN-Revision: 1.13 Maintainer: cucinato Status: ready -->
 <!-- OLD-Revision: 1.173/EN.1.11 -->
   <refentry id="function.array-multisort">
    <refnamediv>
@@ -10,18 +10,25 @@
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>array_multisort</methodname>
-      <methodparam><type>array</type><parameter>ar1</parameter></methodparam>
-      <methodparam choice="opt"><type>mixed</type><parameter>arg</parameter></methodparam>
-      <methodparam choice="opt"><type>mixed</type><parameter>...</parameter></methodparam>
-      <methodparam choice="opt"><type>array</type><parameter>...</parameter></methodparam>
-     </methodsynopsis>
+    <methodsynopsis>
+     <type>bool</type><methodname>array_multisort</methodname>
+     <methodparam><type>array</type><parameter>ar1</parameter></methodparam>
+     <methodparam choice="opt"><type>mixed</type><parameter>arg</parameter></methodparam>
+     <methodparam choice="opt"><type>mixed</type><parameter>...</parameter></methodparam>
+     <methodparam choice="opt"><type>array</type><parameter>...</parameter></methodparam>
+     <!-- i parametri non devono essere passati per riferimento -->
+    </methodsynopsis> 
+    <para>
+     &return.success;
+    </para>
     <para>
      <function>Array_multisort</function> Può essere usata per ordinare parecchi
      array allo stesso tempo, oppure un array multidimensionale, rispetto a una o
-     più dimensioni. Mantiene le associazioni delle chiavi durante l'ordinamento,
-     mentre le chiavi numeriche vengono reindicizzate.
+     più dimensioni.
+    </para>
+    <para>
+     Mantiene le chiavi associative (tipo <type>string</type>), mentre le chiavi
+     numeriche vengono reindicizzate.
     </para>
     <para>
      Gli array in input sono trattati come campi di una tabella che vengano ordinati
@@ -32,44 +39,42 @@
     </para>
     <para>
      La struttura degli argomenti di questa funzione è un po' inusuale, ma
-     flessibile. Il primo argomento deve essere un
-     array. In seguito, ogni argomento può essere sia un array che
-     un flag di ordinamento, selezionabile dalla seguente lista.
+     flessibile. Il primo argomento deve essere un array. In seguito,
+     ogni argomento può essere sia un array che un flag di ordinamento, selezionabile
+     dalla seguente lista.
     </para>
     <para>
      Flag di ordinamento:
      <itemizedlist>
       <listitem>
-       <simpara>SORT_ASC - ordinamento crescente</simpara>
+       <simpara><constant>SORT_ASC</constant> - ordinamento crescente</simpara>
       </listitem>
       <listitem>
-       <simpara>SORT_DESC - ordinamento decrescente</simpara>
+       <simpara><constant>SORT_DESC</constant> - ordinamento decrescente</simpara>
       </listitem>
      </itemizedlist>
     </para>
     <para>
-     Sorting type flags:
+     Flag di tipo:
      <itemizedlist>
       <listitem>
-       <simpara>SORT_REGULAR - confronta gli elementi in modo normale</simpara>
+       <simpara><constant>SORT_REGULAR</constant> - confronta gli elementi in modo normale</simpara>
       </listitem>
       <listitem>
-       <simpara>SORT_NUMERIC - confronta gli elementi numericamente</simpara>
+       <simpara><constant>SORT_NUMERIC</constant> - confronta gli elementi numericamente</simpara>
       </listitem>
       <listitem>
-       <simpara>SORT_STRING - confronta gli elementi come stringhe</simpara>
+       <simpara><constant>SORT_STRING</constant> - confronta gli elementi come stringhe</simpara>
       </listitem>
      </itemizedlist>
     </para>
     <para>
      Dopo ogni array, non si possono specificare due flag dello stesso
      tipo. I flag specificati dopo un array si applicano
-     solo a quell'array - sono reimpostati ai default SORT_ASC e
-     SORT_REGULAR prima di ogni nuovo array passato come argomento.
+     solo a quell'array - sono reimpostati ai default <constant>SORT_ASC</constant> e
+     <constant>SORT_REGULAR</constant> prima di ogni nuovo array passato come argomento.
     </para>
-    <para>
-     &return.success;
-    </para>
+
     <para>
      <example>
       <title>Ordinamre più array</title>
@@ -79,37 +84,203 @@
 $ar1 = array("10", 100, 100, "a");
 $ar2 = array(1, 3, "2", 1);
 array_multisort($ar1, $ar2);
+
+var_dump($ar1);
+var_dump($ar2);
 ?>
 ]]>
       </programlisting>
+      <para>
+       In questo esempio, dopo l'ordinamento, il primo array conterrà "10",
+       "a", 100, 100. Il secondo array conterrà 1, 1, "2", 3. Gli
+       elementi del secondo array corrispondenti a quelli, identici, del
+       primo array (100 e 100), vengono pure ordinati.
+      </para>
+      <screen>
+<![CDATA[
+array(4) {
+  [0]=> string(2) "10"
+  [1]=> string(1) "a"
+  [2]=> int(100)
+  [3]=> int(100)
+}
+array(4) {
+  [0]=> int(1)
+  [1]=> int(1)
+  [2]=> string(1) "2"
+  [3]=> int(3)
+}
+]]>     
+      </screen>
      </example>
     </para>
-    <para>
-     In questo esempio, dopo l'ordinamento, il primo array conterr&agrave; "10",
-     "a", 100, 100. Il secondo array conterrà 1, 1, "2", 3. Gli
-     elementi nel secondo array che corrispondono agli elementi
-     identici nel primo array (100 e 100) vengono pure ordinati.
-    </para>
+
     <para>
      <example>
-      <title>Ordinare un array multi-dimensionale</title>
+      <title>Ordinamento di array multidimensionali</title>
       <programlisting role="php">
 <![CDATA[
 <?php
-$ar = array(array ("10", 100, 100, "a"), array (1, 3, "2", 1));
+$ar = array(
+       array("10", 11, 100, 100, "a"),
+       array(   1,  2, "2",   3,   1)
+      );
 array_multisort($ar[0], SORT_ASC, SORT_STRING,
                 $ar[1], SORT_NUMERIC, SORT_DESC);
+var_dump($ar);
 ?>
 ]]>
       </programlisting>
+      <para>
+       In questo esempio, dopo l'ordinamento, il primo array conterr&agrave; 
+       "10", 100, 100, 11, "a" (ordinato come stringhe ordine 
+       crescente), e il secondo conterrà 1, 3, "2", 2, 1 (ordinati come numeri,
+       in ordine decrescente).
+      </para>
+      <screen>
+<![CDATA[
+array(2) {
+  [0]=> array(5) {
+    [0]=> string(2) "10"
+    [1]=> int(100)
+    [2]=> int(100)
+    [3]=> int(11)
+    [4]=> string(1) "a"
+  }
+  [1]=> array(5) {
+    [0]=> int(1)
+    [1]=> int(3)
+    [2]=> string(1) "2"
+    [3]=> int(2)
+    [4]=> int(1)
+  }
+}
+]]>
+      </screen>
      </example>
     </para>
+
     <para>
-     In questo esempio, dopo l'ordinamento, il primo array conterr&agrave; 10,
-     100, 100, "a" (ordinato come stringhe ordine crescente), e
-     il secondo conterrà 1, 3, "2", 1 (ordinati come numeri, in
-     ordine decrescente).
+     <example>
+      <title>Ordinamento dei risultati di un database</title>
+      <para>
+       In questo esempio, ogni elemento nell'array <varname>data</varname>
+       rappresenta un record della tabella. Questo genere di dato è tipico
+       dei record di database.
+      </para>
+      <para>
+       Esempio di dati:
+      </para>
+      <screen>
+<![CDATA[
+volume | edition
+-------+--------
+    67 |       2
+    86 |       1
+    85 |       6
+    98 |       2
+    86 |       6
+    67 |       7
+]]>
+      </screen>
+      <para>
+      I dati sono in un array, chiamato <varname>data</varname>. Di solito
+      questo si ottiene ciclando, ad esempio, con <function>mysql_fetch_assoc</function>.
+     </para>
+     <programlisting role="php">
+<![CDATA[
+<?php
+$data[] = array('volume' => 67, 'edition' => 2);
+$data[] = array('volume' => 86, 'edition' => 1);
+$data[] = array('volume' => 85, 'edition' => 6);
+$data[] = array('volume' => 98, 'edition' => 2);
+$data[] = array('volume' => 86, 'edition' => 6);
+$data[] = array('volume' => 67, 'edition' => 7);
+?>
+]]>
+      </programlisting>
+      <para>
+       In questo esempio ordineremo <varname>volume</varname> in senso discendente,
+       <varname>edition</varname> in senso ascendente.
+      </para>
+      <para>
+       Abbiamo un array di record, ma <function>array_multisort</function>
+       richiede un array di colonne, quindi usiamo il codice qui sotto per ottenerlo,
+       quindi eseguiremo l'ordinamento.
+      </para>
+      <programlisting role="php">
+<![CDATA[
+<?php
+// Ottiene un array di colonne
+foreach ($data as $key => $row) {
+    $volume[$key]  = $row['volume'];
+    $edition[$key] = $row['edition'];
+}
+
+// Ordina 'volume' in senso discendente, 'edition' in senso ascendente
+// Aggiungere $data come ultimo parametr per ordinare sulla chiave comune
+array_multisort($volume, SORT_DESC, $edition, SORT_ASC, $data);
+?>
+]]>
+      </programlisting>
+      <para>
+       Il set di dati è ora ordinato, e apparirà così:
+      </para>
+      <screen>
+<![CDATA[
+volume | edition
+-------+--------
+    98 |       2
+    86 |       1
+    86 |       6
+    85 |       6
+    67 |       2
+    67 |       7
+]]>
+      </screen>
+     </example>
     </para>
+
+    <para>
+     <example>
+      <title>Ordinamento senza distinzione tra maiuscole e minuscole</title>
+      <para>
+       Sia <constant>SORT_STRING</constant> che
+       <constant>SORT_REGULAR</constant> tengono conto delle maiuscole, le stringhe
+       che iniziano con una maiuscola vengono prima di quelle che iniziano con
+       una minuscola.
+      </para>
+      <para>
+       Per ottenere un ordinamento che ignori le maiuscole, forzarlo in modo
+       che sia determnato da una copia dell'array originale formata da sole minuscole.
+      </para>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$array = array('Alpha', 'atomic', 'Beta', 'bank');
+$array_lowercase = array_map('strtolower', $array);
+
+array_multisort($array_lowercase, SORT_ASC, SORT_STRING, $array);
+
+print_r($array);
+?>
+]]>
+      </programlisting>
+      &example.outputs;
+      <screen>
+<![CDATA[
+Array
+(
+    [0] => Alpha
+    [1] => atomic
+    [2] => bank
+    [3] => Beta
+)
+]]>
+      </screen>
+     </example>
+    </para>
+
    </refsect1>
   </refentry>
 

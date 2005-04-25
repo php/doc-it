@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/array.xml, last change in rev 1.1 -->
 <!-- last change to 'count' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: 1.11 Maintainer: cucinato Status: ready -->
+<!-- EN-Revision: 1.17 Maintainer: cucinato Status: ready -->
 <!-- OLD-Revision: 1.173/EN.1.2 -->
   <refentry id="function.count">
    <refnamediv>
     <refname>count</refname>
-    <refpurpose>Conta gli elementi in una variabile</refpurpose>
+    <refpurpose>Conta gli elementi in una variabile, o le proprietà in un oggetto</refpurpose>
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
@@ -17,13 +17,23 @@
      </methodsynopsis>
     <para>
      Restituisce il numero di elementi in <parameter>var</parameter>,
-     la quale è di norma un array (dal momento che qualsiasi altro oggetto avrà un
-     elemento).
+     la quale è di norma un <type>array</type>, dal momento che qualsiasi altro oggetto
+     avrà un elemento.
     </para>
     <para>
-     Se <parameter>var</parameter> non è un array, verrà restituito <literal>1</literal> 
-     (eccezione: <literal>count(&null;)</literal> restituisce
-     <literal>0</literal>).
+     Per gli oggetti, se
+     <link linkend="ref.spl">SPL</link> è installato, è possibile agganciarsi a
+     <function>count</function> implementando l'interfaccia
+     <literal>Countable</literal>. L'interfaccia ha esattamente un metodo,
+     <function>count</function>, che ritorna il valore restituito dalla
+     funzione <function>count</function>.
+    </para>
+    <para>
+     Se <parameter>var</parameter> non è un array o un oggetto con
+     l'interfaccia <literal>Countable</literal> implementata,
+     verrà restituito <literal>1</literal> 
+     C'è una eccezione, se <parameter>var</parameter> è &null;,
+     verrà restituito <literal>0</literal>.
     </para>
     <note>
      <simpara>
@@ -37,6 +47,7 @@
      conterà ricorsivamente l'array. Questo è utile in particolare per
      contare tutti gli elementi di un array multidimensionale. Il valore di
      default per <parameter>mode</parameter> è <literal>0</literal>.
+     <function>count</function> non identifica le ricorsioni infinite.
     </para>
     <caution>
      <para>
@@ -47,15 +58,14 @@
      </para>
     </caution>
     <para>
-     Vedere la sezione <link linkend="language.types.array">Arrays</link>
+     Vedere la sezione <link linkend="language.types.array">Array</link>
      nel manuale per una spiegazione dettagliata di come gli array siano 
      implementati ed usati in PHP.
-   </para>
+    </para>
     <para>
      <example>
       <title>esempio di <function>count</function></title>
       <programlisting role="php">
-      <!-- TODO: examples about count(null), count(false), count(object).. -->
 <![CDATA[
 <?php
 $a[0] = 1;
@@ -69,6 +79,12 @@ $b[5]  = 9;
 $b[10] = 11;
 $risultato = count($b);
 // $risultato == 3;
+
+$result = count(null);
+// $result == 0
+
+$result = count(false);
+// $result == 1
 ?>
 ]]>
       </programlisting>
@@ -96,12 +112,6 @@ echo count($cibo);                 // output 2
       </programlisting>
      </example>
     </para>
-    <note>
-     <para>
-      La funzione <function>sizeof</function> &egrave; un 
-      <link linkend="aliases">alias</link> per <function>count</function>.
-     </para>
-    </note>
     <para>
      Vedere anche <function>is_array</function>,
      <function>isset</function> e

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.10 Maintainer: darvina Status: ready -->
-<refentry id="function.dom-domxpath-query">
+<!-- EN-Revision: 1.3 Maintainer: darvina Status: ready -->
+<refentry id="function.dom-domxpath-evaluate">
  <refnamediv>
-  <refname>DOMXPath->query()</refname>
+  <refname>DOMXPath->evaluate()</refname>
   <refpurpose>
-   Valuta l'espressione XPath 
+   Valuta l'espressione XPath data e restituisce un risultato se possibile
   </refpurpose>
  </refnamediv>
  <refsect1 role="description">
@@ -12,13 +12,14 @@
   <classsynopsis>
    <ooclass><classname>DOMXPath</classname></ooclass>
    <methodsynopsis>
-    <type>DOMNodeList</type><methodname>query</methodname>
+    <type>mixed</type><methodname>evaluate</methodname>
     <methodparam><type>string</type><parameter>expression</parameter></methodparam>
     <methodparam choice="opt"><type>DOMNode</type><parameter>contextnode</parameter></methodparam>      
    </methodsynopsis>
   </classsynopsis>
   <para>
-   Esegue la query XPath data.
+   Esegue l'espressione XPath data e 
+   restituisce un risultato se possibile
   </para>
  </refsect1>
  <refsect1 role="parameters">
@@ -29,7 +30,7 @@
      <term><parameter>expression</parameter></term>
      <listitem>
       <para>
-       La query XPath da eseguire.
+       L'espressione XPath da eseguire.
       </para>
      </listitem>
     </varlistentry>
@@ -49,9 +50,8 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce un oggetto <classname>DOMNodeList</classname> contenente tutti i nodi che soddisfano la condizione
-   <parameter>expression</parameter>. Qualsiasi espressione che non restituisce nodi
-   creerà un <classname>DOMNodeList</classname> vuoto.
+   Restituisce un risultato oppure un oggetto <classname>DOMNodeList</classname> 
+   contenente tutti i nodi che soddisfano la query XPath . 
   </para>
  </refsect1>
  <refsect1 role="examples">
@@ -65,43 +65,6 @@
 
 $doc = new DOMDocument;
 
-// We don't want to bother with white spaces
-$doc->preserveWhiteSpace = false;
-
-$doc->Load('book.xml');
-
-$xpath = new DOMXPath($doc);
-
-// Partiamo dell'elemento radice
-$query = '//book/chapter/para/informaltable/tgroup/tbody/row/entry[. = "en"]';
-
-$entries = $xpath->query($query);
-
-foreach ($entries as $entry) {
-    echo "Found {$entry->previousSibling->previousSibling->nodeValue}," .
-         " by {$entry->previousSibling->nodeValue}\n";
-}
-?>
-]]>
-    </programlisting>
-    &example.outputs;
-    <screen>
-<![CDATA[
-Found The Grapes of Wrath, by John Steinbeck
-Found The Pearl, by John Steinbeck
-]]>
-    </screen>
-    <para>
-     Possiamo utilizzare il parametro <parameter>contextnode</parameter> per ridurre
-     l'espressione:
-    </para>
-    <programlisting role="php">
-<![CDATA[
-<?php
-
-$doc = new DOMDocument;
-$doc->preserveWhiteSpace = false;
-
 $doc->load('book.xml');
 
 $xpath = new DOMXPath($doc);
@@ -109,17 +72,20 @@ $xpath = new DOMXPath($doc);
 $tbody = $doc->getElementsByTagName('tbody')->item(0);
 
 // query relativa ai nodi tbody
-$query = 'row/entry[. = "en"]';
+$query = 'count(row/entry[. = "en"])';
 
-$entries = $xpath->query($query, $tbody);
+$entries = $xpath->evaluate($query, $tbody);
+echo "There are $entries english books\n";
 
-foreach ($entries as $entry) {
-    echo "Found {$entry->previousSibling->previousSibling->nodeValue}," .
-         " by {$entry->previousSibling->nodeValue}\n";
-}
 ?>
 ]]>
     </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+There are 2 english books
+]]>
+    </screen>
    </example>
   </para>
  </refsect1>
@@ -127,7 +93,7 @@ foreach ($entries as $entry) {
   &reftitle.seealso;
   <para>
    <simplelist>
-    <member><xref linkend="function.dom-domxpath-evaluate" /></member>
+    <member><xref linkend="function.dom-domxpath-query" /></member>
    </simplelist>
   </para>
  </refsect1>

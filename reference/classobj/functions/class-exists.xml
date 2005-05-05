@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- splitted from ./it/functions/classobj.xml, last change in rev 1.1 -->
-<!-- last change to 'class-exists' in en/ tree in rev 1.11 -->
-<!-- EN-Revision: 1.5 Maintainer: darvina Status: ready -->
-<!-- OLD-Revision: 1.38/EN.1.11 -->
+<!-- EN-Revision: 1.6 Maintainer: darvina Status: ready -->
   <refentry id="function.class-exists">
    <refnamediv>
     <refname>class_exists</refname>
@@ -10,20 +8,31 @@
    </refnamediv>
    <refsect1>
     <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>class_exists</methodname>
-      <methodparam><type>string</type><parameter>nome_classe</parameter></methodparam>
-      <methodparam choice="opt"><type>bool</type><parameter>autoload</parameter></methodparam>
-     </methodsynopsis>
-    <note>
-     <para>
-      Il parametro <parameter>autoload</parameter> è stato aggiunto in PHP 5
-     </para>
-    </note>
+    <methodsynopsis>
+     <type>bool</type><methodname>class_exists</methodname>
+     <methodparam><type>string</type><parameter>nome_classe</parameter></methodparam>
+     <methodparam choice="opt"><type>bool</type><parameter>autoload</parameter></methodparam>
+    </methodsynopsis>    
     <para>
      Questa funzione restituisce &true; se la classe indicata dal
      parametro <parameter>nome_classe</parameter> è stata 
      definita, altrimenti restituisce &false; .
+    </para>
+    <para>
+     <example>
+      <title>Esempio di uso di <function>class_exists</function></title>
+       <programlisting role="php">
+<![CDATA[
+<?php
+// Verifica se la classe esiste prima di richiamarla
+if (class_exists('MyClass')) {
+    $myclass = new MyClass();
+}
+ 
+?>
+]]>
+      </programlisting>
+     </example>
     </para>
     <para>
     <function>class_exists</function>, per default, tenta di eseguire  __autoload,
@@ -37,26 +46,33 @@
       <programlisting role="php">
 <![CDATA[
 <?php
-    function __autoload($class) {
-        include($class . '.php');
+function __autoload($class) 
+{
+    include($class . '.php');
+    // Check to see it the include defined the class
+    if ( !class_exists($class, false) ) {
+        trigger_error("Unable to load class $class", E_USER_ERROR);
+       }
+
+}
  
-        /* Check to see it the include defined the class */
-        if ( !class_exists($class, false) ) {
-           trigger_error("Unable to load class $class", E_USER_ERROR);
-        }
-    }
- 
-    if( class_exists('MyClass') ) {
-        $myclass = new MyClass();
-    }
+if( class_exists('MyClass') ) {
+    $myclass = new MyClass();
+}
  
 ?>
 ]]>
       </programlisting>
      </example>
     </para>
+    <note>
+     <para>
+      Il parametro <parameter>autoload</parameter> è stato aggiunto in PHP 5
+     </para>
+    </note>
     <simpara> 
-       Vedere anche <function>get_declared_classes</function>. 
+       Vedere anche <function>interface_exists</function> 
+       e <function>get_declared_classes</function>. 
     </simpara> 
    </refsect1>
   </refentry>

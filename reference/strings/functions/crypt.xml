@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.3 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.11 Maintainer: darvina Status: ready -->
 <!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
   <refentry id="function.crypt">
    <refnamediv>
@@ -23,7 +23,7 @@
     </para>
     <simpara>
      Se il parametro salt non viene fornito, il PHP ne genererà
-     uno casuale.
+     uno casuale ad ogni chiamata.
     </simpara>
     <simpara>
      Alcuni sistemi operativi supportano più di un tipo di cifratura. Infatti
@@ -75,7 +75,7 @@
      <listitem>
       <simpara>
        CRYPT_BLOWFISH - Crittografia Blowfish con 16 caratteri di chiave
-       inizianti con $2$
+       inizianti con $2$ oppure $2a$
       </simpara>
      </listitem>
     </itemizedlist>
@@ -84,7 +84,7 @@
       Non esiste una funzione di decriptazione, poiché <function>crypt</function>
       è un algoritmo ad una via.
      </simpara>
-     </note>
+    </note>
     <example>
      <title>Esempio di uso di <function>crypt</function></title>
      <programlisting role="php">
@@ -92,16 +92,63 @@
 <?php
 $password = crypt("My1sTpassword"); // let salt be generated
 
-# Si dovrebbe passare l'intero risultato di crypt() come chiave di confronto
-# della password per evitare problemi con differenti algoritmi di hash. (Come detto prima
-# lo standard basato su DES usa chiavi di 2 caratteri,
-# mentre lo standard basato su MD5 ne usa 12).
+/* Si dovrebbe passare l'intero risultato di crypt() come chiave di confronto
+   della password per evitare problemi con differenti algoritmi di hash. (Come detto prima
+   lo standard basato su DES usa chiavi di 2 caratteri,
+   mentre lo standard basato su MD5 ne usa 12). */
 if (crypt($user_input, $password) == $password) {
    echo "Password verified!";
 }
 ?>
 ]]>
      </programlisting>
+    </example>
+    <example>
+     <title>Utilizzo di <function>crypt</function> con htpasswd</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+// Set the password
+$password = 'mypassword';
+ 
+// Get the hash, letting the salt be automatically generated
+$hash = crypt($password);
+?>
+]]>
+     </programlisting>
+    </example>
+    <example>
+     <title>Uso dei diversi tipi di criptazione</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+if (CRYPT_STD_DES == 1) {
+    echo 'Standard DES: ' . crypt('rasmuslerdorf', 'rl') . "\n";
+}
+ 
+if (CRYPT_EXT_DES == 1) {
+    echo 'Extended DES: ' . crypt('rasmuslerdorf', '_J9..rasm') . "\n";
+}
+ 
+if (CRYPT_MD5 == 1) {
+    echo 'MD5:          ' . crypt('rasmuslerdorf', '$1$rasmusle$') . "\n";
+}
+ 
+if (CRYPT_BLOWFISH == 1) {
+    echo 'Blowfish:     ' . crypt('rasmuslerdorf', '$2a$07$rasmuslerd...........$') . "\n";
+}
+?>
+]]>
+     </programlisting>
+      &example.outputs.similar;
+     <screen>
+<![CDATA[
+Standard DES: rl.3StKT.4T8M
+Extended DES: _J9..rasmBYk8r9AiWNc
+MD5:          $1$rasmusle$rISCgZzpwk3UhDidwXvin0
+Blowfish:     $2a$07$rasmuslerd............nIdrcHdxcUxWomQX9j6kvERCFjTg7Ra
+]]>
+     </screen>
     </example>
     <simpara>
      Vedere anche <function>md5</function> e <link linkend="ref.mcrypt">il 

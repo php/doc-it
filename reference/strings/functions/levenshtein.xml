@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.4 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.7 Maintainer: darvina Status: ready -->
 <!-- splitted from ./en/functions/strings.xml, last change in rev 1.12 -->
   <refentry id="function.levenshtein">
    <refnamediv>
-    <refname>levenshtein</refname> 
+    <refname>levenshtein</refname>
     <refpurpose>
      Calcola la distanza Levenshtein tra due stringhe
     </refpurpose>
@@ -23,15 +23,13 @@
       <type>int</type><methodname>levenshtein</methodname>
       <methodparam><type>string</type><parameter>str1</parameter></methodparam>
       <methodparam><type>string</type><parameter>str2</parameter></methodparam>
-      <methodparam><type>function</type><parameter>cost</parameter></methodparam>
+      <methodparam><type>callback</type><parameter>cost</parameter></methodparam>
      </methodsynopsis>
      -->
     <para>
      Questa funzione restituisce la distanza Levenshtein tra due
      stringhe o -1 se uno degli argomenti è più
-     lungo del limite di 255 caratteri (255 caratteri dovrebbero
-     essere più che sufficienti per il dizionario di confronto, e poi
-     nessuno svolgerebbe seriamente una analisi genetica con il PHP).
+     lungo del limite di 255 caratteri.
     </para>
     <para>
      La distanza Levenshtein è definita come il numero minimo di
@@ -117,6 +115,68 @@
      per le altre due varianti.
     </para>
     -->
+    <para>
+     <example>
+      <title>Esempio di uso di <function>levenshtein</function></title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+// input parola errata
+$input = 'carrrot';
+ 
+// matrice di parole con cui verificare
+$words  = array('apple','pineapple','banana','orange',
+                'radish','carrot','pea','bean','potato');
+ 
+// non ancora trovata la distanza più breve
+$shortest = -1;
+ 
+// loop su tutte le parole per trovare la più simile
+foreach ($words as $word) {
+ 
+    // calcola la distanza tra la parola di input
+    // e la corrente
+    $lev = levenshtein($input, $word);
+ 
+    // è la parola esatta?
+    if ($lev == 0) {
+ 
+        // la più simile è questa
+        $closest = $word;
+        $shortest = 0;
+ 
+        // esce dal loop, l'abbiamo trovata
+        break;
+    }
+ 
+    // se la distanza è inferiore rispetto alla precendete più corta
+    // o non ne abbiamo ancora trovata una
+    if ($lev <= $shortest || $shortest < 0) {
+        // imposta la parola più simile e la distanza più breve
+        $closest  = $word;
+        $shortest = $lev;
+    }
+}
+ 
+echo "Input word: $input\n";
+if ($shortest == 0) {
+    echo "Exact match found: $closest\n";
+} else {
+    echo "Did you mean: $closest?\n";
+}
+ 
+?>
+]]>
+      </programlisting>
+      &example.outputs;
+      <screen>
+<![CDATA[
+Input word: carrrot
+Did you mean: carrot?
+]]>
+      </screen>
+     </example>
+    </para>
     <para>
      Vedere anche <function>soundex</function>,
      <function>similar_text</function> e

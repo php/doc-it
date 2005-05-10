@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.10 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.15 Maintainer: darvina Status: ready -->
 <!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
   <refentry id="function.sprintf">
    <refnamediv>
@@ -12,6 +12,7 @@
       <type>string</type><methodname>sprintf</methodname>
       <methodparam><type>string</type><parameter>format</parameter></methodparam>
       <methodparam choice="opt"><type>mixed</type><parameter>args</parameter></methodparam>
+      <methodparam choice="opt"><type>mixed</type><parameter>...</parameter></methodparam>
      </methodsynopsis>
     <simpara>
      La funzione restituisce una stringa formattata in base al parametro 
@@ -30,6 +31,14 @@
      (<literal>%</literal>), seguito da uno più dei seguenti elementi
      nell'ordine si ha:
      <orderedlist>
+      <listitem>
+       <simpara>
+        Un parametro opzionale di <emphasis>specifica del segno</emphasis> che forza la presenza del segno
+        (- oppure +) in caso di numero. Per default, si usa soltanto il segno - 
+        se il numero è negativo. Questo parametro forza i numeri positiva ad avere
+        il segno +, ed è stato aggiunto in PHP 4.3.0.
+       </simpara>
+      </listitem>
       <listitem>
        <simpara>
         Un parametro opzionale per la specifica del <emphasis>riempimento</emphasis>
@@ -96,7 +105,12 @@
          </member>
          <member>
           <literal>f</literal> - l'argomento è trattato come un 
-          <type>float</type> e sarà presentato come un numero in virgola mobile.
+          <type>float</type> e sarà presentato come un numero in virgola mobile (influenzato dalle impostazioni locali).
+         </member>
+         <member>
+          <literal>F</literal> - l'argomento è trattato come un numero 
+          float, e sarà presentato come un numero in virgola mobile (non influenzato dalle impostazioni locali).
+          Disponibile da PHP 4.3.10 e PHP 5.0.3.
          </member>
          <member>
           <literal>o</literal> - l'argomento è trattato come un 
@@ -211,6 +225,8 @@ printf("%%o = '%o'\n", $n); // rappresentazione ottale
 printf("%%s = '%s'\n", $n); // stringa
 printf("%%x = '%x'\n", $n); // rappresentazione esadecimale (minuscolo)
 printf("%%X = '%X'\n", $n); // rappresentazione esadecimale (maiuscolo)
+printf("%%+d = '%+d'\n", $n); // indicazione del segno su un intero positivo
+printf("%%+d = '%+d'\n", $u); // indicazione del segno su un intero negativo
 ?>
 ]]>
      </programlisting>
@@ -230,6 +246,8 @@ printf("%%X = '%X'\n", $n); // rappresentazione esadecimale (maiuscolo)
 %s = '43951789'
 %x = '29ea6ad'
 %X = '29EA6AD'
+%+d = '+43951789'
+%+d = '-43951789'
 ]]>
      </screen>
     </example>
@@ -245,6 +263,7 @@ printf("[%s]\n",      $s); // output standard di stringa
 printf("[%10s]\n",    $s); // accostamento a destra con spazi
 printf("[%-10s]\n",   $s); // accostamento a sinistra con spazi
 printf("[%010s]\n",   $s); // completamento con zero funziona anche con le stringhe
+printf("[%'#10s]\n",  $s); // utilizza il carattere di riempimento  '#'
 printf("[%10.10s]\n", $t); // accostamento a sinistra con taglio a 10 caratteri
 ?>
 ]]>
@@ -258,6 +277,7 @@ printf("[%10.10s]\n", $t); // accostamento a sinistra con taglio a 10 caratteri
 [    monkey]
 [monkey    ]
 [0000monkey]
+[####monkey]
 [many monke]
 ]]>
      </screen>

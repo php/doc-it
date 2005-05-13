@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.9 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.11 Maintainer: darvina Status: ready -->
 <!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
   <refentry id="function.strip-tags">
    <refnamediv>
@@ -25,7 +25,11 @@
      <note>
       <para>
        <parameter>allowable_tags</parameter> è stato aggiunto in PHP 3.0.13
-       e PHP 4.0b3. Dal PHP 4.3.0, sono rimossi anche i commenti HTML.
+       e PHP 4.0b3. 
+      </para>
+      <para>
+       Dal PHP 4.3.0, sono rimossi anche i commenti HTML. Questo comportamento è da programma
+       e non può essere modificato tramite <parameter>allowable_tags</parameter>.
       </para> 
      </note>
      <warning>
@@ -35,6 +39,15 @@
          più testo di quanto atteso.
        </para>
      </warning>
+     <warning>
+      <para>
+       Questa funzione non modifica alcun attributo sui tag che sono abilitati
+       tramite <parameter>allowable_tags</parameter>, incluso lo
+       <literal>style</literal> e l'attributo <literal>onmouseover</literal>
+       che possono essere sfruttati da utenti malevoli quando pubblicano testi che
+       saranno visualizzati da altri utenti.
+      </para>
+     </warning>
     </para>
     <para>
      <example>
@@ -42,48 +55,25 @@
       <programlisting role="php">
 <![CDATA[
 <?php
-$text = '
-<p>Test paragraph.</p>
-<!-- Comment -->
-Other text';
-
+$text = '<p>Test paragraph.</p><!-- Comment --> Other text';
 echo strip_tags($text);
 
-echo "\n\n-------\n";
-
+echo "\n";
 // allow <p>
 echo strip_tags($text, '<p>');
 ?>
 
 ]]>
       </programlisting>
-      <para>
-       L'esempio precedente visualizzerà:
-      </para>
+       &example.outputs;
       <screen>
 <![CDATA[
-Test paragraph.
-
-Other text
-
--------
-
-<p>Test paragraph.</p>
-
-Other text
+Test paragraph. Other text
+<p>Test paragraph.</p> Other text
 ]]>
       </screen>
      </example>
-    </para>
-    <warning>
-     <para>
-      Questa funzione non modifica gli attributi nei tag ignorati tramite
-      <parameter>allowable_tags</parameter>, compresi gli attributi
-      <literal>style</literal> e <literal>onmouseover</literal> che
-      un utente maligno può utilizzare per inviare testo che sarà visualizzato
-      agli altri utenti.
-     </para>
-    </warning>
+    </para>    
     <para>
      La funzione <function>strip_tags</function> è sicura con i contenuti binari dal PHP 5.0.0
     </para>

@@ -1,42 +1,82 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.11 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.16 Maintainer: darvina Status: ready -->
 <refentry id="function.sqlite-open">
  <refnamediv>
   <refname>sqlite_open</refname>
-  <refpurpose>Apre un database SQLite e crea il database se non esiste.</refpurpose>
+  <refpurpose>Apre un database SQLite e crea il database se non esiste</refpurpose>
  </refnamediv>
- <refsect1>
-  <title>Descrizione</title>
+
+ <refsect1 role="description">
+  &reftitle.description;
   <methodsynopsis>
    <type>resource</type><methodname>sqlite_open</methodname>
    <methodparam><type>string</type><parameter>filename</parameter></methodparam>
    <methodparam choice="opt"><type>int</type><parameter>mode</parameter></methodparam>
-   <methodparam choice="opt"><type>string</type><parameter>&amp;error_message</parameter></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter role="reference">error_message</parameter></methodparam>
   </methodsynopsis>
+  <para>Versione ad oggetti (costruttore):</para>
+  <classsynopsis>
+   <ooclass><classname>SQLiteDatabase</classname></ooclass>
+   <constructorsynopsis>
+    <methodname>__construct</methodname>
+    <methodparam><type>string</type><parameter>filename</parameter></methodparam>
+    <methodparam choice="opt"><type>int</type><parameter>mode</parameter></methodparam>
+    <methodparam choice="opt"><type>string</type><parameter role="reference">error_message</parameter></methodparam>
+   </constructorsynopsis>
+  </classsynopsis>
+  <para>
+   Apre un database SQLite o lo crea se non esiste.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>filename</parameter></term>
+     <listitem>
+      <para>
+       Nome del database SQLite.  Se il file non esiste, SQLite tenterà di 
+       crearlo. Il PHP deve avere i permessi di scrittura sul file se si desidera inserire dei dati o modficare 
+       lo schema del database, o creare il database
+       se non esiste.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>mode</parameter></term>
+     <listitem>
+      <para>
+       Specifica la modalità del file. E' inteso per essere utilizzato per l'apertura del file 
+       in modalità read-only. Attualmente questo parametro viene ignorato da SQLite. Per default la
+       modalità di apertura è il valore ottale <literal>0666</literal>, 
+       ed è questa l'impostazione raccomandata.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>error_message</parameter></term>
+     <listitem>
+      <para>
+       Passato per riferimento, è impostato per  contenere un messaggio descrittivo di errore 
+       nel caso non si riesca ad aprire il database a causa di un errore.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
   <para>
    Restituisce una risorsa (database handle) se ha successo, oppure &false; se si verifica un errore.
   </para>
-  <para>
-   Il parametro <parameter>filename</parameter> indica il nome del 
-   database. Può essere un percorso relativo o assoluto al file che SQLite 
-   utilizzerà per memorizzare i dati. Se il file non esiste, SQLite tenterà di 
-   crearlo. <emphasis>BISOGNA</emphasis> avere i permessi
-   di scrittura sul file se si desidera inserire dei dati o modficare 
-   lo schema del database.
-  </para>
-  <para>
-   Il parametro <parameter>mode</parameter> specifica la modalità del file ed è inteso
-   per essere utilizzato per l'apertura del file in modalità read-only.
-   Attualmente questo parametro viene ignorato da SQLite. Per default la
-   modalità di apertura è <literal>0666</literal> e questo è il valore
-   raccomandato se si necessita di accedere al parametro
-   <parameter>errmessage</parameter>.
-  </para>
-  <para>
-   Il parametro <parameter>errmessage</parameter> è passato per riferimento ed è impostato per 
-   contenere un messaggio descrittivo di errore nel caso non si riesca ad
-   aprire il database a causa di un errore.
-  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
   <para>
    <example>
     <title>Esempio di uso di <function>sqlite_open</function></title>
@@ -55,6 +95,10 @@ if ($db = sqlite_open('mysqlitedb', 0666, $sqliteerror)) {
     </programlisting>
    </example>
   </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
   <tip>
    <simpara>
     Sui sistemi Unix, SQLite è sensibile agli script che utilizzano la chiamata di sistema fork(). 
@@ -76,7 +120,7 @@ if ($db = sqlite_open('mysqlitedb', 0666, $sqliteerror)) {
   </tip>
   <note>
    <simpara>
-    A partire dalla versione 2.8.2 della libreria SQLite, si può specificare
+     A partire dalla versione 2.8.2 della libreria SQLite, si può specificare
     <literal>:memory:</literal> come valore per il parametro <parameter>filename</parameter> in modo
     da creare database che risiedano soltanto in memoria.
     Principalmente questo è utile per le elaborazioni temporanee, poiché
@@ -87,17 +131,23 @@ if ($db = sqlite_open('mysqlitedb', 0666, $sqliteerror)) {
   </note>
   <note>
    <simpara>
-    SQLite sensibile al &safemode; e a open_basedir.
+    SQLite sensibile alla &safemode; e a open_basedir.
    </simpara>
   </note>
-
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
   <para>
-   Vedere anche <function>sqlite_popen</function>,
-   <function>sqlite_close</function> e
-   <function>sqlite_query</function>.
+   <simplelist>
+    <member><function>sqlite_popen</function></member>
+    <member><function>sqlite_close</function></member>
+    <member><function>sqlite_factory</function></member>
+   </simplelist>
   </para>
  </refsect1>
 </refentry>
+
 <!-- Keep this comment at the end of the file
  Local variables:
  mode: sgml

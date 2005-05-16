@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.8 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.12 Maintainer: darvina Status: ready -->
 <refentry id="function.sqlite-array-query">
  <refnamediv>
   <refname>sqlite_array_query</refname>
+  <refname>SQLiteDatabase->arrayQuery</refname>
   <refpurpose>Esegue una query in un dato database e restituisce una matrice</refpurpose>
  </refnamediv>
- <refsect1>
-  <title>Descrizione</title>
+
+ <refsect1 role="description">
+  &reftitle.description;
   <methodsynopsis>
    <type>array</type><methodname>sqlite_array_query</methodname>
    <methodparam><type>resource</type><parameter>dbhandle</parameter></methodparam>
@@ -21,43 +23,129 @@
    <methodparam choice="opt"><type>int</type><parameter>result_type</parameter></methodparam>
    <methodparam choice="opt"><type>bool</type><parameter>decode_binary</parameter></methodparam>
   </methodsynopsis>
+  <para>Versione ad oggetti (metodo):</para>
+  <classsynopsis>
+   <ooclass><classname>SQLiteDatabase</classname></ooclass>
+   <methodsynopsis>
+    <type>array</type><methodname>arrayQuery</methodname>
+    <methodparam><type>string</type><parameter>query</parameter></methodparam>
+    <methodparam choice="opt"><type>int</type><parameter>result_type</parameter></methodparam>
+    <methodparam choice="opt"><type>bool</type><parameter>decode_binary</parameter></methodparam>
+   </methodsynopsis>
+  </classsynopsis>
   <para>
-   Chiamare <function>sqlite_array_query</function> equivale ad eseguire
-   <function>sqlite_query</function> e 
-   <function>sqlite_fetch_array</function> per ciascuna riga del set di risultati
-   e memorizzare queste righe in una matrice, come illustrato nell'esempio sottostante.
-   La chiamata a <function>sqlite_array_query</function> è significativamente più
-   veloce di uno script del genere.
+   <function>sqlite_array_query</function> esegue una data query e restituisce
+   un matrice con l'intero set di risultati. E' simile a <function>
+   sqlite_query</function> e a eseguire<function>sqlite_fetch_array</function>
+   per ogni riga. <function>sqlite_array_query</function> è
+   significativamente più veloce.
   </para>
-  <example>
-   <title><function>sqlite_array_query</function> implementato via script</title>
-   <programlisting role="php">
-<![CDATA[
-<?php
-$q = sqlite_query($dbhandle, "SELECT * from foo LIMIT 100");
-$rows = array();
-while ($r = sqlite_fetch_array($q)) {
-    $rows[] = $r;
-}
-?>
-]]>
-   </programlisting>
-  </example>
   <tip>
    <para>
-    Le migliori performance con <function>sqlite_array_query</function> si ottengono con query
+    Le migliori performance con <function>sqlite_array_query</function> 
+    si ottengono con query
     che restituiscono fino a 45 righe. Se si ha più dati si raccomanda di
     scrivere una propria funzione e di utilizzare
     <function>sqlite_unbuffered_query</function>.
    </para>
   </tip>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
   <para>
-   Vedere anche <function>sqlite_query</function>,
-   <function>sqlite_fetch_array</function> e
-   <function>sqlite_fetch_string</function>.
+   <variablelist>
+    <varlistentry>
+     <term><parameter>query</parameter></term>
+     <listitem>
+      <para>
+       Query da eseguire.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>dbhandle</parameter></term>
+     <listitem>
+      <para>
+       Risorsa SQLite Database restituita da <function>sqlite_open
+       </function> quando usato in modo procedurale.  Questo parametro non è 
+       richiesto nel metodo ad oggetti.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>result_type</parameter></term>
+     <listitem>
+      &sqlite.result-type;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>decode_binary</parameter></term>
+     <listitem>
+      &sqlite.decode-bin;
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+  &sqlite.param-compat;
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce una matrice contenente tutti i risultati, oppure &false;.
+  </para>
+  &sqlite.case-fold;
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Stile procedurale</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$dbhandle = sqlite_open('sqlitedb');
+$result = sqlite_array_query($dbhandle, 'SELECT name, email FROM users LIMIT 25', SQLITE_ASSOC);
+foreach ($result as $entry) {
+    echo 'Name: ' . $entry['name'] . '  E-mail: ' . $entry['email'];
+}
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Stile ad oggetti</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$dbhandle = new SQLiteDatabase('sqlitedb');
+$result = $dbhandle->arrayQuery('SELECT name, email FROM users LIMIT 25', SQLITE_ASSOC);
+foreach ($result as $entry) {
+    echo 'Name: ' . $entry['name'] . '  E-mail: ' . $entry['email'];
+}
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>sqlite_query</function></member>
+    <member><function>sqlite_fetch_array</function></member>
+    <member><function>sqlite_fetch_string</function></member>
+   </simplelist>
   </para>
  </refsect1>
 </refentry>
+
 <!-- Keep this comment at the end of the file
  Local variables:
  mode: sgml

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.7 Maintainer: darvina Status: ready -->
-<refentry id="function.sqlite-unbuffered-query">
+<!-- EN-Revision: 1.8 Maintainer: darvina Status: ready -->
+<refentry id="function.sqlite-exec">
  <refnamediv>
-  <refname>sqlite_unbuffered_query</refname>
-  <refname>SQLiteDatabase->unbufferedQuery</refname>
-  <refpurpose>Esegue una query senza scaricare e bufferizzare i dati</refpurpose>
+  <refname>sqlite_exec</refname>
+  <refname>SQLiteDatabase->exec</refname>
+  <refpurpose>ESegue una query priva di risultato in un dato database</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type>resource</type><methodname>sqlite_unbuffered_query</methodname>
+   <type>bool</type><methodname>sqlite_exec</methodname>
    <methodparam><type>resource</type><parameter>dbhandle</parameter></methodparam>
    <methodparam><type>string</type><parameter>query</parameter></methodparam>
   </methodsynopsis>
   <methodsynopsis>
-   <type>resource</type><methodname>sqlite_unbuffered_query</methodname>
+   <type>bool</type><methodname>sqlite_exec</methodname>
    <methodparam><type>string</type><parameter>query</parameter></methodparam>
    <methodparam><type>resource</type><parameter>dbhandle</parameter></methodparam>
   </methodsynopsis>
@@ -23,30 +23,22 @@
   <classsynopsis>
    <ooclass><classname>SQLiteDatabase</classname></ooclass>
    <methodsynopsis>
-    <type>SQLiteUnbuffered</type><methodname>unbufferedQuery</methodname>
+    <type>bool</type><methodname>exec</methodname>
     <methodparam><type>string</type><parameter>query</parameter></methodparam>
    </methodsynopsis>
   </classsynopsis>
   <para>
-   <function>sqlite_unbuffered_query</function> è simile a
-   <function>sqlite_query</function> tranne che i risultati sono restituiti
-   in modo sequenziale una riga dopo l'altra, permettendo solo la lettura
-   del record successivo.
+   Esegue un'espressione SQL, indicata da <parameter>query</parameter> sul database
+   (specificato dal parametro
+   <parameter>dbhandle</parameter>).
   </para>
-  <para>
-    Questa funzione è l'ideale per generare oggetti tipo tavole HTML in cui
-   occorre processare una riga alla volta e non occorre muoversi a caso
-   tra le righe.
-  </para>
-  <note>
-   <para>
-    Funzioni tipo <function>sqlite_seek</function>, 
-    <function>sqlite_rewind</function>, <function>sqlite_next</function>,
-    <function>sqlite_current</function>, e
-    <function>sqlite_num_rows</function> non sono applicabili agli handles
-    restituiti da <function>sqlite_unbuffered_query</function>.
-   </para>
-  </note>
+  <warning>
+   <simpara>
+    SQLite <emphasis>esegue</emphasis> molteplici query separate da punto e virgola,
+    in questo modo si può eseguire un batch di istruzioni SQL caricate da un
+    file o racchiuse in uno script.
+   </simpara>
+  </warning>
  </refsect1>
 
  <refsect1 role="parameters">
@@ -57,7 +49,7 @@
      <term><parameter>query</parameter></term>
      <listitem>
       <para>
-       La query da eseguire.
+       Query da eseguire.
       </para>
      </listitem>
     </varlistentry>
@@ -79,20 +71,57 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Resituisce un puntatore ad un risultato oppure &false;.
+   Questa funzione restituisce il valore &true; se ha successo, oppure &false; per insuccesso.
+   Se si deve eseguire una query che restituisca un risultato eseguire <function>sqlite_query</function>.
   </para>
-  <para>
-   <function>sqlite_unbuffered_query</function> restituisce
-   un set di risultati sequenzialeche può essere utilizzato per leggere una riga
-   dopo l'altra.
-  </para>
+  &sqlite.case-fold;
  </refsect1>
 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio procedurale</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$dbhandle = sqlite_open('mysqlitedb');
+$query = sqlite_exec($dbhandle, "UPDATE users SET email='jDoe@example.com' WHERE username='jDoe'");
+if (!$query) {
+    exit('Error in query.');
+} else {
+    echo 'Number of rows modified: ', sqlite_changes($dbhandle);
+}
+?>]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Esempio ad oggetti</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$dbhandle = new SQLiteDatabase('mysqlitedb');
+$query = $dbhandle->exec("UPDATE users SET email='jDoe@example.com' WHERE username='jDoe'");
+if (!$query) {
+    exit('Error in query.');
+} else {
+    echo 'Number of rows modified: ', $dbhandle->changes();
+}
+?>]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ 
  <refsect1 role="seealso">
   &reftitle.seealso;
   <para>
    <simplelist>
     <member><function>sqlite_query</function></member>
+    <member><function>sqlite_unbuffered_query</function></member>
+    <member><function>sqlite_array_query</function></member>
    </simplelist>
   </para>
  </refsect1>

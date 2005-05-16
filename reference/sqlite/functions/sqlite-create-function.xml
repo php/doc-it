@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.10 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.14 Maintainer: darvina Status: ready -->
 <refentry id="function.sqlite-create-function">
  <refnamediv>
   <refname>sqlite_create_function</refname>
+  <refname>SQLiteDatabase->createFunction</refname>
   <refpurpose>
    Registra una funzione utente  "regolare" da utilizzare nelle istruzioni SQL
   </refpurpose>
  </refnamediv>
- <refsect1>
-  <title>Descrizione</title>
+
+ <refsect1 role="description">
+  &reftitle.description;
   <methodsynopsis>
    <type>bool</type><methodname>sqlite_create_function</methodname>
    <methodparam><type>resource</type><parameter>dbhandle</parameter></methodparam>
@@ -16,27 +18,79 @@
    <methodparam><type>callback</type><parameter>callback</parameter></methodparam>
    <methodparam choice="opt"><type>int</type><parameter>num_args</parameter></methodparam>
   </methodsynopsis>
+  <para>Versione ad oggetti (metodo):</para>
+  <classsynopsis>
+   <ooclass><classname>SQLiteDatabase</classname></ooclass>
+   <methodsynopsis>
+    <type>bool</type><methodname>createFunction</methodname>
+    <methodparam><type>string</type><parameter>function_name</parameter></methodparam>
+    <methodparam><type>callback</type><parameter>callback</parameter></methodparam>
+    <methodparam choice="opt"><type>int</type><parameter>num_args</parameter></methodparam>
+   </methodsynopsis>
+  </classsynopsis>
   <para>
-   La funzione <function>sqlite_create_function</function> permette di registrare una funzione
+  La funzione <function>sqlite_create_function</function> permette di registrare una funzione
    PHP in SQLite come <acronym>UDF</acronym> (funzione definita dall'utente, User Defined
-   Function), in modo che possa essere richiamata dalle istruzioni 
-   SQL.
-  </para>
-  <para>
-   Il parametro <parameter>dbhandle</parameter> indica l' handle dl database che
-   si desidera estendere, <parameter>function_name</parameter> indica il nome della funzione
-   che si vuole utilizzare nelle istruzioni SQL,
-   <parameter>callback</parameter> è un callbak PHP valido che punti ad una 
-   funzione PHP che deve essere richiamata per gestire la funzione SQL.
-   Il parametro opzionale <parameter>num_args</parameter> viene utilizzato come suggerimento
-   dal parser delle espressioni di SQLite. Si raccomanda di indicare un valore
-   nel caso la funzione accetti soltanto un numero fisso di 
-   parametri.
+   Function), in modo che possa essere richiamata dalle istruzioni SQL.
   </para>
   <para>
    Le UDF possono essere utilizzate in qualsiasi istruzione SQL che permetta di richiamare funzioni,
    tipo SELECT e UPDATE e anche i triggers.
   </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>dbhandle</parameter></term>
+     <listitem>
+      <para>
+       Risorsa SQLite Database restituita da <function>sqlite_open
+       </function> quando usato in modo procedurale. Questo parametro non è
+       richiesto nel metodo ad oggetti.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>function_name</parameter></term>
+     <listitem>
+      <para>
+       Indica il nome della funzione   che si vuole utilizzare nelle istruzioni SQL.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>callback</parameter></term>
+     <listitem>
+      <para>
+       Funzione di callback richiamata per gestire la funzione SQL.
+      </para>
+      <note>
+       <simpara>
+        Le funzioni di callback devono restituire un tipo noto a SQLite
+        (ad esempio un <link linkend="language.types.intro">tipo scalare</link>).
+       </simpara>
+      </note>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>num_args</parameter></term>
+     <listitem>
+      <para>
+       Indicazione al parser SQLite se la funzione di callback accetta
+       un numero predefinito di argomenti.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+  &sqlite.param-compat;
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
   <para>
    <example>
     <title>Esempio di uso di <function>sqlite_create_function</function></title>
@@ -118,11 +172,18 @@ $rows = sqlite_array_query($dbhandle, "SELECT php('md5', filename) from files");
     native in SQLite.
    </para>
   </tip>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
   <para>
-   Vedere anche <function>sqlite_create_aggregate</function>.
+   <simplelist>
+    <member><function>sqlite_create_aggregate</function></member>
+   </simplelist>
   </para>
  </refsect1>
 </refentry>
+
 <!-- Keep this comment at the end of the file
  Local variables:
  mode: sgml

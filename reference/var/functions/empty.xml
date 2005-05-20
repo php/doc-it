@@ -1,72 +1,145 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.8 Maintainer: darvina Status: ready -->
-  <refentry id="function.empty">
-   <refnamediv>
-    <refname>empty</refname>
-    <refpurpose>Determina se una variabile è valorizzata</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>empty</methodname>
-      <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     La funzione <function>empty</function> restituisce &false; se il parametro
-     <parameter>var</parameter> non è vuoto e contiene un valore diverso da zero.
-     In altre parole i valori <literal>""</literal>, <literal>0</literal>,
-     <literal>"0"</literal>, &null;, &false;, <literal>array()</literal>,
-     <literal>var $var;</literal>, e gli oggetti con proprietà vuote
-     sono tutti considerati vuoti. La funzione restituisce  &true;
-     se <parameter>var</parameter> è vuoto.
-    </para>
-    <para>
-     Questo è l'opposto di 
-     <literal>(boolean) <parameter>var</parameter></literal>, tranne che
-     non viene dato alcun warning quando  la variabile non è valorizzata.
-     Vedere il capitolo <link linkend="language.types.boolean.casting">Conversione a
-     booleano</link> per maggiori informazioni.
-    </para>
-   
-    <para>
-     <example>
-      <title>
-       Semplici confronti <function>empty</function> / <function>isset</function>.
-      </title>
-      <programlisting role="php">
+<!-- EN-Revision: 1.12 Maintainer: darvina Status: ready -->
+<refentry id="function.empty">
+ <refnamediv>
+  <refname>empty</refname>
+  <refpurpose>Determina se una variabile è valorizzata</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>empty</methodname>
+   <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Determina se una variabile è da considerare vuota.
+  </para>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>var</parameter></term>
+     <listitem>
+      <para>
+       Varibaile da controllare
+      </para>
+      <note>
+       <para>
+        <function>empty</function> agisce solo su variabili, qualsiasi altra cosa
+         genera un errore di parsing. In altre parole, il seguente comando non funziona:
+        <command>empty(trim($name))</command>.
+       </para>
+      </note>
+      <para>
+       <function>empty</function> è l'opposto di 
+       <literal>(boolean) <parameter>var</parameter></literal>,
+       tranne che non viene dato alcun warning quando  la variabile non è valorizzata.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce &false; se <parameter>var</parameter> non è vuota
+   ed ha un valore diverso da zero.
+  </para>
+  <para>
+   I seguenti valori sono considerati vuoti:
+   <simplelist>
+    <member><literal>"" (stringa vuota)</literal></member>
+    <member><literal>0 (0 come intero)</literal></member>
+    <member><literal>"0" (0 come stringa)</literal></member>
+    <member>&null;</member>
+    <member>&false;</member>
+    <member><literal>array() (matrice vuota)</literal></member>
+    <member><literal>var $var; (una variabile dichiarata, ma senza valore in una classe)</literal></member>
+   </simplelist>
+  </para>
+ </refsect1>
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>PHP 5</entry>
+       <entry>
+        <para>
+         Dal PHP 5, oggetti privi di proprietà non sono più considerati vuoti.
+        </para>
+       </entry>
+      </row>
+      <row>
+       <entry>PHP 4</entry>
+       <entry>
+        <para>
+         Dal PHP 4, la stringa "0" è considerata vuota.
+        </para>
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>
+     Semplici confronti 
+     <function>empty</function> / <function>isset</function>.
+    </title>  
+    <programlisting role="php">
 <![CDATA[
 <?php
 $var = 0;
-// Valuata come true perchè $var è vuota
-if (empty($var)) { // restituisce true 
-    print '$var è uguale a 0 oppure non è definita';
+
+// Valutata come true perchè $var è vuota
+if (empty($var)) {
+    echo '$var is either 0, empty, or not set at all';
 }
+
 // Valutata come vera perchè $var è impostata
-if (!isset($var)) { // restituisce false
-    print '$var non è definita';
+if (isset($var)) {
+    echo '$var is set even though it is empty';
 }
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    &note.language-construct;
-    <note>
-     <para>
-      Si noti che la funzione perde di significato se applicata a qualcosa che non sia una 
-      variabile; ad esempio  <command>empty (addslashes ($name))</command> non ha significato. 
-     </para>
-    </note>
-    <simpara>
-     Vedere anche <function>isset</function>,
-     <function>unset</function>,
-     <function>array_key_exists</function>,
-     <function>count</function>,
-     <function>strlen</function> e
-     <link linkend="types.comparisons">la tabella di comparazione dei tipi</link>.
-    </simpara>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.language-construct;
+ </refsect1>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>isset</function></member>
+    <member><function>unset</function></member>
+    <member><function>array_key_exists</function></member>
+    <member><function>count</function></member> 
+    <member><function>strlen</function></member>
+    <member><link linkend="types.comparisons">la tabella di comparazione dei tipi</link></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.38 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 1.39 Maintainer: darvina Status: ready -->
 <chapter id="features.commandline">
  <title>Utilizzo di PHP da linea di comando</title>
  <!-- NEW DOCUMENTATION STARTS -->
@@ -355,24 +355,31 @@ $ php -f another_directory/test.php
   con l'opzione <option>-h</option>:
   <screen>
 <![CDATA[
-Usage: php [options] [-f] <file> [args...]
-       php [options] -r <code> [args...]
-       php [options] [-- args...]
-  -s               Display colour syntax highlighted source.
-  -w               Display source with stripped comments and whitespace.
-  -f <file>        Parse <file>.
-  -v               Version number
-  -c <path>|<file> Look for php.ini file in this directory
+Usage: php [options] [-f] <file> [--] [args...]
+       php [options] -r <code> [--] [args...]
+       php [options] [-B <begin_code>] -R <code> [-E <end_code>] [--] [args...]
+       php [options] [-B <begin_code>] -F <file> [-E <end_code>] [--] [args...]
+       php [options] -- [args...]
   -a               Run interactively
+  -c <path>|<file> Look for php.ini file in this directory
+  -n               No php.ini file will be used
   -d foo[=bar]     Define INI entry foo with value 'bar'
   -e               Generate extended information for debugger/profiler
-  -z <file>        Load Zend extension <file>.
+  -f <file>        Parse <file>.
+  -h               This help
+  -i               PHP information
   -l               Syntax check only (lint)
   -m               Show compiled in modules
-  -i               PHP information
   -r <code>        Run PHP <code> without using script tags <?..?>
-  -h               This help
-
+  -B <begin_code>  Run PHP <begin_code> before processing input lines
+  -R <code>        Run PHP <code> for every input line
+  -F <file>        Parse and execute <file> for every input line
+  -E <end_code>    Run PHP <end_code> after processing all input lines
+  -H               Hide any passed arguments from external tools.
+  -s               Display colour syntax highlighted source.
+  -v               Version number
+  -w               Display source with stripped comments and whitespace.
+  -z <file>        Load Zend extension <file>.
   args...          Arguments passed to script. Use -- args when first argument 
                    starts with - or script is read from stdin
 ]]>
@@ -537,75 +544,11 @@ array(4) {
     </thead>
     <tbody>
      <row>
-      <entry>-s</entry>
-      <entry>--syntax-highlight</entry>
+      <entry>-a</entry>
+      <entry>--interactive</entry>
       <entry>
        <para>
-        Visualizza il sorgente con sintassi colorata.
-       </para>
-       <para>
-        Questa opzione utilizza il meccanismo interno di parsing dei file e produce
-        una versione <literal>HTML</literal> del sorgente e la dirige verso lo
-        standard output. Occore notare che questa funzione genera dei blocchi di
-        tag <literal>HTML</literal> 
-        <literal>&lt;code&gt; [...] &lt;/code&gt;</literal> e non le intestazione <literal>HTML</literal>.
-       </para>
-       <note>
-        <para>
-         Questa opzione non funziona abbinata all'opzione
-         <option>-r</option>.
-        </para>
-       </note>
-      </entry>
-     </row>
-     <row>
-      <entry>-s</entry> 
-      <entry>--syntax-highlighting</entry> 
-      <entry> 
-       <para> 
-        Alias di <option>--syntax-highlight</option>. 
-       </para> 
-      </entry> 
-     </row> 
-     <row> 
-      <entry>-w</entry>
-      <entry>--strip</entry>
-      <entry>
-       <para>
-        Visualizza il sorgente senza gli spazi e i commenti.
-       </para>
-       <note>
-        <para>
-         Questa opzione non funziona abbinata all'opzione
-         <option>-r</option>.
-        </para>
-       </note>
-      </entry>
-     </row>
-     <row>
-      <entry>-f</entry>
-      <entry>--file</entry>
-      <entry>
-       <para>
-        Analizza ed esegue il file passato con l'opzione <option>-f</option>.
-        Questo parametro è opzionale e può essere omesso. Basta fornire il
-        nome del file da eseguire.
-       </para>
-      </entry>
-     </row>
-     <row>
-      <entry>-v</entry>
-      <entry>--version</entry>
-      <entry>
-       <para>
-        Visualizza le versioni di PHP, PHP SAPI, e Zend nello standard output, ad esempio:
-        <screen>
-<![CDATA[
-$ php -v
-PHP 4.3.0 (cli), Copyright (c) 1997-2002 The PHP Group
-Zend Engine v1.3.0, Copyright (c) 1998-2002 Zend Technologies
-]]>
-        </screen>
+        Esegue il PHP in modo interattivo.
        </para>
       </entry>
      </row>
@@ -677,49 +620,48 @@ string(15) "doesntmakesense"
         </screen>
        </para>
       </entry>
-     </row>
-     <row>
-      <entry>-a</entry>
-      <entry>--interactive</entry>
-      <entry>
-       <para>
-        Esegue il PHP in modo interattivo.
-        <!-- 
-        mfischer, 20020510: Couldn't come up with a decent useful description
-        of the current implementation of the interactive mode.
-        -->
-       </para>
-      </entry>
-     </row>
+     </row>   
      <row>
       <entry>-e</entry>
       <entry>--profile-info</entry>
       <entry>
        <para>
-        Genera informazioni estese per il debugger/profiler.
-        <!-- 
-        mfischer, 20020510: Anyone who can provide more information what it
-        really does (even if it's only for developers) ?
-        -->
+        Genera informazioni estese per il debugger/profiler.        
        </para>
       </entry>
      </row>
      <row>
-      <entry>-z</entry>
-      <entry>--zend-extension</entry>
+      <entry>-f</entry>
+      <entry>--file</entry>
       <entry>
        <para>
-        Carica l'estensione Zend. Soltano se si fornisce un nome di file, il PHP tenta
-        di caricare l'estensione dal corrente percorso di default delle librerie
-        (solitamente, sui sistemi Linux, <filename>/etc/ld.so.conf</filename>).
-        Se si fornisce un nome di file con percorso assoluto, ls libreria non
-        sarà cercata nella directory di default. Un nome di file con percorso relativo
-        indica al PHP di tentare di caricare l'estensione con 
-        percorso relativo alla directory corrente.
+        Analizza ed esegue il file passato con l'opzione <option>-f</option>.
+        Questo parametro è opzionale e può essere omesso. Basta fornire il
+        nome del file da eseguire.
        </para>
       </entry>
      </row>
      <row>
+      <entry>-h e -?</entry>
+      <entry>--help e --usage</entry>
+      <entry>
+       Con questa opzione si ha l'elenco dei comandi di linea
+       ed una breve descrizione di questi.
+      </entry>
+     </row>
+     <row>
+      <entry>-i</entry>
+      <entry>--info</entry>
+      <entry>
+       Questa opzione della linea di comando richiama la funzione <function>phpinfo</function>, e ne
+       visualizza il risultato. Se il PHP non funziona correttamente, è opportuno
+       utilizzare <command>php -i</command> per verificare se sono visualizzati messaggi di errore
+       prima o al posto della tabella con le informazioni.
+       Fare attenzione quando si usa la modalità CGI, l'output è in formato <literal>HTML</literal> e quindi abbastanza
+       abbondante.
+      </entry>
+     </row>
+<row>
       <entry>-l</entry>
       <entry>--syntax-check</entry>
       <entry>
@@ -770,18 +712,6 @@ ctype
 ]]>
         </screen>
        </para>
-      </entry>
-     </row>
-     <row>
-      <entry>-i</entry>
-      <entry>--info</entry>
-      <entry>
-       Questa opzione della linea di comando richiama la funzione <function>phpinfo</function>, e ne
-       visualizza il risultato. Se il PHP non funziona correttamente, è opportuno
-       utilizzare <command>php -i</command> per verificare se sono visualizzati messaggi di errore
-       prima o al posto della tabella con le informazioni.
-       Fare attenzione quando si usa la modalità CGI, l'output è in formato <literal>HTML</literal> e quindi abbastanza
-       abbondante.
       </entry>
      </row>
      <row>
@@ -839,12 +769,11 @@ array(370) {
 ]]>
          </screen>
          Se si utilizzano shell differenti rispetto a sh/bash, si potrebbe incorrere
-         in altri problemi. In tal caso aprite una segnalazione di errore  a <ulink url="&url.php.bugs;">&url.php.bugs;</ulink> 
-         o inviate una mail a &email.php.doc;.
-
+         in altri problemi. In tal caso aprite una segnalazione di errore  a 
+         <ulink url="&url.php.bugs;">&url.php.bugs;</ulink>          
          Tuttavia si può facilmente incorrere in problemi nell'avere variabili
          di shell nel codice o nell'utilizzare le barre rovesciate (backslash) per l'escape.
-         Siete avvertiti. <!-- :-) -->
+         Siete avvertiti.
         </para>
        </note>
        <note>
@@ -856,30 +785,127 @@ array(370) {
       </entry>
      </row>
      <row>
-      <entry>-h</entry>
-      <entry>--help</entry>
+      <entry>-B</entry>
+      <entry>--process-begin</entry>
       <entry>
-       Con questa opzione si ha l'elenco dei comandi di linea
-       ed una breve descrizione di questi.
+       <para>
+       Codice PHP da eseguirsi prima di processare stdin. Aggiunto in PHP 5.
+       </para>
+      </entry>
+     </row>
+     <row>
+      <entry>-R</entry>
+      <entry>--process-code</entry>
+      <entry>
+       <para>
+        Esegue il codice PHP per ogni linea di input. Aggiunto in PHP 5.
+       </para>
+       <para>
+        In questa modalità si hanno due variabili speciali:
+        <varname>$argn</varname> ed <varname>$argi</varname>.
+        <varname>$argn</varname> contiene la linea PHP in elaborazione al momento,
+        mentre <varname>$argi</varname> contiene il numero
+        di linea.
+       </para>
+      </entry>
+     </row>
+     <row>
+      <entry>-F</entry>
+      <entry>--process-file</entry>
+      <entry>
+       <para>
+        Esegue il file PHP per ogni linea di input. Aggiunto in PHP 5.
+       </para>
+      </entry>
+     </row>
+     <row>
+      <entry>-E</entry>
+      <entry>--process-end</entry>
+      <entry>
+       <para>
+        Codice PHP da eseguirsi dopo il processamento dell'input. Aggiunto in PHP 4.
+       </para>
+       <para>
+        Esempio di utilizzo delle opzioni <option>-B</option>, <option>-R</option> e
+        <option>-E</option> per contare il numero di linea di un 
+        progetto.
+        <screen>
+<![CDATA[
+$ find my_proj | php -B '$l=0;' -R '$l += count(@file($argn));' -E 'echo "Total Lines: $l\n";'
+Total Lines: 37328
+]]>
+        </screen>
+       </para>
+      </entry>
+     </row>
+     <row>
+      <entry>-s</entry>
+      <entry>--syntax-highlight e --syntax-highlighting</entry>
+      <entry>
+       <para>
+        Visualizza il sorgente con sintassi colorata.
+       </para>
+       <para>
+        Questa opzione utilizza il meccanismo interno di parsing dei file e produce
+        una versione <literal>HTML</literal> del sorgente e la dirige verso lo
+        standard output. Occore notare che questa funzione genera dei blocchi di
+        tag <literal>HTML</literal> 
+        <literal>&lt;code&gt; [...] &lt;/code&gt;</literal> e non le intestazione <literal>HTML</literal>.
+       </para>
+       <note>
+        <para>
+         Questa opzione non funziona abbinata all'opzione
+         <option>-r</option>.
+        </para>
+       </note>
+      </entry>
+     </row>
+     <row>
+      <entry>-v</entry>
+      <entry>--version</entry>
+      <entry>
+       <para>
+        Visualizza le versioni di PHP, PHP SAPI, e Zend nello standard output, ad esempio:
+        <screen>
+<![CDATA[
+$ php -v
+PHP 4.3.0 (cli), Copyright (c) 1997-2002 The PHP Group
+Zend Engine v1.3.0, Copyright (c) 1998-2002 Zend Technologies
+]]>
+        </screen>
+       </para>
       </entry>
      </row>
      <row> 
-      <entry>-?</entry> 
-      <entry>--usage</entry> 
-      <entry> 
-       Alias di <option>--help</option>. 
-      </entry> 
+      <entry>-w</entry>
+      <entry>--strip</entry>
+      <entry>
+       <para>
+        Visualizza il sorgente senza gli spazi e i commenti.
+       </para>
+       <note>
+        <para>
+         Questa opzione non funziona abbinata all'opzione
+         <option>-r</option>.
+        </para>
+       </note>
+      </entry>
      </row> 
-     <!-- 
-     new, not in PHP 4.3.4, but are in php_cli.c 1.102 or cgi_main.c 1.243 
-     -b <address:port>|<port> bindpath Bind Path for external FASTCGI Server mode, only CGI, no Windows 
-     -B <begin_code>     process-begin Run PHP <begin_code> before processing input lines 
-     -R <code>           process-code  Run PHP <code> for every input line 
-     -F <file>           process-file  Parse and execute <file> for every input line 
-     -E <end_code>       process-end   Run PHP <end_code> after processing all input lines 
-     -H                  hide-args     Hide any passed arguments from external tools. 
-     -g                  global        Define global variables on command line 
-     --> 
+     <row>
+      <entry>-z</entry>
+      <entry>--zend-extension</entry>
+      <entry>
+       <para>
+        Carica l'estensione Zend. Soltano se si fornisce un nome di file, il PHP tenta
+        di caricare l'estensione dal corrente percorso di default delle librerie
+        (solitamente, sui sistemi Linux, <filename>/etc/ld.so.conf</filename>).
+        Se si fornisce un nome di file con percorso assoluto, ls libreria non
+        sarà cercata nella directory di default. Un nome di file con percorso relativo
+        indica al PHP di tentare di caricare l'estensione con 
+        percorso relativo alla directory corrente.
+       </para>
+      </entry>
+     </row>
     </tbody>
    </tgroup>
   </table>

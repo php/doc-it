@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.2 Maintainer: curcio_it Status: ready -->
+<!-- EN-Revision: 1.17 Maintainer: curcio_it Status: ready -->
   <refentry id="function.xslt-process">
    <refnamediv>
     <refname>xslt_process</refname>
@@ -10,18 +10,35 @@
      <methodsynopsis>
       <type>mixed</type><methodname>xslt_process</methodname>
        <methodparam><type>resource</type><parameter>xh</parameter></methodparam>
-       <methodparam><type>string</type><parameter>xml</parameter></methodparam>
-       <methodparam><type>string</type><parameter>xsl</parameter></methodparam>
-       <methodparam choice="opt"><type>string</type><parameter>result</parameter></methodparam>
+       <methodparam><type>string</type><parameter>xmlcontainer</parameter></methodparam>
+       <methodparam><type>string</type><parameter>xslcontainer</parameter></methodparam>
+       <methodparam choice="opt"><type>string</type><parameter>resultcontainer</parameter></methodparam>
        <methodparam choice="opt"><type>array</type><parameter>arguments</parameter></methodparam>
        <methodparam choice="opt"><type>array</type><parameter>parameters</parameter></methodparam>
      </methodsynopsis>
     <para>
-     La funzione xslt_process() è una delle più importanti della nuova estensione XSLT.
-     Permette di eseguire una trasformazione XSLT usando quasi ogni tipo di
-     fonte per l'input. Questa è un completamento mediante l'uso dell'argomento
+     La funzione <function>xslt_process</function> è una delle più importanti della
+     nuova estensione XSLT. Permette di eseguire una trasformazione XSLT usando quasi ogni tipo di
+     fonte per l'input - i contenitori. Questa è un completamento mediante l'uso dell'argomento
      buffers -- un concetto preso dal processore XSLT Sablotron
      (attualmente l'unico processore XSLT supportato da questa estensione).
+     Il contenituore di input di default è il nome del file del documento
+     trasformato. Se il contenitore di destinaizone non viene fornito, ad esempio
+     è impostato a &null; - alla la funzione restituisce il risultato.
+    </para>
+    <para>
+     <warning>
+      <simpara>
+       Questa funzione ha modifica i propri argomenti dalla versione 4.0.6. Infatti non 
+       fornire più il contenuto XML o XSL come secondi e terzi argomenti, poichè questi
+       creano un segmentation fault in Sablotron fino alla versione
+       0.95 inclusa.
+      </simpara>
+     </warning>
+    </para>
+    <para>
+     I contenitori possono essere impostati anche tramite la matrice
+     <parameter>$arguments</parameter> (vedere più avanti).
     </para>
     <para>
      Il più semplice tipo di trasformazione con la funzione <function>xslt_process</function>
@@ -41,16 +58,15 @@ $xh = xslt_create();
 
 // Process the document
 if (xslt_process($xh, 'sample.xml', 'sample.xsl', 'result.xml')) {
-    print "SUCCESS, sample.xml was transformed by sample.xsl into result.xml";
-    print ", result.xml has the following contents\n<br>\n";
-    print "<pre>\n";
+    echo "SUCCESS, sample.xml was transformed by sample.xsl into result.xml";
+    echo ", result.xml has the following contents\n<br />\n";
+    echo "<pre>\n";
     readfile('result.xml');
-    print "</pre>\n";
-}
-else {
-    print "Sorry, sample.xml could not be transformed by sample.xsl into";
-    print "  result.xml the reason is that " . xslt_error($xh) . " and the ";
-    print "error code is " . xslt_errno($xh);
+    echo "</pre>\n";
+} else {
+    echo "Sorry, sample.xml could not be transformed by sample.xsl into";
+    echo "  result.xml the reason is that " . xslt_error($xh) . " and the ";
+    echo "error code is " . xslt_errno($xh);
 }
 
 xslt_free($xh);
@@ -80,16 +96,15 @@ $xh = xslt_create();
 // Process the document, returning the result into the $result variable
 $result = xslt_process($xh, 'sample.xml', 'sample.xsl');
 if ($result) {
-    print "SUCCESS, sample.xml was transformed by sample.xsl into the \$result";
-    print " variable, the \$result variable has the following contents\n<br>\n";
-    print "<pre>\n";
-    print $result;
-    print "</pre>\n";
-}
-else {
-    print "Sorry, sample.xml could not be transformed by sample.xsl into";
-    print "  the \$result variable the reason is that " . xslt_error($xh) . 
-    print " and the error code is " . xslt_errno($xh);
+    echo "SUCCESS, sample.xml was transformed by sample.xsl into the \$result";
+    echo " variable, the \$result variable has the following contents\n<br />\n";
+    echo "<pre>\n";
+    echo $result;
+    echo "</pre>\n";
+} else {
+    echo "Sorry, sample.xml could not be transformed by sample.xsl into";
+    echo "  the \$result variable the reason is that " . xslt_error($xh) . 
+    echo " and the error code is " . xslt_errno($xh);
 }
 
 xslt_free($xh);
@@ -131,16 +146,15 @@ $xh = xslt_create();
 // Process the document
 $result = xslt_process($xh, 'arg:/_xml', 'arg:/_xsl', NULL, $arguments); 
 if ($result) {
-    print "SUCCESS, sample.xml was transformed by sample.xsl into the \$result";
-    print " variable, the \$result variable has the following contents\n<br>\n";
-    print "<pre>\n";
-    print $result;
-    print "</pre>\n";
-}
-else {
-    print "Sorry, sample.xml could not be transformed by sample.xsl into";
-    print "  the \$result variable the reason is that " . xslt_error($xh) . 
-    print " and the error code is " . xslt_errno($xh);
+    echo "SUCCESS, sample.xml was transformed by sample.xsl into the \$result";
+    echo " variable, the \$result variable has the following contents\n<br />\n";
+    echo "<pre>\n";
+    echo $result;
+    echo "</pre>\n";
+} else {
+    echo "Sorry, sample.xml could not be transformed by sample.xsl into";
+    echo "  the \$result variable the reason is that " . xslt_error($xh) . 
+    echo " and the error code is " . xslt_errno($xh);
 }
 xslt_free($xh);
 ?>
@@ -149,10 +163,69 @@ xslt_free($xh);
      </example>
     </para>
     <para>
-     Finalmente, l'ultimo argomento della funzione <function>xslt_process</function> è dei parametri
-     che vuoi passare al documento XSLT. Questi parametri possono avere poi accesso tramite
-     i tuoi files XSL usando l'istruzione &lt;xsl:param name=&quot;parameter_name&quot;&gt;.
+     Finalmente, l'ultimo argomento della funzione <function>xslt_process</function> 
+     rappresenta una matrice di qualsiasi parametro di alto livello che si desidera
+     passare al documento XSLT. Questi parametri possono essere referenziati
+     dal file XSL utilizzando l'istruzione &lt;xsl:param name=&quot;parameter_name&quot;&gt;.
+     I parametri devono avere la codifica UTF-8 ed i rispettivi valori devono
+     essere interpretati come stringhe dal processore <productname>Sablotron</productname>.
+     In altre parole non si possono passare come parametri al documento XSLT dei node-set.
     </para>
+    <para>
+     <example>
+      <title>Passaggio di variabili PHP al file XSL</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+ 
+// XML string
+$xml = '<?xml version="1.0"?>
+<para>
+ change me
+</para>';
+ 
+// stringa XSL 
+$xsl = '
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:output method="html" encoding="ISO-8859-1" indent="no"
+ omit-xml-declaration="yes"  media-type="text/html"/>
+ <xsl:param name="myvar"/>
+ <xsl:param name="mynode"/>
+ <xsl:template match="/">
+My PHP variable : <xsl:value-of select="$myvar"/><br />
+My node set : <xsl:value-of select="$mynode"/>
+ </xsl:template>
+</xsl:stylesheet>';
+ 
+ 
+$xh = xslt_create();
+ 
+// Il secondo parametro sarà interpretato come stringa
+$parameters = array (
+  'myvar' => 'test',
+  'mynode' => '<foo>bar</foo>'
+);
+ 
+$arguments = array (
+  '/_xml' => $xml,
+  '/_xsl' => $xsl
+);
+ 
+echo xslt_process($xh, 'arg:/_xml', 'arg:/_xsl', NULL, $arguments, $parameters);
+ 
+?>
+]]>
+      </programlisting>
+      &example.outputs;
+      <screen>
+<![CDATA[
+My PHP variable : test<br>
+My node set : &lt;foo&gt;bar&lt;/foo&gt;
+]]>
+      </screen>
+     </example>
+    </para>
+    &note.xslt.windows;
    </refsect1>
   </refentry>
 

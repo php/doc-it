@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.24 Maintainer: alan_dangelo  Status: ready -->
+<!-- EN-Revision: 1.39 Maintainer: alan_dangelo  Status: ready -->
  <chapter id="language.references">
   <title>Spiegazioni sui riferimenti</title>
 
@@ -25,12 +25,14 @@
     <informalexample>
      <programlisting role="php">
 <![CDATA[
-$a =& $b 
+<?php
+$a =& $b;
+?>
 ]]>
      </programlisting>
     </informalexample>
     <varname>$a</varname> e <varname>$b</varname>
-    puntano alla stessa variabile.
+    puntano allo stesso contenuto.
     <note>
      <para>
       <varname>$a</varname> e <varname>$b</varname> sono completamente
@@ -41,14 +43,22 @@ $a =& $b
      </para>
     </note>
    </para>
+   <note>
+    <para>
+     Se si copia una matrice contenete dei riferimenti, i valori non sono dereferenziati.
+     Questo vale anche per le matrici passate per valore alle funzioni.
+    </para>
+   </note>
    <para>
    Questa sintassi si pu&ograve; usare con le funzioni, nella restituzione per riferimento,
    e con l'operatore <literal>new</literal> (da PHP 4.0.4 in poi):
     <informalexample>
      <programlisting role="php">
 <![CDATA[
+<?php
 $bar =& new fooclass();
-$foo =& find_var ($bar);
+$foo =& find_var($bar);
+?>
 ]]>
     </programlisting>
     </informalexample>
@@ -71,6 +81,90 @@ $foo =& find_var ($bar);
       Engine e provoca un parser error.
      </para>
    </note>
+   <warning>
+    <para>
+     Se si assegna un riferimento ad una varibile dichiarata <literal>global</literal>
+     dall'interno di una funzione, il riferimento sarà visibile solo all'interno della funzione stessa.
+     Si può evitare tutto ciò utilizzando la matrice <varname>$GLOBALS</varname>.
+     <example>
+      <title>Riferimenti di varibiali globali all'interno di una funzione</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$var1 = "Example variable";
+$var2 = "";
+ 
+function global_references($use_globals)
+{
+    global $var1, $var2;
+    if (!$use_globals) {
+        $var2 =& $var1; // visible only inside the function
+    } else {
+        $GLOBALS["var2"] =& $var1; // visible also in global context
+    }
+}
+ 
+global_references(false);
+echo "var2 is set to '$var2'\n"; // var2 is set to ''
+global_references(true);
+echo "var2 is set to '$var2'\n"; // var2 is set to 'Example variable'
+?>
+]]>
+      </programlisting>
+     </example>
+     Si pensi a <literal>global $var;</literal> come ad una scorciatoia per <literal>$var
+     =&amp; $GLOBALS['var'];</literal>. Quindi assegnando altri riferimenti
+     a <literal>$var</literal> si cambia soltanto il riferimento della variabile locale.
+    </para>
+   </warning>
+   <note>
+    <para>
+     Se si assegna un valore ad una variabile con riferimenti in una istruzione
+     <link linkend="control-structures.foreach">foreach</link>,
+     anche la variabile a cui si fa riferimento sarà modificata.
+     <example>
+      <title>Riferimenti e istruzione foreach</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$ref = 0;
+$row =& $ref;
+foreach (array(1, 2, 3) as $row) {
+    // esegue qualcosa
+}
+echo $ref; // 3 - ultimo elemento dell'array
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+   </note>
+   <warning>
+    <para>
+     Spesso le matrici complesse sono copiate che referenziate. Il seguente
+     esempio non gira come atteso.
+     <example>
+      <title>Riferimenti con matrici complesse</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$top = array(
+    'A' => array(),
+    'B' => array(
+        'B_b' => array(),
+    ),
+);
+ 
+$top['A']['parent'] = &$top;
+$top['B']['parent'] = &$top;
+$top['B']['B_b']['data'] = 'test';
+print_r($top['A']['parent']['B']['B_b']); // array()
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+   </warning>
    <para>
     Il secondo utilizzo del riferimento è il passaggio di una variabile
     per riferimento. Questo si fa dichiarando una variabile locale di una funzione e
@@ -78,6 +172,7 @@ $foo =& find_var ($bar);
     <informalexample>
      <programlisting role="php">
 <![CDATA[
+<?php
 function foo(&$var)
 {
     $var++;
@@ -85,6 +180,7 @@ function foo(&$var)
 
 $a=5;
 foo($a);
+?>
 ]]>
      </programlisting>
     </informalexample>
@@ -108,11 +204,13 @@ foo($a);
     <informalexample>
      <programlisting role="php">
 <![CDATA[
-function foo (&$var)
+<?php
+function foo(&$var)
 {
     $var =& $GLOBALS["baz"];
 }
 foo($bar); 
+?>
 ]]>
      </programlisting>
     </informalexample>
@@ -128,6 +226,8 @@ foo($bar);
     <varname>$var</varname>, ma <varname>$var</varname> possiede soltanto
     il contenuto della variabile e non il nome del valore collegato nella tabella
     dei simboli).
+    Si può utilizzare <link linkend="language.references.return">restiture i
+    riferimenti</link> per fare riferimenti a variabili selezionate dalla funzione.
    </simpara>
   </sect1>
 
@@ -139,6 +239,7 @@ foo($bar);
     <informalexample>
      <programlisting role="php">
 <![CDATA[
+<?php
 function foo(&$var)
 {
     $var++;
@@ -147,6 +248,7 @@ function foo(&$var)
 $a=5;
 foo($a);
 // $a adesso è 6
+?>
 ]]>
      </programlisting>
     </informalexample>
@@ -173,12 +275,14 @@ foo($a);
     <informalexample>
      <programlisting role="php">
 <![CDATA[
+<?php
 function &bar()
 {
     $a = 5;
     return $a;
 }
 foo(bar());
+?>
 ]]>
      </programlisting>
     </informalexample>
@@ -195,6 +299,7 @@ foo(bar());
     <informalexample>
      <programlisting role="php">
 <![CDATA[
+<?php
 function bar() // Nota l'assenza di &
 {
     $a = 5;
@@ -202,12 +307,13 @@ function bar() // Nota l'assenza di &
 }
 
 foo(bar());
-foo($a = 5) // Expressione: non una variabile
-foo(5) // Constante: non una variabile
+foo($a = 5); // Expressione: non una variabile
+foo(5); // Constante: non una variabile
+?>
 ]]>
      </programlisting>
     </informalexample>
-		Questi requisiti sono validi per PHP 4.0.4 e seguenti.
+    Questi requisiti sono validi per PHP 4.0.4 e seguenti.
   </para>
   </sect1>
 
@@ -220,6 +326,7 @@ foo(5) // Constante: non una variabile
     <informalexample>
      <programlisting role="php">
 <![CDATA[
+<?php
 function &find_var($param)
 {
     ...codice...
@@ -228,6 +335,7 @@ function &find_var($param)
 
 $foo =& find_var($bar);
 $foo->x = 2; 
+?>
 ]]>
      </programlisting>
     </informalexample>
@@ -242,6 +350,8 @@ $foo->x = 2;
      si vuole restituire per riferimento, e non per copia come di consueto, 
      e per indicare nella chiamata, il collegamento del riferimento, piuttosto che l'usuale 
      assegnazione che verrebbe fatta per <varname>$foo</varname>.
+     <literal>&amp;</literal> nella definizione delle funzioni è opzionale nei metodi delle
+     <link linkend="keyword.class">classi</link>.
     </simpara>
    </note>
   </sect1>
@@ -255,9 +365,11 @@ $foo->x = 2;
     <informalexample>
      <programlisting role="php">
 <![CDATA[
+<?php
 $a = 1;
 $b =& $a;
-unset ($a); 
+unset($a); 
+?>
 ]]>
      </programlisting>
     </informalexample>
@@ -288,7 +400,9 @@ unset ($a);
      <informalexample>
       <programlisting role="php">
 <![CDATA[
+<?php
 $var =& $GLOBALS["var"];
+?>
 ]]>
       </programlisting>
      </informalexample>

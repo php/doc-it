@@ -1,126 +1,121 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.34 Maintainer: perugini Status: ready -->
+<!-- EN-Revision: 1.44 Maintainer: perugini Status: ready -->
 <chapter id="language.basic-syntax">
   <title>Sintassi Fondamentale</title>
-
-   <!--
-   
-    NOTE:                             Last modified: 2001-05-16 13:00 GMT
-    
-    the language part is currently under heavy revision. Please do not
-    not make any heavy (i.e. structural) modifications to this part 
-    for a moment. 
-    
-    You'd also better not start any translation yet.
-    
-    Comments are always welcome at phpdoc@lists.php.net
-    
-    Progress:
-    
-     intro : DOESN'T EXIST - yet?
-             new chapter, with some introductionary remarks?
-             Will be discussed on the ML soon.
-     basic-syntax: 
-             FINISHED
-             except maybe moving the 'advanced escaping'
-             to a better place?
-             TODO: 
-              - nada
-     types : Being revised. Added all new types
-             Boolean and Integer are more or less finished.
-             The rest isn't.
-             TODO: 
-              - why is $foo[bar] bad syntax?
-              - what's the difference between unset($bla) and
-                $bla = NULL; (it is different!)
-              - $obj->{expr} syntax
-              - (unset) cast?????
-              - $bla = unset <== should've been nuked, don't mention it
-              - $str{offset} syntax, rather than $str[offset]
-              - read notes and apply when any of them are useful
-              - remove notes which have been included here.
-              - ...
-     the rest: Not yet started with.
-             TODO: 
-              - ?
-     oop   : has been revised by Kristian, DONE.
-   -->
    
   <sect1 id="language.basic-syntax.phpmode">
-   <title>Modi per uscire dalla modalità HTML</title>
-  
+   <title>Modi per uscire dalla modalità HTML</title>  
    <para>
-     Quando il PHP inizia a esaminare un file, visualizzerà il contenuto del file
-     sino a quando non incontra uno dei tag speciali indicanti l'inizio
-     del codice da interpretare come istruzioni PHP. A questo punto il parser 
-     eseguirà tutto il codice trovato sino a quando non incontrerà
-     i tag di chiusura, che indicano al parser di tornare alla modalità
-     di visualizzazione. Questo meccanismo permette di inserire codice PHP
-     all'interno di codice HTML: tutto ciò che si trova all'esterno
-     dei tag PHP sarà lasciato inalterato, mentre tutto ciò che si trova all'interno
-     sarà eseguito come codice PHP.
+    Quando il PHP inizia a esaminare un file, cerca i tag di apertura e di chiusura,
+    che indicano dove iniziare e terminare l'interpretazione del codice.
+    Questa tecnica permette al PHP di essere incorporato in tutte
+    le tipologie di documenti, poichè ogni cosa esterna ai tag
+    di apertura e di chiusura viene ignoarat dal parser PHP.
+    Il più delle volte si vedrà codice PHP racchiuso in documenti HTML,
+    come nel seguente esempio.
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<p>This is going to be ignored.</p>
+<?php echo 'While this is going to be parsed.'; ?>
+<p>This will also be ignored.</p>
+]]>
+     </programlisting>
+    </informalexample>
    </para>
-
-   <para> 
+   <para>
+    Si possono usare anche strutture più avanzate:
+    <example>
+    <title>Escape avanzato</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+if ($expression) {
+    ?>
+    <strong>This is true.</strong>
+    <?php
+} else {
+    ?>
+    <strong>This is false.</strong>
+    <?php
+}
+?>
+]]>
+     </programlisting>
+    </example>
+    Questo codice funziona come atteso, perchè quando il PHP trova il tag di chiusura ?&gt;,
+    inizia a visualizzare tutto ciò che incontra sino a quando non si raggiunge
+    un'altro tag di apertura. L'esempio è semplificato, ovviamente,
+    ma nella visualizzazzione di grossi blocchi di testo uscire dalla
+    modalità di parsing del codice PHP è generalmente più efficiente che inviare il tutto
+    tramite <function>echo</function> o
+    <function>print</function>.
+   </para>
+  <para> 
     Esistono 4 set di tag che possono essere utilizzati per delimitare
     blocchi di codice PHP. Soltanto due di questi (&lt;?php. . .?&gt; e &lt;script language="php"&gt;. . .&lt;/script&gt;)
-    sono sempre disponibili;
-    gli altri possono essere attivati o disattivati tramite il file di configurazione
-    &php.ini;.
-    Sebbene i tag brevi o quelli in stile ASP possano essere pratici, il supporto di questi non
-    è garantito in tutte le versioni. Quindi, se si intende inserire codice
-    PHP all'interno di testi XMl o XHTML, occorre utilizzare 
-    &lt;?php. . .?&gt; per essere conformi allo standard XML.
+    sono sempre disponibili.
+    Gli altri due sono i tag brevi e i tag stile <productname>ASP</productname>
+    e possono essere attivati o disattivati tramite il file di configurazione
+    &php.ini;. Sebbene i tag brevi o quelli in stile <productname>ASP</productname>
+    possano essere pratici, questi sono meno
+    portabili e, in generale, sconsigliati.
+    <note>
+     <para>
+      Occorre notare che se si intende inserire codice
+      PHP all'interno di testi XMl o XHTML, occorre utilizzare 
+      &lt;?php ?&gt; per essere conformi allo standard XML.
+     </para>
+    </note>
    </para>
-
    <para>
-    I tag supportati dal PHP sono: 
-   </para>
-
-    <para>
-     <example>
-      <title>Metodi per uscire dalla modalità HTML</title>
-      <programlisting role="php">
-<![CDATA[     
-1.  <?php echo("se si vogliono produrre documenti XHTML o XML, si utilizzi questo modo\n"); ?>
-
-2.  <? echo ("questo è il più semplice, ovvero come istruzione SGML\n"); ?>
-    <?= espressione ?>  Questa è un'abbreviazione per "<? echo espressione ?>"
- 
-3.  <script language="php">
-        echo ("alcuni editor (tipo FrontPage) non 
-               amano le istruzioni di elaborazione");
+    <example>
+     <title>Tag di apertura e di chiusura</title>
+     <programlisting role="php">
+<![CDATA[   
+1.  <?php echo 'se si vogliono produrre documenti XHTML o XML, si utilizzi questo modo'; ?>
+2.  <script language="php">
+        echo 'alcuni editor (tipo FrontPage) non 
+               amano le istruzioni di elaborazione';
     </script>
 
-4.  <% echo ("Opzionalmente puoi utilizzare tag nello stile ASP"); %>
-    <%= $variable; # Questo &egrave; una abbreviazione per "<%echo .." %>
+3.  <? echo 'questo è il più semplice, ovvero come istruzione SGML'; ?>
+    <?= espressione ?>  Questa è un'abbreviazione per "<? echo espressione ?>"
+ 
+
+4.  <% echo 'Opzionalmente puoi utilizzare tag nello stile ASP'; %>
+    <%= $variable; # Questo &egrave; una abbreviazione per "<% echo ..." %>
 ]]>
       </programlisting>
      </example>
     </para>
 
     <para>
-     Il primo, &lt;?php. . .?&gt;,  è il metodo preferenziale, dato che permette
-     l'utilizzo del PHP all'interno di codice conforme a specifiche XML come XHTML.
-    </para>
-
+     Sebbene i tag utilizzati negli esempi 1 e 2 siano sempre
+     disponibili, l'esempio uno rappresenta la situazione più comunemente 
+     utilizzata, e la più raccomandata dei due.
+    </para> 
     <para>
-     Il secondo metodo è disponibile solo se sono stati abilitati 
-     i tags abbreviati. Ciò può
-     essere impostato sia utilizzando la funzione <function>short_tags</function> (solo PHP 3), sia
-     abilitando nel file di configurazione del PHP l'opzione 
-     <link linkend="ini.short-open-tag">short_open_tag</link>, oppure compilando il PHP 
-     utilizzando l'opzione --enable-short-tags nel comando <command>configure</command>.
-     Sebbene siano abilitati nel php.ini-dist riilasciato, l'uso dei tag brevi è vivamente sconsigliato.
-    </para>
-
-    <para>
-     Il quarto modo &egrave; disponibile solo se sono stati attivati nel file 
-     di configurazione i tag in stile ASP tramite l'opzione 
-     <link linkend="ini.asp-tags">asp_tags</link>.
-
+     I tag brevi (esempio tre) sono disponibili soltanto se sono stati
+     abilitati tramite il parametro <link linkend="ini.short-open-tag">short_open_tag</link>
+     del &php.ini;, oppure se il PHP è stato configurato con
+     <option>--enable-short-tags</option>.
      <note>
-      <para>Il supporto per i tag nello stile ASP è stato aggiunto nella versione 3.0.4.</para>
+      <para>
+       Se si utilizza il PHP 3 si può anche avere disponibili i tag brevi tramite
+       la funzione <function>short_tags</function>. <emphasis>Questo
+       vale solo per il PHP 3!</emphasis>
+      </para>
+    </note>
+   </para>
+   <para>
+    I tag in stile <productname>ASP</productname> (esempio quattro) sono disponibili soltanto quando
+    sono abilitati tramite il parametro 
+    <link linkend="ini.asp-tags">asp_tags</link> del &php.ini;
+    <note>
+     <para>
+      Il supporto per i tag nello stile <productname>ASP</productname> è stato aggiunto nella versione 3.0.4.
+      </para>
      </note>
     </para>
     <para>
@@ -134,81 +129,51 @@
      </para>
     </note>
    </para>
-
-   <para>
-    Il tag di chiusura di un blocco include il carattere di 'a capo' 
-    immediatamente seguente, se presente. Inoltre, il tag di chiusura
-    viene considerato automaticamente come punto e virgola; pertanto non
-    occorre inserire il punto e virgola alla fine dell'ultima riga del blocco php.  
-   </para>
-    
-   <para>
-    Il PHP permette strutture tipo le seguenti:
-     <example><title>Modi avanzati per uscire dalla modalità HTML</title>
-     <programlisting role="php">
-<![CDATA[  
-<?php
-if ($expression) {
-    ?>
-    <strong>Questa è vera.</strong>
-    <?php
-} else {
-    ?>
-    <strong>Questa è falsa.</strong>
-    <?php
-}
-?>    
-]]>
-     </programlisting>
-     </example>
-      Questo esempio agisce come atteso, poichè il PHP rileva il tag di
-      chiusura ?&gt;, e da questo punto, inizia a dare in output tutto ciò
-      che trova fino a quando non rileva un'altro tag di apertura.
-      Certamente l'esempio dato è macchinoso, ma per l'output
-      di grossi blocchi di testo, l'uscire dalla modalità di parsing PHP, 
-      è generalmente più efficiente piuttosto che inviare il testo
-      tramite ripetute funzioni <function>echo</function> o 
-      <function>print</function>.
-    </para>
    </sect1>
 
    <sect1 id="language.basic-syntax.instruction-separation">
     <title>Separazione delle istruzioni</title>
-
-    <simpara>
-     Le istruzioni sono separate come nel C o in Perl - 
-     ogni istruzione termina con un punto e virgola.
-    </simpara>
-
+ 
     <para>
-     Il tag di chiusura (?&gt;) implica anche la fine di un'istruzione, 
-     perci&ograve; le seguenti sono equivalenti:
+     Come in C od in Perl, il PHP richiede che le istruzioni siano separate
+     dal punto e virgola al termine di ogni istruzione. I tag di chiusura
+     di un blocco di codice PHP implicano in automatico il punto e virgola;
+     non occorre, pertanto, inserire il punto e virgola per chiudere l'ultima riga
+     di un blocco PHP. Il tag di chiusura del blocco include il newline
+     immediatamente seguente, se presente.
      <informalexample>
       <programlisting role="php">
 <![CDATA[
 <?php
-    echo "Questo &grave; un test";
+    echo 'Questo &grave; un test';
 ?>
-<?php echo "Questo &grave; un test" ?>
+<?php echo 'Questo &grave; un test' ?>
 ]]>
       </programlisting>
      </informalexample>
+     <note>
+     <para>
+      Il tag di chiusura di un blocco PHP alla fine di un file è opzionale,
+      ed in alcuni casi è utile non utilizzarlo soprattutto quando si utilizza l'output buffering
+      e le funzioni <function>include</function> o <function>require</function>.
+     </para>
+    </note>
     </para>
    </sect1>
    <sect1 id="language.basic-syntax.comments">
     <title>Commenti</title>
    
     <para>
-     Il PHP supporta i commenti dei linguaggi 'C', 'C++' e della shell Unix. Per esempio:
+     Il PHP supporta i commenti dei linguaggi 'C', 'C++' e stile shell (stile Perl) di Unix. Per esempio:
      <informalexample>
       <programlisting role="php">
 <![CDATA[ 
 <?php
-    echo "Questo &grave; un test"; // Questo &egrave; un commento su una linea nella stile c++ 
+    echo 'Questo &grave; un test'; // Questo &egrave; un commento su una linea nella stile c++ 
     /* Questo &egrave; un commento su pi&ugrave; linee
        ancora un'altra linea di commento */
-    echo "Questo &egrave; un altro test";
-    echo "Un ultimo test"; # Questo &egrave; un commento stile shell Unix 
+    echo 'Questo &egrave; un altro test';
+    echo 'Un ultimo test'; # Questo &egrave; un commento stile shell Unix 
 ?>
 ]]>
       </programlisting>
@@ -217,20 +182,27 @@ if ($expression) {
 
     <simpara>
      Lo stile di commento su "una linea", attualmente commenta solo fino alla fine della linea
-     o del blocco corrente di 
-     codice PHP.
+     o del blocco corrente di codice PHP.
+     Questo significa che l'eventuale codice HTML posto dopo <literal>// ?&gt;</literal> sarà stampato:
+     ?&gt; esce dalla modalità PHP e ritorna in modalità HTML, e quindi
+     <literal>//</literal> non può influenzare quest'ultima.
+     Se l'impostazione <link linkend="ini.asp-tags">asp_tags</link>
+     è abilitata, il PHP si comporta allo stesso modo con <literal>// %&gt;</literal>.
+     Tuttavia il tag <literal>&lt;/script&gt;</literal> non esce dalla modalità PHP nei commenti
+     di una linea.
     </simpara>
     <para>
      <informalexample>
       <programlisting role="php">
 <![CDATA[
-<h1>Questo &egrave; un <?# echo "semplice";?> esempio.</h1>
-<p>L'intestazione qui sopra dir&agrave; 'Questo &egrave; un esempio'. 
+<h1>Questo &egrave; un <?# echo 'semplice';?> esempio.</h1>
+<p>L'intestazione qui sopra dir&agrave; 'Questo &egrave; un esempio'.</p>
 ]]>
       </programlisting>
      </informalexample> 
     </para>
     <simpara>
+     I commenti in stile C terminano alla prima occorrenza di <literal>*/</literal>.
      Occorre fare attenzione nel non annidare i commenti di stile C, situazione che si presenta
      quando si commentano larghi blocchi di codice.
     </simpara>
@@ -240,20 +212,13 @@ if ($expression) {
 <![CDATA[
 <?php
  /* 
-    echo "Questo &egrave; un test"; /* Questo commento causer&agrave; dei problemi */
+    echo 'Questo &egrave; un test'; /* Questo commento causer&agrave; dei problemi */
  */
 ?>
 ]]>
      </programlisting>
     </informalexample>
    </para>
-   <simpara> 
-    Lo stile di commento su linea singola commenta il testo fino
-    alla fine della riga oppure alla fine del blocco di codice PHP, dipende da cosa si incontra prima.
-    Questo significa che il codice HTML posizionato dopo <literal>// ?></literal> SARA' visualizzato:
-    ?> indica di uscire dal modo PHP e di ritornare in modalità HTML, e, quindi,
-    <literal>//</literal> non hanno più effetto. 
-   </simpara>
    </sect1>
   </chapter>
  

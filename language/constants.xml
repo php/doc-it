@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.33 Maintainer: cortesi Status: ready -->
+<!-- EN-Revision: 1.40 Maintainer: cortesi Status: ready -->
  <chapter id="language.constants">
   <title>Costanti</title>
 
@@ -17,10 +17,30 @@
    da un numero qualsiasi di caratteri alfanumerici o underscore.
    L'espressione regolare che esprime questa convenzione è:
    <literal>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*</literal>
-
-   <!-- TODO: Example of valid & invalid constant names -->
   </para>
-				      
+  <para>
+   <example>
+    <title>Nomi di costanti validi ed errati</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// Nomi validi
+define("FOO",     "something");
+define("FOO2",    "something else");
+define("FOO_BAR", "something more")
+ 
+// Nomi di costante errati
+define("2FOO",    "something");
+	 
+// Nomi validi, ma da evitare:
+// un domani potrebbero essere utilizzati dal PHP per fornire costanti magiche
+// e quindi si avrebbero problemi nello script
+define("__FOO__", "something"); 
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>				      
   <note>
    <simpara>
     In questo contesto una lettera è a-z, A-Z e i caratteri ASCII
@@ -127,15 +147,16 @@ echo Costante; // stampa "Costante" e genera una notice.
   </sect1>
   
   <sect1 id="language.constants.predefined">
-   <title>Costanti predefinite</title>
+   <title>Costanti magiche</title>
    <simpara>
-    Il PHP mette a disposizione ad ogni script diverse costanti predefinite.
+    Il PHP mette a disposizione ad ogni script diverse <link
+    linkend="reserved.constants">costanti predefinite</link> disponibili a tutti gli script.
     Alcune di queste, tuttavia, sono create dai vari moduli, e, pertanto, saranno 
     disponibili solo quando questi moduli sono caricati, sia dinamicamente
     sia staticamente.
    </simpara>
   <para>
-   Esistono quattro costanti magiche il cui valore cambia in base
+   Esistono cinque costanti magiche il cui valore cambia in base
    al contesto in cui sono utilizzate. Ad esempio, il valore di <constant>__LINE__</constant>
    dipende da quale linea si trova nel momento in cui è richiamata. Queste costanti
    speciali sono 'case-insensitive' e sono:
@@ -160,25 +181,34 @@ echo Costante; // stampa "Costante" e genera una notice.
        <row>
         <entry><constant>__FILE__</constant></entry>
         <entry>
-         Il nome e percorso assoluto del file.
+         Il nome e percorso assoluto del file. Se viene utilizzata
+         all'interno di un'include, la costante restituisce il nome del file incluso.
+         Dal PHP 4.0.2, <constant>__FILE__</constant> contiene sempre
+         il percorso assoluto del file, mentre nelle versioni precedenti,
+         in base alle circostanze, poteva contenere il percorso relativo.
         </entry>
        </row>
        <row>
         <entry><constant>__FUNCTION__</constant></entry>
         <entry>
-         Nome della funzione. (Aggiunta nel PHP 4.3.0.)
+         Nome della funzione. (Aggiunta nel PHP 4.3.0.) Dal PHP 5 questa costante
+         restituisce il nome della funzione così come è stato dichiarato (rispettando le lettere maiuscole).
+         In PHP 4 è sempre minuscolo.
         </entry>
        </row>
        <row>
         <entry><constant>__CLASS__</constant></entry>
         <entry>
-         Nome della classe. (Aggiunta nel PHP 4.3.0.)
+         Nome della classe. (Aggiunta nel PHP 4.3.0.). Dal PHP 5 questa costante
+         restituisce il nome della classe così come è stato dichiarato (rispettando le lettere maiuscole).
+         In PHP 4 è sempre minuscolo.
         </entry>
        </row>
        <row>
         <entry><constant>__METHOD__</constant></entry>
         <entry>
-         Nome del metodo della classe (Aggiunta nel PHP 5.0.0.)
+         Nome del metodo della classe. (Aggiunta nel PHP 5.0.0.). Questa costante
+         restituisce il nome del metodo così come è stato dichiarato (rispettando le lettere maiuscole).
         </entry>
        </row>
       </tbody>
@@ -186,11 +216,13 @@ echo Costante; // stampa "Costante" e genera una notice.
     </table>
    </para>
 
-   <simpara>
-    La lista di tutte le costanti predefinite è presente nella sezione
-    <link linkend="reserved.constants">reserved predefined constants</link>.
-   </simpara>
-
+   <para>
+    Vedere anche
+    <function>get_class</function>,
+    <function>get_object_vars</function>,
+    <function>file_exists</function>&listendand;
+    <function>function_exists</function>.
+   </para>
 
   </sect1>
  </chapter>

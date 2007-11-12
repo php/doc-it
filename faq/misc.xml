@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.11 Maintainer: hfish Status: ready -->
+<!-- EN-Revision: 1.29 Maintainer: hfish Status: ready -->
  <chapter xml:id="faq.misc" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
   <title>Domande varie</title>
   <titleabbrev>Domande varie</titleabbrev>
@@ -10,28 +10,6 @@
    </para>
 
   <qandaset>
-   <qandaentry xml:id="faq.misc.popup">
-    <question>
-     <para>
-      Come si fanno a creare le pop-up in un sito web? 
-      &Egrave; possibile avere il codice per crearle?
-     </para>
-    </question>
-    <answer>
-     <para>
-      Le pop-up gialle stile vecchio Windows sono molto carine, ma 
-      sono anche molto difficili da mantenere (da quando qualche società sembra divertirsi 
-      nel cambiare il modo in cui il proprio browser lavora con le nuove release).
-    </para>
-    <para>
-      Tutto il codice delle versioni precedenti del sito sono ancora disponibili 
-      mediante CVS. In modo particolare, l'ultima versione di shared.inc 
-      (che contiene tutto il codice Javascript e DHTML per le pop-up) è disponibile
-      a <link xlink:href="&url.popup;">questo link</link>.
-     </para>
-    </answer>
-   </qandaentry>
-
    <qandaentry xml:id="faq.misc.bz2">
     <question>
      <para>
@@ -48,12 +26,13 @@
       Se non vuoi usare la riga di comando, puoi scaricare uno di questi 
       software grauiti: <link xlink:href="&url.stuffit;">Stuffit Expander</link>, 
       <link xlink:href="&url.ultimatezip;">UltimateZip</link>,
-      <link xlink:href="&url.7zip;">7-Zip</link> o 
-      <link xlink:href="&url.quickzip;">Quick Zip</link>. Se hai già dei 
+      <link xlink:href="&url.7zip;">7-Zip</link> o
+      <link xlink:href="&url.quickzip;">Quick Zip</link>. Se hai già dei
       software tipo <link xlink:href="&url.winrar;">WinRAR</link> o 
-      <link xlink:href="&url.powerarchiver;">Power Archiver</link>, puoi 
-      gestire senza problemi gli archivi bz2. Se usi Windows Commander, sul sito
-      <link xlink:href="&url.wincmd;">Windows Commander</link> è disponibile un 
+      <link xlink:href="&url.powerarchiver;">Power Archiver</link>, puoi
+      gestire senza problemi gli archivi bz2. Se usi Total Commander
+      (un tempo Windows Commander),
+       sul sito <link xlink:href="&url.wincmd;">Windows Commander</link> è disponibile un
       plugin gratuito per gestire i file bz2.
      </para>
      <para>
@@ -93,6 +72,125 @@
       differenza è che hai scaricato un file *.tar. Il formato *.tar è famoso perchè
       viene riconosciuto dalla maggior parte dei software di archiviazione per 
       Windows, per esempio <link xlink:href="&url.winzip;">WinZip</link>.
+     </para>
+    </answer>
+   </qandaentry>
+   
+   <qandaentry xml:id="faq.misc.arguments.references">
+    <question>
+     <para>
+      Cosa significa il simbolo &amp; davanti agli argomenti nelle dichiarazione di funzioni come, ad esempio, 
+      <function>asort</function>?
+     </para>
+    </question>
+    <answer>
+     <para>
+      Significa che l'argomento è
+      <link linkend="language.references.pass">passato per riferimento</link> e
+      la funzione può modificarlo, come specificato nella documentazione. In
+      questo modo si possono solo passare variabili e non occorre scrivere 
+      &amp; nella chiamata (è persino
+      <link linkend="ini.allow-call-time-pass-reference">deprecato</link>).
+     </para>
+    </answer>
+   </qandaentry>
+   
+   <qandaentry xml:id="faq.misc.registerglobals">
+    <question>
+     <para>
+      Come gestisco i <literal>register_globals</literal>?
+     </para>
+    </question>
+    <answer>
+     <para>
+      Per informazione sulle implicazioni di sicurezza dei
+      <literal>register_globals</literal>, leggi il capitolo sulla sicurezza sull'
+      <link linkend="security.globals">Uso dei register_globals</link>.
+     </para>
+     <para>
+      Si preferisce utilizzare i
+      <link linkend="language.variables.superglobals">superglobals</link>,
+      piuttosto che basarsi sui <literal>register_globals</literal>.
+     </para>
+     <para>
+      Se sei un un host condiviso con <literal>register_globals</literal> spenti
+      e hai bisogno di usare delle applicazioni particolari che li richiedono
+      attivi, o se sei su un server in hosting con questa opzione
+      attiva, ma vuoi eliminare rischi di sicurezza, puoi
+      emulare l'impostazione corretta con PHP. Ovviamente è sempre un'ottima idea
+      chiedere se è possibile cambiare l'opzione nella configurazione di PHP,
+      ma se ciò non è possibile, puoi usare queste
+      snippet di compatibilità.
+     </para>
+     <para>
+      <example>
+       <title>Emulazione dei Register Globals</title>
+        <para>
+        Questo emula register_globals On. Se hai alterato la direttiva
+        <link linkend="ini.variables-order">variables_order</link>,
+        cambia la <varname>$superglobals</varname> di conseguenza.
+       </para>
+       <programlisting role="php">
+<![CDATA[
+<?php
+// Emulazione di register_globals on
+if (!ini_get('register_globals')) {
+    $superglobals = array($_SERVER, $_ENV,
+        $_FILES, $_COOKIE, $_POST, $_GET);
+    if (isset($_SESSION)) {
+        array_unshift($superglobals, $_SESSION);
+    }
+    foreach ($superglobals as $superglobal) {
+        extract($superglobal, EXTR_SKIP);
+    }
+}
+?>
+]]>
+       </programlisting>
+       <para>
+        Questo emula register_globals Off. Ricorda che questo codice 
+        deve essere chiamato all'inizio dello script, oppure dopo
+        <function>session_start</function> se lo usi per iniziare la session.
+       </para>
+       <programlisting role="php">
+<![CDATA[
+<?php
+// Emulazione di register_globals off
+function unregister_GLOBALS()
+{
+    if (!ini_get('register_globals')) {
+        return;
+    }
+
+    // Might want to change this perhaps to a nicer error
+    if (isset($_REQUEST['GLOBALS']) || isset($_FILES['GLOBALS'])) {
+        die('GLOBALS overwrite attempt detected');
+    }
+
+    // Variables that shouldn't be unset
+    $noUnset = array('GLOBALS',  '_GET',
+                     '_POST',    '_COOKIE',
+                     '_REQUEST', '_SERVER',
+                     '_ENV',     '_FILES');
+
+    $input = array_merge($_GET,    $_POST,
+                         $_COOKIE, $_SERVER,
+                         $_ENV,    $_FILES,
+                         isset($_SESSION) && is_array($_SESSION) ? $_SESSION : array());
+    
+    foreach ($input as $k => $v) {
+        if (!in_array($k, $noUnset) && isset($GLOBALS[$k])) {
+            unset($GLOBALS[$k]);
+        }
+    }
+}
+
+unregister_GLOBALS();
+
+?>
+]]>
+       </programlisting>
+      </example>
      </para>
     </answer>
    </qandaentry>

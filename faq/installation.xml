@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.16 Maintainer: hfish Status: ready -->
+<!-- EN-Revision: 1.49 Maintainer: hfish Status: ready -->
  <chapter xml:id="faq.installation" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
   <title>Installazione</title>
   <titleabbrev>Installazione</titleabbrev>
@@ -10,15 +10,41 @@
    i webserver.
   </para>
   <para>
-   Per installare PHP, segui le istruzioni del file 
-   <link xlink:href="&url.file.installation;">INSTALL</link>
-   della tua distribuzione. Gli utenti Windows possono anche leggere il file 
-   <link xlink:href="&url.file.readmewin;">
-   install.txt</link> o visitare <link linkend="install.windows">questo sito</link> per avere ulteriori 
-   suggerimenti.
+   Per installare PHP, seguire le istruzioni del file <xref linkend="install"/>.
   </para>
 
   <qandaset>
+   <qandaentry xml:id="faq.installation.apache2">
+    <question>
+     <para>
+      Perché non dovrei usare Apache2 con il threaded MPM in un ambiente di produzione?
+     </para>
+    </question>
+    <answer>
+     <para>
+      PHP è una colla. &Egrave; la colla utilizzata per creare belle applicazioni web 
+      appiccicando decine di librerie di terze parti e facendole apparire
+      come una entità coerente attraverso un'interfaccia di linguaggio intuitiva e facile da
+      apprendere. La flessibilità e potenza di PHP dipendono dalla stabilità e
+      robustezza della piattaforma sui cui gira. Ha bisogno di un sistema operativo funzionante, un 
+      web server funzionanante e delle librerie esterne funzionanti, per ottenere lo scopo. Se uno qualsiasi
+      di questi elementi smette di funzionare, PHP ha bisogno di metodi per identificare il problema e risolverlo
+      velocemente. Quando si rende il framework più complesso eliminando
+      completamente i thread di esecuzione separata, i segmenti separati di memoria
+      ed un solido ambiente in cui eseguire ogni richiesta, si introduce
+      un punto di debolezza nel sistema PHP.
+     </para>
+     <para>
+      Se il threaded MPM è necessario, meglio considerare una configurazione FastCGI
+      dove PHP sia eseguito nel proprio spazio di memoria.
+     </para>
+     <para>
+      Infine, questo avviso contro l'uso del threaded MPM non è così perentorio per i 
+      sistemi Windows poicé la maggior parte delle librerie su questa piattaforma tendono ad essere threadsafe.
+     </para>
+    </answer>
+   </qandaentry>
+
    <qandaentry xml:id="faq.installation.phpini">
     <question>
      <para>
@@ -28,20 +54,32 @@
     </question>
     <answer>
      <para>
-      Nei sistemi UNIX il percorso predefinito è <filename>/usr/local/lib</filename>. Molti utenti vorranno
-      cambiare questo percorso durante la fase di compilazione con il flag
+      Nei sistemi Unix il percorso predefinito è <filename>/usr/local/lib</filename>
+      ovvero <filename>&lt;install-path&gt;/lib</filename>.
+      Molti utenti vorranno cambiare questo percorso durante la fase di compilazione con il flag
       <link linkend="install.configure.with-config-file-path">--with-config-file-path</link>. Per esempio 
       potresti modificare il percorso in un modo simile a questo:
-      <programlisting>
+      <programlisting role="shell">
 --with-config-file-path=/etc
       </programlisting>
       e quindi dovresti copiare il file <filename>php.ini-dist</filename> della distribuzione in
       <filename>/etc/php.ini</filename> e modificarlo 
       per ottenere tutti i cambiamenti voluti.
      </para>
+      <programlisting role="shell">
+--with-config-file-scan-dir=PATH 
+      </programlisting>
      <para>
-      Nei sistemi Windows il percorso predefinito 
-      corrisponde alla cartella stessa di Windows.
+      Nei sistemi Windows il percorso predefinito per &php.ini; corrisponde alla 
+      cartella stessa di Windows. Se si sta usano il web server Apache, &php.ini; viene prima
+      cercato nella cartella di installazione di Apache, es <filename>c:\program
+      files\apache group\apache</filename>. In questo modo si possono avere
+      differenti &php.ini; per differenti versioni di Apache sulla stessa
+      macchina.
+     </para>
+     <para>
+     Vedere anche il capitolo sul <link
+     linkend="configuration.file">file di configurazione</link>.
      </para>
     </answer>
    </qandaentry>
@@ -105,8 +143,8 @@
        </listitem>
        <listitem>
         <para>
-         Comunica il bug a <link xlink:href="&url.php.bugs;">&url.php.bugs;</link> includendo un backtrace
-    	 del problema.
+         Comunica il bug a <link xlink:href="&url.php.bugs;">&url.php.bugs;</link> 
+         includendo un backtrace del problema.
         </para>
        </listitem>
       </itemizedlist>
@@ -132,8 +170,9 @@
      <para>
       Presumendo che tu abbia installato sia Apache che PHP da pacchetti RPM, 
       hai bisogno di decommentare o aggiungere qualcuna o tutte le righe seguenti 
-      nel file <filename>http.conf</filename>:
-      <programlisting>
+      nel file &httpd.conf;:
+      <programlisting role="apache-conf">
+<![CDATA[
 # Extra Modules
 AddModule mod_php.c
 AddModule mod_php3.c
@@ -141,14 +180,17 @@ AddModule mod_perl.c
 
 # Extra Modules
 LoadModule php_module         modules/mod_php.so
-LoadModule php3_module        modules/libphp3.so     /* per PHP 3 */
-LoadModule php4_module        modules/libphp4.so     /* per PHP 4 */
+LoadModule php3_module        modules/libphp3.so     # per PHP 3
+LoadModule php4_module        modules/libphp4.so     # per PHP 4
 LoadModule perl_module        modules/libperl.so
+]]>
       </programlisting>
       And add:
-      <programlisting>
-AddType application/x-httpd-php3 .php3    /* per PHP 3 */
-AddType application/x-httpd-php .php      /* per PHP 4 */
+      <programlisting role="apache-conf">
+<![CDATA[
+AddType application/x-httpd-php3 .php3    # per PHP 3
+AddType application/x-httpd-php .php      # per PHP 4
+]]>
       </programlisting>
       ... alle proprietà globali o alle proprietà del VirtualDomain 
       su cui vuoi aggiungere il supporto PHP.
@@ -188,68 +230,66 @@ AddType application/x-httpd-php .php      /* per PHP 4 */
       quanto segue potrebbe esserti di aiuto:
       <itemizedlist>
        <listitem>
-	      <para>
+        <para>
          Per prima cosa rimuovi mod_php3: 
-         <programlisting>
+         <programlisting role="shell">
 rpm -e mod_php3
          </programlisting>
-	      </para>
- 	     </listitem>
- 	     <listitem>
-	      <para>
-         Quindi prendi i pacchetti RPM e installali di nuovo, non <emphasis>re</emphasis>installarli
-         <programlisting>
+        </para>
+       </listitem>
+       <listitem>
+        <para>
+         Quindi prendi i pacchetti RPM e installali di nuovo, non --rebuild
+         <programlisting role="shell">
 rpm -Uvh mod_php3-3.0.5-2.src.rpm
          </programlisting>
-  	    </para>
- 	     </listitem>
- 	     <listitem>
-	      <para>
-	       Adesso modifica il file <filename>/usr/src/redhat/SPECS/mod_php3.spec</filename>
-	      </para>
-	      <para>
+        </para>
+       </listitem>
+       <listitem>
+        <para>
+         Adesso modifica il file <filename>/usr/src/redhat/SPECS/mod_php3.spec</filename>
+        </para>
+        <para>
          Nella sezione %build aggiungi il supporto che desideri e il percorso.
-	      </para>
-	      <para>
+        </para>
+        <para>
          Per MySQL dovresti aggiungere:
-         <programlisting>
---with-mysql=/usr \
-         </programlisting>
+         <option role="configure">--with-mysql=/usr</option>
          La sezione %build (installazione) dovrebbe ora essere simile a questa:
-         <programlisting>
-	./configure --prefix=/usr \
-	--with-apxs=/usr/sbin/apxs \
-	--with-config-file-path=/usr/lib \
-	--enable-debug=no \
-	--enable-safe-mode \
-	--with-exec-dir=/usr/bin \
-	--with-mysql=/usr \
-	--with-system-regex
+         <programlisting role="shell">
+./configure --prefix=/usr \
+--with-apxs=/usr/sbin/apxs \
+--with-config-file-path=/usr/lib \
+--enable-debug=no \
+--enable-safe-mode \
+--with-exec-dir=/usr/bin \
+--with-mysql=/usr \
+--with-system-regex
          </programlisting>
-	      </para>
- 	     </listitem>
- 	     <listitem>
-	      <para>
-	       Dopo aver fatto queste modifiche assembla i binari RPM come segue:
-         <programlisting>
+        </para>
+       </listitem>
+       <listitem>
+        <para>
+         Dopo aver fatto queste modifiche assembla i binari RPM come segue:
+         <programlisting role="shell">
 rpm -bb /usr/src/redhat/SPECS/mod_php3.spec
          </programlisting>
-	      </para>
- 	     </listitem>
- 	     <listitem>
-	      <para>
-	       Quindi installa i pacchetti RPM
-         <programlisting>
+        </para>
+       </listitem>
+       <listitem>
+        <para>
+        Quindi installa i pacchetti RPM
+         <programlisting role="shell">
 rpm -ivh /usr/src/redhat/RPMS/i386/mod_php3-3.0.5-2.i386.rpm
          </programlisting>
-	      </para>
- 	     </listitem>
+        </para>
+       </listitem>
       </itemizedlist>
       Assicurati di riavviare Apache, quindi dovresti avere PHP 3 installato 
       tramite pacchetti RPM con pieno supporto MySQL. Nota che probabilmente 
       sarà più facile installare ciò seguendo le istruzioni presenti nel
       file <filename>INSTALL.REDHAT</filename> della distribuzione.
-   	 </para>
+     </para>
     </answer>
    </qandaentry>
 
@@ -304,7 +344,7 @@ rpm -ivh /usr/src/redhat/RPMS/i386/mod_php3-3.0.5-2.i386.rpm
       a richiamare l'interprete PHP. Per ricevere un messaggio 
       sensato di errore, dalla linea di comando, cambia la 
       cartella che contiene l'eseguibile di PHP (<filename>php.exe</filename> 
-      sotto Windows) ed esegui <literal>php -i</literal>. Se PHP 
+      sotto Windows) ed esegui <command>php -i</command>. Se PHP 
       riscontrerà dei problemi durante l'esecuzione, comparirà un 
       opportuno messaggio d'errore contente informazioni su cosa fare
       successivamente. Se riceverai una schermata di codice HTML 
@@ -320,7 +360,7 @@ rpm -ivh /usr/src/redhat/RPMS/i386/mod_php3-3.0.5-2.i386.rpm
      <para> 
       Diversi sistemi operativi: ho installato PHP senza ricevere errori, 
       ma se provo a far partire Apache ricevo un errore con strani simboli:
-      <programlisting>
+      <programlisting role="shell">
 [mybox:user /src/php4] root# apachectl configtest
  apachectl: /usr/local/apache/bin/httpd Undefined symbols:
   _compress
@@ -331,8 +371,9 @@ rpm -ivh /usr/src/redhat/RPMS/i386/mod_php3-3.0.5-2.i386.rpm
     <answer>
      <para>
       Ciò non ha nulla a che vedere con PHP, ma con le librerie lato client di MySQL. 
-      Alcune richiedono --with-zlib, altre no. Questo argomento è ripreso meglio 
-      nelle FAQ relative a MySQL.
+      Alcune richiedono <option
+      role="configure">--with-zlib</option>, altre no. Questo 
+      argomento è ripreso meglio nelle FAQ relative a MySQL.
      </para>
     </answer>
    </qandaentry>
@@ -342,12 +383,12 @@ rpm -ivh /usr/src/redhat/RPMS/i386/mod_php3-3.0.5-2.i386.rpm
      <para>
       Windows: ho installato PHP, ma se provo ad accedere 
       ai miei script via browser, ricevo questo errore:
-      <programlisting>
+      <screen>
 cgi error:
  The specified CGI application misbehaved by not
  returning a complete set of HTTP headers.
  The headers it did return are:
-      </programlisting>
+      </screen>
      </para>
     </question>
     <answer>
@@ -356,7 +397,7 @@ cgi error:
       qualcuno di tutti gli output richiesti. Per ricevere un messaggio 
       sensato di errore, dalla linea di comando, cambia la cartella che 
       contiene l'eseguibile di PHP (<filename>php.exe</filename> sotto 
-      Windows) ed esegui <literal>php -i</literal>. Se PHP riscontrerà 
+      Windows) ed esegui <command>php -i</command>. Se PHP riscontrerà 
       dei problemi durante l'esecuzione, comparirà un opportuno messaggio d'errore contente informazioni su cosa 
       fare successivamente. Se riceverai una schermata di codice HTML (la stessa di <function>phpinfo</function>)
       significherà che PHP sta lavorando correttamente, e quindi il problema potrebbe essere legato alla 
@@ -394,7 +435,7 @@ cgi error:
     </answer>
    </qandaentry>
 
-   <qandaentry xml:id="faq.install.phpandiis">
+   <qandaentry xml:id="faq.installation.phpandiis">
     <question>
      <para>
       Windows: ho seguito tutte le istruzioni, ma 
@@ -409,6 +450,256 @@ cgi error:
       del webserver. Questo utente ha bisogno dei permessi appropriati per eseguire
       <filename>php.exe</filename>. Qualunque utente avrà bisogno dei permessi appropriati per eseguire <filename>php.exe</filename>. 
       Se usi IIS4, hai bisogno di dire al webserver che c'è un parser PHP.
+      Può essere utile leggere
+      <link linkend="faq.installation.forceredirect">queste faq</link>.
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry xml:id="faq.installation.forceredirect">
+    <question>
+     <para>
+       Quando uso PHP come un CGI con IIS, PWS, OmniHTTPD o Xitami,
+       ricevo questo errore: <literal>Security Alert! PHP CGI 
+       cannot be accessed directly.</literal>.
+     </para>
+    </question>
+    <answer>
+     <para>
+      Devi impostare la direttiva <link linkend="ini.cgi.force-redirect">
+      cgi.force_redirect</link> a <literal>0</literal>.
+      Il suo default è <literal>1</literal> quindi assicurati che la direttiva
+      non sia commentata (con un <literal>;</literal>). Come
+      tutte le direttive, è impostata in &php.ini;
+     </para>
+     <para>
+      Dal momento che il default è <literal>1</literal>, è importantissimo
+      essere sicuri al 100% che venga letto il file &php.ini; corretto.
+      Leggere <link linkend="faq.installation.findphpini">questa faq</link>
+      per meggiori dettagli.
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry xml:id="faq.installation.findphpini">
+    <question>
+     <para>
+      Come faccio a capire se il mio &php.ini; è stato trovato e letto? 
+      Sembra che le mie modifiche non siano state impostate.
+     </para>
+    </question>
+    <answer>
+     <para>
+      Per essere certo che il tuo &php.ini; sia stato letto da PHP, chiama la funzione
+      <function>phpinfo</function> e nella parte alta troverai una lista
+      intitolata <literal>Configuration File (php.ini)</literal>.
+      Questa ti dirà dove PHP sta cercando &php.ini; e
+      se è stato letto o meno.  Se si vede solo il PATH ad una cartella
+      significa che non è stato letto e che devi mettere il &php.ini;
+      in quella cartella.  Se &php.ini; compare nel PATH della cartella
+      significa che è stato letto.
+     </para>
+     <para>
+      Se &php.ini; viene letto e stai eseguendo PHP come modulo,
+      assicurati di riavviare il web server dopo aver modificato il
+      &php.ini; 
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry xml:id="faq.installation.addtopath">
+    <question>
+     <para>
+      Come aggiungere la cartella di PHP al <varname>PATH</varname>
+      in Windows?
+     </para>
+    </question>
+    <answer>
+     <para>
+      Su Windows NT, 2000, XP e 2003:
+      <itemizedlist>
+       <listitem><para>
+        Vai nel Pannello di Controllo e apri l'icona Sistema (Start -&gt; Impostazioni
+        -&gt; Pannello di Controllo -&gt; Sistema, o semplicemente Start -&gt; Pannello di Controllo
+        -&gt; Sistema su Windows XP/2003)
+       </para></listitem>
+       <listitem><para>
+        Vai alla linguetta Avanzate
+       </para></listitem>
+       <listitem><para>
+        Click sul bottone 'Variabili d'Ambiente'
+       </para></listitem>
+       <listitem><para>
+        Guarda il pannello 'Variabili di sistema'
+       </para></listitem>
+       <listitem><para>
+        Trova il valore Path (potrebbe essere necessario scorrere la lista)
+       </para></listitem>
+       <listitem><para>
+        Fai doppio click su questo valore
+       </para></listitem>
+       <listitem><para>
+        Aggiungi la cartella  PHP alla fine, anteponendo ';' prima (es.
+        <literal>;C:\php</literal>)
+       </para></listitem>
+       <listitem><para>
+        Premi OK e riavvia il computer
+       </para></listitem>
+      </itemizedlist>
+     </para>
+     <para>
+      Su Windows 98/Me devi modificare il file <filename>autoexec.bat</filename>:
+
+      <itemizedlist>
+       <listitem><para>
+        Apri il Blocco Note (Start -&gt; Esegui e inserisci 'notepad')
+       </para></listitem>
+       <listitem><para>
+        Apri il file <filename>C:\autoexec.bat</filename>
+       </para></listitem>
+       <listitem><para>
+        Trova la linea con PATH=C:\WINDOWS;C:\WINDOWS\COMMAND;..... e aggiungi:
+        <literal>;C:\php</literal> alla fine della linea
+       </para></listitem>
+       <listitem><para>
+        Salva il file e riavvia il computer
+       </para></listitem>
+      </itemizedlist>
+     </para>
+     <note>
+      <simpara>
+       Assicurati di fare un reboot dopo aver seguito queste istruzione per esser certo che le modifiche a
+       <varname>PATH</varname> siano applicate.
+      </simpara>
+     </note>
+     <para> 
+      Il manuale PHP consigliava di copiare i file dentro la cartella sistema di Windows, 
+      poiché questa cartella  
+      (<filename>C:\Windows</filename>, <filename>C:\WINNT</filename>, ecc.)
+      è di default nel PATH di sistema.  Copiare file nella cartella sistema di Windows
+      è ora sconsigliato perché può causare problemi.
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry xml:id="faq.installation.phprc">
+    <question>
+     <para>
+      Come rendo disponibile in windows il file &php.ini;? 
+     </para>
+    </question>
+    <answer>
+     <para>
+      Ci sono diversi modi per farlo. Se stai usando Apache, leggi
+      le istruzioni specifi che installazione (<link
+       linkend="install.windows.apache1">Apache 1</link>, <link
+       linkend="install.windows.apache2">Apache 2</link>), altrimenti devi
+      impostare la variabile d'ambiente <varname>PHPRC</varname>:
+     </para>
+     <para>
+      Su Windows NT, 2000, XP e 2003:
+      <itemizedlist>
+       <listitem><para>
+        Vai nel Pannello di Controllo e apri l'icona Sistema (Start -&gt; Impostazioni
+        -&gt; Pannello di Controllo -&gt; Sistema, o semplicemente Start -&gt; Pannello di Controllo
+        -&gt; Sistema su Windows XP/2003)
+       </para></listitem>
+       <listitem><para>
+        Vai alla linguetta Avanzate
+       </para></listitem>
+       <listitem><para>
+        Click sul bottone 'Variabili d'Ambiente'
+       </para></listitem>
+       <listitem><para>
+        Guarda il pannello 'Variabili di sistema'
+       </para></listitem>
+       <listitem><para>
+         Fai click su 'Nuovo' ed inserisci 'PHPRC' come nome della variabile; inserisci
+         la cartella dove si trova &php.ini; nel valore della variabile (es.
+         <literal>C:\php</literal>)
+       </para></listitem>
+       <listitem><para>
+        Premi OK e riavvia il computer
+       </para></listitem>
+      </itemizedlist>
+     </para>
+     <para>
+      Su Windows 98/Me devi modificare il file <filename>autoexec.bat</filename>:
+
+      <itemizedlist>
+       <listitem><para>
+        Apri il Blocco Note (Start -&gt; Esegui e inserisci 'notepad')
+       </para></listitem>
+       <listitem><para>
+        Apri il file <filename>C:\autoexec.bat</filename>
+       </para></listitem>
+       <listitem><para>
+        Aggiungi una nuova linea alla fine del file: <literal>set
+         PHPRC=C:\php</literal> (sostituire <literal>C:\php</literal> con la
+        cartella dove si trova &php.ini;). Nota che il percorso
+        non può contenere spazi. Per esempio, se PHP è installato in
+        <filename>C:\Program Files\PHP</filename>, si deve inserire
+        <filename>C:\PROGRA~1\PHP</filename>.
+       </para></listitem>
+       <listitem><para>
+        Salva il file e riavvia il computer
+       </para></listitem>
+      </itemizedlist>
+     </para>      
+    </answer>
+   </qandaentry>
+
+   <qandaentry xml:id="faq.installation.apache.multiviews">
+    <question>
+     <para>
+       Si può usare la Apache content negotiation (opzione MultiViews)
+      con PHP?
+     </para>
+    </question>
+    <answer>
+     <para>
+      Se i link ai file PHP includono le estensioni, tuto funziona perfettamente. Questa
+      FAQ è solo nel caso in cui i link ai file PHP non includano le estensioni
+      e si voglia usare la content negotiation per identificare i file PHJP dalla URL
+      senza estensioni.
+      In questo caso, sostituire la riga <literal>AddType application/x-httpd-php
+      .php</literal> con:
+      <programlisting role="apache-conf">
+<![CDATA[
+# PHP 4
+AddHandler php-script php
+AddType text/html php
+
+# PHP 5
+AddHandler php5-script php
+AddType text/html php
+]]>
+     </programlisting>
+     Questa soluzione non funziona con Apache 1 poiché il modulo PHP non intercetta
+     <literal>php-script</literal>.
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry xml:id="faq.installation.requestmethods">
+    <question>
+     <para>
+      PHP è limitato a processare solo metodi GET e POST?
+     </para>
+    </question>
+    <answer>
+     <para>
+      No, si possono gestire tutti i metodi di richiesta, es. CONNECT. Lo stato
+      appropriato di risposta può essere inviato con la funzione <function>header</function>.
+      Se devono essere gerstiti solo i metodi GET e POST, questo può essere ottenuto con
+      questa configurazione diApache:
+      <programlisting role="apache-conf">
+<![CDATA[
+<LimitExcept GET POST>
+Deny from all
+</LimitExcept>
+]]>
+     </programlisting>
      </para>
     </answer>
    </qandaentry>

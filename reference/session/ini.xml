@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- EN-Revision: 1.30 Maintainer: cucinato Status: working -->
+<!-- EN-Revision: 1.53 Maintainer: cucinato Status: working -->
 <section xml:id="session.configuration" xmlns="http://docbook.org/ns/docbook">
  &reftitle.runtime;
  &extension.runtime;
@@ -89,6 +89,12 @@
      <entry>Disponibile dal PHP 4.0.4.</entry>
     </row>
     <row>
+     <entry>session.cookie_httponly</entry>
+     <entry>""</entry>
+     <entry>PHP_INI_ALL</entry>
+     <entry>Disponibile dal PHP 5.2.0.</entry>
+    </row>
+    <row>
      <entry>session.use_cookies</entry>
      <entry>"1"</entry>
      <entry>PHP_INI_ALL</entry>
@@ -96,7 +102,7 @@
     </row>
     <row>
      <entry>session.use_only_cookies</entry>
-     <entry>"0"</entry>
+     <entry>"1"</entry>
      <entry>PHP_INI_ALL</entry>
      <entry>Disponibile dal PHP 4.3.0.</entry>
     </row>
@@ -166,16 +172,6 @@
      <entry>PHP_INI_ALL</entry>
      <entry>Disponibile dal PHP 4.0.4.</entry>
     </row>
-    
-<!-- Not yet
-    <row>
-     <entry>session.encode_sources</entry>
-     <entry>"globals</entry>
-     <entry>track"</entry>
-     <entry></entry>
-    </row>
--->
-
    </tbody>
   </tgroup>
  </table>
@@ -194,10 +190,13 @@
    </term>
    <listitem>
     <simpara>
-     <literal>session.save_handler</literal> defines the name of the
-     handler which is used for storing and retrieving data
-     associated with a session. Defaults to
-     <literal>files</literal>. See also
+     <literal>session.save_handler</literal> definisce il nome
+     dell'handler che è utilizzato per salvare e caricare i dati
+     associati alla sessione. Il default è
+     <literal>files</literal>. Si noti che le singole estensioni postono registrare
+     i propri <literal>save_handler</literal>; gli handler registrati possono essere
+     ottenuti per una specifica installazione consultando
+     <function>phpinfo</function>. Vedere anche
      <function>session_set_save_handler</function>.
     </simpara>
    </listitem>
@@ -210,41 +209,40 @@
    </term>
    <listitem>
     <simpara>
-     <literal>session.save_path</literal> defines the argument which
-     is passed to the save handler. If you choose the default files
-     handler, this is the path where the files are created.  Defaults to
-     <literal>/tmp</literal>.  See also
+     <literal>session.save_path</literal> definisce l'argomento che
+     è passato all'handler di salvataggio. Se si sceglie l'handler di default
+     files, questo è il percorso in cui i file sono creati. Vedere anche
      <function>session_save_path</function>. 
     </simpara>
     <para>
-     There is an optional N argument to this directive that determines 
-     the number of directory levels your session files will be spread
-     around in.  For example, setting to <literal>'5;/tmp'</literal>
-     may end up creating a session file and location like
+     C'è un argomento N opzionale per questa direttiva che determina
+     il numero di livelli di carelle su cui verranno distribuiti i file di
+     sessione.  Per esempio, impostarlo a <literal>'5;/tmp'</literal>
+     può portare a creare un file di sessione con questo percorso:
      <literal>/tmp/4/b/1/e/3/sess_4b1e384ad74619bd212e236e52a5a174If
-     </literal>.  In order to use N you must create all of these
-     directories before use.  A small shell script exists in
-     <filename>ext/session</filename> to do this, it's called
-     <filename>mod_files.sh</filename>.  Also note that if N is
-     used and greater than 0 then automatic garbage collection will
-     not be performed, see a copy of &php.ini; for further
-     information.  Also, if you use N, be sure to surround
+     </literal>.  Per usare N occorre creare tutte queste
+     cartelle prima dell'utilizzo. Un piccolo shell script è presente in
+     <filename>ext/session</filename> per eseguire questo lavoro, si chiama
+     <filename>mod_files.sh</filename>. Notare anche che se N è
+     usato ed è maggiore di 0 il garbage collection automatico non
+     sarà eseguito, vedere un &php.ini; per ulteriori
+     informazioni. Inoltre, se si usa N, assicurarsi di racchiudere
      <literal>session.save_path</literal> in  
-     "quotes" because the separator (<literal>;</literal>) is
-     also used for comments in &php.ini;.
+     "doppie virgolette" poiché il separatore (<literal>;</literal>) è
+     usato anche per i commenti in &php.ini;.
     </para>
     <warning>
      <para>
-      If you leave this set to a world-readable directory, such as
-      <filename>/tmp</filename> (the default), other users on the
-      server may be able to hijack sessions by getting the list of
-      files in that directory.
+      Se si lascia questo parametro impostato su una cartella leggibile da tutti, come
+      <filename>/tmp</filename> (il default), altri utenti sul server
+      possono abusare delle informazioni delle sessioni ottenendo la lista dei
+      file in quella cartella.
      </para>
     </warning>
     <note>
      <simpara>
-      Prior to PHP 4.3.6, Windows users had to change this variable in order
-      to use PHP's session functions. A valid path must be specified, e.g.:
+      Prima del PHP 4.3.6, gli utenti di Windows dovevano cambiare questa variabile per
+      utilizzare le sessioni di PHP. Un percorso valido deve essere specificato, es.:
       <filename>c:/temp</filename>.
      </simpara>
     </note>
@@ -258,10 +256,10 @@
    </term>
    <listitem>
     <simpara>
-     <literal>session.name</literal> specifies the name of the
-     session which is used as cookie name. It should only contain
-     alphanumeric characters. Defaults to <literal>PHPSESSID</literal>.
-     See also <function>session_name</function>.
+     <literal>session.name</literal> specifica il nome della
+     sessione usato come nome del cookie. Dovrebbe contenere solamente
+     caratteri alfanumerici. Il valore predefinito è <literal>PHPSESSID</literal>.
+     Vedere anche <function>session_name</function>.
     </simpara>
    </listitem>
   </varlistentry>
@@ -273,9 +271,9 @@
    </term>
    <listitem>
     <simpara>
-     <literal>session.auto_start</literal> specifies whether the
-     session module starts a session automatically on request
-     startup. Defaults to <literal>0</literal> (disabled).
+     <literal>session.auto_start</literal> specifica se
+     il modulo di sessione inizia automaticamente una sessione al momento della 
+     richiesta. Il valore predefinito è <literal>0</literal> (disabilitato).
     </simpara>
    </listitem>
   </varlistentry>
@@ -287,13 +285,13 @@
    </term>
    <listitem>
     <simpara>
-     <literal>session.serialize_handler</literal> defines the name
-     of the handler which is used to serialize/deserialize
-     data. Currently, a PHP internal format (name
-     <literal>php</literal>) and WDDX is supported (name
-     <literal>wddx</literal>). WDDX is only available, if PHP is
-     compiled with <link linkend="ref.wddx">WDDX
-     support</link>. Defaults to <literal>php</literal>.
+     <literal>session.serialize_handler</literal> definisce il nome
+     dell'identificativo usato per serializzare/deserializzare
+     i dati. Attualmente sono supportati un fomrato interno (nome
+     <literal>php</literal>) e WDDX (nome
+     <literal>wddx</literal>). WDDX è disponibile solo se PHP è
+     compilato con il supporto <link linkend="ref.wddx">WDDX
+     </link>. Il valore predefinito è <literal>php</literal>.
     </simpara>
    </listitem>
   </varlistentry>
@@ -305,11 +303,11 @@
    </term>
    <listitem>
     <simpara>
-     <literal>session.gc_probability</literal> in conjunction with
-     <literal>session.gc_divisor</literal> is used to manage probability
-     that the gc (garbage collection) routine is started.
-     Defaults to <literal>1</literal>. See <link
-     linkend="ini.session.gc-divisor">session.gc_divisor</link> for details.
+     <literal>session.gc_probability</literal> in combinazione con
+     <literal>session.gc_divisor</literal> è usato per gestire la probabilità
+     che la routine gc (garbage collection) venga eseguita.
+     Il valore predefinito è <literal>1</literal>. Vedere <link
+     linkend="ini.session.gc-divisor">session.gc_divisor</link> per i dettagli.
     </simpara>
    </listitem>
   </varlistentry>
@@ -321,14 +319,14 @@
    </term>
    <listitem>
     <simpara>
-     <literal>session.gc_divisor</literal> coupled with 
-     <literal>session.gc_probability</literal> defines the probability 
-     that the gc (garbage collection) process is started on every session 
-     initialization.
-     The probability is calculated by using gc_probability/gc_divisor,
-     e.g. 1/100 means there is a 1% chance that the GC process starts
-     on each request.
-     <literal>session.gc_divisor</literal> defaults to <literal>100</literal>.
+     <literal>session.gc_divisor</literal> in conmbinazione con 
+     <literal>session.gc_probability</literal> definisce la probabilità 
+     che la routine gc (garbage collection) venga eseguita ad ogni inizializzazione
+     di sessione.
+     La probabilità è calcolata usando gc_probability/gc_divisor,
+     es. 1/100 significa che c'è la probabilità del 1% che il processo GC parta
+     ad ogni richiesta.
+     <literal>session.gc_divisor</literal> ha come valore predefinito <literal>100</literal>.
     </simpara>
    </listitem>
   </varlistentry>
@@ -340,18 +338,27 @@
    </term>
    <listitem>
     <simpara>
-     <literal>session.gc_maxlifetime</literal> specifies the number
-     of seconds after which data will be seen as 'garbage' and
-     cleaned up.
+     <literal>session.gc_maxlifetime</literal> specifica il numero
+     di secondi dopo i quali i dati verranno visti come 'spazzatura' e
+     quindi ripuliti. La ripulitura (Garbage Collection) avviene durante l'avvio della sessione.
     </simpara>
     <note>
-     <simpara>If you are using the default file-based session handler, your
-     filesystem must keep track of access times (atime). Windows FAT does
-     not so you will have to come up with another way to handle garbage
-     collecting your session if you are stuck with a FAT filesystem or any
-     other fs where atime tracking is not available.
-     Since PHP 4.2.3 it has used mtime (modified date) instead of atime. So, you
-     won't have problems with filesystems where atime tracking is not available.
+     <para>
+      Se differenti script hanno differenti valori di
+      <literal>session.gc_maxlifetime</literal> ma condividono lo stesso spazio di
+      memorizzazione dei dati di sessione allora lo script con il valore minimo sarà quello 
+      che ripulirà i dati. In questo caso, utilizzare la direttiva assieme a <link
+      linkend="ini.session.save-path">session.save_path</link>.
+     </para>
+    </note>
+    <note>
+     <simpara>Se si sta usando l'handler di sessione predefinito basato su file, il
+     filesystem deve tener traccia degli orari di accesso (atime). Il filesystem FAT di Windows
+     non lo fa, quindi occorre trovare un altro modo per gestire il garbage
+     collecting della sessione se si è obbligati ad usare FAT o qualsiasi
+     altro filesystem dove atime non è disponibile.
+     Dal PHP 4.2.3 viene usato mtime (orario di modifica) invece di atime. In questo modo
+     non ci sono problemi con filesystem dove l'atime non è disponibile.
      </simpara>
     </note>
    </listitem>

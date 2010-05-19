@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+
+<sect1 xml:id="language.oop5.basic" xmlns="http://docbook.org/ns/docbook">
+ <title> Nozioni di base </title>
+ 
+ <sect2 xml:id="language.oop5.basic.class">
+  
+  <para>
+   Definizioni delle classi di base iniziano con la [@ parola chiave] <literal> classe </literal> , Seguita da un nome di classe,
+   seguito da un paio di parentesi graffe che racchiudono il [@ definizioni] della proprietà e metodi appartenenti alla classe.
+  </para>
+  <para>
+   Il nome della classe può essere qualsiasi marchio di identità valido che è un non un
+   PHP <link linkend="reserved"> parola riservata </link> . A [classe valido @] nome inizia con una lettera o underscore, seguita da un numero qualsiasi di [@ lettere], numeri o underscore. Come una espressione regolare,
+   sarebbe l'espressione:
+   <literal> [A-zA-Z_ \ x7f-\ xff] [] \ a-zA-Z0-9_ xff x7f-\ * </literal> .
+  </para>
+  <para>
+   Una classe può contenere la sua
+   proprio <link linkend="language.oop5.constants"> costanti </link> , <link linkend="language.oop5.properties"> variabili </link>
+   (Chiamato "proprietà"), e le funzioni (chiamati "metodi ").
+  </para>
+  <example>
+   
+   <programlisting role="php">
+<![CDATA[
+<?php
+class SimpleClass
+{
+    // property declaration
+    public $var = 'a default value';
+
+    // method declaration
+    public function displayVar() {
+        echo $this-> var;
+ }
+}
+?>
+]]>
+   </programlisting>
+  </example>
+  <para>
+   La pseudo-variabile <varname> $ This </varname> è disponibile quando un [@ metodo] è chiamato dal di dentro un oggetto [@ contesto]. <varname> $ This </varname> è un riferimento al [chiamata @] oggetto (di solito l'oggetto a cui appartiene il metodo, ma
+   forse un altro oggetto, se il metodo è chiamato
+   <link linkend="language.oop5.static"> staticamente </link> dal contesto
+   di un oggetto secondario ).
+  </para>
+  <para>
+   <example>
+    
+    <programlisting role="php">
+<![CDATA[
+<?php
+class A
+{
+    function foo()
+    {
+        if (isset($this)) {
+            echo '$this is defined (';
+            echo get_class($this);
+            echo ")\n";
+        } else {
+            echo "\$this is not defined.\n";
+        }
+    }
+}
+
+class B
+{
+    function bar()
+    {
+        // Note: the next line will issue a warning if E_STRICT is enabled.
+        A::foo();
+    }
+}
+
+$a = new A();
+$a-> ();
+
+// Foo Nota: la riga successiva emetterà un avviso se E_STRICT è abilitato.
+ A:: foo ();
+$ b = new B ();
+ $ b-bar ();
+
+//> Nota: la riga successiva emetterà un avviso se E_STRICT è abilitato.
+ B:: ();
+?>
+]] bar >
+ </programlisting>
+ & Example.outputs;
+ <screen>
+ <![CDATA[
+$this is defined (A)
+$this is not defined.
+$this is defined (B)
+$this is not defined.
+]]>
+    </screen>
+    </example>
+    </para>
+    </sect2>
+     
+     <sect2 xml:id="language.oop5.basic.new">
+      
+      <para>
+       Per creare un'istanza di una classe, un nuovo oggetto deve essere creato e
+       assegnato ad una variabile. Un oggetto sarà sempre assegnata quando
+       creando un nuovo oggetto a meno che l'oggetto ha una
+       <link linkend="language.oop5.decon"> costruttore </link> definito che genera un
+       <link linkend="language.exceptions"> eccezione </link> in caso di errore. [Classi @] dovrebbero essere definite prima istanza (e in alcuni casi si tratta di un [@ requisito] ).
+      </para>
+      <example>
+       
+       <programlisting role="php">
+<![CDATA[
+<?php
+$instance = new SimpleClass();
+
+// This can also be done with a variable:
+$className = 'Foo';
+$instance = new $className(); // Foo()
+?>
+]]>
+       </programlisting>
+      </example>
+      <para>
+       Nel contesto di classe, è possibile creare un nuovo oggetto da
+       <literal> nuovoauto </literal> e <literal> nuovo genitore </literal> .
+      </para>
+      <para>
+       Quando si assegna già creato un'istanza di una classe a una nuova variabile, la [nuova variabile @] si accede alla stessa istanza come l'oggetto che è stato assegnato. Questo
+       comportamento è lo stesso quando passa le istanze di una funzione. Una copia
+       già di un oggetto creato può essere fatto da
+       <link linkend="language.oop5.cloning"> clonazione </link> esso.
+      </para>
+      <example>
+       <title> Oggetto Assegnazione </title>
+       <programlisting role="php">
+<![CDATA[
+<?php
+
+$instance = new SimpleClass();
+
+$assigned   =  $instance;
+$reference  =& $instance;
+
+$instance-> var = '$ assegnato avrà questo valore';
+
+$ istanza = null; / / $ e $ istanza di riferimento diventano var_dump
+
+ null ($ esempio );
+ var_dump ($ riferimento );
+ var_dump ($ assegnato );
+?>
+]]>
+       </programlisting>
+       & Example.outputs;
+       <screen>
+<![CDATA[
+NULL
+NULL
+object(SimpleClass)#1 (1) {
+   ["var"]=>
+ String (30) "$ assegnato avrà questo valore "
+}
+]]>
+       </screen>
+      </example>
+     </sect2>
+     
+     <sect2 xml:id="language.oop5.basic.extends">
+      
+      <para>
+       Una classe può ereditare i metodi e le proprietà di un'altra classe da
+       utilizzando la parola chiave <literal> si estende </literal> nella classe
+       dichiarazione. Non è possibile estendere più classi, un [@ categoria] può ereditare da una classe base.
+      </para>
+      <para>
+       I metodi ereditati e le proprietà possono essere sovrascritte da
+       redeclaring con lo stesso nome definito nella casa madre [@ categoria]. Tuttavia, se la classe padre ha definito un metodo
+       come <link linkend="language.oop5.final"> finale </link> , Tale metodo
+       non può essere oltrepassato. E 'possibile accedere al [override dei metodi @] o le proprietà statiche facendo riferimento a loro
+       con <link linkend="language.oop5.paamayim-nekudotayim"> parent:: </link> .
+      </para>
+      <para>
+       Quando l'override dei metodi, la firma parametro dovrebbe rimanere lo stesso o
+       PHP genererà un <constant> E_STRICT </constant> livello di errore. Ciò non
+       non si applicano al costruttore, che permette l'override con [@ diversi parametri].
+      </para>
+      <example>
+       
+       <programlisting role="php">
+<![CDATA[
+<?php
+class ExtendClass extends SimpleClass
+{
+    // Redefine the parent method
+    function displayVar()
+    {
+        echo "Extending class\n";
+        parent::displayVar();
+    }
+}
+
+$extended = new ExtendClass();
+$extended-> ();
+?>
+]]>
+        DisplayVar </programlisting>
+       & Example.outputs;
+       <screen>
+<![CDATA[
+Extending class
+a default value
+]]>
+       </screen>
+      </example>
+     </sect2>
+     
+    </sect1>
+     
+     <!-- Keep this comment at the end of the file
+     Local variables:
+     mode: sgml
+     sgml-omittag:t
+     sgml-shorttag:t
+     sgml-minimize-attributes:nil
+     sgml-always-quote-attributes:t
+     sgml-indent-step:1
+     sgml-indent-data:t
+     indent-tabs-mode:nil
+     sgml-parent-document:nil
+     sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+     sgml-exposed-tags:nil
+     sgml-local-catalogs:nil
+     sgml-local-ecat-files:nil
+     End:
+     vim600: syn=xml fen fdm=syntax fdl=2 si
+     vim: et tw=78 syn=sgml
+     vi: ts=1 sw=1
+     -->
+     

@@ -3862,13 +3862,12 @@ auto_prepend_file=security.php
       </term>
       <listitem>
        <para>
-        ***** WIP ***** Abilita o meno la possibilità di forzare gli argomenti delle funzioni 
-        ad essere passati per riferimento. Si incoraggia il metodo di 
-        specificare quale parametro debba essere passato per riferimento al momento della dichiarazione
-        della funzione. Si suggerisce di impostare l'opzione a off per essere certi che
-        lo script funzioni correttamente con questa impostazione, in modo da predisporsi ad eventuali
-        modifiche future del linguaggio (si riceverà un warning ogni volta che si utilizza 
-        questa opzione e i valori saranno passati per valore anziché per riferimento).
+        Decide se avvertire o meno quando gli argomenti delle funzioni sono passati per riferimento al momento della chiamata.
+        Il metodo consigliato è specificare quale parametro debba essere passato per 
+        riferimento al momento della dichiarazione della funzione. Si suggerisce di impostare 
+        l'opzione a Off per essere certi che lo script funzioni correttamente, in modo da 
+        predisporsi alle future modifiche del linguaggio (si riceverà 
+        un warning ogni volta che si utilizza questa opzione).
        </para>
        <para>
         Passare i valori per riferimento al momento della chiamata della funzione viene sconsigliato per
@@ -3878,49 +3877,122 @@ auto_prepend_file=security.php
         momento della dichiarazione della funzione quali parametri saranno passati per riferimento.
        </para>
        <para>
+        In PHP5, <literal>allow_call_time_pass_reference</literal> è deprecata, mentre nelle 
+        versioni antecedenti PHP 5.3.0, l'uso di questa funzionalità genera un
+        <constant>E_COMPILE_WARNING</constant>, e in PHP 5.3.0+, il warning è un avviso
+        <constant>E_DEPRECATED</constant> <!-- FIXME PHP_6 This directive is removed as of PHP6. -->
+       </para>
+       <para>
         Vedere anche <link linkend="language.references">Spiegazioni sui riferimenti</link>.
        </para>
       </listitem>
      </varlistentry>
-
-      <varlistentry xml:id="ini.expose-php">
-       <term>
-        <parameter>expose_php</parameter>
-        <type>boolean</type>
-       </term>
-       <listitem>
-        <para>
-         Indica se il PHP deve indicare il fatto che è installato su un server
-         (ad esempio aggiungendo una propria sigla all'intestazione del server web). Non vi sono insiti
-         problemi di sicurezza, ma ciò indica che si sta utilizzando
-         il PHP su quel server.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.zend.ze1-compatibility-mode">
-       <term>
-        <parameter>zend.ze1_compatibility_mode</parameter>
-        <type>boolean</type>
-       </term>
-       <listitem>
-        <para>
-         Abilita la compatibilità con lo Zend Engine 1 (PHP 4). Ciò influisce
-         sulle funzioni di clonazione, di cast (oggetti senza proprietà
-         castati a &false; o 0) e di <link
-         linkend="language.oop5.object-comparison">confronto degli oggetti.</link>
-         In questo modo, gli oggetti sono di default passati per valore e non per riferimento.
-        </para>
-        <para>
-         Vedere anche la sezione intitolata
-         <link linkend="migration5">Migrazione da PHP 4 a PHP 5</link>.
-        </para>
-       </listitem>
-      </varlistentry>
-     </variablelist>
-    </para>
-   </section>
-
+     
+     <varlistentry xml:id="ini.expose-php">
+      <term>
+       <parameter>expose_php</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Indica se il PHP deve indicare il fatto che è installato su un server
+        (ad esempio aggiungendo una propria sigla all'intestazione del server web). Non vi sono insiti
+        problemi di sicurezza, ma ciò indica che si sta utilizzando
+        il PHP su quel server.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.disable-functions">
+      <term>
+       <parameter>disable_functions</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <simpara>
+        Questa direttiva permette di disabilitare alcune funzioni per 
+        ragioni di <link linkend="security">sicurezza</link>. Riceve 
+        una lista di nomi di funzione separati da virgole. disable_functions
+        non è modificata da <link linkend="ini.safe-mode">Safe Mode</link>.
+       </simpara>
+       <simpara>
+        Questa direttiva deve essere impostata in &php.ini; pertanto non
+        può essere usata in &httpd.conf;.
+       </simpara>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.disable-classes">
+      <term>
+       <parameter>disable_classes</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <simpara>
+        questa direttiva permette di disabilitare alcune classi per
+        ragioni di <link linkend="security">sicurezza</link>. Riceve
+        una lista di nomi di classi separati da virgole. disable_classes
+        inon è modificata da <link linkend="ini.safe-mode">Safe Mode</link>.
+       </simpara>
+       <simpara>
+        Questa direttiva deve essere impostata in &php.ini; pertanto non
+        può essere usata in &httpd.conf;.
+       </simpara>
+       <note>
+        <title>Nota sulla dsponibilità</title>
+        <simpara>
+         Questa direttiva è disponibile dal PHP 4.3.2
+        </simpara>
+       </note>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.zend.ze1-compatibility-mode">
+      <term>
+       <parameter>zend.ze1_compatibility_mode</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Abilita la compatibilità con lo Zend Engine 1 (PHP 4). Ciò influisce
+        sulle funzioni di clonazione, di cast (oggetti senza proprietà castati a &false; o 0) e di <link
+        linkend="language.oop5.object-comparison">confronto degli oggetti.</link>
+        In questo modo, gli oggetti sono di default passati per valore e non per 
+        riferimento.
+       </para>
+       <para>
+        Vedere anche la sezione intitolata
+        <link linkend="migration5">Migrazione da PHP 4 a PHP 5</link>.
+       </para>
+       <warning>
+        <simpara>Questa funzionalità è <emphasis>DEPRECATA</emphasis> e <emphasis>RIMOSSA</emphasis>
+         dal PHP 5.3.0.
+        </simpara>
+       </warning>
+       
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.detect-unicode">
+      <term>
+       <parameter>detect_unicode</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Cerca il BOM (Byte Order Mark) e controlla se il file contiene dei
+        caratteri multibyte validi.
+        Questa indagine è effettuata prima di processare
+        <function>__halt_compiler</function>.
+        Disponibile solo in Zend Multibyte mode.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+    </variablelist>
+   </para>
+  </section>
+  
   <section xml:id="ini.sect.resource-limits">
    <title>Limiti per le risorse</title>
    <para>
@@ -3932,7 +4004,7 @@ auto_prepend_file=security.php
         <entry>Nome</entry>
         <entry>Default</entry>
         <entry>Modificabile</entry>
-        <entry>Variazioni</entry>
+        <entry>Cronologia</entry>
        </row>
       </thead>
       <tbody>
@@ -3969,11 +4041,11 @@ auto_prepend_file=security.php
         <option role="configure">--enable-memory-limit</option>. Ciò era
         pure richiesto per definire le funzioni
         <function>memory_get_usage</function> e
-        <function>memory_get_peak_usage</function>.
+        <function>memory_get_peak_usage</function> prima della version 5.2.1.
        </para>
-
+       
        &ini.shorthandbytes;
-
+       
       </listitem>
      </varlistentry>
     </variablelist>
@@ -3982,7 +4054,7 @@ auto_prepend_file=security.php
     Vedi anche: <link linkend="ini.max-execution-time">max_execution_time</link>.
    </para>
   </section>
-
+  
   <section xml:id="ini.sect.performance">
    <title>Regolazione della Performance</title>
    <para>
@@ -3994,7 +4066,7 @@ auto_prepend_file=security.php
         <entry>Nome</entry>
         <entry>Default</entry>
         <entry>Modificabile</entry>
-        <entry>Variazioni</entry>
+        <entry>Cronologia</entry>
        </row>
       </thead>
       <tbody>
@@ -4046,69 +4118,75 @@ auto_prepend_file=security.php
     </variablelist>
    </para>
   </section>
-
+  
   <section xml:id="ini.sect.data-handling">
    <title>Gestione dei dati</title>
-    <para>
-     <table>
-      <title>Parametri di configurazione per la gestione dei dati</title>
-      <tgroup cols="4">
-       <thead>
-        <row>
-         <entry>Nome</entry>
-         <entry>Default</entry>
-         <entry>Modificabile</entry>
-         <entry>Variazioni</entry>
-        </row>
-       </thead>
-       <tbody>
-        <row>
-         <entry>track_vars</entry>
-         <entry>"On"</entry>
-         <entry>PHP_INI_??</entry>
-         <entry></entry>
-        </row>
-        <row>
-         <entry>arg_separator.output</entry>
-         <entry>"&amp;"</entry>
-         <entry>PHP_INI_ALL</entry>
-         <entry>Disponibile da PHP 4.0.5.</entry>
-        </row>
-        <row>
-         <entry>arg_separator.input</entry>
-         <entry>"&amp;"</entry>
-         <entry>PHP_INI_PERDIR</entry>
-         <entry>Disponibile da PHP 4.0.5.</entry>
-        </row>
-        <row>
-         <entry>variables_order</entry>
-         <entry>"EGPCS"</entry>
-         <entry>PHP_INI_PERDIR</entry>
-         <entry>PHP_INI_ALL in PHP &lt;= 5.0.5.</entry>
-        </row>
-        <row>
-         <entry>auto_globals_jit</entry>
-         <entry>"1"</entry>
-         <entry>PHP_INI_PERDIR</entry>
-         <entry>Disponibile da PHP 5.0.0.</entry>
-        </row>
-        <row>
-         <entry>register_globals</entry>
-         <entry>"0"</entry>
-         <entry>PHP_INI_PERDIR</entry>
-         <entry>PHP_INI_ALL in PHP &lt;= 4.2.3.</entry>
-        </row>
-        <row>
-         <entry>register_argc_argv</entry>
-         <entry>"1"</entry>
-         <entry>PHP_INI_PERDIR</entry>
-         <entry>PHP_INI_ALL in PHP &lt;= 4.2.3.</entry>
+   <para>
+    <table>
+     <title>Parametri di configurazione per la gestione dei dati</title>
+     <tgroup cols="4">
+      <thead>
+       <row>
+        <entry>Nome</entry>
+        <entry>Default</entry>
+        <entry>Modificabile</entry>
+        <entry>Cronologia</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry>track_vars</entry>
+        <entry>"On"</entry>
+        <entry>PHP_INI_??</entry>
+        <entry></entry>
+       </row>
+       <row>
+        <entry>arg_separator.output</entry>
+        <entry>"&amp;"</entry>
+        <entry>PHP_INI_ALL</entry>
+        <entry>Disponibile da PHP 4.0.5.</entry>
+       </row>
+       <row>
+        <entry>arg_separator.input</entry>
+        <entry>"&amp;"</entry>
+        <entry>PHP_INI_PERDIR</entry>
+        <entry>Disponibile da PHP 4.0.5.</entry>
+       </row>
+       <row>
+        <entry>variables_order</entry>
+        <entry>"EGPCS"</entry>
+        <entry>PHP_INI_PERDIR</entry>
+        <entry>PHP_INI_ALL in PHP &lt;= 5.0.5.</entry>
+       </row>
+       <row>
+        <entry>request_order</entry>
+        <entry>""</entry>
+        <entry>PHP_INI_SYSTEM|PHP_INI_PERDIR</entry>
+        <entry>Disponibile da PHP 5.3.0</entry>
+       </row>
+       <row>
+        <entry>auto_globals_jit</entry>
+        <entry>"1"</entry>
+        <entry>PHP_INI_PERDIR</entry>
+        <entry>Disponibile da PHP 5.0.0.</entry>
+       </row>
+       <row>
+        <entry>register_globals</entry>
+        <entry>"0"</entry>
+        <entry>PHP_INI_PERDIR</entry>
+        <entry>PHP_INI_ALL in PHP &lt;= 4.2.3.</entry>
+       </row>
+       <row>
+        <entry>register_argc_argv</entry>
+        <entry>"1"</entry>
+        <entry>PHP_INI_PERDIR</entry>
+        <entry>PHP_INI_ALL in PHP &lt;= 4.2.3.</entry>
        </row>
        <row>
         <entry>register_long_arrays</entry>
         <entry>"1"</entry>
         <entry>PHP_INI_PERDIR</entry>
-        <entry>Disponibile da PHP 5.0.0.</entry>
+        <entry>Disponibile da PHP 5.0.0. Deprecata in PHP 5.3.0. &removed.php.future;</entry>
        </row>
        <row>
         <entry>post_max_size</entry>
@@ -4134,907 +4212,1098 @@ auto_prepend_file=security.php
         <entry>PHP_INI_PERDIR</entry>
         <entry>PHP_INI_ALL in PHP &lt;= 4.2.3.</entry>
        </row>
-        <row>
-         <entry>default_mimetype</entry>
-         <entry>"text/html"</entry>
-         <entry>PHP_INI_ALL</entry>
-         <entry></entry>
-        </row>
-        <row>
-         <entry>default_charset</entry>
-         <entry>""</entry>
-         <entry>PHP_INI_ALL</entry>
-         <entry></entry>
-        </row>
-        <row>
-         <entry>always_populate_raw_post_data</entry>
-         <entry>"0"</entry>
-         <entry>PHP_INI_PERDIR</entry>
-         <entry>PHP_INI_ALL in PHP &lt;= 4.2.3. Disponibile da PHP 4.1.0.</entry>
-        </row>
-        <row>
-         <entry>allow_webdav_methods</entry>
-         <entry>"0"</entry>
-         <entry>PHP_INI_PERDIR</entry>
-         <entry></entry>
-        </row>
-       </tbody>
-      </tgroup>
-     </table>
-    </para>
-    
-    &ini.descriptions.title;
-    
-    <para>
-     <variablelist>
-      <varlistentry xml:id="ini.track-vars">
-       <term>
-        <parameter>track_vars</parameter>
-        <type>boolean</type>
-       </term>
-       <listitem>
-        <para>
-         Se abilitato, le variabili Environment, GET, POST, Cookie, e
-         Server sono recuperabili nei rispettivi array associativi
-         <varname>$_ENV</varname>,
-         <varname>$_GET</varname>,
-         <varname>$_POST</varname>,
-         <varname>$_COOKIE</varname> e
-         <varname>$_SERVER</varname>.
-        </para>
-        <para>
-         Nota: dal  PHP 4.0.3, <systemitem
-         role="directive">track_vars</systemitem> è sempre impostato a on.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.arg-separator.output">
-       <term>
-        <parameter>arg_separator.output</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         Il separatore degli argomenti utilizzato nelle URL genarate dal PHP.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.arg-separator.input">
-       <term>
-        <parameter>arg_separator.input</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         Lista dei separatori utilizzati dal PHP per la siddivisione dell'URL di input nelle veriabili.
-        </para>
-        <note>
-         <para>
-          Qualsiasi carattere inserito in questo parametro sarà considerato un separatore!
-         </para>
-        </note>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.variables-order">
-       <term>
-        <parameter>variables_order</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         Imposta l'ordine di parsing delle variabili EGPCS (<literal>E</literal>nviroment, 
-         <literal>G</literal>et, <literal>P</literal>ost, 
-         <literal>C</literal>ookie e <literal>S</literal>erver).
-         Ad esempio, se variables_order 
-         è impostato a <literal>"SP"</literal> il PHP creerà il 
-         &link.superglobals; <varname>$_SERVER</varname> e 
-         <varname>$_POST</varname>, ma non creerà 
-         <varname>$_ENV</varname>, <varname>$_GET</varname> e 
-         <varname>$_COOKIE</varname>. L'impostazione "" significa che
-         non verranno impostati $link.superglobals;.
-        </para>
-        <para>
-         se la direttiva deprecata
-         <link linkend="ini.register-globals">register_globals</link> 
-         è attiva (rimossa dal PHP 6), allora variables_order
-         configura anche l'ordine con cui le variabili <literal>ENV</literal>, 
-         <literal>GET</literal>, <literal>POST</literal>, 
-         <literal>COOKIE</literal> e <literal>SERVER</literal>
-         sono popolate nello scope globale. Quindi, per esempio, se variables_order 
-         è impostato a <literal>"EGPCS"</literal>, register_globals è abilitato, 
-         e sia <varname>$_GET['action']</varname> che
-         <varname>$_POST['action']</varname> sono impostati, allora  
-         <varname>$action</varname> conterrà il valore di 
-         <varname>$_POST['action']</varname> dal momento che <literal>P</literal> compare 
-         dopo <literal>G</literal> nel nostro valore di esempio.
-        </para>
-        <warning>
-         <para>
-          In entrambe le SAPI GSI e FastCGI,
-          <link linkend="reserved.variables.server">$_SERVER</link> è
-          popolato anche dai valori dell'environment; <literal>S</literal>
-          è sempre equivalente a <literal>ES</literal> a prescindere dalla
-          posizione di <literal>E</literal> nella direttiva.
-         </para>
-        </warning>
-        <note>
-         <para>
-          Anche il contenuto ed ordine di 
-          <link linkend="reserved.variables.request">$_REQUEST</link> è
-          modificato da questa direttiva.
-         </para>
-        </note>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.auto-globals-jit">
-       <term>
-        <parameter>auto_globals_jit</parameter>
-        <type>boolean</type>
-       </term>
-       <listitem>
-        <para>
-         Quando abilitato, le varaibili SERVER ed ENV sono create al momento
-         del primo utilizzo (Just In Time) invece che all'avvio dello script. Se queste
-         variabili non sono utilizzate dallo script, impostanto questo parametro ad on
-         si ha un beneficio in termini di performance.
-        </para>
-        <para>
-         I parametri di PHP
-         <link linkend="ini.register-globals">register_globals</link>,
-         <link linkend="ini.register-long-arrays">register_long_arrays</link>
-         e <link linkend="ini.register-argc-argv">register_argc_argv</link>
-         devono essere disabilitati affinché questa impostazione abbia effetto. Dal PHP
-         5.1.3 non è necessario avere <link
-         linkend="ini.register-argc-argv">register_argc_argv</link> disabilitato.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.register-globals">
-       <term>
-        <parameter>register_globals</parameter>
-        <type>boolean</type>
-       </term>
-       <listitem>
-        <para>
-         Indica se registrare o meno le variabili EGPCS (Environment, GET,
-         POST, Cookie, Server) come variabili globali.
-        </para>
-        <para>
-         Dal <link xlink:href="&url.php.release4.2.0;">PHP 4.2.0</link>,
-         questo parametro è impostato per default a <emphasis>off</emphasis>.
-        </para>
-        <para>
-         Guardare il capitolo della sicurezza riguardante
-         <link linkend="security.globals">l'uso di register_globals</link>
-         per maggiori informazioni.
-        </para>
-        <para>
-         Si ricorda che <systemitem role="directive">register_globals</systemitem>
-         non può essere impostato a runtime da (<function>ini_set</function>). In alternativa, se
-         permesso dal proprio host, si può utilizzare &htaccess;.
-         Un esempio di riga &htaccess;:
-         <userinput>php_flag register_globals off</userinput>.
-        </para>
-        <note>
-         <para>
-          Il parametro <systemitem role="directive">register_globals</systemitem> è influenzato 
-          da <link linkend="ini.variables-order">variables_order</link> 
-          directive.
-         </para>
-        </note>
-        <para>
-         Questa direttiva è stata rimossa in PHP 6.0.0.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.register-argc-argv">
-       <term>
-        <parameter>register_argc_argv</parameter>
-        <type>boolean</type>
-       </term>
-       <listitem>
-        <simpara>
-         Indica al PHP se dichiarare le variabili argv &amp; argc
-         (che contengono le informazioni GET).
-        </simpara>
-        <simpara>
-         Vedere anche <link linkend="features.commandline">command line</link>.
-         Infine, questo parametro è stato introdotto in PHP 4.0.0 ed
-         era sempre impostato a"on" nelle versioni precedenti.
-        </simpara>
-       </listitem>
-      </varlistentry>
-      
-      <varlistentry xml:id="ini.register-long-arrays">
-       <term>
-        <parameter>register_long_arrays</parameter>
-        <type>boolean</type>
-       </term>
-       <listitem>
-        <simpara>
-         Indica al PHP se registrare o meno le deprecate variabili lunghe
-         <varname>$HTTP_*_VARS</varname>, vedere
-         <link linkend="language.variables.predefined">variabili
-         predefinite</link>.  Quando viene impostato ad On (default), vengono definite
-         le variabili lunghe, tipo  <varname>$HTTP_GET_VARS</varname>, del PHP.
-         Se non si utilizzano, si consiglia di impostare il parametro ad off
-         per motivi di performance. Al posto di queste, utilizzare le matrici
-         <varname>$_GET</varname>.
-        </simpara>
-        <simpara>
-         Questa impostazione è disponibile dal PHP 5.0.0 ed è stata eliminata in PHP
-         6.0.0.
-        </simpara>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.post-max-size">
-       <term>
-        <parameter>post_max_size</parameter>
-        <type>integer</type>
-       </term>
-       <listitem>
-        <simpara>
-         Imposta la dimensione massima dei dati post. Questa impostazione
-         influenza anche gli upload dei file. Per permettere upload di file di grandi dimensioni, il valore impostato deve essere maggiore
-         di <link linkend="ini.upload-max-filesize">upload_max_filesize</link>.
-        </simpara>
-        <simpara>
-         Anche il limite di memoria, <link
-         linkend="ini.memory-limit">memory_limit</link>, se abilitato, può limitare gli
-         upload di file. In termini generali
-         <link linkend="ini.memory-limit">memory_limit</link> dovrebbe essere
-         maggiore di <parameter>post_max_size</parameter>.
-        </simpara>
-
-        &ini.shorthandbytes;
-
-        <simpara>
-         Se la dimensione dei dati post è maggiore di post_max_size, le variabili
-         <link linkend="language.variables.superglobals">superglobale</link> 
-         <varname>$_POST</varname> e <varname>$_FILES</varname> 
-         sono vuote. Questo può essere rilevato in diversi modi, ad esempio passando 
-         una variabile <varname>$_GET</varname> allo script che processa i dati,
-         tipo <literal>&lt;form action="edit.php?processed=1"&gt;</literal>,
-         e verificare se <varname>$_GET['processed']</varname> è impostata.
-        </simpara>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.gpc-order">
-       <term>
-        <parameter>gpc_order</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         Imposta l'ordine di parsing delle variabili GET/POST/COOKIE. 
-         l'impostazione di default per questo parametro è "GPC".  Impostare questo a
-         "GP", ad esempio, farà ignorare i cookie al PHP
-         e farà sovrascrivere qualsiasi variabile GET dalla eventuale
-         omonima variabile POST.
-        </para>
-        <note>
-         <para>
-          Questo parametro non è disponibile in PHP 4.
-          Al suo posto utilizzare
-          <link linkend="ini.variables-order">variables_order</link>.
-         </para>
-        </note>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.auto-prepend-file">
-       <term>
-        <parameter>auto_prepend_file</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         Indica il nome del file che deve essere parsato
-         prima del file principale. Quetso file viene incluso come se fosse
-         chiamato dalla funzione <function>include</function>, pertanto si utilizza
-         il parametro <link linkend="ini.include-path">include_path</link>.</para>
-        <para>
-         Il valore speciale <constant>none</constant> 
-         disabilita la funzione.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.auto-append-file">
-       <term>
-        <parameter>auto_append_file</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         Specifica il file che deve essere parsato in automatico 
-         dopo il file principale. Il file è incluso come se fosse
-         chiamato dalla funzione <function>include</function> pertanto si utilizza
-         il parametro <link linkend="ini.include-path">include_path</link>.</para>
-        <para>
-         The special value <constant>none</constant> 
-         disables auto-appending.
-         <note>
-          <simpara>
-           Se lo script termina con <function>exit</function>,
-           l'auto-accodamento <emphasis>non</emphasis> viene eseguito.</simpara>
-         </note>
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.default-mimetype">
-       <term>
-        <parameter>default_mimetype</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.default-charset">
-       <term>
-        <parameter>default_charset</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         Dalla versione 4.0b4, il PHP invia, per default, la codifica del carattere
-         nell'intestazione Content-type:.  Per disabilitare questo invio, lasciare
-         vuoto il parametro.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.always-populate-raw-post-data">
-       <term>
-        <parameter>always_populate_raw_post_data</parameter>
-        <type>boolean</type>
-       </term>
-       <listitem>
-        <para>
-         Valorizza sempre la variabile <varname>$HTTP_RAW_POST_DATA</varname> contenente
-         i dati grezzi di POST. Altrimenti, la variabile è riempita solo con
-         tipi MIME non riconosciuti dei dati. Comunque, il metodo da preferire
-         per accedere ai dati grezzi di POST è <link
-         linkend="wrappers.php">php://input</link>.
-         <varname>$HTTP_RAW_POST_DATA</varname> non è disponibile con
-         <literal>enctype="multipart/form-data"</literal>.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.allow-webdav-methods">
-       <term>
-        <parameter>allow_webdav_methods</parameter>
-        <type>boolean</type>
-       </term>
-       <listitem>
-        <para>
-         Permette la gestione delle richieste http di WebDAV all'interno di script PHP (ad esempio.
-         PROPFIND, PROPPATCH, MOVE, COPY, etc.).
-         Questo parametro non esisteva prima di PHP 4.3.2.
-         Se si vuole ricevere i dati post di queste richieste, occorre
-         impostare anche <link linkend="ini.always-populate-raw-post-data">
-         always_populate_raw_post_data</link>.
-        </para>
-       </listitem>
-      </varlistentry>
-     </variablelist>
-    </para>
-    <para>
-     Vedere anche: <link linkend="ini.magic-quotes-gpc">magic_quotes_gpc</link>,
-     <link linkend="ini.magic-quotes-runtime">magic_quotes_runtime</link>
-     e
-     <link linkend="ini.magic-quotes-sybase">magic_quotes_sybase</link>.
-    </para>
-   </section>
-
-  <section xml:id="ini.sect.path-directory">
-   <title>Percorsi e Directory</title>
-    <para>
-     <table>
-      <title>Parametri di configurazione per percorsi e directory</title>
-      <tgroup cols="4">
-       <thead>
-        <row>
-         <entry>Nome</entry>
-         <entry>Default</entry>
-         <entry>Modificabile</entry>
-         <entry>Log delle variazioni</entry>
-        </row>
-       </thead>
-       <tbody>
-        <row>
-         <entry>include_path</entry>
-         <entry>".;/path/to/php/pear"</entry>
-         <entry>PHP_INI_ALL</entry>
-         <entry></entry>
-        </row>
-        <row>
-         <entry>doc_root</entry>
-         <entry>NULL</entry>
-         <entry>PHP_INI_SYSTEM</entry>
-         <entry></entry>
-        </row>
-        <row>
-         <entry>user_dir</entry>
-         <entry>NULL</entry>
-         <entry>PHP_INI_SYSTEM</entry>
-         <entry></entry>
-        </row>
-        <row>
-         <entry>extension_dir</entry>
-         <entry>"/path/to/php"</entry>
-         <entry>PHP_INI_SYSTEM</entry>
-         <entry></entry>
-        </row>
-        <row>
-         <entry>extension</entry>
-         <entry>NULL</entry>
-         <entry>&php.ini; only</entry>
-         <entry></entry>
-        </row>
-        <row>
-         <entry>cgi.check_shebang_line</entry>
-         <entry>"1"</entry>
-         <entry>PHP_INI_SYSTEM</entry>
-         <entry>Disponibile da PHP 5.2.0.</entry>
-        </row>
-        <row>
-         <entry>cgi.fix_pathinfo</entry>
-         <entry>"1"</entry>
-         <entry>PHP_INI_SYSTEM</entry>
-         <entry>Disponibile da PHP 4.3.0. PHP_INI_ALL prima di PHP 5.2.1.</entry>
-        </row>
-        <row>
-         <entry>cgi.force_redirect</entry>
-         <entry>"1"</entry>
-         <entry>PHP_INI_SYSTEM</entry>
-         <entry>Disponibile da PHP 4.2.0. PHP_INI_ALL prima di PHP 5.2.1.</entry>
-        </row>
-        <row>
-         <entry>cgi.redirect_status_env</entry>
-         <entry>NULL</entry>
-         <entry>PHP_INI_SYSTEM</entry>
-         <entry>Disponibile da PHP 4.2.0. PHP_INI_ALL prima di PHP 5.2.1.</entry>
-        </row>
-        <row>
-         <entry>fastcgi.impersonate</entry>
-         <entry>"0"</entry>
-         <entry>PHP_INI_SYSTEM</entry>
-         <entry>Disponibile da PHP 4.2.0. PHP_INI_ALL prima di PHP 5.2.1.</entry>
-        </row>
-        <row>
-         <entry>cgi.rfc2616_headers</entry>
-         <entry>"0"</entry>
-         <entry>PHP_INI_ALL</entry>
-         <entry>Disponibile da PHP 4.3.0.</entry>
-        </row>
-       </tbody>
-      </tgroup>
-     </table>
-    </para>
-    
-    &ini.descriptions.title;
-    
-    <para>
-     <variablelist>
-      <varlistentry xml:id="ini.include-path">
-       <term>
-        <parameter>include_path</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         Elenco di directory in cui le funzioni
-         <function>require</function>, <function>include</function>,
-         <function>fopen</function>, <function>file</function>, 
-         <function>readfile</function> e <function>file_get_contents</function> 
-         cercheranno i file. Il formato è tipo la variabile d'ambiente 
-         <envar>PATH</envar>: una lista di directory 
-         separate da due punti in Unix, punto e virgola in Windows.
-        </para>
-        <para>
-         <example>
-          <title>Unix include_path</title>
-          <programlisting role="php.ini">
-<![CDATA[
-include_path=".:/php/includes"
-]]>
-          </programlisting>
-         </example>
-        </para>
-        <para>
-         <example>
-          <title>Windows include_path</title>
-          <programlisting role="php.ini">
-<![CDATA[
-include_path=".;c:\php\includes"
-]]>
-          </programlisting>
-         </example>
-        </para>
-        <para>
-         L'uso di <literal>.</literal> nel percorso di include indica,
-         negli include relativi, la directory corrente.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.doc-root">
-       <term>
-        <parameter>doc_root</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         La directory radice (root directory) del PHP sul server. Utilizzata solo se
-         compilata. Se il PHP è configurato con il &safemode;, ignorerà tutti i file
-         al di fuori di questa directory.
-         Se il PHP non è compilato con il parametro FORCE_REDIRECT, si <emphasis>dovrebbe
-         </emphasis> impostare doc_root se si utilizza il PHP come CGI in qualsiasi web
-         server (oltre che IIS). In alternativa utilizzare il seguente parametro
-         <link linkend="ini.cgi.force-redirect">
-         cgi.force_redirect</link>.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.user-dir">
-       <term>
-        <parameter>user_dir</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         Il nome di base della directory utilizzata come home directory degli utenti
-         per i file PHP, ad esempio <filename class="directory">public_html
-         </filename>.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.extension-dir">
-       <term>
-        <parameter>extension_dir</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         Directory in cui il PHP cerca i moduli caricabili 
-         dinamicamente. Vedere anche: <link linkend="ini.enable-dl">enable_dl</link>,
-         e <function>dl</function>.
-        </para>
-       </listitem>
-      </varlistentry>
-     
-      <varlistentry xml:id="ini.extension">
-       <term>
-        <parameter>extension</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         Quale modulo dinamico caricare quando il PHP 
-         parte.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.cgi.check-shebang-line">
-       <term>
-        <parameter>cgi.check_shebang_line</parameter>
-        <type>boolean</type>
-       </term>
-       <listitem>
-        <para>
-         Controlla se il PHP CGI ricerca i caratteri #! (shebang) all'inizio della
-         prima riga dello script. Questa riga potrebbe essere necessaria se lo
-         script deve essere eseguito sia come stand-alone che attraverso il PHP CGI.
-         PHP in CGI salta questa linea e ignora il suo contenuto se questo
-         parametro è attivo.
-        </para>
-       </listitem>
-      </varlistentry>
-
-
-      <varlistentry xml:id="ini.cgi.fix-pathinfo">
-       <term>
-        <parameter>cgi.fix_pathinfo</parameter>
-        <type>boolean</type>
-       </term>
-       <listitem>
-        <para>
-         Fornisce il <emphasis>reale</emphasis> PATH_INFO/PATH_TRANSLATED
-         per il CGI. Il precedente comportamento del PHP era di impostare
-         PATH_TRANSLATED a SCRIPT_FILENAME, non curarsi di quale sia PATH_INFO.
-         Per maggiori dettagli su PATH_INFO, vedere le specifiche cgi. Impostare il parametro 
-         a 1, si forza il PHP CGI a correggere il percorso in modo conforme
-         alle specifiche. Impostare il parametro a 0 si forza il PHP a comportarsi come solito. Il valore
-         di default è zero. Si dovrebbe correggere gli script affinchè utilizzino SCRIPT_FILENAME 
-         piuttosto che PATH_TRANSLATED.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.cgi.force-redirect">
-       <term>
-        <parameter>cgi.force_redirect</parameter>
-        <type>boolean</type>
-       </term>
-       <listitem>
-        <para>
-         cgi.force_redirect è necessario per garantire maggiore sicurezza al PHP quando gira
-         come CGI in diversi web server. Non impostando il parametro, il PHP lo imposta
-         a on per default. Può essere impostato ad off <emphasis>a proprio rischio</emphasis>.
-        </para>
-        <note>
-         <para>
-          Nota per gli utenti di Windows: si <emphasis>può</emphasis> tranquillamente impostare questo parametro a off con
-          IIS, infatti <emphasis>è obbligatorio</emphasis>.
-          Anche con OmniHTTPD o Xitami <emphasis>occorre</emphasis> impostare il parametro
-          a off.
-         </para>
-        </note>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.cgi.redirect-status-env">
-       <term>
-        <parameter>cgi.redirect_status_env</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         Se cgi.force_redirect è impostato ad on, e non si utilizza i web server
-         Apache o Netscape (iPlanet), <emphasis>può</emphasis> essere necessario
-         impostare il nome di una variabile di ambiente the il PHP verificherà per
-         sapere se può continuare l'esecuzione.
-        </para>
-        <note>
-         <para>
-          L'impostazione di questa variabile <emphasis>può</emphasis> portare a problemi di sicurezza,
-          <emphasis>fare attenzione a quello che si fa</emphasis>.
-         </para>
-        </note>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.fastcgi.impersonate">
-       <term>
-        <parameter>fastcgi.impersonate</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         FastCGI con IIS (su OS basati su WINNT) offre la possibilità di attivare
-         il contesto di sicurezza del client chiamante. Questo permette a IIS di definire
-         un contesto di sicurezza in cui fare girare la richiesta. Attualmente mod_fastcgi di Apache
-         non supporta questa caratteristica (17/03/2002).
-         Impostare a 1 se si utilizza IIS. Il default è zero.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.cgi.rfc2616-headers">
-       <term>
-        <parameter>cgi.rfc2616_headers</parameter>
-        <type>int</type>
-       </term>
-       <listitem>
-        <para>
-         Indica al PHP quale tipo di intesazione utilizzare quando si invia risposte HTTP.
-         Se impostato a 0, il PHP invia una intestazione Status:, che è supportata
-         da Apache ed altri server web. Quando il parametro è impostato a 1, il PHP
-         invia una intestazione conforme alle specifiche indicate in <link xlink:href="&url.rfc;2616">RFC 2616</link>.
-         Lasciare il parametro a 0 a meno che non si sappia cosa si sta facendo.
-        </para>
-       </listitem>
-      </varlistentry>
-     </variablelist>
-    </para>
-   </section>
-
-  <section xml:id="ini.sect.file-uploads">
-   <title>File Uploads</title>
-    <para>
-     <table>
-      <title>File Uploads Configuration Options</title>
-      <tgroup cols="4">
-       <thead>
-        <row>
-         <entry>Nome</entry>
-         <entry>Default</entry>
-         <entry>Modificabile</entry>
-         <entry>Variazioni</entry>
-        </row>
-       </thead>
-       <tbody>
-        <row>
-         <entry>file_uploads</entry>
-         <entry>"1"</entry>
-         <entry>PHP_INI_SYSTEM</entry>
-         <entry>PHP_INI_ALL in PHP &lt;= 4.2.3. Disponibile da PHP 4.0.3.</entry>
-        </row>
-        <row>
-         <entry>upload_tmp_dir</entry>
-         <entry>NULL</entry>
-         <entry>PHP_INI_SYSTEM</entry>
-         <entry></entry>
-        </row>
-        <row>
-         <entry>upload_max_filesize</entry>
-         <entry>"2M"</entry>
-         <entry>PHP_INI_PERDIR</entry>
-         <entry>PHP_INI_ALL in PHP &lt;= 4.2.3.</entry>
-        </row>
-       </tbody>
-      </tgroup>
-     </table>
-    </para>
-    
-    &ini.descriptions.title;
-    
-    <para>
-     <variablelist>
-      <varlistentry xml:id="ini.file-uploads">
-       <term>
-        <parameter>file_uploads</parameter>
-        <type>boolean</type>
-       </term>
-       <listitem>
-        <para>
-         Indica se abilitare o meno gli
-         <link linkend="features.file-upload">upload di file</link>. Vedere anche
-         i parametri
-         <link linkend="ini.upload-max-filesize">upload_max_filesize</link>,
-         <link linkend="ini.upload-tmp-dir">upload_tmp_dir</link> e
-         <link linkend="ini.post-max-size">post_max_size</link>.
-        </para>
-
-        &ini.shorthandbytes;
-
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.upload-tmp-dir">
-       <term>
-        <parameter>upload_tmp_dir</parameter>
-        <type>string</type>
-       </term>
-       <listitem>
-        <para>
-         Directory temporanea utilizzata per il transito dei file durante
-         l'upload. Deve avere i permessi di scrittura per gli utenti utilizzati dal PHP
-         per girare. Se non indicata il PHP utilizzerà il default di sistema.
-        </para>
-       </listitem>
-      </varlistentry>
-
-      <varlistentry xml:id="ini.upload-max-filesize">
-       <term>
-        <parameter>upload_max_filesize</parameter>
-        <type>integer</type>
-       </term>
-       <listitem>
-        <para>
-         La dimensione massima di un file inviato.
-        </para>
-
-        &ini.shorthandbytes;
-
-       </listitem>
-      </varlistentry>
-     </variablelist>
-    </para>
-   </section>
-
-  <section xml:id="ini.sql-general">
-   <title>General SQL</title>
-    <para>
-     <table>
-      <title>Parametri di configurazione generali per SQL</title>
-      <tgroup cols="4">
-       <thead>
-        <row>
-         <entry>Nome</entry>
-         <entry>Default</entry>
-         <entry>Modificabile</entry>
-         <entry>Variazioni</entry>
-        </row>
-       </thead>
-       <tbody>
-        <row>
-         <entry>sql.safe_mode</entry>
-         <entry>"0"</entry>
-         <entry>PHP_INI_SYSTEM</entry>
-         <entry></entry>
-        </row>
-       </tbody>
-      </tgroup>
-     </table>
-    </para>
-    
-    &ini.descriptions.title;
-    
-    <para>
-     <variablelist>
-      <varlistentry xml:id="ini.sql.safe-mode">
-       <term>
-        <parameter>sql.safe_mode</parameter>
-        <type>boolean</type>
-       </term>
-       <listitem>
-        <para>
-         Se acceso, le funzioni di connessione al databse che specificano valori di default
-         useranno questi valori al posto degli argomenti forniti. Per conoscere
-         i valori di default consultare la documentazione dello specifico database.
-        </para>
-       </listitem>
-      </varlistentry>
-     </variablelist>
-    </para>
-   </section>
-
-   <section xml:id="ini.sect.debugger">
-    <title>Debugger Configuration Directives</title>
-    <caution>
-     <para>
-      Soltanto il PHP 3 possiede un debugger di default, per maggiori dettagli vedere <xref
-      linkend="debugger"/>.
-     </para>
-    </caution>
-
+       <row>
+        <entry>default_mimetype</entry>
+        <entry>"text/html"</entry>
+        <entry>PHP_INI_ALL</entry>
+        <entry></entry>
+       </row>
+       <row>
+        <entry>default_charset</entry>
+        <entry>""</entry>
+        <entry>PHP_INI_ALL</entry>
+        <entry></entry>
+       </row>
+       <row>
+        <entry>always_populate_raw_post_data</entry>
+        <entry>"0"</entry>
+        <entry>PHP_INI_PERDIR</entry>
+        <entry>PHP_INI_ALL in PHP &lt;= 4.2.3. Disponibile da PHP 4.1.0.</entry>
+       </row>
+       <row>
+        <entry>allow_webdav_methods</entry>
+        <entry>"0"</entry>
+        <entry>PHP_INI_PERDIR</entry>
+        <entry></entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </table>
+   </para>
+   
+   &ini.descriptions.title;
+   
+   <para>
     <variablelist>
-     <varlistentry xml:id="ini.debugger.host">
+     <varlistentry xml:id="ini.track-vars">
       <term>
-       <parameter>debugger.host</parameter>
-       <type>string</type>
-      </term>
-      <listitem>
-       <para>
-        Nome DNS oppure indirizzo IP utilizzato dal debugger.
-       </para>
-      </listitem>
-     </varlistentry>
-
-     <varlistentry xml:id="ini.debugger.port">
-      <term>
-       <parameter>debugger.port</parameter>
-       <type>string</type>
-      </term>
-      <listitem>
-       <para>
-        Numero di porta utilizzato dal debugger.
-       </para>
-      </listitem>
-     </varlistentry>
-
-     <varlistentry xml:id="ini.debugger.enabled">
-      <term>
-       <parameter>debugger.enabled</parameter>
+       <parameter>track_vars</parameter>
        <type>boolean</type>
       </term>
       <listitem>
        <para>
-        Indica se abilitare o meno il debugger.
+        Se abilitato, le variabili Environment, GET, POST, Cookie, e
+        Server sono recuperabili nei rispettivi array associativi
+        <varname>$_ENV</varname>,
+        <varname>$_GET</varname>,
+        <varname>$_POST</varname>,
+        <varname>$_COOKIE</varname> e
+        <varname>$_SERVER</varname>.
+       </para>
+       <para>
+        Nota: dal  PHP 4.0.3, <systemitem
+        role="directive">track_vars</systemitem> è sempre impostato a on.
+       </para>
+      </listitem>
+    </varlistentry>
+     
+     <varlistentry xml:id="ini.arg-separator.output">
+      <term>
+       <parameter>arg_separator.output</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Il separatore degli argomenti utilizzato nelle URL genarate dal PHP.
        </para>
       </listitem>
      </varlistentry>
-
+     
+     <varlistentry xml:id="ini.arg-separator.input">
+      <term>
+       <parameter>arg_separator.input</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Lista dei separatori utilizzati dal PHP per la siddivisione dell'URL di input nelle veriabili.
+       </para>
+       <note>
+        <para>
+         Qualsiasi carattere inserito in questo parametro sarà considerato un separatore!
+        </para>
+       </note>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.variables-order">
+      <term>
+       <parameter>variables_order</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Imposta l'ordine di parsing delle variabili EGPCS (<literal>E</literal>nvironment,
+        <literal>G</literal>et, <literal>P</literal>ost,
+        <literal>C</literal>ookie e <literal>S</literal>erver).
+        Ad esempio, se variables_order
+        è impostato a <literal>"SP"</literal> il PHP creerà il
+        &link.superglobals; <varname>$_SERVER</varname> e
+        <varname>$_POST</varname>, ma non creerà
+        <varname>$_ENV</varname>, <varname>$_GET</varname> e
+        <varname>$_COOKIE</varname>. L'impostazione "" significa che
+        non verranno impostati $link.superglobals;.
+       </para>
+       <para>
+        se la direttiva deprecata
+        <link linkend="ini.register-globals">register_globals</link>
+        è attiva, allora variables_order
+        configura anche l'ordine con cui le variabili <literal>ENV</literal>,
+        <literal>GET</literal>, <literal>POST</literal>,
+        <literal>COOKIE</literal> e <literal>SERVER</literal>
+        sono popolate nello scope globale. Quindi, per esempio, se variables_order
+        è impostato a <literal>"EGPCS"</literal>, register_globals è abilitato, 
+        e sia <varname>$_GET['action']</varname> che
+        <varname>$_POST['action']</varname> sono impostati, allora
+        <varname>$action</varname> conterrà il valore di
+        <varname>$_POST['action']</varname> dal momento che <literal>P</literal> compare
+        dopo <literal>G</literal> nel nostro valore di esempio.
+       </para>
+       <warning>
+        <para>
+         In entrambe le SAPI GSI e FastCGI,
+         <varname>$_SERVER</varname> è
+         popolato anche dai valori dell'environment; <literal>S</literal>
+         è sempre equivalente a <literal>ES</literal> a prescindere dalla
+         posizione di <literal>E</literal> nella direttiva.
+        </para>
+       </warning>
+       <note>
+        <para>
+         Anche il contenuto ed ordine di 
+         <varname>$_REQUEST</varname> è
+         modificato da questa direttiva.
+        </para>
+       </note>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.request-order">
+      <term>
+       <parameter>request_order</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Descrive l'ordine in cui PHP registra le variabili GET, POST
+        e Cookie variables nell'array _REQUEST. La registrazione è fatta
+        da sinistra a destra, i nuovi valori sostituiscono quelli vecchi.
+       </para>
+       <para>
+        Se questa direttiva non è impostata, <link
+        linkend="ini.variables-order">variables_order</link> è utilizzata per i
+        contenuti di <varname>$_REQUEST</varname>.
+       </para>
+       <para>
+        Si noti che il file <filename>php.ini</filename> della distribuzione di default non contiene 
+        il <literal>'C'</literal> per i cookie, per questioni di sicurezza.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.auto-globals-jit">
+      <term>
+       <parameter>auto_globals_jit</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Quando abilitato, le variabili SERVER ed ENV sono create al momento
+        del primo utilizzo (Just In Time) invece che all'avvio dello script. Se queste
+        variabili non sono utilizzate dallo script, impostanto questo parametro ad on
+        si ha un beneficio in termini di performance.
+       </para>
+       <para>
+        I parametri di PHP
+        <link linkend="ini.register-globals">register_globals</link>,
+        <link linkend="ini.register-long-arrays">register_long_arrays</link>
+        e <link linkend="ini.register-argc-argv">register_argc_argv</link>
+        devono essere disabilitati affinché questa impostazione abbia effetto. Dal PHP
+        5.1.3 non è necessario avere <link
+        linkend="ini.register-argc-argv">register_argc_argv</link> disabilitato.
+       </para>
+       <warning>
+        <para>
+         L'utilizzo delle variabili SERVER e ENV è impostato al momento della compilazione.
+         Quindi usarle attraverso, per esempio, <link
+         linkend="language.variables.variable">variabili dinamiche</link> non
+         porterà alla loro inizializzazione.
+        </para>
+       </warning>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.register-globals">
+      <term>
+       <parameter>register_globals</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Indica se registrare o meno le variabili EGPCS (Environment, GET,
+        POST, Cookie, Server) come variabili globali.
+       </para>
+       <para>
+        Dal <link xlink:href="&url.php.release4.2.0;">PHP 4.2.0</link>,
+        questo parametro è impostato per default a <emphasis>off</emphasis>.
+       </para>
+       <para>
+        Guardare il capitolo della sicurezza riguardante
+        <link linkend="security.globals">l'uso di register_globals</link>
+        per maggiori informazioni.
+       </para>
+       <para>
+        Si ricorda che <systemitem role="directive">register_globals</systemitem>
+        non può essere impostato a runtime da (<function>ini_set</function>). In alternativa, se
+        permesso dal proprio host, si può utilizzare &htaccess;.
+        Un esempio di riga &htaccess;:
+       <userinput>php_flag register_globals off</userinput>.
+       </para>
+       <note>
+        <para>
+         Il parametro <systemitem role="directive">register_globals</systemitem> è influenzato 
+         da <link linkend="ini.variables-order">variables_order</link> 
+         directive.
+        </para>
+       </note>
+       &warn.deprecated.feature-5-3-0.removed-6-0-0;
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.register-argc-argv">
+      <term>
+       <parameter>register_argc_argv</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <simpara>
+        Indica al PHP se dichiarare le variabili argv &amp; argc
+        (che contengono le informazioni GET).
+       </simpara>
+       <simpara>
+        Vedere anche <link linkend="features.commandline">command line</link>.
+        Infine, questo parametro è stato introdotto in PHP 4.0.0 ed
+        era sempre impostato a "on" nelle versioni precedenti.
+       </simpara>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.register-long-arrays">
+      <term>
+       <parameter>register_long_arrays</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <simpara>
+        Indica al PHP se registrare o meno le variabili lunghe (deprecate)
+        <varname>$HTTP_*_VARS</varname>, vedere
+        <link linkend="language.variables.predefined">variabili
+        predefinite</link>.  Quando viene impostato ad On (default), vengono definite
+        le variabili lunghe, tipo  <varname>$HTTP_GET_VARS</varname>, del PHP.
+        Se non si utilizzano, si consiglia di impostare il parametro ad off
+        per motivi di performance. Al posto di queste, utilizzare le matrici
+        <varname>$_GET</varname>.
+       </simpara>
+       <simpara>
+        Questa impostazione è disponibile dal PHP 5.0.0i.
+       </simpara>
+       &warn.deprecated.feature-5-3-0.removed-6-0-0;
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.post-max-size">
+      <term>
+       <parameter>post_max_size</parameter>
+       <type>integer</type>
+      </term>
+      <listitem>
+       <simpara>
+        Imposta la dimensione massima dei dati post. Questa impostazione
+        influenza anche gli upload dei file. Per permettere upload di file di grandi dimensioni, il valore impostato deve essere maggiore
+        di <link linkend="ini.upload-max-filesize">upload_max_filesize</link>.
+       </simpara>
+       <simpara>
+        Anche il limite di memoria, <link
+        linkend="ini.memory-limit">memory_limit</link>, se abilitato, può limitare gli
+        upload di file. In termini generali
+        <link linkend="ini.memory-limit">memory_limit</link> dovrebbe essere
+        maggiore di <parameter>post_max_size</parameter>.
+       </simpara>
+       
+       &ini.shorthandbytes;
+       
+       <simpara>
+        Se la dimensione dei dati post è maggiore di post_max_size, le variabili
+        <link linkend="language.variables.superglobals">superglobale</link> 
+        <varname>$_POST</varname> e <varname>$_FILES</varname> 
+        sono vuote. Questo può essere rilevato in diversi modi, ad esempio passando 
+        una variabile <varname>$_GET</varname> allo script che processa i dati,
+        tipo <literal>&lt;form action="edit.php?processed=1"&gt;</literal>,
+        e verificare se <varname>$_GET['processed']</varname> è impostata.
+       </simpara>
+       <para>
+        <note>
+         <para>
+          PHP permette di usare le abbreviazioni per i valori bit, tra cui K (kilo), M (mega) 
+          e G (giga). PHP fa una conversione automatica quando si usano queste
+          abbreviazioni. Si presti attenzione a non eccedere il limite dell'intero signed 32 bit
+          (se si sta usando una versione a 32 bit) poiché questo farà fallire lo
+          script.
+         </para>
+        </note>
+       </para>
+       
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.gpc-order">
+      <term>
+       <parameter>gpc_order</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Imposta l'ordine di parsing delle variabili GET/POST/COOKIE. 
+        l'impostazione di default per questo parametro è "GPC".  Impostare questo a
+        "GP", ad esempio, farà ignorare i cookie al PHP
+        e farà sovrascrivere qualsiasi variabile GET dalla eventuale
+        omonima variabile POST.
+       </para>
+       <note>
+        <para>
+         Questo parametro non è disponibile in PHP 4.
+         Al suo posto utilizzare
+         <link linkend="ini.variables-order">variables_order</link>.
+        </para>
+       </note>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.auto-prepend-file">
+      <term>
+       <parameter>auto_prepend_file</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Indica il nome del file che deve essere parsato
+        prima del file principale. Questo file viene incluso come se fosse
+        chiamato dalla funzione <function>include</function>, pertanto si utilizza
+        il parametro <link linkend="ini.include-path">include_path</link>.</para>
+       <para>
+        Il valore speciale <literal>none</literal>
+        disabilita la funzione.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.auto-append-file">
+      <term>
+       <parameter>auto_append_file</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Specifica il file che deve essere analizzato in automatico 
+        dopo il file principale. Il file è incluso come se fosse
+        chiamato dalla funzione <function>include</function> pertanto si utilizza
+        il parametro <link linkend="ini.include-path">include_path</link>.</para>
+       <para>
+        Il valore <literal>none</literal>
+        disabilita l'auto-appending.
+        <note>
+         <simpara>
+          Se lo script termina con <function>exit</function>,
+          l'auto-accodamento <emphasis>non</emphasis> viene eseguito.</simpara>
+        </note>
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.default-mimetype">
+      <term>
+       <parameter>default_mimetype</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.default-charset">
+      <term>
+       <parameter>default_charset</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Dalla versione 4.0b4, il PHP invia, per default, la codifica del carattere
+        nell'intestazione Content-type:.  Per disabilitare questo invio, lasciare
+        vuoto il parametro.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.always-populate-raw-post-data">
+      <term>
+       <parameter>always_populate_raw_post_data</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Valorizza sempre la variabile <varname>$HTTP_RAW_POST_DATA</varname> contenente
+        i dati grezzi di POST. Altrimenti, la variabile è riempita solo con
+        tipi MIME non riconosciuti dei dati. Comunque, il metodo da preferire
+        per accedere ai dati grezzi di POST è <link
+        linkend="wrappers.php">php://input</link>.
+        <varname>$HTTP_RAW_POST_DATA</varname> non è disponibile con
+        <literal>enctype="multipart/form-data"</literal>.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.allow-webdav-methods">
+      <term>
+       <parameter>allow_webdav_methods</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Permette la gestione delle richieste http di WebDAV all'interno di script PHP (ad esempio.
+        PROPFIND, PROPPATCH, MOVE, COPY, etc.).
+        Questo parametro non esisteva prima di PHP 4.3.2.
+        Se si vuole ricevere i dati post di queste richieste, occorre
+        impostare anche <link linkend="ini.always-populate-raw-post-data">
+        always_populate_raw_post_data</link>.
+       </para>
+      </listitem>
+     </varlistentry>
     </variablelist>
-   </section>
+   </para>
+   <para>
+    Vedere anche: <link linkend="ini.magic-quotes-gpc">magic_quotes_gpc</link>,
+    <link linkend="ini.magic-quotes-runtime">magic_quotes_runtime</link>
+    e
+    <link linkend="ini.magic-quotes-sybase">magic_quotes_sybase</link>.
+   </para>
+  </section>
+
+  <section xml:id="ini.sect.path-directory">
+   <title>Percorsi e Directory</title>
+   <para>
+    <table>
+     <title>Parametri di configurazione per percorsi e directory</title>
+     <tgroup cols="4">
+      <thead>
+       <row>
+        <entry>Nome</entry>
+        <entry>Default</entry>
+        <entry>Modificabile</entry>
+        <entry>Cronologia</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry>include_path</entry>
+        <entry>".;/path/to/php/pear"</entry>
+        <entry>PHP_INI_ALL</entry>
+        <entry></entry>
+       </row>
+       <row>
+        <entry>open_basedir</entry>
+        <entry>NULL</entry>
+        <entry>PHP_INI_ALL</entry>
+        <entry>PHP_INI_SYSTEM in PHP &lt; 5.3.0</entry>
+       </row>
+       <row>
+        <entry>doc_root</entry>
+        <entry>NULL</entry>
+        <entry>PHP_INI_SYSTEM</entry>
+        <entry></entry>
+       </row>
+       <row>
+        <entry>user_dir</entry>
+        <entry>NULL</entry>
+        <entry>PHP_INI_SYSTEM</entry>
+        <entry></entry>
+       </row>
+       <row>
+        <entry>extension_dir</entry>
+        <entry>"/path/to/php"</entry>
+        <entry>PHP_INI_SYSTEM</entry>
+        <entry></entry>
+       </row>
+       <row>
+        <entry>extension</entry>
+        <entry>NULL</entry>
+        <entry>&php.ini; only</entry>
+        <entry></entry>
+       </row>
+       <row>
+        <entry>zend_extension</entry>
+        <entry>NULL</entry>
+        <entry>Solo &php.ini;</entry>
+        <entry></entry>
+       </row>
+       <row>
+        <entry>zend_extension_debug</entry>
+        <entry>NULL</entry>
+        <entry>Solo &php.ini;</entry>
+        <entry></entry>
+       </row>
+       <row>
+        <entry>zend_extension_debug_ts</entry>
+        <entry>NULL</entry>
+        <entry>Solo &php.ini;</entry>
+        <entry></entry>
+       </row>
+       <row>
+        <entry>zend_extension_ts</entry>
+        <entry>NULL</entry>
+        <entry>Solo &php.ini;</entry>
+        <entry></entry>
+       </row>
+       <row>
+        <entry>cgi.check_shebang_line</entry>
+        <entry>"1"</entry>
+        <entry>PHP_INI_SYSTEM</entry>
+        <entry>Disponibile da PHP 5.2.0.</entry>
+       </row>
+       <row>
+        <entry>cgi.fix_pathinfo</entry>
+        <entry>"1"</entry>
+        <entry>PHP_INI_SYSTEM</entry>
+        <entry>Disponibile da PHP 4.3.0. PHP_INI_ALL prima di PHP 5.2.1.</entry>
+       </row>
+       <row>
+        <entry>cgi.force_redirect</entry>
+        <entry>"1"</entry>
+        <entry>PHP_INI_SYSTEM</entry>
+        <entry>Disponibile da PHP 4.2.0. PHP_INI_ALL prima di PHP 5.2.1.</entry>
+       </row>
+       <row>
+        <entry>cgi.redirect_status_env</entry>
+        <entry>NULL</entry>
+        <entry>PHP_INI_SYSTEM</entry>
+        <entry>Disponibile da PHP 4.2.0. PHP_INI_ALL prima di PHP 5.2.1.</entry>
+       </row>
+       <row>
+        <entry>fastcgi.impersonate</entry>
+        <entry>"0"</entry>
+        <entry>PHP_INI_SYSTEM</entry>
+        <entry>Disponibile da PHP 4.2.0. PHP_INI_ALL prima di PHP 5.2.1.</entry>
+       </row>
+       <row>
+        <entry>fastcgi.logging</entry>
+        <entry>"1"</entry>
+        <entry>PHP_INI_SYSTEM</entry>
+        <entry>Disponibile da PHP 4.2.0. PHP_INI_ALL prima di PHP 5.2.1.</entry>
+       </row>
+       <row>
+        <entry>cgi.rfc2616_headers</entry>
+        <entry>"0"</entry>
+        <entry>PHP_INI_ALL</entry>
+        <entry>Disponibile da PHP 4.3.0.</entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </table>
+   </para>
+   
+   &ini.descriptions.title;
+   
+   <para>
+    <variablelist>
+     <varlistentry xml:id="ini.include-path">
+      <term>
+       <parameter>include_path</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Elenco di directory in cui le funzioni
+        <function>require</function>, <function>include</function>,
+        <function>fopen</function>, <function>file</function>,
+        <function>readfile</function> e <function>file_get_contents</function> 
+        cercheranno i file. Il formato è tipo la variabile d'ambiente 
+        <envar>PATH</envar>: una lista di directory 
+        separate da due punti in Unix, punto e virgola in Windows.
+       </para>
+       <para>
+        PHP considera separatamente ogni voce nel percorso d'inclusione, quanto cerca il
+        file da includere. Cerca nel primo percorso, e se non lo trova,
+        cerca nel successivo, finché non trova il file da includere o 
+        restituisce un
+        <link linkend="errorfunc.constants.errorlevels.e-warning">avvertimento</link>
+        oppure un <link linkend="errorfunc.constants.errorlevels.e-error">errore</link>. 
+        &Egrave; possibile impostare o modificare il percorso di inclusione a runtime, usando
+        <function>set_include_path</function>.
+       </para>
+       <para>
+        <example>
+         <title>Unix include_path</title>
+         <programlisting role="php.ini">
+<![CDATA[
+include_path=".:/php/includes"
+]]>
+         </programlisting>
+        </example>
+       </para>
+       <para>
+        <example>
+         <title>Windows include_path</title>
+         <programlisting role="php.ini">
+<![CDATA[
+include_path=".;c:\php\includes"
+]]>
+         </programlisting>
+        </example>
+       </para>
+       <para>
+        L'uso di <literal>.</literal> nel percorso di include indica,
+        negli include relativi, la directory corrente.
+        &Egrave; più efficiente usare esplicitamente <literal>include
+        './file'</literal> piuttosto che lasciare che PHP controlli nella direcory correente
+        ad ogni inclusione.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.open-basedir">
+      <term>
+       <parameter>open_basedir</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Limita i file che possono essere aperti da PHP ad uno specifico
+        albero di cartelle, contenenti il file stesso.  Questo parametro
+        <emphasis>NON &Egrave;</emphasis> modificato dallo stato del Safe Mode
+        (On o Off).
+       </para>
+       <para>
+        Quando uno script tenta di aprire un file con, per esempio,
+        <function>fopen</function> oppure <function>gzopen</function>,
+        la posizione del file viene controllata. Se il file è fuori dall'albero
+        specificato, PHP si rifiuterà di aprirlo. Tutti i link simbolici
+        sono risolti, quindi non è possibile eludere questa restrizione
+        con un symlink. Se il file non esiste il symlink non può essere
+        risolto e il nome del file è confrontato con
+        <option>open_basedir</option>.
+       </para>
+       <para>
+        Il valore speciale <systemitem class="filesystem">.</systemitem>
+        indica che l'attuale cartella di lavoro dello script sarà usata come
+        base-directory. Quest è comunque abbastanza pericoloso in quanto la cartella di lavoro
+        dello script può essere cambiata facilmente con <function>chdir</function>.
+       </para>
+       <para>
+        In <filename>httpd.conf</filename>, <option>open_basedir</option> può essere disattivato
+        (ad esempio per alcuni host virtuali)
+        <link linkend="configuration.changes.apache">nello stesso modo</link> che
+        gli altri parametri di configurazione con "<literal>php_admin_value open_basedir
+        none</literal>".
+       </para>
+       <para>
+        Nei sistemi Windows, separare le cartelle con un punto e virgola. In tutti
+        gli altri sistemi, separare le cartelle con un due punti. Come modulo di Apache,
+        i percorsi <option>open_basedir</option> dalle cartelle parenti sono ora
+        automaticamente ereditati.
+       </para>
+       <para>
+        La restrizione specificata con <option>open_basedir</option> è un
+        prefisso, non un nome di cartella.  Ciò significa che "<literal>open_basedir
+        = /dir/incl</literal>" permette l'accesso anche a "<literal>/dir/include</literal>" e
+        "<literal>/dir/incls</literal>" se esistono. Quando si vuole restringere l'accesso
+        solo alla cartella specificata, apporre uno slash. Per esempio:
+        <literal>open_basedir = /dir/incl/</literal>
+       </para>
+       <para>
+        L'impostazione di default è quella di permettere l'apertura di tutti i file.
+       </para>
+       <note>
+        <para>
+         Dal PHP 5.3.0 open_basedir può essere ristretto a run-time. Ciò significa
+         che se open_basedir è impostato a <literal>/www/</literal> in &php.ini;
+         uno script può ulteriormente restringere la configurazione a
+         <literal>/www/tmp/</literal> a run-time con
+         <function>ini_set</function>
+        </para>
+       </note>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.doc-root">
+      <term>
+       <parameter>doc_root</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        La directory radice (root directory) del PHP sul server. Utilizzata solo se
+        compilata. Se il PHP è configurato con il &safemode;, ignorerà tutti i file
+        al di fuori di questa directory.
+        Se il PHP non è compilato con il parametro FORCE_REDIRECT, si <emphasis>dovrebbe
+        </emphasis> impostare doc_root se si utilizza il PHP come CGI in qualsiasi web
+        server (oltre che IIS). In alternativa utilizzare il seguente parametro
+        <link linkend="ini.cgi.force-redirect">
+        cgi.force_redirect</link>.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.user-dir">
+      <term>
+       <parameter>user_dir</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Il nome di base della directory utilizzata come home directory degli utenti
+        per i file PHP, ad esempio <filename class="directory">public_html
+        </filename>.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.extension-dir">
+      <term>
+       <parameter>extension_dir</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Directory in cui il PHP cerca i moduli caricabili 
+        dinamicamente. Vedere anche: <link linkend="ini.enable-dl">enable_dl</link>,
+        e <function>dl</function>.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.extension">
+      <term>
+       <parameter>extension</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Quale modulo dinamico caricare quando il PHP viene avviato.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.zend-extension">
+      <term>
+       <parameter>zend_extension</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Percorso assoluto all'estensione Zend caricabile dinamicamente (per esempio
+        <link linkend="book.apd">APD</link>) da caricare all'avvio di PHP.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.zend-extension-debug">
+      <term>
+       <parameter>zend_extension_debug</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Variante di <link linkend="ini.zend-extension">zend_extension</link>
+        per le estensioni compilate con le informazioni di debug.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.zend-extension-debug-ts">
+      <term>
+       <parameter>zend_extension_debug_ts</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Variante di <link linkend="ini.zend-extension">zend_extension</link>
+        per le estensioni compilate con informazioni di debug e thread safety.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.zend-extension-ts">
+      <term>
+       <parameter>zend_extension_ts</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Variante di <link linkend="ini.zend-extension">zend_extension</link>
+        per le estensioni compilate con thread safety.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.cgi.check-shebang-line">
+      <term>
+       <parameter>cgi.check_shebang_line</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Controlla se il PHP <literal>CGI</literal> ricerca i 
+        caratteri <literal>#!</literal> (shebang) all'inizio della prima riga dello script. 
+        Questa riga potrebbe essere necessaria se lo script deve essere eseguito sia come 
+        stand-alone che attraverso il PHP <acronym>CGI</acronym>. PHP in
+        <acronym>CGI</acronym> salta questa linea e ignora il suo contenuto se questo
+        parametro è attivo.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.cgi.fix-pathinfo">
+      <term>
+       <parameter>cgi.fix_pathinfo</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Fornisce il <emphasis>reale</emphasis> supporto <literal>PATH_INFO</literal>/
+        <literal>PATH_TRANSLATED</literal> per il <acronym>CGI</acronym>.
+        Il precedente comportamento del PHP era di impostare <literal>PATH_TRANSLATED</literal>
+        a <literal>SCRIPT_FILENAME</literal>, non curarsi di quale fosse <literal>
+        PATH_INFO</literal>. Per maggiori dettagli su
+        <literal>PATH_INFO</literal>, vedere le specifiche <acronym>CGI</acronym>.
+        Impostando il parametro a <literal>1</literal>, si forza il PHP
+        <acronym>CGI</acronym> a correggere il percorso in modo conforme alle specifiche.
+        Impostando il parametro a 0 si forza il PHP a comportarsi nel modo originario. Questa opzione è
+        attiva di default. Si consiglia di correggere gli script affinchè utilizzino
+        <literal>SCRIPT_FILENAME</literal> piuttosto che
+        <literal>PATH_TRANSLATED</literal>.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.cgi.force-redirect">
+      <term>
+       <parameter>cgi.force_redirect</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        cgi.force_redirect è necessario per garantire maggiore sicurezza al PHP eseguito come
+        <acronym>CGI</acronym> nella maggior parte dei server web. Non impostando il parametro, il PHP
+        lo imposta a on per default. Può essere impostato ad off <emphasis>a proprio
+        rischio</emphasis>.
+       </para>
+       <note>
+        <para>
+         Nota per gli utenti di Windows: si <emphasis>può</emphasis> tranquillamente impostare questo parametro a off con
+         IIS, infatti <emphasis>è obbligatorio</emphasis>.
+         Anche con OmniHTTPD o Xitami <emphasis>occorre</emphasis> impostare il parametro
+         a off.
+        </para>
+       </note>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.cgi.redirect-status-env">
+      <term>
+       <parameter>cgi.redirect_status_env</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Se cgi.force_redirect è impostato ad on, e non si utilizza i web server
+        Apache o Netscape (iPlanet), <emphasis>può</emphasis> essere necessario
+        impostare il nome di una variabile di ambiente the il PHP verificherà per
+        sapere se può continuare l'esecuzione.
+       </para>
+       <note>
+        <para>
+         L'impostazione di questa variabile <emphasis>può</emphasis> portare a problemi di sicurezza,
+         <emphasis>fare attenzione a quello che si fa</emphasis>.
+        </para>
+       </note>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.fastcgi.impersonate">
+      <term>
+       <parameter>fastcgi.impersonate</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        FastCGI con IIS (su OS basati su WINNT) offre la possibilità di attivare
+        il contesto di sicurezza del client chiamante. Questo permette a IIS di definire
+        un contesto di sicurezza in cui fare girare la richiesta. Attualmente mod_fastcgi di Apache
+        non supporta questa caratteristica (17/03/2002).
+        Impostare a 1 se si utilizza IIS. Il default è zero.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.fastcgi.logging">
+      <term>
+       <parameter>fastcgi.logging</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Abilita il logging di SAPI qundo si usa FastCGI. &Egrave; abilitato 
+        di default.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.cgi.rfc2616-headers">
+      <term>
+       <parameter>cgi.rfc2616_headers</parameter>
+       <type>int</type>
+      </term>
+      <listitem>
+       <para>
+        Indica al PHP quale tipo di intestazione utilizzare quando si inviano risposte HTTP.
+        Se impostato a 0, il PHP invia una intestazione Status:, che è supportata
+        da Apache ed altri server web. Quando il parametro è impostato a 1, il PHP
+        invia una intestazione conforme alle specifiche indicate in <link xlink:href="&url.rfc;2616">RFC 2616</link>.
+        Lasciare il parametro a 0 a meno che non si sappia cosa si sta facendo.
+       </para>
+      </listitem>
+     </varlistentry>
+    </variablelist>
+   </para>
+  </section>
+  
+  <section xml:id="ini.sect.file-uploads">
+   <title>File Uploads</title>
+   <para>
+    <table>
+     <title>File Uploads Configuration Options</title>
+     <tgroup cols="4">
+      <thead>
+       <row>
+        <entry>Nome</entry>
+        <entry>Default</entry>
+        <entry>Modificabile</entry>
+        <entry>Cronologia</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry>file_uploads</entry>
+        <entry>"1"</entry>
+        <entry>PHP_INI_SYSTEM</entry>
+        <entry>PHP_INI_ALL in PHP &lt;= 4.2.3. Disponibile da PHP 4.0.3.</entry>
+       </row>
+       <row>
+        <entry>upload_tmp_dir</entry>
+        <entry>NULL</entry>
+        <entry>PHP_INI_SYSTEM</entry>
+        <entry></entry>
+       </row>
+       <row>
+        <entry>upload_max_filesize</entry>
+        <entry>"2M"</entry>
+        <entry>PHP_INI_PERDIR</entry>
+        <entry>PHP_INI_ALL in PHP &lt;= 4.2.3.</entry>
+       </row>
+       <row>
+        <entry>max_file_uploads</entry>
+        <entry>20</entry>
+        <entry>PHP_INI_SYSTEM</entry>
+        <entry>Disponibile da PHP 5.2.12.</entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </table>
+   </para>
+   
+   &ini.descriptions.title;
+   
+   <para>
+    <variablelist>
+     <varlistentry xml:id="ini.file-uploads">
+      <term>
+       <parameter>file_uploads</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Indica se abilitare o meno gli
+        <link linkend="features.file-upload">upload di file</link>. Vedere anche i parametri
+        <link linkend="ini.upload-max-filesize">upload_max_filesize</link>,
+        <link linkend="ini.upload-tmp-dir">upload_tmp_dir</link> e
+        <link linkend="ini.post-max-size">post_max_size</link>.
+       </para>
+       
+       &ini.shorthandbytes;
+       
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.upload-tmp-dir">
+      <term>
+       <parameter>upload_tmp_dir</parameter>
+       <type>string</type>
+      </term>
+      <listitem>
+       <para>
+        Directory temporanea utilizzata per il transito dei file durante
+        l'upload. Deve avere i permessi di scrittura per gli utenti utilizzati dal PHP
+        per girare. Se non indicata il PHP utilizzerà il default di sistema.
+       </para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.upload-max-filesize">
+      <term>
+       <parameter>upload_max_filesize</parameter>
+       <type>integer</type>
+      </term>
+      <listitem>
+       <para>
+        La dimensione massima di un file inviato.
+       </para>
+       
+       &ini.shorthandbytes;
+       
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="ini.max-file-uploads">
+      <term>
+       <parameter>max_file_uploads</parameter>
+       <type>integer</type>
+      </term>
+      <listitem>
+       <para>
+        Il numero massimo di file che si possono caricare in upload simultaneamente.
+       </para>
+      </listitem>
+     </varlistentry>
+    </variablelist>
+   </para>
+  </section>
+  
+  <section xml:id="ini.sect.sql-general">
+   <title>General SQL</title>
+   <para>
+    <table>
+     <title>Parametri di configurazione generali per SQL</title>
+     <tgroup cols="4">
+      <thead>
+       <row>
+        <entry>Nome</entry>
+        <entry>Default</entry>
+        <entry>Modificabile</entry>
+        <entry>Cronologia</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry>sql.safe_mode</entry>
+        <entry>"0"</entry>
+        <entry>PHP_INI_SYSTEM</entry>
+        <entry></entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </table>
+   </para>
+   
+   &ini.descriptions.title;
+   
+   <para>
+    <variablelist>
+     <varlistentry xml:id="ini.sql.safe-mode">
+      <term>
+       <parameter>sql.safe_mode</parameter>
+       <type>boolean</type>
+      </term>
+      <listitem>
+       <para>
+        Se acceso, le funzioni di connessione al databse che specificano valori di default
+        useranno questi valori al posto degli argomenti forniti. Per conoscere
+        i valori di default consultare la documentazione dello specifico database.
+       </para>
+      </listitem>
+     </varlistentry>
+    </variablelist>
+   </para>
+  </section>
  </section>
 </appendix>
 
@@ -5049,7 +5318,7 @@ sgml-indent-step:1
 sgml-indent-data:t
 indent-tabs-mode:nil
 sgml-parent-document:nil
-sgml-default-dtd-file:"../../manual.ced"
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
 sgml-exposed-tags:nil
 sgml-local-catalogs:nil
 sgml-local-ecat-files:nil

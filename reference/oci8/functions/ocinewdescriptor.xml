@@ -18,19 +18,19 @@
       <methodparam choice="opt"><type>int</type><parameter>type</parameter></methodparam>
      </methodsynopsis>
     <para>
-     <function>ocinewdescriptor</function> alloca memoria per accogliere 
-     descrittori o locatori LOB. I valori validi per il parametro 
+     <function>ocinewdescriptor</function> alloca memoria per accogliere
+     descrittori o locatori LOB. I valori validi per il parametro
      <parameter>type</parameter> sono <constant>OCI_D_FILE</constant>,
      <constant>OCI_D_LOB</constant> e <constant>OCI_D_ROWID</constant>.
-     Per i descrittori LOB, i metodi load, save, e savefile sono 
-     associati al descrittore, per i BFILE esiste solo il 
+     Per i descrittori LOB, i metodi load, save, e savefile sono
+     associati al descrittore, per i BFILE esiste solo il
      metodo load. Vedere i suggerimenti nel secondo esempio.
     </para>
     <example>
      <title>esempio di <function>ocinewdescriptor</function></title>
      <programlisting>
 <![CDATA[
-<?php   
+<?php
     /* Questo codice deve essere richiamato da un form HTML.
      * Richiede che $user, $password, $table, $where, e $commitsize
      * siano passati dalla form.  Il codice quindi cancella
@@ -40,23 +40,23 @@
     $conn = OCILogon($user, $password);
     $stmt = OCIParse($conn,"select rowid from $table $where");
     $rowid = OCINewDescriptor($conn,OCI_D_ROWID);
-    OCIDefineByName($stmt,"ROWID",&$rowid);   
+    OCIDefineByName($stmt,"ROWID",&$rowid);
     OCIExecute($stmt);
-    while ( OCIFetch($stmt) ) {      
+    while ( OCIFetch($stmt) ) {
        $nrows = OCIRowCount($stmt);
        $delete = OCIParse($conn,"delete from $table where ROWID = :rid");
        OCIBindByName($delete,":rid",&$rowid,-1,OCI_B_ROWID);
-       OCIExecute($delete);      
+       OCIExecute($delete);
        print "$nrows\n";
        if ( ($nrows % $commitsize) == 0 ) {
-           OCICommit($conn);      
-       }   
+           OCICommit($conn);
+       }
     }
-    $nrows = OCIRowCount($stmt);   
+    $nrows = OCIRowCount($stmt);
     print "$nrows deleted...\n";
-    OCIFreeStatement($stmt);  
+    OCIFreeStatement($stmt);
     OCILogoff($conn);
-?>  
+?>
 ]]>
      </programlisting>
      <programlisting>
@@ -81,10 +81,10 @@ Upload file: <input type="file" name="lob_upload"><br>
 
      // vedere anche la sezione delle funzionalita' di upload dei file,
      // se si vogliono usare gli upload sicuri
-     
+
      $conn = OCILogon($user, $password);
      $lob = OCINewDescriptor($conn, OCI_D_LOB);
-     $stmt = OCIParse($conn,"insert into $table (id, the_blob) 
+     $stmt = OCIParse($conn,"insert into $table (id, the_blob)
                values(my_seq.NEXTVAL, EMPTY_BLOB()) returning the_blob into :the_blob");
      OCIBindByName($stmt, ':the_blob', &$lob, -1, OCI_B_BLOB);
      OCIExecute($stmt, OCI_DEFAULT);
@@ -106,9 +106,9 @@ Upload file: <input type="file" name="lob_upload"><br>
      <title>OCINewDescriptor</title>
      <programlisting>
 <![CDATA[
-<?php   
+<?php
     /* Chiamata di una stored procedure PL/SQLs che contiene clobs come parametri
-    * di input (PHP 4 >= 4.0.6). 
+    * di input (PHP 4 >= 4.0.6).
     * La signature della stored prodedure PL/SQL d'esempio è:
      *
      * PROCEDURE save_data
@@ -122,14 +122,14 @@ Upload file: <input type="file" name="lob_upload"><br>
     $conn = OCILogon($user, $password);
     $stmt = OCIParse($conn, "begin save_data(:key, :data); end;");
     $clob = OCINewDescriptor($conn, OCI_D_LOB);
-	OCIBindByName($stmt, ':key', $key);
-	OCIBindByName($stmt, ':data', $clob, -1, OCI_B_CLOB);
-	$clob->WriteTemporary($data);
-	OCIExecute($stmt, OCI_DEFAULT);
-	OCICommit($conn);
-	$clob->close();
-	$clob->free();
-	OCIFreeStatement($stmt);
+    OCIBindByName($stmt, ':key', $key);
+    OCIBindByName($stmt, ':data', $clob, -1, OCI_B_CLOB);
+    $clob->WriteTemporary($data);
+    OCIExecute($stmt, OCI_DEFAULT);
+    OCICommit($conn);
+    $clob->close();
+    $clob->free();
+    OCIFreeStatement($stmt);
 ?>
 ]]>
      </programlisting>

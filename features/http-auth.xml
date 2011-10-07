@@ -7,28 +7,28 @@
   <simpara>
    I meccanismi di Autenticazione <acronym>HTTP</acronym> sono disponibili in PHP solo quando questo
    viene usato come un modulo di Apache ed esso non è quindi disponibile nella versione CGI.
-   In uno script PHP modulo di Apache, è possibile usare la 
-   funzione <function>header</function> per inviare un messaggio di "Authentication Required" 
+   In uno script PHP modulo di Apache, è possibile usare la
+   funzione <function>header</function> per inviare un messaggio di "Authentication Required"
    al browser dell'utente, provocando quindi l'apertura di una finestra contenente una richiesta di
-   Nome utente/Password. Una volta che l'utente ha compilato i campi nome utente e password, 
-   l'URL contenente lo script PHP verrà richiamato nuovamente usando le 
-   <link linkend="reserved.variables">variabili predefinite</link>, <varname>PHP_AUTH_USER</varname>, 
-   <varname>PHP_AUTH_PW</varname> e 
+   Nome utente/Password. Una volta che l'utente ha compilato i campi nome utente e password,
+   l'URL contenente lo script PHP verrà richiamato nuovamente usando le
+   <link linkend="reserved.variables">variabili predefinite</link>, <varname>PHP_AUTH_USER</varname>,
+   <varname>PHP_AUTH_PW</varname> e
    <varname>AUTH_TYPE</varname> impostate con, rispettivamente:
    nome, password e tipo di autenticazione. Queste variabili predefinite possono essere trovate
-   negli array <link linkend="reserved.variables.server">$_SERVER</link> e 
-   <varname>$HTTP_SERVER_VARS</varname>. Saranno supportati entrambi i 
+   negli array <link linkend="reserved.variables.server">$_SERVER</link> e
+   <varname>$HTTP_SERVER_VARS</varname>. Saranno supportati entrambi i
    metodi di autenticazione, "Basic" e "Digest" (a partire dal PHP 5.1.0).
    Fare riferimento alla funzione <function>header</function>
    per ulteriori informazioni.
   </simpara>
-   
+
   <note>
    <title>Nota sulla versione di PHP</title>
    <para>
-    Le <link linkend="language.variables.superglobals">variabili autoglobali</link>, 
-    come <link linkend="reserved.variables.server">$_SERVER</link>, esistono 
-    a partire da PHP <link xlink:href="&url.php.release4.1.0;">4.1.0</link>. 
+    Le <link linkend="language.variables.superglobals">variabili autoglobali</link>,
+    come <link linkend="reserved.variables.server">$_SERVER</link>, esistono
+    a partire da PHP <link xlink:href="&url.php.release4.1.0;">4.1.0</link>.
     <varname>$HTTP_SERVER_VARS</varname> è disponibile a partire da PHP 3.
    </para>
   </note>
@@ -57,7 +57,7 @@
     </programlisting>
    </example>
   </para>
- 
+
   <para>
    <example>
     <title>Esempio di autenticazione HTTP "Digest"</title>
@@ -70,37 +70,37 @@
 <![CDATA[
 <?php
 $realm = 'Restricted area';
- 
+
 //user => password
 $users = array('admin' => 'mypass', 'guest' => 'guest');
- 
- 
+
+
 if (!isset($_SERVER['PHP_AUTH_DIGEST'])) {
     header('HTTP/1.1 401 Unauthorized');
     header('WWW-Authenticate: Digest realm="'.$realm.
            '" qop="auth" nonce="'.uniqid().'" opaque="'.md5($realm).'"');
- 
+
     die('Text to send if user hits Cancel button');
 }
- 
+
 // analisi della variabile PHP_AUTH_DIGEST
 preg_match('/username="(?P<username>.*)",\s*realm="(?P<realm>.*)",\s*nonce="(?P<nonce>.*)",\s*uri="(?P<uri>.*)",\s*response="(?P<response>.*)",\s*opaque="(?P<opaque>.*)",\s*qop=(?P<qop>.*),\s*nc=(?P<nc>.*),\s*cnonce="(?P<cnonce>.*)"/', $_SERVER['PHP_AUTH_DIGEST'], $digest);
- 
+
 if (!isset($users[$digest['username']]))
     die('Username not valid!');
- 
- 
+
+
 // generazione di una risposta valida
 $A1 = md5($digest['username'] . ':' . $realm . ':' . $users[$digest['username']]);
 $A2 = md5($_SERVER['REQUEST_METHOD'].':'.$digest['uri']);
 $valid_response = md5($A1.':'.$digest['nonce'].':'.$digest['nc'].':'.$digest['cnonce'].':'.$digest['qop'].':'.$A2);
- 
+
 if ($digest['response'] != $valid_response)
     die('Wrong Credentials!');
- 
+
 // Ok, utente/passworrd validi
 echo 'Your are logged in as: ' . $digest['username'];
-  	 
+
 ?>
 ]]>
     </programlisting>
@@ -113,15 +113,15 @@ echo 'Your are logged in as: ' . $digest['username'];
     Fare molta attenzione quando si scrive codice per le intestazioni HTTP. Per ottenere la  massima
     compatibilità con tutti i client, la paorla-chiave "Basic" deve essere scritta con una
     "B" maiuscola, la stringa realm deve essere racchiusa in virgolette doppie (non singole),
-    ed esattamente uno spazio deve precedere il codice <emphasis>401</emphasis> nella linea 
+    ed esattamente uno spazio deve precedere il codice <emphasis>401</emphasis> nella linea
     di intestazione <emphasis>HTTP/1.0 401</emphasis>.
    </para>
   </note>
 
   <para>
    Invece di stampare semplicemente <varname>PHP_AUTH_USER</varname> e
-   <varname>PHP_AUTH_PW</varname>, probabilmente si vorrà controllare 
-   la validità dello username e della password. 
+   <varname>PHP_AUTH_PW</varname>, probabilmente si vorrà controllare
+   la validità dello username e della password.
    Probabilmente inviando una chiamata al database,
    o cercando un utente in un file dbm.
    </para>
@@ -139,8 +139,8 @@ echo 'Your are logged in as: ' . $digest['username'];
    la password di una pagina che era stata autenticata tramite un tradizionale
    meccanismo esterno, le variabili PHP_AUTH non verranno
    impostate se è abilitata l'autenticazione esterna per quella determinata
-   pagina e &safemode; è abilitato. Ciò nonostante, la variabile <varname>REMOTE_USER</varname> può essere 
-   usata per identificare un utente autenticato esternamente.  Quindi, potete usare 
+   pagina e &safemode; è abilitato. Ciò nonostante, la variabile <varname>REMOTE_USER</varname> può essere
+   usata per identificare un utente autenticato esternamente.  Quindi, potete usare
    <varname>$_SERVER['REMOTE_USER']</varname>.
   </simpara>
 
@@ -180,7 +180,7 @@ echo 'Your are logged in as: ' . $digest['username'];
   if (!isset($_SERVER['PHP_AUTH_USER']) ||
       ($_POST['SeenBefore'] == 1 && $_POST['OldAuth'] == $_SERVER['PHP_AUTH_USER'])) {
    authenticate();
-  } 
+  }
   else {
    echo "<p>Benvenuto: {$_SERVER['PHP_AUTH_USER']}<br>";
    echo "Vecchio: {$_REQUEST['OldAuth']}";
@@ -196,7 +196,7 @@ echo 'Your are logged in as: ' . $digest['username'];
    </example>
   </para>
   <simpara>
-   Questo comportamento non è richiesto dallo standard di autenticazione HTTP 
+   Questo comportamento non è richiesto dallo standard di autenticazione HTTP
    Basic, quindi non si dovrebbe mai fare affidamento su di esso. Test effettuati con Lynx
    mostrano che Lynx non cancella le credenziali di autenticazione
    al ricevimento del codice di risposta 401 da parte del server, quindi, premendo indietro e avanti
@@ -207,11 +207,11 @@ echo 'Your are logged in as: ' . $digest['username'];
   <simpara>
    Si noti anche che questo non funziona con il server IIS di Microsoft e
    con la versione CGI di PHP a causa di una limitazione di IIS.
-   Si noti anche che, prima di PHP 4.3.3, l'Autenticazione HTTP non funzionava 
+   Si noti anche che, prima di PHP 4.3.3, l'Autenticazione HTTP non funzionava
    usando il server IIS di Microsoft e con la versione CGI di PHP a causa di una
-   limitazione di IIS. Al fine di farla funzionare in PHP 4.3.3+, 
-   si deve modificare la vostra configurazione di IIS "Directory Security". Cliccare 
-   su "Edit" e selezionare solo "Anonymous Access", tutti gli altri campi 
+   limitazione di IIS. Al fine di farla funzionare in PHP 4.3.3+,
+   si deve modificare la vostra configurazione di IIS "Directory Security". Cliccare
+   su "Edit" e selezionare solo "Anonymous Access", tutti gli altri campi
    dovrebbero essere lasciati deselezionati.
   </simpara>
 
@@ -232,7 +232,7 @@ echo 'Your are logged in as: ' . $digest['username'];
   </note>
   <note>
    <para>
-    Se è abilitato <link linkend="ini.safe-mode">safe mode</link> viene 
+    Se è abilitato <link linkend="ini.safe-mode">safe mode</link> viene
     aggiunto lo uid dello script al <literal>realm</literal>
     dell'header <literal>WWW-Authenticate</literal>.
    </para>

@@ -15,8 +15,8 @@
       <methodparam><type>array</type><parameter>handler</parameter></methodparam>
      </methodsynopsis>
     <para>
-     <function>xslt_set_sax_handlers</function> registra 
-     gli <parameter>handlers</parameter> SAX per il documento, dato 
+     <function>xslt_set_sax_handlers</function> registra
+     gli <parameter>handlers</parameter> SAX per il documento, dato
      <parameter>processor</parameter> XSLT.
     </para>
     <para>
@@ -25,33 +25,33 @@
       <programlisting role="php">
 <![CDATA[
 <?php
- 
+
 $handlers = array(
- 
+
   "document" => array(
     "start_doc",
     "end_doc"),
- 
+
   "element"  => array(
     "start_element",
     "end_element"),
- 
+
   "namespace" => array(
     "start_namespace",
     "end_namespace"),
- 
+
   "comment"   => "comment",
- 
+
   "pi"        => "pi",
- 
+
   "character" => "characters"
- 
+
 );
 ?>
 ]]>
       </programlisting>
      </informalexample>
-     Dove le funzioni seguono la sintassi descritta per lo 
+     Dove le funzioni seguono la sintassi descritta per lo
      schema.
     </para>
     <note>
@@ -165,7 +165,7 @@ $handlers = array(
 // Questo è un semplice esempio che applica strtoupper()
 // sul contenuto di ciascun tag <auteur> e visualizza
 // l'albero XML risultante:
- 	 
+
 $xml='<?xml version="1.0"?>
 <books>
  <book>
@@ -177,7 +177,7 @@ $xml='<?xml version="1.0"?>
   <author>Virginia Woolf</author>
  </book>
 </books>';
- 
+
 $xsl='<?xml version="1.0"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="html" encoding="ISO-8859-1" indent="no" omit-xml-declaration="yes"/>
@@ -189,31 +189,31 @@ $xsl='<?xml version="1.0"?>
  </xsl:for-each>
 </xsl:template>
 </xsl:stylesheet>';
- 
+
 // Handlers :
 function start_document()
 {
   // inizia la lettura del coumento
 }
-  	 
+
 function end_document()
 {
   // fine lettura del documento
 }
-  	 
+
 function start_element($parser, $name, $attributes)
 {
   global $result,$tag;
   $result .= "<". $name . ">";
   $tag = $name;
 }
- 
+
 function end_element($parser, $name)
 {
   global $result;
   $result .= "</" . $name . ">";
 }
- 
+
 function characters($parser, $data)
 {
   global $result,$tag;
@@ -222,13 +222,13 @@ function characters($parser, $data)
   }
   $result .= $data;
 }
- 
+
 // Trasformazione :
 $xh = xslt_create();
 $handlers = array("document" => array("start_document","end_document"),
    "element" => array("start_element","end_element"),
    "character" => "characters");
- 
+
 xslt_set_sax_handlers($xh, $handlers);
 xslt_process($xh, 'arg:/_xml', 'arg:/_xsl', NULL, array("/_xml"=>$xml, "/_xsl"=>$xsl));
 xslt_free($xh);
@@ -247,54 +247,54 @@ xslt_free($xh);
 <?php
 // Questa è una versione ad oggetti dell'esempi precedente
 class data_sax_handler {
- 
+
   var $buffer, $tag, $attrs;
- 
+
   var $_xh;
- 
+
   function data_sax_handler($xml, $xsl)
   {
       // la nostra risorsa xslt
       $this->_xh = xslt_create();
- 
+
       xslt_set_object($this->_xs, $this);
- 
+
       // configura gli handler sax
       $handlers = array(
         "document" => array('start_document', 'end_document'),
         "element" => array('start_element', 'end_element'),
         "character" => 'characters'
       );
- 
+
       xslt_set_sax_handlers($this->_xh, $handlers);
- 
+
       xslt_process($this->_xh, 'arg:/_xml', 'arg:/_xsl', NULL, array("/_xml"=>$xml, "/_xsl"=>$xsl));
       xslt_free($this->_xh);
- 
- 
+
+
   }
- 
+
   function start_document()
   {
         // inizia la lettura del documento
   }
- 
+
   function end_document() {
         // completa la lettura del documento
   }
-	 
+
   function start_element($parser, $name, $attributes) {
         $this->tag = $name;
         $this->buffer .= "<" . $name . ">";
         $this->attrs = $attributes;
   }
- 
+
   function end_element($parser, $name)
   {
         $this->tag = '';
         $this->buffer .= "</" . $name . ">";
   }
- 
+
   function characters($parser, $data)
   {
     if ($this->tag == 'auteur') {
@@ -302,15 +302,15 @@ class data_sax_handler {
     }
     $this->buffer .= $data;
   }
- 
+
   function get_buffer() {
     return $this->buffer;
   }
-	 
+
 }
-  	 
+
 $exec = new data_sax_handler($xml, $xsl);
- 
+
 ?>
 ]]>
      </programlisting>

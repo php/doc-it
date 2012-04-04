@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 8cd6280cc638bedb620c5642a3b70cbc55ef09dd Maintainer: butera Status: ready -->
-
+<!-- EN-Revision: 5340b7c60178936c53c78e1c6b0639fb873a7dca Maintainer: montefoschi Status: ready -->
+<!-- Reviewed: yes Maintainer: cucinato -->
  <sect1 xml:id="language.oop5.basic" xmlns="http://docbook.org/ns/docbook">
   <title>Nozioni di base</title>
 
@@ -111,13 +111,18 @@ $this non è definito
   <sect2 xml:id="language.oop5.basic.new">
    <title>new</title>
    <para>
-    Per creare un'istanza di una classe, un nuovo oggetto deve essere creato ed
-    assegnato ad una variabile. In fase di creazione, un oggetto sarà sempre assegnato 
-    a meno che la classe abbia un 
+    Per creare un'istanza di una classe, deve essere usata la parola chiave <literal>new</literal>.
+    Un oggetto sarà sempre creato a meno che la classe abbia un 
     <link linkend="language.oop5.decon">costruttore</link> definito il quale sollevi un'
     <link linkend="language.exceptions">eccezione</link> in caso di errore. Le classi 
     dovrebbero essere definite prima dell'istanziazione (in alcuni casi questo è un 
     requisito).
+   </para>
+   <para>
+    Se viene usata una <type>stringa</type> contenente il nome di una classe con
+    <literal>new</literal>, verrà creata una nuova istanza di quella classe. Se
+    la classe appartiene ad un namespace, deve essere utilizzato il suo nome completamente 
+    qualificato.
    </para>
    <example>
     <title>Creazione di un'istanza</title>
@@ -155,7 +160,7 @@ $instance = new SimpleClass();
 $assigned   =  $instance;
 $reference  =& $instance;
 
-$istance->var = '$assegnata avrà questo valore';
+$istance->var = '$assigned avrà questo valore';
 
 $instance = null; // $instance e $reference diventano null
 
@@ -172,8 +177,49 @@ NULL
 NULL
 object(SimpleClass)#1 (1) {
    ["var"]=>
-     string(30) "$assegnata avrà questo valore"
+     string(30) "$assigned avrà questo valore"
 }
+]]>
+    </screen>
+   </example>
+   <para>
+    PHP 5.3.0 ha introdotto due nuovi modi per creare istanze di un
+    oggetto:
+   </para>
+   <example>
+    <title>Creazione di nuovi oggetti</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class Test
+{
+    static public function getNew()
+    {
+        return new static;
+    }
+}
+
+class Child extends Test
+{}
+
+$obj1 = new Test();
+$obj2 = new $obj1;
+var_dump($obj1 !== $obj2);
+
+$obj3 = Test::getNew();
+var_dump($obj3 instanceof Test);
+
+$obj4 = Child::getNew();
+var_dump($obj4 instanceof Child);
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+bool(true)
+bool(true)
+bool(true)
 ]]>
     </screen>
    </example>

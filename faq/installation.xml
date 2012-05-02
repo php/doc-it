@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: hfish Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 3244dbdb01357677b9f63587228a690581df673d Maintainer: hfish Status: ready -->
  <chapter xml:id="faq.installation" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
   <title>Installazione</title>
   <titleabbrev>Installazione</titleabbrev>
@@ -36,11 +36,7 @@
      </para>
      <para>
       Se il threaded MPM è necessario, meglio considerare una configurazione FastCGI
-      dove PHP sia eseguito nel proprio spazio di memoria.
-     </para>
-     <para>
-      Infine, questo avviso contro l'uso del threaded MPM non è così perentorio per i
-      sistemi Windows poicé la maggior parte delle librerie su questa piattaforma tendono ad essere threadsafe.
+      dove PHP sia eseguito nel proprio spazio di memoria.  
      </para>
     </answer>
    </qandaentry>
@@ -57,7 +53,7 @@
       Nei sistemi Unix il percorso predefinito è <filename>/usr/local/lib</filename>
       ovvero <filename>&lt;install-path&gt;/lib</filename>.
       Molti utenti vorranno cambiare questo percorso durante la fase di compilazione con il flag
-      <link linkend="install.configure.with-config-file-path">--with-config-file-path</link>. Per esempio
+      <link linkend="configure.with-config-file-path">--with-config-file-path</link>. Per esempio
       potresti modificare il percorso in un modo simile a questo:
       <programlisting role="shell">
 --with-config-file-path=/etc
@@ -67,7 +63,7 @@
       per ottenere tutti i cambiamenti voluti.
      </para>
       <programlisting role="shell">
---with-config-file-scan-dir=PATH
+--with-config-file-scan-dir=PATH 
       </programlisting>
      <para>
       Nei sistemi Windows il percorso predefinito per &php.ini; corrisponde alla
@@ -175,120 +171,22 @@
 <![CDATA[
 # Extra Modules
 AddModule mod_php.c
-AddModule mod_php3.c
 AddModule mod_perl.c
 
 # Extra Modules
 LoadModule php_module         modules/mod_php.so
-LoadModule php3_module        modules/libphp3.so     # per PHP 3
-LoadModule php4_module        modules/libphp4.so     # per PHP 4
+LoadModule php5_module        modules/libphp5.so
 LoadModule perl_module        modules/libperl.so
 ]]>
       </programlisting>
       And add:
       <programlisting role="apache-conf">
 <![CDATA[
-AddType application/x-httpd-php3 .php3    # per PHP 3
-AddType application/x-httpd-php .php      # per PHP 4
+AddType application/x-httpd-php .php
 ]]>
       </programlisting>
       ... alle proprietà globali o alle proprietà del VirtualDomain
       su cui vuoi aggiungere il supporto PHP.
-     </para>
-    </answer>
-   </qandaentry>
-
-   <qandaentry xml:id="faq.installation.compile">
-    <question>
-     <para>
-      Unix: ho installato PHP 3 usando dei pacchetti RPM, ma il supporto per database del quale ho bisogno
-      non viene compilato correttamente. Che sta succedendo?
-     </para>
-    </question>
-    <answer>
-     <para>
-      A causa della struttura stessa di PHP 3, non è facile ottenere dei pacchetti
-      RPM completi e flessibili. Questo problema è stato corretto in PHP 4.
-      Per installare PHP 3, consigliamo di usare la guida presente nel file
-      INSTALL.REDHAT della distribuzione PHP: se proprio non puoi fare a meno
-      di installare PHP 3 tramite pacchetti RPM, leggi prima questo file...
-     </para>
-     <para>
-      Per semplificare le fasi dell'installazione, i pacchetti RPM sono stati
-      progettati per installare PHP senza il supporto per i database, e inoltre
-      i pacchetti RPM usano la cartella /usr/ invece di /usr/local/ per copiare i file.
-      Devi 'dire' ai pacchetti RPM in un file speciale quale supporto per databse installare
-      e il percorso della cartella di livello superiore del tuo database.
-     </para>
-     <para>
-      Questo esempio servirà a chiarire come aggiungere il supporto per gli ormai diffusi databse MySQL usando
-      l'installazione mod di Apache.
-     </para>
-     <para>
-      Ovviamente le righe seguenti possono essere modificate per qualsiasi tipo di database supportato da PHP.
-      Presumendo che tu abbia installato sia Apache che MySQL <emphasis>solo</emphasis> con pacchetti RPM,
-      quanto segue potrebbe esserti di aiuto:
-      <itemizedlist>
-       <listitem>
-        <para>
-         Per prima cosa rimuovi mod_php3:
-         <programlisting role="shell">
-rpm -e mod_php3
-         </programlisting>
-        </para>
-       </listitem>
-       <listitem>
-        <para>
-         Quindi prendi i pacchetti RPM e installali di nuovo, non --rebuild
-         <programlisting role="shell">
-rpm -Uvh mod_php3-3.0.5-2.src.rpm
-         </programlisting>
-        </para>
-       </listitem>
-       <listitem>
-        <para>
-         Adesso modifica il file <filename>/usr/src/redhat/SPECS/mod_php3.spec</filename>
-        </para>
-        <para>
-         Nella sezione %build aggiungi il supporto che desideri e il percorso.
-        </para>
-        <para>
-         Per MySQL dovresti aggiungere:
-         <option role="configure">--with-mysql=/usr</option>
-         La sezione %build (installazione) dovrebbe ora essere simile a questa:
-         <programlisting role="shell">
-./configure --prefix=/usr \
---with-apxs=/usr/sbin/apxs \
---with-config-file-path=/usr/lib \
---enable-debug=no \
---enable-safe-mode \
---with-exec-dir=/usr/bin \
---with-mysql=/usr \
---with-system-regex
-         </programlisting>
-        </para>
-       </listitem>
-       <listitem>
-        <para>
-         Dopo aver fatto queste modifiche assembla i binari RPM come segue:
-         <programlisting role="shell">
-rpm -bb /usr/src/redhat/SPECS/mod_php3.spec
-         </programlisting>
-        </para>
-       </listitem>
-       <listitem>
-        <para>
-        Quindi installa i pacchetti RPM
-         <programlisting role="shell">
-rpm -ivh /usr/src/redhat/RPMS/i386/mod_php3-3.0.5-2.i386.rpm
-         </programlisting>
-        </para>
-       </listitem>
-      </itemizedlist>
-      Assicurati di riavviare Apache, quindi dovresti avere PHP 3 installato
-      tramite pacchetti RPM con pieno supporto MySQL. Nota che probabilmente
-      sarà più facile installare ciò seguendo le istruzioni presenti nel
-      file <filename>INSTALL.REDHAT</filename> della distribuzione.
      </para>
     </answer>
    </qandaentry>
@@ -361,7 +259,7 @@ rpm -ivh /usr/src/redhat/RPMS/i386/mod_php3-3.0.5-2.i386.rpm
       Diversi sistemi operativi: ho installato PHP senza ricevere errori,
       ma se provo a far partire Apache ricevo un errore con strani simboli:
       <programlisting role="shell">
-[mybox:user /src/php4] root# apachectl configtest
+[mybox:user /src/php5] root# apachectl configtest
  apachectl: /usr/local/apache/bin/httpd Undefined symbols:
   _compress
   _uncompress
@@ -384,10 +282,12 @@ rpm -ivh /usr/src/redhat/RPMS/i386/mod_php3-3.0.5-2.i386.rpm
       Windows: ho installato PHP, ma se provo ad accedere
       ai miei script via browser, ricevo questo errore:
       <screen>
+<![CDATA[
 cgi error:
  The specified CGI application misbehaved by not
  returning a complete set of HTTP headers.
  The headers it did return are:
+]]>
       </screen>
      </para>
     </question>
@@ -412,7 +312,7 @@ cgi error:
       <listitem>
        <simpara>
         I permessi dei file <filename>php.exe</filename>,
-        <filename>php4ts.dll</filename>, &php.ini; o di qualche
+        <filename>php5ts.dll</filename>, &php.ini; o di qualche
 	altra estensione PHP che stai cercando di caricare potrebbero
 	essere settati in modo da impedire l'accesso
 	agli utenti anonimi di internet <literal>ISUR_&lt;machinename&gt;</literal>.
@@ -500,9 +400,12 @@ cgi error:
       significa che è stato letto.
      </para>
      <para>
-      Se &php.ini; viene letto e stai eseguendo PHP come modulo,
-      assicurati di riavviare il web server dopo aver modificato il
+      Se &php.ini; viene e si sta eseguendo PHP come un modulo,
+      assicurarsi di riavviare il server web dopo aver fatto un cambiamento a
       &php.ini;
+     </para>
+     <para>
+      Vedere anche <function>php_ini_loaded_file</function>.
      </para>
     </answer>
    </qandaentry>
@@ -521,7 +424,7 @@ cgi error:
        <listitem><para>
         Vai nel Pannello di Controllo e apri l'icona Sistema (Start -&gt; Impostazioni
         -&gt; Pannello di Controllo -&gt; Sistema, o semplicemente Start -&gt; Pannello di Controllo
-        -&gt; Sistema su Windows XP/2003)
+        -&gt; Sistema su Windows XP/2003+)
        </para></listitem>
        <listitem><para>
         Vai alla linguetta Avanzate
@@ -666,11 +569,6 @@ cgi error:
       .php</literal> con:
       <programlisting role="apache-conf">
 <![CDATA[
-# PHP 4
-AddHandler php-script php
-AddType text/html php
-
-# PHP 5
 AddHandler php5-script php
 AddType text/html php
 ]]>

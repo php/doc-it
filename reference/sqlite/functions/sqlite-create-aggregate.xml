@@ -1,33 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 5faa7a6747bca628b3bdcc9f93aec5603b65581f Maintainer: pastore Status: ready -->
 <refentry xml:id="function.sqlite-create-aggregate" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>sqlite_create_aggregate</refname>
-  <refname>SQLiteDatabase->createAggregate</refname>
+  <refname>SQLiteDatabase::createAggregate</refname>
   <refpurpose>Registra un aggregato UDF da utilizzare nelle istruzioni SQL</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type>bool</type><methodname>sqlite_create_aggregate</methodname>
+   <type>void</type><methodname>sqlite_create_aggregate</methodname>
    <methodparam><type>resource</type><parameter>dbhandle</parameter></methodparam>
    <methodparam><type>string</type><parameter>function_name</parameter></methodparam>
-   <methodparam><type>callback</type><parameter>step_func</parameter></methodparam>
-   <methodparam><type>callback</type><parameter>finalize_func</parameter></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>num_args</parameter></methodparam>
+   <methodparam><type>callable</type><parameter>step_func</parameter></methodparam>
+   <methodparam><type>callable</type><parameter>finalize_func</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>num_args</parameter><initializer>-1</initializer></methodparam>
   </methodsynopsis>
-  <para>Versione ad oggetti (metodo):</para>
-  <classsynopsis>
-   <ooclass><classname>SQLiteDatabase</classname></ooclass>
+  <para>&style.oop; (metodo):</para>
    <methodsynopsis>
-    <type>bool</type><methodname>createAggregate</methodname>
+    <type>void</type><methodname>SQLiteDatabase::createAggregate</methodname>
     <methodparam><type>string</type><parameter>function_name</parameter></methodparam>
-    <methodparam><type>callback</type><parameter>step_func</parameter></methodparam>
-    <methodparam><type>callback</type><parameter>finalize_func</parameter></methodparam>
-    <methodparam choice="opt"><type>int</type><parameter>num_args</parameter></methodparam>
+    <methodparam><type>callable</type><parameter>step_func</parameter></methodparam>
+    <methodparam><type>callable</type><parameter>finalize_func</parameter></methodparam>
+    <methodparam choice="opt"><type>int</type><parameter>num_args</parameter><initializer>-1</initializer></methodparam>
    </methodsynopsis>
-  </classsynopsis>
   <para>
    <function>sqlite_create_aggregate</function> è simile a
    <function>sqlite_create_function</function> tranne che le funzioni di registrazione
@@ -39,12 +36,12 @@
    <function>sqlite_create_function</function> è che entrambe le funzioni sono necessarie
    per gestire gli aggregati; la funzione <parameter>step_func</parameter> viene richiamata
    per ogni riga del set di risultati. La funzione PHP personalizzata dovrebbe
-   accumulare i dati memorizzarli nel contesto di aggregazione.
+   accumulare i dati e memorizzarli nel contesto di aggregazione.
    Una volta che tutte le righe sono state processate,
    si esegue la funzione <parameter>finalize_func</parameter> che dovrebbe
    prendere i dati dal contesto di aggregazione e restituire il risultato.
-   La funzione personalizzata deve restituire un tipo riconosciuto da SQLite
-   (ad esempio <link linkend="language.types.intro">un tipo scalare</link>).
+   La funzione personalizzata deve restituire un tipo riconosciuto da SQLite (ad esempio 
+   <link linkend="language.types.intro">un tipo scalare</link>).
   </para>
  </refsect1>
 
@@ -56,7 +53,7 @@
      <term><parameter>dbhandle</parameter></term>
      <listitem>
       <para>
-       Risorsa SQLite Database restituita da <function>sqlite_open
+       Risorsa SQLite Database; restituita da <function>sqlite_open
        </function> quando usato in modo procedurale. Questo parametro non è
        richiesto nel metodo ad oggetti.
       </para>
@@ -66,7 +63,7 @@
      <term><parameter>function_name</parameter></term>
      <listitem>
       <para>
-       Nome della funzione usata nell'istruzione SQL.
+       Il nome della funzione usata nell'istruzione SQL.
       </para>
      </listitem>
     </varlistentry>
@@ -75,6 +72,7 @@
      <listitem>
       <para>
        Funzione richiamata per ogni riga del set di risultati.
+       I parametri della funzione sono <literal>&amp;$context, $value, ...</literal>.
       </para>
      </listitem>
     </varlistentry>
@@ -82,7 +80,9 @@
      <term><parameter>finalize_func</parameter></term>
      <listitem>
       <para>
-       Funzione di callback richiamata per aggragare i dati da ogni riga.
+       Funzione di callback richiamata per aggregare i dati da ogni riga.
+       Il parametro della funzione è <literal>&amp;$context</literal> e la funzione
+       deve ritornare il risultato finale dell'aggregazione.
       </para>
      </listitem>
     </varlistentry>
@@ -96,6 +96,13 @@
      </listitem>
     </varlistentry>
    </variablelist>
+  </para>
+ </refsect1>
+ 
+  <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.void;
   </para>
  </refsect1>
 
@@ -163,7 +170,7 @@ var_dump(sqlite_array_query($dbhandle, 'SELECT max_len(a) from strings'));
    <literal>max_len_finalize</literal> per determinare il risultato aggregato.
    In questa funzione possiamo svolgere qualsiasi tipo di operazione basata sui dati
    presenti nel parametro <parameter>context</parameter>.
-   Nel nostro esempio abbiamo calcolato il risultato man mano che si processava la righe, 
+   Nel nostro esempio abbiamo calcolato il risultato man mano che si processavano le righe, 
    pertanto non ci resta che restituire il valore.   
   </para>
   <note>
@@ -177,16 +184,16 @@ var_dump(sqlite_array_query($dbhandle, 'SELECT max_len(a) from strings'));
   <tip>
    <para>
     NON si raccomanda si memorizzare nel contesto una copia dei valori di ciascuna
-    riga, per poi processarli alla fina; questo costringe SQLite a utilizzare una
+    riga, per poi processarli alla fine; questo costringe SQLite a utilizzare una
     grande quantità di memoria per processare la query - basta pensare a quanta memoria
-    sarebbe necessaria se si memorizzasse un milione di righe, ciscuna contenente una stringa
+    sarebbe necessaria se si memorizzassero un milione di righe, ciscuna contenente una stringa
     di 32 byte.
    </para>
   </tip>
   <tip>
    <para>
     Si può utilizzare <function>sqlite_create_function</function> e
-    <function>sqlite_create_aggregate</function> per non utilizzare la funzioni
+    <function>sqlite_create_aggregate</function> per non utilizzare le funzioni
     SQL native di SQLite.
    </para>
   </tip>

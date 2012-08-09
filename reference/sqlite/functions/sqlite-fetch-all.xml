@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 0d604bbc9d3b741d53e7fac26f5b24c306751e9a Maintainer: pastore Status: ready -->
 <refentry xml:id="function.sqlite-fetch-all" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>sqlite_fetch_all</refname>
-  <refname>SQLiteResult->fetchAll</refname>
-  <refname>SQLiteUnbuffered->fetchAll</refname>
-  <refpurpose>Scarica tutte le righe di un risultato in una matrice di matrici</refpurpose>
+  <refname>SQLiteResult::fetchAll</refname>
+  <refname>SQLiteUnbuffered::fetchAll</refname>
+  <refpurpose>Scarica tutte le righe di un risultato in un array di array</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -13,29 +13,23 @@
   <methodsynopsis>
    <type>array</type><methodname>sqlite_fetch_all</methodname>
    <methodparam><type>resource</type><parameter>result</parameter></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>result_type</parameter></methodparam>
-   <methodparam choice="opt"><type>bool</type><parameter>decode_binary</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>result_type</parameter><initializer>SQLITE_BOTH</initializer></methodparam>
+   <methodparam choice="opt"><type>bool</type><parameter>decode_binary</parameter><initializer>true</initializer></methodparam>
   </methodsynopsis>
-  <para>Versione ad oggetti (metodo):</para>
-  <classsynopsis>
-   <ooclass><classname>SQLiteResult</classname></ooclass>
-   <methodsynopsis>
-    <type>array</type><methodname>fetchAll</methodname>
-    <methodparam choice="opt"><type>int</type><parameter>result_type</parameter></methodparam>
-    <methodparam choice="opt"><type>bool</type><parameter>decode_binary</parameter></methodparam>
+  <para>&style.oop; (metodo):</para>
+  <methodsynopsis>
+    <type>array</type><methodname>SQLiteResult::fetchAll</methodname>
+    <methodparam choice="opt"><type>int</type><parameter>result_type</parameter><initializer>SQLITE_BOTH</initializer></methodparam>
+    <methodparam choice="opt"><type>bool</type><parameter>decode_binary</parameter><initializer>true</initializer></methodparam>
+  </methodsynopsis>
+  <methodsynopsis>
+    <type>array</type><methodname>SQLiteUnbuffered::fetchAll</methodname>
+    <methodparam choice="opt"><type>int</type><parameter>result_type</parameter><initializer>SQLITE_BOTH</initializer></methodparam>
+    <methodparam choice="opt"><type>bool</type><parameter>decode_binary</parameter><initializer>true</initializer></methodparam>
    </methodsynopsis>
-  </classsynopsis>
-  <classsynopsis>
-   <ooclass><classname>SQLiteUnbuffered</classname></ooclass>
-   <methodsynopsis>
-    <type>array</type><methodname>fetchAll</methodname>
-    <methodparam choice="opt"><type>int</type><parameter>result_type</parameter></methodparam>
-    <methodparam choice="opt"><type>bool</type><parameter>decode_binary</parameter></methodparam>
-   </methodsynopsis>
-  </classsynopsis>
   <para>
-   <function>sqlite_fetch_all</function> restituisce una matrice con l'intero set di risultati
-   dalla risorsa <parameter>result</parameter>.  E' simile ad eseguire
+   <function>sqlite_fetch_all</function> restituisce un array con l'intero set di risultati
+   dalla risorsa <parameter>result</parameter>.  È simile ad eseguire
    <function>sqlite_query</function> (oppure
    <function>sqlite_unbuffered_query</function>) e quindi
    <function>sqlite_fetch_array</function> per ciascuna riga del set di risultati.
@@ -74,8 +68,10 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce una matrice della riga corrente da un set di risultati, oppure &false;
-   se la posizione corrente è oltre l'ultima riga.
+   Restituisce un array delle righe rimanenti da un set di risultati. Se è chiamata
+   dopo <function>sqlite_query</function>, restituisce tutte le righe. Se è chiamata
+   dopo <function>sqlite_fetch_array</function>, restituisce il resto. Se
+   non ci sono righe da un set di risultati, restituisce un array vuoto.
   </para>
   &sqlite.case-fold;
  </refsect1>
@@ -107,8 +103,8 @@ foreach ($result as $entry) {
 <?php
 $dbhandle = new SQLiteDatabase('sqlitedb');
 
-$query = $dbhandle->query('SELECT name, email FROM users LIMIT 25'); // buffered result set
-$query = $dbhandle->unbufferedQuery('SELECT name, email FROM users LIMIT 25'); // unbuffered result set
+$query = $dbhandle->query('SELECT name, email FROM users LIMIT 25'); // set di risultati bufferizzato
+$query = $dbhandle->unbufferedQuery('SELECT name, email FROM users LIMIT 25'); // elimino dal buffer il set di risultati
 
 $result = $query->fetchAll(SQLITE_ASSOC);
 foreach ($result as $entry) {

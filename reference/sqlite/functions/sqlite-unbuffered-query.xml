@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 0d604bbc9d3b741d53e7fac26f5b24c306751e9a Maintainer: pastore Status: ready -->
 <refentry xml:id="function.sqlite-unbuffered-query" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>sqlite_unbuffered_query</refname>
-  <refname>SQLiteDatabase->unbufferedQuery</refname>
+  <refname>SQLiteDatabase::unbufferedQuery</refname>
   <refpurpose>Esegue una query senza scaricare e bufferizzare i dati</refpurpose>
  </refnamediv>
 
@@ -13,20 +13,23 @@
    <type>resource</type><methodname>sqlite_unbuffered_query</methodname>
    <methodparam><type>resource</type><parameter>dbhandle</parameter></methodparam>
    <methodparam><type>string</type><parameter>query</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>result_type</parameter><initializer>SQLITE_BOTH</initializer></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter role="reference">error_msg</parameter></methodparam>
   </methodsynopsis>
   <methodsynopsis>
    <type>resource</type><methodname>sqlite_unbuffered_query</methodname>
    <methodparam><type>string</type><parameter>query</parameter></methodparam>
    <methodparam><type>resource</type><parameter>dbhandle</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>result_type</parameter><initializer>SQLITE_BOTH</initializer></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter role="reference">error_msg</parameter></methodparam> 
   </methodsynopsis>
-  <para>Versione ad oggetti (metodo):</para>
-  <classsynopsis>
-   <ooclass><classname>SQLiteDatabase</classname></ooclass>
-   <methodsynopsis>
-    <type>SQLiteUnbuffered</type><methodname>unbufferedQuery</methodname>
-    <methodparam><type>string</type><parameter>query</parameter></methodparam>
-   </methodsynopsis>
-  </classsynopsis>
+  <para>&style.oop; (metodo):</para>
+  <methodsynopsis>
+   <type>SQLiteUnbuffered</type><methodname>SQLiteDatabase::unbufferedQuery</methodname>
+   <methodparam><type>string</type><parameter>query</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>result_type</parameter><initializer>SQLITE_BOTH</initializer></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter role="reference">error_msg</parameter></methodparam>
+  </methodsynopsis>
   <para>
    <function>sqlite_unbuffered_query</function> è simile a
    <function>sqlite_query</function> tranne che i risultati sono restituiti
@@ -34,7 +37,7 @@
    del record successivo.
   </para>
   <para>
-    Questa funzione è l'ideale per generare oggetti tipo tavole HTML in cui
+    Questa funzione è l'ideale per generare oggetti tipo tabelle HTML in cui
    occorre processare una riga alla volta e non occorre muoversi a caso
    tra le righe.
   </para>
@@ -54,20 +57,40 @@
   <para>
    <variablelist>
     <varlistentry>
+     <term><parameter>dbhandle</parameter></term>
+     <listitem>
+      <para>
+       Risorsa SQLite Database; restituita da <function>sqlite_open
+       </function> quando usato in modo procedurale. Questo parametro non è
+       richiesto nel metodo ad oggetti.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
      <term><parameter>query</parameter></term>
      <listitem>
       <para>
        La query da eseguire.
       </para>
+      <para>
+       I dati all'interno della query devono essere passati da <link
+       linkend="function.sqlite-escape-string">una funzione che effettua l'escape</link>.
+      </para>
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>dbhandle</parameter></term>
+     <term><parameter>result_type</parameter></term>
+     <listitem>
+      &sqlite.result-type;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>error_msg</parameter></term>
      <listitem>
       <para>
-       Risorsa SQLite Database restituita da <function>sqlite_open
-       </function> quando usato in modo procedurale. Questo parametro non è
-       richiesto nel metodo ad oggetti.
+       La variabile specificata sarà riempita se si verifica un errore. Questo è
+       molto importante perchè gli errori di sintassi SQL non possono essere recuperati utilizzando la funzione
+       <function>sqlite_last_error</function>.
       </para>
      </listitem>
     </varlistentry>
@@ -79,12 +102,36 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Resituisce un puntatore ad un risultato oppure &false;.
+   Resituisce un puntatore ad un risultato&return.falseforfailure;.
   </para>
   <para>
    <function>sqlite_unbuffered_query</function> restituisce
-   un set di risultati sequenzialeche può essere utilizzato per leggere una riga
+   un set di risultati sequenziale che può essere utilizzato per leggere una riga
    dopo l'altra.
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>5.1.0</entry>
+       <entry>
+        Aggiunto il parametro <parameter>error_msg</parameter>
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
   </para>
  </refsect1>
 

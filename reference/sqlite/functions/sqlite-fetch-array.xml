@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 0d604bbc9d3b741d53e7fac26f5b24c306751e9a Maintainer: pastore Status: ready -->
 <refentry xml:id="function.sqlite-fetch-array" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>sqlite_fetch_array</refname>
-  <refname>SQLiteResult->fetch</refname>
-  <refname>SQLiteUnbuffered->fetch</refname>
-  <refpurpose>Scarica in una matrice la riga successiva da un set di risultati</refpurpose>
+  <refname>SQLiteResult::fetch</refname>
+  <refname>SQLiteUnbuffered::fetch</refname>
+  <refpurpose>Scarica in un array la riga successiva da un set di risultati</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -13,30 +13,24 @@
   <methodsynopsis>
    <type>array</type><methodname>sqlite_fetch_array</methodname>
    <methodparam><type>resource</type><parameter>result</parameter></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>result_type</parameter></methodparam>
-   <methodparam choice="opt"><type>bool</type><parameter>decode_binary</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>result_type</parameter><initializer>SQLITE_BOTH</initializer></methodparam>
+   <methodparam choice="opt"><type>bool</type><parameter>decode_binary</parameter><initializer>true</initializer></methodparam>
   </methodsynopsis>
-  <para>Versione ad oggetti (metodo):</para>
-  <classsynopsis>
-   <ooclass><classname>SQLiteResult</classname></ooclass>
-   <methodsynopsis>
-    <type>array</type><methodname>fetch</methodname>
-    <methodparam choice="opt"><type>int</type><parameter>result_type</parameter></methodparam>
-    <methodparam choice="opt"><type>bool</type><parameter>decode_binary</parameter></methodparam>
+  <para>&style.oop; (metodo):</para>
+  <methodsynopsis>
+    <type>array</type><methodname>SQLiteResult::fetch</methodname>
+    <methodparam choice="opt"><type>int</type><parameter>result_type</parameter><initializer>SQLITE_BOTH</initializer></methodparam>
+    <methodparam choice="opt"><type>bool</type><parameter>decode_binary</parameter><initializer>true</initializer></methodparam>
    </methodsynopsis>
-  </classsynopsis>
-  <classsynopsis>
-   <ooclass><classname>SQLiteUnbuffered</classname></ooclass>
    <methodsynopsis>
-    <type>array</type><methodname>fetch</methodname>
-    <methodparam choice="opt"><type>int</type><parameter>result_type</parameter></methodparam>
-    <methodparam choice="opt"><type>bool</type><parameter>decode_binary</parameter></methodparam>
+    <type>array</type><methodname>SQLiteUnbuffered::fetch</methodname>
+    <methodparam choice="opt"><type>int</type><parameter>result_type</parameter><initializer>SQLITE_BOTH</initializer></methodparam>
+    <methodparam choice="opt"><type>bool</type><parameter>decode_binary</parameter><initializer>true</initializer></methodparam>
    </methodsynopsis>
-  </classsynopsis>
   <para>
   Scarica la riga successiva dal set di risultati indicato da <parameter>result</parameter>.
    Se non vi sono righe successive, restituisce &false;, altrimenti restituisce
-   una matrice associativa rappresentante i dati della riga.
+   un array associativo rappresentante i dati della riga.
   </para>
  </refsect1>
 
@@ -48,7 +42,7 @@
      <term><parameter>result</parameter></term>
      <listitem>
       <para>
-       Risorsa SQLite. Questo parametro non è richiesto nella
+       Risorsa risultato di SQLite. Questo parametro non è richiesto nella
        versione ad oggetti.
       </para>
      </listitem>
@@ -72,8 +66,8 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce una matrice della riga successiva dal set di risultati, &false; se 
-   la posizine successive è oltre l'ultima riga.
+   Restituisce un array della riga successiva dal set di risultati, &false; se 
+   la posizione successiva è oltre l'ultima riga.
   </para>
   &sqlite.case-fold;
  </refsect1>
@@ -88,9 +82,8 @@
 <?php
 $dbhandle = sqlite_open('sqlitedb');
 $query = sqlite_query($dbhandle, 'SELECT name, email FROM users LIMIT 25');
-$result = sqlite_fetch_all($query, SQLITE_ASSOC);
-foreach ($result as $entry) {
-    echo 'Name: ' . $entry['name'] . '  E-mail: ' . $entry['email'];
+while ($entry = sqlite_fetch_array($query, SQLITE_ASSOC)) {
+    echo 'Nome: ' . $entry['name'] . '  E-mail: ' . $entry['email'];
 }
 ?>
 ]]>
@@ -105,12 +98,11 @@ foreach ($result as $entry) {
 <?php
 $dbhandle = new SQLiteDatabase('sqlitedb');
 
-$query = $dbhandle->query('SELECT name, email FROM users LIMIT 25'); // buffered result set
-$query = $dbhandle->unbufferedQuery('SELECT name, email FROM users LIMIT 25'); // unbuffered result set
+$query = $dbhandle->query('SELECT name, email FROM users LIMIT 25'); // set di risultati bufferizzati
+$query = $dbhandle->unbufferedQuery('SELECT name, email FROM users LIMIT 25'); // set di risultati senza buffer
 
-$result = $query->fetchAll(SQLITE_ASSOC);
-foreach ($result as $entry) {
-    echo 'Name: ' . $entry['name'] . '  E-mail: ' . $entry['email'];
+while ($entry = $query->fetch(SQLITE_ASSOC)) {
+    echo 'Nome: ' . $entry['name'] . '  E-mail: ' . $entry['email'];
 }
 ?>
 ]]>

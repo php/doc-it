@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 0d604bbc9d3b741d53e7fac26f5b24c306751e9a Maintainer: pastore Status: ready -->
 <refentry xml:id="function.sqlite-fetch-column-types" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>sqlite_fetch_column_types</refname>
-  <refname>SQLiteDatabase->fetchColumnTypes</refname>
+  <refname>SQLiteDatabase::fetchColumnTypes</refname>
   <refpurpose>
-   Restituisce una matrice con il formato delle colonne di una tabella
+   Restituisce un array con il tipo delle colonne di una tabella
   </refpurpose>
  </refnamediv>
 
@@ -15,19 +15,16 @@
    <type>array</type><methodname>sqlite_fetch_column_types</methodname>
    <methodparam><type>string</type><parameter>table_name</parameter></methodparam>
    <methodparam><type>resource</type><parameter>dbhandle</parameter></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>result_type</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>result_type</parameter><initializer>SQLITE_ASSOC</initializer></methodparam>
   </methodsynopsis>
-  <para>Versione ad oggetti (metodo):</para>
-  <classsynopsis>
-   <ooclass><classname>SQLiteDatabase</classname></ooclass>
-   <methodsynopsis>
-    <type>array</type><methodname>fetchColumnTypes</methodname>
-    <methodparam><type>string</type><parameter>table_name</parameter></methodparam>
-    <methodparam choice="opt"><type>int</type><parameter>result_type</parameter></methodparam>
-   </methodsynopsis>
-  </classsynopsis>
+  <para>&style.oop; (metodo):</para>
+  <methodsynopsis>
+   <type>array</type><methodname>SQLiteDatabase::fetchColumnTypes</methodname>
+   <methodparam><type>string</type><parameter>table_name</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>result_type</parameter><initializer>SQLITE_ASSOC</initializer></methodparam>
+  </methodsynopsis>
   <para>
-   <function>sqlite_fetch_column_types</function> rRestituisce una matrice
+   <function>sqlite_fetch_column_types</function> restituisce un array
    con il tipo di dato delle colonne della tabella indicata da <parameter>table_name</parameter>.
   </para>
  </refsect1>
@@ -40,7 +37,7 @@
      <term><parameter>table_name</parameter></term>
      <listitem>
       <para>
-       Nome della tabella.
+       Il nome della tabella da interrogare.
       </para>
      </listitem>
     </varlistentry>
@@ -48,8 +45,8 @@
      <term><parameter>dbhandle</parameter></term>
      <listitem>
       <para>
-       Risorsa SQLite Database restituita da <function>sqlite_open
-       </function> quando usato in modo procedurale. Questo parametro non è
+       Risorsa Database SQLite; restituita da <function>sqlite_open</function> 
+       quando usato in modo procedurale. Questo parametro non è
        richiesto nel metodo ad oggetti.
       </para>
      </listitem>
@@ -57,7 +54,15 @@
     <varlistentry>
      <term><parameter>result_type</parameter></term>
      <listitem>
-      &sqlite.result-type;
+      <para>
+       Il parametro opzionale <parameter>result_type</parameter> accetta una
+       costante e determina come l'array restituito sarà indicizzato. Utilizzando
+       <constant>SQLITE_ASSOC</constant> saranno restituito solo indici associativi
+       (nomi dei campi) mentre <constant>SQLITE_NUM</constant> restituirà solo 
+       gli indici numerici (numeri di campo ordinari).
+       <constant>SQLITE_ASSOC</constant> è il valore di default per 
+       questa funzione.
+      </para>
      </listitem>
     </varlistentry>
    </variablelist>
@@ -67,9 +72,31 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce una matrice con i tipi di dati delle colonne, oppure &false; in caso di errore.
+   Restituisce un array con i tipi di dati delle colonne, oppure &false; in caso di errore.
   </para>
   &sqlite.case-fold;
+ </refsect1>
+ 
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>5.1.0</entry>
+       <entry>Aggiunto <parameter>result_type</parameter></entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
  </refsect1>
 
  <refsect1 role="examples">
@@ -85,7 +112,7 @@ sqlite_query($db, 'CREATE TABLE foo (bar varchar(10), arf text)');
 $cols = sqlite_fetch_column_types('foo', $db, SQLITE_ASSOC);
 
 foreach ($cols as $column => $type) {
-    echo "Column: $column  Type: $type";
+    echo "Colonna: $column  Tipo: $type\n";
 }
 ?>
 ]]>
@@ -103,7 +130,7 @@ $db->query('CREATE TABLE foo (bar varchar(10), arf text)');
 $cols = $db->fetchColumnTypes('foo', SQLITE_ASSOC);
 
 foreach ($cols as $column => $type) {
-    echo "Column: $column  Type: $type";
+    echo "Colonna: $column  Tipo: $type\n";
 }
 ?>
 ]]>
@@ -111,8 +138,8 @@ foreach ($cols as $column => $type) {
     &example.outputs;
     <screen>
 <![CDATA[
-Column: bar  Type: VARCHAR
-Column: arf  Type: TEXT
+Colonna: bar  Tipo: VARCHAR
+Colonna: arf  Tipo: TEXT
 ]]>
     </screen>
    </example>

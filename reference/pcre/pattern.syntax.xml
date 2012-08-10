@@ -1,595 +1,418 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: e43a330c074700dff5c3a9080b01e1f0a97ac081 Maintainer: darvina Status: working -->
 <!-- splitted from ./it/functions/pcre.xml, last change in rev 1.1 -->
-<!-- last change to 'pcre.pattern.syntax' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- OLD-Revision: 1.78/EN.1.2 -->
-<refentry xml:id="reference.pcre.pattern.syntax" xmlns="http://docbook.org/ns/docbook">
- <refnamediv>
-  <refname>Sintassi delle espressioni regolari</refname>
-  <refpurpose>
-   Descrizione della sintassi utilizzata da PCRE per la definizione delle espressioni regolari
-  </refpurpose>
- </refnamediv>
-
- <refsect1>
-  <title>Descrizione</title>
-  <simpara>
-   La libreria PCRE è costituita da una serie di funzioni che
-   utilizzano come criterio di riconoscimento le espressioni
-   regolari mutuando la stessa sintassi e la stessa semantica
-   di Perl 5, a parte qualche lieve differenza descritta di seguito.
-   L'attuale implementazione corrisponde alla versione 5.005 di Perl.
-  </simpara>
- </refsect1>
-
- <refsect1>
-  <title>Differenze rispetto a Perl</title>
+<chapter xml:id="reference.pcre.pattern.syntax" xmlns="http://docbook.org/ns/docbook">
+ <title>Sintassi dei pattern</title>
+ <titleabbrev>Sintassi delle regex PCRE</titleabbrev>
+ 
+ <section xml:id="regexp.introduction">
+  <title>Introduzione</title>
   <para>
-   In questo capitolo saranno descritte le differenze rispetto
-   a Perl 5.005.
-   <orderedlist>
-    <listitem>
-     <simpara>
-    Per default, lo  spazio  bianco  indica  tutti  i  caratteri
-    riconoscibili  dalla  funzione  isspace()  della libreria C,
-    ciò non pregiudica la possibilità di compilare PCRE  con  un
-    set di caratteri alternativi. Normalmente isspace()
-    riconosce  gli  spazi,  il  salto  pagina,  il  carattere 'a
-    capo' (newline), il carattere carriage return, la tabulazione
-    orizzontale  e verticale.  Perl 5  non riconosce  nel set dei
-    caratteri  indicati  dallo  "spazio  bianco"  la  tabulazione
-    verticale. Infatti il carattere di escape \v è stato presente
-    per diverso tempo nella  documentazione di Perl, ma  di fatto
-    non viene  riconosciuto. Tuttavia lo  stesso carattere  viene
-    trattato come spazio bianco fino alla versione 5.002 di Perl.
-    Nelle versioni 5.004 e 5.005 non viene riconosciuto il
-    carattere \s.
-     </simpara>
-    </listitem>
-    <listitem>
-     <simpara>
-    PCRE non supporta occorrenze ripetute in espressioni
-    che "guardano avanti". Perl lo permette, ma non nel modo
-    a cui si possa pensare. Ad esempio, (?!a){3}, non indica
-    che i tre caratteri successivi non debbano essere delle
-    "a", ma indica per tre volte che il carattere successivo
-    non debba essere una "a".
-     </simpara>
-    </listitem>
-    <listitem>
-     <simpara>
-    Il riconoscimento di criteri parziali che possono verificarsi
-    all'interno di espressioni che "guardano avanti" negative
-    sono contati, ma i loro riferimenti non sono inseriti nel
-    vettore degli offset. Perl valorizza le sue variabili da
-    qualsiasi criterio che sia riconosciuto prima che l'espressione
-    regolare fallisca nel riconoscere qualcosa, ma questo solo se
-    l'espressione che "guarda avanti" contiene almeno un ramo
-    alternativo.
-     </simpara>
-    </listitem>
-    <listitem>
-     <simpara>
-    Sebbene il carattere di 0 binario sia supportato nella
-    stringa in cui si deve svolgere la ricerca, non è ammesso
-    nel testo dell'espressione regolare, questo perché il testo
-    viene passato come stringa C conclusa dal carattere zero.
-    Si può comunque utilizzare la sequenza "\\x00" per richiedere
-    il riconoscimento dello zero binario.
-     </simpara>
-    </listitem>
-    <listitem>
-     <simpara>
-    Non sono supportate le seguenti sequenze di escape di Perl:
-    \l,  \u,  \L,  \U,  \E e  \Q. Infatti queste sono implementate
-    nelle funzioni di gestione delle stringhe di Perl e non nel
-    suo motore di riconoscimento delle espressioni regolari.
-     </simpara>
-    </listitem>
-    <listitem>
-     <simpara>
-    L'asserzione di Perl \G non è supportata.
-     </simpara>
-    </listitem>
-    <listitem>
-     <simpara>
-    Ovviamente PCRE non supporta il costrutto (?{code}).
-     </simpara>
-    </listitem>
-    <listitem>
-     <simpara>
-    Al momento in cui si scrive, in Perl  5.005_02 vi sono
-    alcune particolarità riguardanti la parametrizzazione
-    delle stringhe catturate quando parte del criterio di
-    riconoscimento viene ripetuto. Ad esempio, il riconoscimento
-    di "aba" con il criterio /^(a(b)?)+$/, valorizza $2
-    con la lettera "b", usando il testo "aabbaa" con il
-    criterio /^(aa(bb)?)+$/ non si ha la valorizzazione
-    di $2. Tuttavia se il criterio di riconoscimento viene
-    variato in /^(aa(b(b))?)+$/, sia $2 che $3 vengono
-    valorizzate. Nelle versione 5.004 di Perl, la variabile
-    $2 viene valorizzata in entrambi i casi, come pure è
-    &true; in PCRE. Se in futuro Perl cambierà nella gestione
-    anche PCRE potrà cambiare di conseguenza.
-     </simpara>
-    </listitem>
-    <listitem>
-     <simpara>
-    Un'altra discrepanza non ancora risolta riguarda il
-    criterio di riconoscimento /^(a)?(?(1)a|b)+$/, che in
-    Perl 5.005_02 riconosce la stringa "a", mentre non
-    accade in PCRE. Tuttavia in entrambi ( Perl e PCRE )
-    il riconoscimento di "a" con il criterio /^(a)?a/ non
-    valorizza $1.
-     </simpara>
-    </listitem>
-    <listitem>
-     <para>
-    PCRE prevede alcune estensione alla gestione delle
-    espressioni regolari di Perl:
-    <orderedlist>
-     <listitem>
-      <simpara>
-       Sebbene le asserzioni che "guardano indietro" richiedano
-       testi di lunghezza fissa, è ammesso che ciascun ramo
-       alternativo del criterio di ricerca possa intercettare
-       stringhe di lunghezza differente. Al contrario Perl
-       5.005 richiede che tutte le stringhe abbiamo la stessa
-       lunghezza.
-      </simpara>
-     </listitem>
-     <listitem>
-      <simpara>
-       Se viene settato <link linkend="reference.pcre.pattern.modifiers">PCRE_DOLLAR_ENDONLY</link>
-       e non viene attivato <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link>,
-       il meta-carattere $ indica soltanto la fine della stringa.
-      </simpara>
-     </listitem>
-     <listitem>
-      <simpara>
-       Se si attiva <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTRA</link>,
-       un carattere backslash (\) seguito da una lettera che
-       non abbia un significato speciale genera un errore.
-      </simpara>
-     </listitem>
-     <listitem>
-      <simpara>
-       Se si attiva <link linkend="reference.pcre.pattern.modifiers">PCRE_UNGREEDY</link>,
-       si inverte la "voracità" delle occorrenze, in modo da non
-       essere voraci per default, ma lo tornano ad essere se
-       seguiti da "?".
-      </simpara>
-     </listitem>
-    </orderedlist>
-     </para>
-    </listitem>
-   </orderedlist>
+   Di seguito verrà descritta la sintassi e la semantica delle espressioni
+   regolari così come sono supportate da PCRE. La descrizione delle espressioni regolari
+   può essere reperita anche nei manuali di Perl e in numerosi
+   altri libri, alcuni dei quali ricchi di esempi. Ad esempio il libro di Jeffrey
+   Friedl intitolato  "Mastering  Regular  Expressions", edito
+   da O'Reilly  (ISBN 1-56592-257-3), li tratta in modo dettagliato.
+   Questa descrizione, invece, viene intesa come una documentazione di riferimento.
   </para>
- </refsect1>
-
- <refsect1 xml:id="regexp.reference">
-  <title>Dettagli sulle espressioni regolari</title>
-  <refsect2 xml:id="regexp.introduction">
-   <title>Introduzione</title>
-    <para>
-     Di seguito verrà descritta la sintassi e la semantica delle
-     espressioni regolari così come sono supportate da PCRE. La
-     descrizione delle espressioni regolari può essere reperita
-     anche nei manuali di Perl e in numerosi altri libri, alcuni
-     dei quali ricchi di esempi. Ad esempio il libro di Jeffrey
-     Friedl intitolato  "Mastering  Regular  Expressions", edito
-     da O'Reilly  (ISBN 1-56592-257-3), li tratta in modo dettagliato.
-     Questa descrizione, invece, viene intesa come una documentazione
-     di riferimento.
-
-     Una espressione regolare è un criterio utilizzato per
-     identificare parti di un testo partendo da sinistra verso
-     destra. La maggior parte delle lettere identifica se
-     stessa nel testo oggetto del riconoscimento. Ad esempio
-     il banale testo <literal>La volpe veloce</literal>
-     intercetta la parte del testo uguale all'espressione
-     regolare.
-    </para>
-  </refsect2>
-
-  <refsect2 xml:id="regexp.reference.meta">
-   <title>Meta-caratteri</title>
-   <para>
-    La potenza delle espressioni regolari deriva dalla
-    possibilità di inserire criteri alternativi oppure
-    ripetuti. Questi sono codificati nel criterio di
-    ricerca tramite l'uso di <emphasis>meta-caratteri</emphasis>,
-    lettere che non indicano se stesse, ma sono interpretate
-    in modo particolare.
-   </para>
-   <para>
-    Esistono due differenti set di meta-caratteri: quelli che
-    sono riconosciuti ovunque tranne che all'interno di parentesi
-    quadrate, e quelli che sono riconosciuti all'interno di parentesi
-    quadrate. I meta-caratteri che si usano all'esterno delle
-    parentesi quadrate sono:
-    <variablelist>
-     <varlistentry>
-    <term><emphasis>\</emphasis></term>
-    <listitem>
-     <simpara>
-      carattere di escape generico con diversi utilizzi
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>^</emphasis></term>
-    <listitem>
-     <simpara>
-      indica l'inizio del testo (o della linea in modalità multi-linea)
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>$</emphasis></term>
-    <listitem>
-     <simpara>
-      indica la fine del testo (o della linea in modalità multi-linea)
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>.</emphasis></term>
-    <listitem>
-     <simpara>
-      indica qualsiasi carattere tranne "a capo" (per default)
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>[</emphasis></term>
-    <listitem>
-     <simpara>
-      carattere di inizio della definizione di classe
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>]</emphasis></term>
-    <listitem>
-     <simpara>
-      carattere di fine della definizione di classe
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>|</emphasis></term>
-    <listitem>
-     <simpara>
-      inizio di un ramo alternativo
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>(</emphasis></term>
-    <listitem>
-     <simpara>
-      inizio di un criterio di riconoscimento parziale
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>)</emphasis></term>
-    <listitem>
-     <simpara>
-      fine del criterio di riconoscimento parziale
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>?</emphasis></term>
-    <listitem>
-     <simpara>
-      estende il significato di (, oppure 0 o 1 occorrenza, oppure occorrenza minima
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>*</emphasis></term>
-    <listitem>
-     <simpara>
-      0 o più occorrenze
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>+</emphasis></term>
-    <listitem>
-     <simpara>
-      1 o più occorrenze
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>{</emphasis></term>
-    <listitem>
-     <simpara>
-      inizia l'intervallo minimo/massimo di occorrenze
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>}</emphasis></term>
-    <listitem>
-     <simpara>
-      termina l'intervallo minimo/massimo di occorrenze
-     </simpara>
-    </listitem>
-     </varlistentry>
-    </variablelist>
-
-    La parte del criterio che si trova tra parentesi quadrate
-    viene detta "classe di caratteri". In una classe di caratteri
-    i meta-caratteri previsti sono:
-    <variablelist>
-     <varlistentry>
-    <term><emphasis>\</emphasis></term>
-    <listitem>
-     <simpara>
-      carattere di escape generico con diversi utilizzi
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>^</emphasis></term>
-    <listitem>
-     <simpara>
-      nega la classe, ma solo se posto all'inizio
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>-</emphasis></term>
-    <listitem>
-     <simpara>
-      indica un intervallo
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>]</emphasis></term>
-    <listitem>
-     <simpara>
-      chiude la classe di caratteri
-     </simpara>
-    </listitem>
-     </varlistentry>
-    </variablelist>
+  <para>
+   Una espressione regolare è un criterio utilizzato per
+   identificare parti di un testo partendo da sinistra verso
+   destra. La maggior parte delle lettere identifica se
+   stessa nel testo oggetto del riconoscimento. Ad esempio
+   il banale testo <literal>La volpe veloce</literal>
+   intercetta la parte del testo uguale all'espressione
+   regolare.
+  </para>
+ </section>
+ <section xml:id="regexp.reference.delimiters">
+  <title>Delimitatori</title>
+  <para>
+   Quando si usano le funzioni PCRE, il pattern deve essere racchiuso
+   da <emphasis>delimitatori</emphasis>. Un delimitatore può essere qualsiasi carattere
+   non alfanumerico, esclusi il backslash e i caratteri di spazio (spazio, tab, ecc.).
+  </para>
+  <para>
+   Delimitatori usati spesso sono la barra "slash" (<literal>/</literal>), il cancelletto "hash"
+   (<literal>#</literal>) e la tilde (<literal>~</literal>). I
+   seguenti sono esempi di delimitazioni valide dei pattern:
+   <informalexample>
+    <programlisting>
+<![CDATA[
+/foo bar/
+#^[^0-9]$#
++php+
+%[a-zA-Z0-9_-]%
+]]>
+    </programlisting>
+   </informalexample>
+  </para>
+  <para>
+   If the delimiter needs to be matched inside the pattern it must be
+   escaped using a backslash. If the delimiter appears often inside the
+   pattern, it is a good idea to choose another delimiter in order to increase
+   readability.
+   <informalexample>
+    <programlisting>
+<![CDATA[
+/http:\/\//
+#http://#
+]]>
+    </programlisting>
+   </informalexample>
+   The <function>preg_quote</function> function may be used to escape a string
+   for injection into a pattern and its optional second parameter may be used 
+   to specify the delimiter to be escaped.
+  </para>
+  <para>
+   In addition to the aforementioned delimiters, it is also possible to use
+   bracket style delimiters where the opening and closing brackets are the
+   starting and ending delimiter, respectively.
+   <informalexample>
+    <programlisting>
+<![CDATA[
+{this is a pattern}
+]]>
+    </programlisting>
+   </informalexample>
+  </para>
+  <para>
+   You may add <link linkend="reference.pcre.pattern.modifiers">pattern
+   modifiers</link> after the ending delimiter. The following is an example
+   of case-insensitive matching:
+   <informalexample>
+    <programlisting>
+<![CDATA[
+#[a-z]#i
+]]>
+    </programlisting>
+   </informalexample>
+  </para>
+ </section>
+ <section xml:id="regexp.reference.meta">
+  <title>Meta-caratteri</title>
+  <para>
+   La potenza delle espressioni regolari deriva dalla
+   possibilità di inserire criteri alternativi oppure
+   ripetuti. Questi sono codificati nel criterio di
+   ricerca tramite l'uso di <emphasis>meta-caratteri</emphasis>,
+   lettere che non indicano se stesse, ma sono interpretate in modo particolare.
+  </para>
+  <para>
+   Esistono due differenti set di meta-caratteri: quelli che
+   sono riconosciuti ovunque tranne che all'interno di parentesi
+   quadrate, e quelli che sono riconosciuti all'interno di parentesi quadrate.
+   I meta-caratteri che si usano all'esterno delle parentesi quadrate sono:
+   <variablelist>
+    <varlistentry>
+     <term><emphasis>\</emphasis></term>
+     <listitem><simpara>carattere di escape generico con diversi utilizzi</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>^</emphasis></term>
+     <listitem><simpara>indica l'inizio del testo (o della linea in modalità multi-linea)</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>$</emphasis></term>
+     <listitem><simpara>indica la fine del testo (o della linea in modalità multi-linea)</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>.</emphasis></term>
+     <listitem><simpara>indica qualsiasi carattere tranne "a capo" (per default)</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>[</emphasis></term>
+     <listitem><simpara>carattere di inizio della definizione di classe</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>]</emphasis></term>
+     <listitem><simpara>carattere di fine della definizione di classe</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>|</emphasis></term>
+     <listitem><simpara>inizio di un ramo alternativo</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>(</emphasis></term>
+     <listitem><simpara>inizio di un criterio di riconoscimento parziale</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>)</emphasis></term>
+     <listitem><simpara>fine del criterio di riconoscimento parziale</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>?</emphasis></term>
+     <listitem>
+      <simpara>
+       estende il significato di (, oppure 0 o 1 occorrenza, oppure occorrenza minima
+       (vedere <link linkend="regexp.reference.repetition">ripetizione</link>)
+      </simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>*</emphasis></term>
+     <listitem><simpara>0 o più occorrenze</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>+</emphasis></term>
+     <listitem><simpara>1 o più occorrenze</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>{</emphasis></term>
+     <listitem><simpara>inizia l'intervallo minimo/massimo di occorrenze</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>}</emphasis></term>
+     <listitem><simpara>termina l'intervallo minimo/massimo di occorrenze</simpara></listitem>
+    </varlistentry>
+   </variablelist>
+   
+   La parte del criterio che si trova tra parentesi quadrate
+   viene detta "classe di caratteri". In una classe di caratteri
+   i meta-caratteri previsti sono:
+   
+   <variablelist>
+    <varlistentry>
+     <term><emphasis>\</emphasis></term>
+     <listitem><simpara>carattere di escape generico con diversi utilizzi</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>^</emphasis></term>
+     <listitem><simpara>nega la classe, ma solo se posto all'inizio</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>-</emphasis></term>
+     <listitem><simpara>indica un intervallo</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>]</emphasis></term>
+     <listitem><simpara>chiude la classe di caratteri</simpara></listitem>
+    </varlistentry>
+   </variablelist>
+   
     Le sezioni seguenti descriveranno l'uso di ciascuno dei
     meta-caratteri.
-   </para>
-  </refsect2>
-
-  <refsect2 xml:id="regexp.reference.backslash">
-   <title>Backslash</title>
+  </para>
+ </section>
+ 
+ <section xml:id="regexp.reference.escape">
+  <title>Sequenze di escape</title>
+  <para>
+   Il carattere backslash (\) ha diversi utilizzi. Primo uso: se
+   viene anteposto a caratteri non alfanumerici, rimuove gli
+   eventuali significati speciali che il carattere può avere. Questo utilizzo
+   di backslash come carattere di escape può essere svolto sia all'interno delle
+   classi di caratteri, sia all'esterno.
+  </para>
+  <para>
+   Ad esempio, un criterio che deve riconoscere il carattere "*"
+   conterrà "\*". Ciò si applica indipendentemente dal
+   carattere seguente, sia esso interpretabile come meta-carattere
+   o meno. Nel caso in cui un carattere non alfanumerico debba
+   identificare se stesso è opportuno farlo precedere dal "\".
+   In particolare per identificare un backslash occorre scrivere "\\".
+  </para>
+  <note>
    <para>
-    Il carattere backslash (\) ha diversi utilizzi. Primo uso: se
-    viene anteposto a caratteri non alfanumerici, rimuove gli
-    eventuali significati speciali che il carattere può avere.
-    Questo utilizzo di backslash come carattere di escape può
-    essere svolto sia all'interno delle classi di caratteri sia
-    all'esterno.
+    Le <link linkend="language.types.string.syntax">stringhe</link> PHP
+    a singolo o doppio apice hanno un significato
+    speciale del backslash. Quindi, se \ deve essere cercato con un'espressione
+    regolare \\, nel codice PHP deve essere usato "\\\\" oppure '\\\\'.
    </para>
-   <para>
-    Ad esempio, un criterio che deve riconoscere il carattere "*"
-    conterrà "\*". Ciò si applica indipendentemente dal
-    carattere seguente, sia esso interpretabile come meta-carattere
-    o meno. Nel caso in cui un carattere non alfanumerico debba
-    identificare se stesso è opportuno farlo precedere dal "\".
-    In particolare per identificare un backslash occorre scrivere
-    "\\".
-   </para>
-   <para>
-    Se nel criterio di riconoscimento si specifica l'opzione
-    <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link>,
-    lo spazio bianco (diversamente da quando si trova all'interno
-    di una classe di caratteri), e i caratteri posti tra "#" e un
-    "a capo" all'esterno di una classe di caratteri sono ignorati.
-    Un backslash può essere usato come escape per inserire uno
-    spazio bianco od il carattere "#" come parte del criterio di
-    riconoscimento.
-   </para>
-   <para>
-    Un secondo utilizzo del backslash consiste nel codificare in
-    modo visibile dei caratteri non visibili. Non ci sono restrizioni
-    nella presenza di caratteri non-stampabili, a parte lo zero
-    binario terminante la stringa dell'espressione regolare.
-    Di seguito saranno elencate le sequenze di caratteri che
-    è preferibile utilizzare per la loro semplicità al posto
-    delle corrispondenti codifiche binarie.
-   </para>
-   <para>
-    <variablelist>
-     <varlistentry>
-    <term><emphasis>\a</emphasis></term>
-    <listitem>
-     <simpara>
-      allarme, il carattere BEL  (hex 07)
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\cx</emphasis></term>
-    <listitem>
-     <simpara>
-      "control-x", dove x è un qualsiasi carattere
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\e</emphasis></term>
-    <listitem>
-     <simpara>
-      escape (hex 1B)
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\f</emphasis></term>
-    <listitem>
-     <simpara>
-      salto pagina (hex 0C)
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\n</emphasis></term>
-    <listitem>
-     <simpara>
-      "a capo" (newline) (hex 0A)
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\r</emphasis></term>
-    <listitem>
-     <simpara>
-      carriage return (hex 0D)
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\t</emphasis></term>
-    <listitem>
-     <simpara>
-      tabulazione (hex 09)
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\xhh</emphasis></term>
-    <listitem>
-     <simpara>
-      carattere il cui codice esadecimale è hh
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\ddd</emphasis></term>
-    <listitem>
-     <simpara>
-      carattere il cui codice ottale è ddd, oppure riferimento all'indietro
-     </simpara>
-    </listitem>
-     </varlistentry>
-    </variablelist>
-   </para>
-   <para>
-    Il preciso effetto di "<literal>\cx</literal>" è il seguente:
-    se "<literal>x</literal>" è una lettera minuscola, viene convertita
-    in lettera maiuscola. In pratica viene invertito il sesto bit (hex 40)
-    del carattere. Quindi "<literal>\cz</literal>" diventa hex 1A, ma
-    "<literal>\c{</literal>" diventa hex 3B, mentre "<literal>\c;</literal>"
-    diventa hex 7B.
-   </para>
-   <para>
-    Dopo la sequenza "<literal>\x</literal>", saranno letti due
-    numeri esadecimali (per le lettere non si distingue tra
-    maiuscolo e minuscolo)
-   </para>
-   <para>
-    Dopo la sequenza "<literal>\0</literal>" saranno lette due
-    cifre in ottale. In entrambi i casi se vi sono meno di due
-    cifre, saranno usati i numeri presenti. Pertanto la sequenza
-    "<literal>\0\x\07</literal>" indica 2 zeri binari seguiti dal
-    carattere BEL. Occorre accertarsi di passare le cifre necessarie
-    dopo lo zero iniziale se il carattere che segue può essere
-    scambiato per una cifra in ottale.
-   </para>
-   <para>
-    Più complicata è la gestione del backslash seguito da una cifra
-    diversa da 0. Al di fuori di una classe di caratteri, PCRE
-    tratta le cifre che trova come numeri decimali. Se il numero
-    è inferiore a 10, oppure vi sono state almeno altrettante
-    parentesi sinistre, la sequenza viene considerata come un
-    <emphasis>riferimento</emphasis> <emphasis>all'indietro</emphasis>.
-    Più avanti, nella parte dei criteri parziali, sarà descritto come
-    funzionano questi riferimenti.
-   </para>
-   <para>
-    All'interno di una classe di caratteri, oppure nel caso in cui il numero decimale
-    è maggiore di 9 e non ci sono stati altrettanti criteri parziali,
-    PCRE rilegge le prime 3 cifre seguenti il backslash in ottale
-    e genera il carattere dagli 8 bit meno significativi del valore
-    ottenuto. Ogni altra cifra seguente indica se stessa.
-    Ad esempio:
-   </para>
-   <para>
-    <variablelist>
-     <varlistentry>
-    <term><emphasis>\040</emphasis></term>
-    <listitem>
-     <simpara>
-      è un'altro modo per indicare uno spazio
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\40</emphasis></term>
+  </note>
+  <para>
+   Se nel criterio di riconoscimento si specifica l'opzione
+   <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link>,
+   lo spazio bianco (diversamente da quando si trova all'interno di una classe
+   di caratteri), e i caratteri posti tra "#" e un "a capo" all'esterno di una
+   classe di caratteri sono ignorati. Un backslash può essere usato come escape per inserire uno
+   spazio bianco od il carattere "#" come parte del criterio di riconoscimento.
+  </para>
+  <para>
+   Un secondo utilizzo del backslash consiste nel codificare in
+   modo visibile dei caratteri non visibili. Non ci sono restrizioni
+   nella presenza di caratteri non-stampabili, a parte lo zero
+   binario terminante la stringa dell'espressione regolare.
+   Di seguito saranno elencate le sequenze di caratteri che
+   è preferibile utilizzare per la loro semplicità al posto
+   delle corrispondenti codifiche binarie.
+  </para>
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><emphasis>\a</emphasis></term>
+     <listitem>
+      <simpara>allarme, il carattere BEL  (hex 07)</simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\cx</emphasis></term>
+     <listitem>
+      <simpara>"control-x", dove x è un qualsiasi carattere</simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\e</emphasis></term>
+     <listitem>
+      <simpara>escape (hex 1B)</simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\f</emphasis></term>
+     <listitem>
+      <simpara>salto pagina (hex 0C)</simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\n</emphasis></term>
+     <listitem>
+     <simpara>"a capo" (newline) (hex 0A)</simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\p{xx}</emphasis></term>
+     <listitem>
+      <simpara>
+       un carattere con la proprietà xx, vedere 
+       <link linkend="regexp.reference.unicode">proprietà unicode</link> 
+       per maggiori informazioni
+      </simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\P{xx}</emphasis></term>
+     <listitem>
+      <simpara>
+       un carattere senza la proprietà xx, vedere 
+       <link linkend="regexp.reference.unicode">proprietà unicode</link> 
+       per maggiori informazioni
+      </simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\r</emphasis></term>
+     <listitem>
+      <simpara>carriage return (hex 0D)</simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\t</emphasis></term>
+     <listitem>
+      <simpara>tabulazione (hex 09)</simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\xhh</emphasis></term>
+     <listitem>
+      <simpara>
+       carattere il cui codice esadecimale è hh
+      </simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\ddd</emphasis></term>
+     <listitem>
+      <simpara>carattere il cui codice ottale è ddd, oppure riferimento all'indietro</simpara>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+  <para>
+   Il preciso effetto di "<literal>\cx</literal>" è il seguente:
+   se "<literal>x</literal>" è una lettera minuscola, viene convertita
+   in lettera maiuscola. In pratica viene invertito il sesto bit (hex 40)
+   del carattere. Quindi "<literal>\cz</literal>" diventa hex 1A, ma
+   "<literal>\c{</literal>" diventa hex 3B, mentre "<literal>\c;</literal>"
+   diventa hex 7B.
+  </para>
+  <para>
+   Dopo la sequenza "<literal>\x</literal>", saranno letti due
+   numeri esadecimali (per le lettere non si distingue tra maiuscolo e minuscolo).
+   In <emphasis>modalità UTF-8</emphasis>, "<literal>\x{...}</literal>" è
+   permesso, quando il contenuto delle parentesi graffe è una stringa di
+   cifre esadecimali. È interpretato come un carattere UTF-8 il cui numero di codice è
+   la cifra esadecimale specificata. La sequenza originale esadecimale di escape,
+   <literal>\xhh</literal>, cerca un carattere UTF-8 a due byte se il valore
+   è maggiore di 127.
+  </para>
+  <para>
+   Dopo la sequenza "<literal>\0</literal>" saranno lette due cifre in ottale.
+   In entrambi i casi se vi sono meno di due cifre, saranno usati i
+   numeri presenti. Pertanto la sequenza "<literal>\0\x\07</literal>" 
+   indica 2 zeri binari seguiti dal carattere BEL. Occorre accertarsi
+   di passare le cifre necessarie dopo lo zero iniziale se il carattere
+   che segue può essere scambiato per una cifra in ottale.
+  </para>
+  <para>
+   Più complicata è la gestione del backslash seguito da una cifra
+   diversa da 0. Al di fuori di una classe di caratteri, PCRE
+   tratta le cifre che trova come numeri decimali. Se il numero
+   è inferiore a 10, oppure vi sono state almeno altrettante
+   parentesi sinistre, la sequenza viene considerata come un
+   <emphasis>riferimento</emphasis> <emphasis>all'indietro</emphasis>.
+   Più avanti, nella parte dei criteri parziali, sarà descritto come
+   funzionano questi riferimenti.
+  </para>
+  <para>
+   All'interno di una classe di caratteri, oppure nel caso in cui il numero decimale
+   è maggiore di 9 e non ci sono stati altrettanti criteri parziali,
+   PCRE rilegge le prime 3 cifre seguenti il backslash in ottale
+   e genera il carattere dagli 8 bit meno significativi del valore
+   ottenuto. Ogni altra cifra seguente indica se stessa.
+   Ad esempio:
+  </para>
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><emphasis>\040</emphasis></term>
+     <listitem><simpara>è un'altro modo per indicare uno spazio</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\40</emphasis></term>
      <listitem>
       <simpara>
        ha il medesimo significato dell'esempio precedente che
        non vi sono 40 sotto-criteri
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\7</emphasis></term>
-    <listitem>
-     <simpara>
-      è sempre un riferimento all'indietro
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\11</emphasis></term>
+      </simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\7</emphasis></term>
+     <listitem><simpara>è sempre un riferimento all'indietro</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\11</emphasis></term>
      <listitem>
       <simpara>
        può essere un riferimento all'indietro o un'altro modo
        per indicare il carattere di tabulazione
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\011</emphasis></term>
-    <listitem>
-     <simpara>
-      è ancora il carattere di tabulazione
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\0113</emphasis></term>
-    <listitem>
-     <simpara>
-      il carattere di tabulazione seguito da "3"
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\113</emphasis></term>
+      </simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\011</emphasis></term>
+     <listitem><simpara>è ancora il carattere di tabulazione</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\0113</emphasis></term>
+     <listitem><simpara>il carattere di tabulazione seguito da "3"</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\113</emphasis></term>
      <listitem>
       <simpara>
        è il carattere con il codice ottale 113 (poiché non
        ci possono essere più di 99 riferimenti all'indietro)
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\377</emphasis></term>
-    <listitem>
-     <simpara>
-      è un byte con tutti i bit a 1
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\81</emphasis></term>
+      </simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\377</emphasis></term>
+     <listitem><simpara>è un byte con tutti i bit a 1</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\81</emphasis></term>
      <listitem>
       <simpara>
        può essere un riferimento all'indietro o
@@ -597,1237 +420,1705 @@
       </simpara>
      </listitem>
     </varlistentry>
-    </variablelist>
-   </para>
-   <para>
-    Occorre rilevare che valori ottali maggiori di 100 non devono
-    essere preceduti dallo zero, questo perché la libreria considera
-    solo tre cifre.
-   </para>
-   <para>
-    Tutte le sequenze che definiscono il valore di un singolo byte
-    possono essere utilizzate sia all'interno sia all'esterno delle
-    classe di caratteri. Inoltre, all'interno delle classi di
-    caratteri, la sequenza "<literal>\b</literal>" viene interpretata
-    come carattere di backspace (hex 08), mentre all'esterno ha
-    un'altro significato (come descritto più avanti).
-   </para>
-   <para>
-    Il terzo utilizzo possibile per il backslash consiste nello
-    specificare il tipo di carattere:
-   </para>
-   <para>
-    <variablelist>
-     <varlistentry>
-    <term><emphasis>\d</emphasis></term>
-    <listitem>
-     <simpara>
-      qualsiasi cifra decimale
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\D</emphasis></term>
-    <listitem>
-     <simpara>
-      qualsiasi carattere che non sia una cifra decimale
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\s</emphasis></term>
-    <listitem>
-     <simpara>
-      qualsiasi carattere identificato come spazio bianco
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\S</emphasis></term>
-    <listitem>
-     <simpara>
-      qualsiasi carattere che non sia identificato come spazio bianco
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\w</emphasis></term>
-    <listitem>
-     <simpara>
-      qualsiasi carattere che sia una "parola" (word)
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\W</emphasis></term>
-    <listitem>
-     <simpara>
-      qualsiasi carattere che non sia una "parola" (word)
-     </simpara>
-    </listitem>
-     </varlistentry>
-    </variablelist>
-   </para>
-   <para>
-    Ciascuna coppia di sequenze di escape suddivide il set
-    completo dei caratteri in due insiemi disgiunti. Un dato
-    carattere deve essere identificato da un solo insieme di
-    ciascuna coppia.
-   </para>
-   <para>
-    I caratteri definiti "parole" sono quelle lettere o cifre o
-    il carattere underscore (_), cioè qualsiasi carattere
-    che possa essere parte di una "<literal>parola</literal>"
-    in Perl. In PCRE le definizioni di lettere e cifre vengono gestite
-    tramite le tabelle dei caratteri, che possono variare in base
-    a specifici parametri di localizzazione (vedere il paragrafo
-    intitolato "Supporto alle localizzazioni"). Ad esempio,
-    nella localizzazione fr (relativa alla Francia), qualche
-    codice carattere maggiore di 128 è utilizzato per le lettere
-    accentate, e queste sono identificate tramite la sequenza
-    <literal>\w</literal>.
-   </para>
-   <para>
-    Queste sequenze di tipi di caratteri possono apparire sia
-    all'interno sia all'esterno delle classi di caratteri.
-    Ciascuna di esse identifica un carattere del tipo appropriato.
-    Se durante la fase di identificazione di un testo, si giunge
-    al termine della stringa in cui si esegue il riconoscimento
-    e si hanno ancora di queste sequenze da incrociare, l'operazione
-    di identificazione fallirà perché, ovviamente, non vi sono più
-    caratteri in cui riconoscere le suddette sequenze.
-   </para>
-   <para>
-    Il quarto utilizzo per il backslash riguarda la costruzione
-    di particolari asserzioni. L'asserzione è una condizione
-    che deve essere soddisfatta ad un certo punto del riconoscimento,
-    senza "consumare" caratteri dalla stringa oggetto del
-    riconoscimento. Più avanti verranno descritte asserzioni più
-    complicate, costruite tramite l'uso di sotto-criteri di
-    riconoscimento, per ora saranno illustrate delle semplici
-    asserzioni costruite con il backslash:
-   </para>
-   <para>
-    <variablelist>
-     <varlistentry>
-    <term><emphasis>\b</emphasis></term>
-    <listitem>
-     <simpara>
-      limite di una parola
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\B</emphasis></term>
-    <listitem>
-     <simpara>
-      non limite di una parola
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\A</emphasis></term>
-    <listitem>
-     <simpara>
-      inizio dell'oggetto di ricerca (a prescindere dalla modalità multi-linea)
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\Z</emphasis></term>
-    <listitem>
-     <simpara>
-      fine dell'oggetto di ricerca oppure newline alla fine  (a prescindere dalla
-      modalità multi-linea)
-     </simpara>
-    </listitem>
-     </varlistentry>
-     <varlistentry>
-    <term><emphasis>\z</emphasis></term>
-    <listitem>
-     <simpara>
-      fine dell'oggetto di ricerca (a prescindere dalla modalità multi-linea)
-     </simpara>
-    </listitem>
-     </varlistentry>
-    </variablelist>
-   </para>
-   <para>
-    Queste asserzioni non possono apparire all'interno di una
-    classe di caratteri (attenzione che la sequenza "<literal>\b</literal>"
-    all'interno di una classe di caratteri indica il carattere backspace).
-   </para>
-   <para>
-    Viene definito limite di una parola la posizione nella stringa
-    oggetto della ricerca, nella quale il carattere corrente ed il
-    carattere precedente non soddisfano la sequenza <literal>\w</literal>
-    o la sequenza <literal>\W</literal> (ad esempio uno soddisfa la
-    sequenza <literal>\w</literal> e l'altro carattere soddisfa la
-    sequenza <literal>\W</literal>), oppure quella posizione,
-    all'inizio o alla fine della stringa, nella quale rispettivamente
-    il primo o l'ultimo carattere soddisfa la sequenza <literal>\w</literal>.
-   </para>
-   <para>
-    Le asserzioni <literal>\A</literal>, <literal>\Z</literal> e <literal>\z</literal>
-    differiscono dai tradizionali caratteri "^" e "$" (descritti
-    di seguito) per il fatto di identificare sempre l'inizio  o la
-    fine della stringa oggetto di ricerca a prescindere da quale
-    opzione sia stata attivata. Infatti queste asserzioni non sono
-    alterate da <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link>
-    oppure da  <link linkend="reference.pcre.pattern.modifiers">PCRE_DOLLAR_ENDONLY</link>.
-    La differenza tra <literal>\Z</literal> e <literal>\z</literal>
-    consiste nel fatto che <literal>\Z</literal> identifica  sia il carattere
-    precedente il newline posto al termine della stringa sia la fine della
-    stringa, mentre <literal>\z</literal> identifica solo la fine.
-   </para>
-  </refsect2>
-
-  <refsect2 xml:id="regexp.reference.circudollar">
-  <title>I caratteri "^" e "$"</title>
-   <para>
-    In condizioni normali, il carattere "^", posto all'esterno di
-    una classe di caratteri, indica un asserzione che è vera soltanto
-    se il punto da cui si inizia a identificare il testo si trova
-    all'inizio della stringa oggetto della ricerca. Al contrario,
-    se il carattere "^" si trova all'interno di una classe di
-    caratteri, assume altri significati (vedere i capitoli seguenti).
-   </para>
-   <para>
-    Non è necessario che il carattere "^" sia la prima lettera
-    del criterio di riconoscimento nei casi in cui si utilizzino
-    dei criteri di riconoscimento alternativi. Tuttavia è necessario
-    che sia la prima lettera nei rami alternativi in cui compare.
-    Se si inserisce il carattere "^" in tutte le alternative, caso
-    che ricorre quando si vuole riconoscere un testo a partire
-    dall'inizio della stringa, si dice che si è costruito un criterio
-    di ricerca "ancorato". (Esistono anche altre costruzioni che
-    portano all'ancoraggio di un criterio di ricerca).
-   </para>
-   <para>
-    Il carattere dollaro "$" è una asserzione che è &true; soltanto
-    se il punto a cui si è arrivati ad identificare il testo si
-    trova alla fine della stringa oggetto della ricerca, o
-    nella lettera immediatamente precedente il carattere di "a capo",
-    che (per default) è l'ultimo carattere del testo. Il dollaro "$"
-    non deve essere necessariamente l'ultima lettera di un criterio
-    di riconoscimento se in questo si sono utilizzati dei criteri
-    alternativi. Deve, comunque, essere l'ultima lettera nei criteri
-    ove compare. Il carattere dollaro "$" non ha significati speciali
-    all'interno di una classe di caratteri.
-   </para>
-   <para>
-    Il comportamento del simbolo "$" può essere variato in modo
-    da identificare la reale fine della stringa oggetto di ricerca
-    attivando il flag <link linkend="reference.pcre.pattern.modifiers">PCRE_DOLLAR_ENDONLY</link>
-    durante la compila o durante la fase di riconoscimento. Ciò
-    non influisce sull'asserzione \Z.
-   </para>
-   <para>
-    Il comportamento dei simboli "^" e "$" può essere influenzato
-    dall'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link>. Quando viene
-    attivata, questi caratteri identificano rispettivamente,
-    oltre ai tradizionali inizio e fine testo, la lettera immediatamente
-    successiva ed immediatamente precedente il carattere "\n" presente
-    all'interno della stringa oggetto di ricerca. Per esempio il
-    criterio /^abc$/ riconosce il testo "def\nabc" solo in modalità
-    multi-linea. Di conseguenza i criteri di riconoscimento che
-    sono "ancorati" in modalità singola linea, non lo sono in modalità
-    multi-linea. L'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_DOLLAR_ENDONLY</link>
-    viene ignorata se si attiva il flag <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link> .
-   </para>
-   <para>
-    Occorre rilevare che le sequenze \A, \Z e \z possono essere
-    utilizzate per riconoscere l'inizio e la fine del testo in
-    entrambe le modalità, e, se tutti i criteri alternativi
-    iniziano con \A, si ha ancora un criterio "ancorato"
-    a prescindere che sia attivata o meno l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link>.
-   </para>
-  </refsect2>
- 
-  <refsect2 xml:id="regexp.reference.dot">
-  <title>FULL STOP</title>
-   <para>
-    Il carattere punto ".", all'esterno di una classe di caratteri,
-    identifica qualsiasi carattere, anche quelli non stampabili,
-    ma (per default) non il carattere "a capo". Invece se si
-    abilita l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link>
-    si avrà anche il riconoscimento del carattere "a capo".
-    La gestione del simbolo "." è svincolata dalla gestione dei
-    simboli "^" ed "$", l'unica relazione che possono avere riguarda
-    il carattere "a capo". Il punto "." non ha significati speciali
-    all'interno delle classi di caratteri.
-   </para>
-  </refsect2>
- 
-  <refsect2 xml:id="regexp.reference.squarebrackets">
-  <title>Parentesi quadrate</title>
-   <para>
-    Un parentesi quadrata aperta "[" inizia una classe di caratteri;
-    una parentesi quadrata chiusa "]" termina la definizione
-    della classe. Di suo il carattere di parentesi quadrata chiusa
-    non ha significati speciali. Se occorre inserire la parentesi
-    chiusa all'interno di una classe di caratteri, questa deve
-    essere la prima lettera (ovviamente deve seguire il carattere "^",
-    se presente) oppure deve essere preceduta dal carattere di escape "\".
-   </para>
-   <para>
-    Una classe di caratteri identifica un singolo carattere nella
-    stringa oggetto di ricerca; il carattere deve comparire nel
-    set di caratteri definito dalla classe, a meno che il primo
-    carattere della classe non sia l'accento circonflesso "^",
-    in tal caso il carattere non deve essere nel set definito
-    dalla classe. Se è richiesto l'inserimento del carattere "^"
-    nel set definito dalla classe, questo non deve essere la
-    prima lettera dopo la parentesi di apertura, oppure deve
-    essere preceduto dal carattere di escape (\).
-   </para>
-   <para>
-    Ad esempio, la classe [aeiou] identifica ogni vocale minuscola,
-    mentre [^aeiou] identifica tutti i caratteri che non siano delle
-    vocali minuscole. Occorre notare che il simbolo "^" è un modo
-    pratico per indicare i caratteri che sono nella classe, citando
-    quelli che non lo sono. Questa non è una asserzione: consuma
-    un carattere della stringa oggetto di ricerca e fallisce se ci
-    si trova alla fine del testo.
-   </para>
-   <para>
-    In un riconoscimento senza distinzione tra minuscole e maiuscole,
-    ogni lettera della classe identifica sia la versione maiuscola
-    sia la minuscola. Così, ad esempio, la classe [aeiou] identifica
-    sia "A" sia "a", e, in questo caso, [^aeiou] non identifica "A",
-    mentre con la distinzione delle maiuscole [^aeiou] identifica
-    la lettera "A".
-   </para>
-   <para>
-    Il carattere di "a capo" (newline) non viene trattato in
-    modo speciale nelle classi di caratteri, indipendentemente
-    dalle opzioni <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link> o <link linkend="pcre.pattern.modifiers">PCRE_MULTILINE</link>.
-    La classe [^a] riconosce sempre il carattere "a capo".
-   </para>
-   <para>
-    Il segno meno (-) può essere usato per definire un intervallo
-    all'interno della classe. Ad esempio, [d-m] identifica ogni
-    lettera compresa tra d ed m inclusi. Se occorre inserire il
-    segno meno (-) come carattere da riconoscere o lo si fa
-    precedere dal carattere di escape (\), oppure lo si mette in
-    una posizione tale che non possa essere identificato come
-    definizione di un intervallo (ad esempio all'inizio o alla fine
-    della definizione della classe).
-   </para>
-   <para>
-    Non è possibile usare il carattere "]" come limite di un
-    intervallo. Un criterio definito come [W-]46], viene inteso
-    come una classe di due caratteri (W e -) seguita dalla stringa
-    46], in tal modo sarebbero riconosciuti i testi "W46]" oppure "-46]".
-    Quindi è necessario precedere la lettera "]" con il carattere di
-    escape (\), in questo modo [W-\]46], viene interpretata
-    correttamente come una singola classe contenente un range seguito
-    da due caratteri separati. In alternativa, per delimitare l'intervallo
-    si può utilizzare la notazione ottale di "]".
-   </para>
-   <para>
-    Gli intervalli utilizzano la sequenza di caratteri ASCII.
-    Inoltre possono essere utilizzati per definire caratteri con
-    specifica numerica (ad esempio [\000-\037]). Nei casi in cui
-    si abiliti il riconoscimento senza distinzione tra lettere
-    maiuscole e minuscole, gli intervalli comprendenti lettere
-    identificano sia la lettera maiuscola che minuscola. Ad esempio,
-    [W-c] è equivalente ad [][\^_`wxyzabc] (con il riconoscimento
-    a prescindere dalla lettera maiuscole e minuscole), e, se
-    si utilizza la tabella dei caratteri locali francesi "fr",
-    [\xc8-\xcb] identifica la lettera "e" accentata sia maiuscola
-    sia minuscola.
-   </para>
-   <para>
-    Nelle classi di caratteri si possono utilizzare le sequenze
-    \d, \D, \s, \S,  \w e \W per aggiungere altri tipi di caratteri
-    alla classe. Ad esempio, [\dABCDEF] riconosce qualsiasi cifra
-    esadecimale. Il carattere "^" può essere utilizzato con i caratteri
-    maiuscoli per indicare un set di caratteri più ristretto
-    che l'identificazione del set di caratteri minuscoli. Ad
-    esempio, la classe [^\W_] identifica qualsiasi lettera o cifra
-    ma non il trattino basso (_).
-   </para>
-   <para>
-    Tutti i caratteri non alfabetici, eccetto \,  -,  ^ (posto
-    all'inizio) e ] non sono speciali per la classi di caratteri,
-    e non sono dannosi se preceduti dal caratteri di escape (\).
-   </para>
-  </refsect2>
- 
-  <refsect2 xml:id="regexp.reference.verticalbar">
-  <title>Barra verticale (|)</title>
-   <para>
-    La barra verticale (|) viene utilizzata per separare criteri
-    di riconoscimento alternativi. Ad esempio il seguente criterio
-    <literal>gilbert|sullivan</literal>
-    può riconoscere "gilbert" oppure "sullivan". Ci possono essere
-    innumerevoli alternative, compresa un'alternativa vuota (per
-    identificare una stringa vuota). Il processo di riconoscimento
-    prova tutte le alternative possibili (da sinistra a destra)
-    fino a quando non ne trova una che sia soddisfatta. Se le
-    alternative sono nella definizione di un criterio parziale
-    il riconoscimento ha successo quando avviene su tutto il criterio.
-   </para>
-  </refsect2>
- 
-  <refsect2 xml:id="regexp.reference.internal-options">
-   <title>Settaggio delle opzioni interne</title>
-   <para>
-    Le opzioni <link linkend="reference.pcre.pattern.modifiers">PCRE_CASELESS</link>,
-    <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link> ,
-    <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link>,
-    <link linkend="reference.pcre.pattern.modifiers">PCRE_UNGREEDY</link>
-    e <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link>
-    possono essere cambiate "al volo" dall'interno del criterio di
-    riconoscimento, utilizzando le sequenze di lettere definite per
-    queste opzioni in Perl, racchiuse tra "(?" ed ")". Le lettere
-    utilizzabili sono:
-    <table>
-     <title>Lettere per le opzioni interne</title>
-    <tgroup cols="2">
-    <tbody>
-     <row>
-      <entry><literal>i</literal></entry>
-      <entry> per <link linkend="reference.pcre.pattern.modifiers">PCRE_CASELESS</link></entry>
-     </row>
-     <row>
-      <entry><literal>m</literal></entry>
-      <entry>per <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link></entry>
-     </row>
-     <row>
-      <entry><literal>s</literal></entry>
-      <entry>per <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link></entry>
-     </row>
-     <row>
-      <entry><literal>x</literal></entry>
-      <entry>per <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link></entry>
-     </row>
-     <row>
-      <entry><literal>U</literal></entry>
-      <entry>per <link linkend="reference.pcre.pattern.modifiers">PCRE_UNGREEDY</link></entry>
-     </row>
-    </tbody>
-     </tgroup>
-    </table>
-   </para>
-   <para>
-    Ad esempio, (?im) abilita il riconoscimento senza distinzione
-    tra lettere maiuscole e minuscole e la modalità multi-linea.
-    E' anche possibile disabilitare queste opzioni facendo precedere
-    la lettera dal segno meno (-), o combinare l'attivazione con la
-    disattivazione come nel caso (?im-sx), in cui si attiva <link linkend="reference.pcre.pattern.modifiers">PCRE_CASELESS</link> e
-    <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link> e si disattiva 
-    <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link> e 
-    <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link>.
-    Se la lettera compare sia prima che dopo il segno meno (-)
-    l'opzione resta disabilitata.
-   </para>
-   <para>
-    L'ambito di validità delle opzioni dipende da dove sono
-    i flag di abilitazione/disabilitazione nel criterio di ricerca.
-    Nei casi in cui il settaggio di un'opzione avvenga all'esterno
-    di un qualsiasi criterio parziale (come definito in seguito) gli
-    effetti sono  medesimi di quando l'attivazione/disattivazione
-    avviene all'inizio del criterio di riconoscimento. Gli esempi
-    seguenti si comportano tutti allo stesso modo:
-   </para>
-   <literallayout>
-    (?i)abc
-    a(?i)bc
-    ab(?i)c
-    abc(?i)
-   </literallayout>
-   <para>
-    In questi esempi si attiva <link linkend="reference.pcre.pattern.modifiers">PCRE_CASELESS</link>
-    per il criterio "abc". In altre parole, questo settaggio compiuto
-    al primo livello si applica a tutto il criterio (a meno che non
-    vi siano altre variazioni nelle sotto-regole di riconoscimento).
-    Qualora vi siano più settaggi per lo stesso parametro, viene
-    utilizzato quello più a destra.
-   </para>
-   <para>
-    Se si inserisce la variazione di un'opzione in una sotto-regola
-    gli effetti sono differenti. Questa è una variazione rispetto al
-    comportamento di Perl 5.005. Una variazione apportata all'interno
-    di una sotto-regola, vale solo per la parte della sotto-regola
-    che segue la variazione, pertanto
-    <literal>(a(?i)b)c</literal>
-    identifica abc, aBc e nessuna altra stringa ( si assume che
-    <link linkend="reference.pcre.pattern.modifiers">PCRE_CASELESS</link> non sia usato).
-    Da ciò deriva che le opzioni possono avere comportamenti differenti
-    nelle varie parti del criterio di riconoscimento. Ogni variazione
-    apportata ad una ramo alternativo del criterio viene estesa alle
-    alternative successive della medesima sotto-regola. Ad esempio,
-    <literal>(a(?i)b|c)</literal>
-    identifica "ab", "aB", "c" e "C", anche se per identificare "C"
-    viene scartato il primo ramo prima di incontrare il settaggio
-    dell'opzione. Questo accade perché gli effetti dei settaggi
-    vengono inseriti nella fase di compila. Diversamente si avrebbero
-    dei comportamenti molto bizzarri.
-   </para>
-   <para>
-    Le opzioni specifiche di PCRE
-    <link linkend="reference.pcre.pattern.modifiers">PCRE_UNGREEDY</link> e
-    <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTRA</link>
-    possono essere variate nel medesimo modo delle opzioni
-    Perl compatibili, utilizzando rispettivamente i caratteri
-    U e X. Il flag (?X) è particolare poiché deve comparire
-    prima di qualsiasi opzione esso attivi anche quando si
-    trova al primo livello. E' opportuno inserirlo all'inizio.
-   </para>
-  </refsect2>
- 
-  <refsect2 xml:id="regexp.reference.subpatterns">
-  <title>Sotto-regole</title>
-   <para>
-    Le sotto-regole sono delimitate dalle parentesi tonde e
-    possono essere annidate. La definizione di una parte di
-    una regola di riconoscimento come sotto-regola può servire a:
-   </para>
-   <para>
-    1. Localizzare un set di alternative. Ad esempio nel seguente
-    criterio di riconoscimento
-    <literal>cat(aract|erpillar|)</literal>
-    si riconosce una tra le parole "cat", "cataract" oppure "caterpil-
-    lar".  Se non fossero state usate le parentesi, il criterio
-    avrebbe permesso il riconoscimento delle parole "cataract",
-    "erpillar" oppure una stringa vuota.
-   </para>
-   <para>
-    2. Identificare e catturare parte del testo riconosciuto
-    dalla sotto-regola (come illustrato in seguito). Quando
-    il riconoscimento dell'intero criterio ha avuto successo,
-    le porzioni della stringa oggetto della ricerca identificate
-    dalle sotto-regole sono restituite alla funzione chiamante
-    tramite l'argomento <emphasis>vettore</emphasis> della funzione
-    <function>pcre_exec</function>. Per determinare il numero ordinale
-    di ciascuna sotto-regola si contano le parentesi aperte da
-    sinistra verso destra partendo da 1.
-   </para>
-   <para>
-    Ad esempio, se si esegue un riconoscimento nella frase
-    "the red king" con il seguente criterio
-    <literal>the ((red|white) (king|queen))</literal>
-    si ottengono i testi "red king", "red" e "king", rispettivamente
-    identificati dalla sotto-regola 1, 2 e 3.
-   </para>
-   <para>
-    Il fatto che le parentesi tonde adempiano a due funzioni non
-    sempre porta a situazioni comprensibili. Spesso capita di
-    dovere raggruppare delle sotto-regole senza per questo essere
-    richiesta la cattura del testo. A tale scopo l'uso della
-    sequenza "?:" dopo la parentesi di apertura permette di indicare
-    che questa sotto-regola non deve catturare il testo, e non deve essere
-    conteggiata nel numero d'ordine delle sotto-regole di cattura.
-    Ad esempio, applicando il criterio
-    <literal>the ((?:red|white) (king|queen))</literal>
-    alla frase "the  white  queen", si catturano i testi "white queen"
-    e  "queen",  rispettivamente numerati 1 e 2. Il numero massimo
-    di testi catturabili è 99, il numero massimo di sotto-regole,
-    a prescindere che siano di cattura o meno, è 200.
-   </para>
-   <para>
-    Come utile abbreviazione, nei casi in cui l'attivazione di
-    alcune opzioni debba essere fatta all'inizio di una sotto-regola
-    non di cattura, la lettera dell'opzione può comparire tra la
-    "?" e ":". Pertanto i due criteri
-   </para>
-   <literallayout>
-    (?i:saturday|sunday)
-    (?:(?i)saturday|sunday)
-   </literallayout>
-   <para>
-    riconoscono esattamente lo stesso set di parole. Poiché i rami
-    alternativi sono provati da sinistra verso destra, e le opzioni
-    non sono azzerate fino a quando non si è conclusa la sotto-regola,
-    una opzione attivata in un ramo alternativo si applica a tutte
-    le alternative che seguono. Pertanto, nell'esempio di prima, sia
-    la parola "SUNDAY" che la parola "Saturday" sono testi
-    identificati correttamente.
-   </para>
-  </refsect2>
- 
-  <refsect2 xml:id="regexp.reference.repetition">
-  <title>Ripetizioni</title>
-   <para>
-    Le ripetizioni sono il numero delle occorrenze che possono
-    essere indicate dopo i seguenti elementi:
-    <itemizedlist>
-     <listitem><simpara>un singolo carattere, possibilmente preceduto dal carattere di escape (\)</simpara></listitem>
-     <listitem><simpara>il metacarattere .</simpara></listitem>
-     <listitem><simpara>una classe di caratteri</simpara></listitem>
-     <listitem><simpara>un riferimento all'indietro (vedere la sezione successiva)</simpara></listitem>
-     <listitem><simpara>una sotto-regola (a meno che non si tratti di una asserzione -
-    vedere più avanti)</simpara></listitem>
-    </itemizedlist>
-   </para>
-   <para>
-    In generale una occorrenza specifica un numero minimo e massimo
-    di riconoscimenti previsti tramite la specifica dei due limiti,
-    posti tra parentesi graffe e separati da una virgola. Entrambi i numeri
-    devono essere minori di 65536 ed il primo deve essere minore o
-    uguale rispetto al secondo. Ad esempio:
-    <literal>z{2,4}</literal>
-    identifica  "zz", "zzz" oppure "zzzz". La parentesi graffa chiusa
-    di suo non rappresenta un carattere speciale. Se si omette il
-    secondo numero, ma si lascia la virgola, non si indica un
-    limite superiore; se sia la virgola sia il secondo numero sono
-    omessi, l'occorrenza specifica l'esatto numero di riconoscimenti
-    richiesti. Il criterio
-    <literal>[aeiou]{3,}</literal>
-    identifica almeno 3 o più vocali consecutive, mentre
-    <literal>\d{8}</literal>
-    identifica esattamente 8 cifre. Una parentesi graffa aperta
-    che compaia in una posizione in cui non sia prevista una
-    occorrenza, o che comunque non sia riconducibile alla sintassi
-    di una occorrenza, viene tratta come il carattere "{". Ad
-    esempio {,6} non indica delle occorrenze, ma una stringa di
-    4 caratteri.
-   </para>
-   <para>
-    L'indicazione {0} è permessa. Indica di comportarsi come se
-    l'elemento precedente all'occorrenza non fosse presente.
-   </para>
-   <para>
-    Per praticità (e compatibilità verso il passato) si usano 3
-    abbreviazioni per le occorrenze più comuni:
-    <table>
-     <title>Indicatore di occorrenza</title>
-     <tgroup cols="2">
-    <tbody>
-     <row>
-      <entry><literal>*</literal></entry>
-      <entry>equivale a <literal>{0,}</literal></entry>
-     </row>
-     <row>
-      <entry><literal>+</literal></entry>
-      <entry>equivale a <literal>{1,}</literal></entry>
-     </row>
-     <row>
-      <entry><literal>?</literal></entry>
-      <entry>equivale a <literal>{0,1}</literal></entry>
-     </row>
-    </tbody>
-     </tgroup>
-    </table>
-   </para>
-   <para>
-    E' anche possibile creare un ciclo infinito facendo seguire
-    ad una sotto-regola che non identifica alcun carattere una
-    occorrenza priva di limite superiore. Ad esempio:
-    <literal>(a?)*</literal>
-   </para>
-   <para>
-    Le versioni precedenti di Perl e di PCRE segnalavano un errore
-    durante la fase di compila per questi criteri. Tuttavia, poiché
-    vi sono casi dove questi criteri possono essere utili, queste
-    regole sono accettate, ma, se la ripetizione non riconosce
-    alcun carattere, il ciclo viene interrotto.
-   </para>
-   <para>
-    Per default le occorrenze sono "bramose", infatti identificano
-    più testi possibile (fino al numero massimo permesso), senza
-    per questo fare fallire il riconoscimento della parte rimanente
-    del criterio di ricerca. Il classico esempio dove questo comportamento
-    può essere un problema, riguarda il riconoscimento dei commenti
-    nei programmi C. Questi compaiono tra le sequenze /* ed */,
-    ma all'interno, nel commento, si possono usare sia il carattere
-    *, sia il carattere /. Il tentativo di individuare i commenti C
-    con il seguente criterio
-    <literal>/\*.*\*/</literal>
-    se applicato al commento
-    <literal>/* primo commento */  nessun commento  /* secondo commento */</literal>
-    non ha successo, perché identifica l'intera stringa a causa
-    della "bramosia" dell'elemento ".*".
-   </para>
-   <para>
-    Tuttavia, se un'occorrenza è seguita da un punto interrogativo,
-    questa cessa di essere "bramosa", e identifica il numero
-    minimo di testi permessi. Pertanto il criterio
-    <literal>/\*.*?\*/</literal>
-    si comporta correttamente con i commenti C. Il significato
-    delle varie occorrenze non è stato cambiato, si è soltanto
-    modificato il numero delle occorrenze da riconoscere. Attenzione
-    a non confondere questo uso del punto interrogativo con il
-    suo proprio significato. Dati i due utilizzi del ?, può
-    anche capitare di averli entrambi come in
-    <literal>\d??\d</literal>
-    che, preferibilmente, identifica una cifra, ma può riconoscerne
-    due se questa è l'unica via per soddisfare il riconoscimento
-    dell'intero criterio.
-   </para>
-   <para>
-    Se si attiva l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_UNGREEDY</link>
-    (un'opzione disponibile anche in Perl), per default le occorrenze
-    non sono "bramose", ma ogni singola occorrenza può essere
-    resa "bramosa" se seguita dal punto interrogativo. In altre
-    parole si è invertito il normale comportamento.
-   </para>
-   <para>
-    Quando si indica un numero minimo di occorrenze maggiore di 1,
-    per una sotto-regola posta tra parentesi, oppure
-    si indica un numero massimo di occorrenze, la fase di
-    compila richiede più spazio in proporzione ai valori
-    minimo e massimo.
-   </para>
-   <para>
-    Se un criterio inizia con .* oppure .{0,} e si è attivata
-    l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link>
-    (euivalente al /s di Perl), permettendo al . di identificare
-    il carattere di "a capo", si dice che il criterio è implicitamente
-    ancorato, perché qualsiasi elemento che segue sarà confrontato
-    con ciascun carattere della stringa oggetto della ricerca,
-    e pertanto non vi è nessuna posizione, a parte la prima, da
-    cui ripartire per ritentare il riconoscimento dell'intero criterio.
-    PCRE tratta tale criterio come se fosse preceduto dalla sequenza
-    \A. Nei casi in cui è noto a priori che la stringa oggetto di
-    ricerca non contiene caratteri di "a capo", vale la pena di
-    attivare l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link>
-    se il criterio di ricerca inizia con ".*", per ottenere
-    questa ottimizzazione, oppure, in alternativa, usare "^"
-    per indicare in modo esplicito un ancoraggio.
-   </para>
-   <para>
-    Quando si ripete una sotto-regola di cattura, il testo
-    estrapolato è la parte identificata dall'iterazione finale.
-    Ad esempio se il criterio
-    <literal>(tweedle[dume]{3}\s*)+</literal>
-    viene applicato al testo "tweedledum tweedledee", il testo
-    estrapolato sarà "tweedledee". Tuttavia se vi sono delle
-    sotto-regole annidate, il testo catturato può essere
-    determinato dalle iterazioni precedenti. Ad esempio nel
-    criterio
-    <literal>/(a|(b))+/</literal>
-    applicato a "aba", la seconda stringa catturata è "b".
-   </para>
-  </refsect2>
-
-  <refsect2 xml:id="regexp.reference.back-references">
-  <title>Riferimenti all'indietro</title>
-   <para>
-    Esternamente ad una classe di caratteri, un backslah (\)
-    seguito da una o più cifre maggiori di 0 è un riferimento
-    all'indietro verso testi catturati precedentemente (ad esempio
-    alla sinistra rispetto a dove ci si trova), conteggiati tramite
-    il numero delle parentesi chiuse precedenti.
-   </para>
-   <para>
-    Tuttavia, se il numero che segue il backslash (\) è un valore
-    inferiore a 10, si assume che si tratti sempre di un riferimento
-    all'indietro, e pertanto viene generato un errore se nel criterio
-    non vi sono almeno altrettante parentesi chiuse di sotto-regole
-    di cattura. In altre parole per i numeri inferiori a 10 non è
-    necessario che il numero parentesi precedenti (a sinistra)
-    alla sotto-regola sia pari o maggiore al numero indicato.
-    Vedere la sezione relativa al backslash per informazioni su
-    come gestire le cifre seguenti il backslash.
-   </para>
-   <para>
-    Un riferimento all'indietro identifica ciò che è già
-    stato catturato dalla sotto-regola, e non ciò che la
-    sotto-regola stessa possa riconoscere. Ad esempio il
-    criterio
-    <literal>(sens|respons)e and \1ibility</literal>
-    può riconoscere "sense and sensibility" oppure "response and
-    responsibility", ma non il testo "sense  and  responsibility".
-    Se al momento del riferimento all'indietro, è attiva la distinzione
-    tra lettere maiuscole e minuscole, il formato della lettera
-    diventa rilevante. Ad esempio,
-    <literal>((?i)rah)\s+\1</literal>
-    può identificare "rah rah" e "RAH RAH", ma non "RAH  rah",
-    anche se la sotto-regola originale eseguiva dei riconoscimenti
-    a prescindere dalle lettere maiuscole e minuscole.
-   </para>
-   <para>
-    Nella medesima sotto-regola si possono avere più di un riferimento
-    all'indietro. Se una sotto-regola non viene utilizzata in
-    un particolare riconoscimento, un riferimento a questa
-    ha sempre esito  negativo. Ad esempio il criterio
-    <literal>(a|(bc))\2</literal>
-    non avrà mai successo se l'identificazione della stringa
-    inizia con "a" e non con "bc". Dato che sono possibili fino a 99
-    riferimenti all'indietro, tutte le cifre che seguono un backslash
-    (\) sono considerate come parte di un potenziale numero di
-    riferimento. Se il criterio continua con altri caratteri
-    numerici, occorre stabilire un carattere per delimitare il
-    numero del riferimento. Se si attiva l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link>
-    questo carattere può essere lo spazio. Altrimenti si può usare
-    un commento vuoto.
-   </para>
-   <para>
-    Un riferimento all'indietro non ha successo se viene inserito
-    in una sotto regola prima che sia applicata. Con questo si
-    intende, ad esempio, che (a\1) non avrà mai successo, ma, nel
-    caso di una sottoregola ripetuta, si avrà un riscontro positivo.
-    Ad esempio
-    <literal>(a|b\1)+</literal>
-    identificherà qualsiasi numero di "a", ma anche "aba" oppure
-    "ababaa" eccetera. In pratica a ciascuna iterazione della
-    sotto-regola il riferimento andrà a sostituire la stringa riconosciuta
-    tramite la sotto-regola dell'iterazione precedente. Affinchè
-    il tutto funzioni, è necessario che la prima iterazione sia
-    identificata senza l'ausilio del riferimento "all'indietro".
-    Ciò può essere ottenuto o usando casi alternativi, come nell'esempio
-    precedente, o usando le occorrenze indicando come numero minimo
-    di occorrenze il valore zero.
-   </para>
-  </refsect2>
-
-  <refsect2 xml:id="regexp.reference.assertions">
-   <title>Asserzioni</title>
-   <para>
-    L'asserzione è un test basato su un carattere, che può precedere
-    o seguire l'attuale punto di riconoscimento, e non consuma
-    alcun carattere. Le semplici asserzioni quali \b, \B, \A, \Z,
-    \z, ^ e $ sono state descritte precedentemente. Asserzioni più
-    complesse possono essere strutturate come delle sotto-regole.
-    Se ne hanno di due tipologie: quelle che "guardano avanti"
-    alla posizione attuale nella stringa oggetto del riconoscimento,
-    e quelle che "guardano dietro" la posizione attuale.
-   </para>
-   <para>
-    Una asserzione definita come sotto-regola esegue il riconoscimento
-    nel modo usuale, ma tale riconoscimento non sposta la posizione
-    attuale nella stringa. Le asserzioni che "guardano avanti" cominciano
-    per "(?=", se sono positive, per "(?!", se sono asserzioni negative.
-    Ad esempio
-    <literal>\w+(?=;)</literal>
-    riconosce una parola seguita da ";", ma non include il
-    punto e virgola nel riconoscimento, mentre
-    <literal>foo(?!bar)</literal>
-    identifica qualsiasi occorrenza di "foo" che non sia seguita da
-    "bar". Attenzione che il criterio, apparentemente simile,
-    <literal>(?!foo)bar</literal>
-    non riconosce alcuna occorrenza di "bar" se questa è preceduta
-    da qualsiasi testo che non sia  "foo"; infatti l'espressione
-    riconosce qualsiasi occorrenza di "bar", poiché l'asserzione (?!foo)
-    è sempre &true; quando i tre caratteri successivi sono "bar".
-    Pertanto è necessario una asserzione che "guarda" all'indietro
-    per ottenere effetto desiderato.
-   </para>
-   <para>
-    Le asserzioni che "guardano" indietro positive iniziano con
-    "(?&lt;=", e con "(?&lt;!" le negative. Ad esempio:
-    <literal>(?&lt;!foo)bar</literal>
-    riconosce una occorrenza di "bar" che non sia preceduta da
-    "foo". Le asserzioni che "guardano" indietro hanno una limitazione:
-    tutte le stringhe che riconoscono devono avere lunghezza fissa.
-    Mentre, se si hanno casi alternativi, la limitazione della lunghezza
-    fissa non sussiste. Quindi
-    <literal>(?&lt;=bullock|donkey)</literal>
-    è una asserzione permessa, ma
-    <literal>(?&lt;!dogs?|cats?)</literal>
-    genera un errore durante la fase di compila. Rami alternativi
-    con lunghezze di stringa differenti sono permessi solo
-    al primo livello dell'asserzione. Questa è da considerarsi una
-    estensione rispetto a Perl 5.005, che richiede a tutte le alternative
-    possibili la medesima lunghezza di stringa. Quindi una asserzione
-    tipo
-    <literal>(?&lt;=ab(c|de))</literal>
-    non è permessa, poiché il suo singolo ramo di primo livello
-    può identificare testi di due lunghezze differenti, ma è accettabile
-    se riscritta usando due alternative di primo livello:
-    <literal>(?&lt;=abc|abde)</literal>
-    L'implementazione di questo tipo di asserzioni consiste, per
-    ciascuna alternativa, di uno spostamento all'indietro temporaneo
-    per la lunghezza fissa necessaria, e ad un tentativo di
-    riconoscimento del testo. Se non ci sono sufficienti caratteri
-    precedenti alla posizione attuale, l'asserzione è destinata a
-    fallire. L'uso accoppiato delle asserzioni che "guardano" indietro
-    con sotto-regole a riconoscimento singolo può essere utile
-    per identificare la fine dei testi; un esempio è illustrato
-    al termine della sezione sulle sotto-regole a riconoscimento
-    singolo.
-   </para>
-   <para>
-    Diverse asserzioni (di qualsiasi tipologia) possono essere
-    utilizzate in modo consecutivo. Ad esempio:
-    <literal>(?&lt;=\d{3})(?&lt;!999)foo</literal>
-    riconosce "foo" preceduto da tre cifre che non siano "999".
-    Occorre rilevare che ciascuna asserzione viene applicata
-    singolarmente sul medesimo punto nella stringa oggetto di
-    riconoscimento. Nell'esempio precedente per prima cosa si
-    verifica che i tre caratteri precedenti siano cifre, quindi
-    che non siamo "999". Questo esempio non identifica il testo
-    se "foo" è preceduto da sei caratteri di cui i primi tre siano
-    cifre e i secondi tre non siano "999". In pratica il testo
-    "123abcfoo" non viene riconosciuto. Un criterio per riconoscere
-    tale stringa può essere:
-    <literal>(?&lt;=\d{3}...)(?&lt;!999)foo</literal>
-   </para>
-   <para>
-    In questo caso la prima asserzione controlla i primi sei caratteri
-    verificando che i primi tre siano cifre, mentre la seconda
-    asserzione verifica che i secondi tre caratteri non siano
-    "999".
-   </para>
-   <para>
-    Le asserzioni possono essere annidate in qualsiasi combinazione.
-    Il seguente esempio
-    <literal>(?&lt;=(?&lt;!foo)bar)baz</literal>
-    identifica il testo "baz" se è preceduto da "bar" il quale
-    non deve essere preceduto da "foo", mentre
-    <literal>(?&lt;=\d{3}...(?&lt;!999))foo</literal>
-    è un'altro criterio che riconosce "foo" preceduto da tre cifre
-    e da tre caratteri che non siano "999".
-   </para>
-   <para>
-    Le asserzioni definite come sotto-regole non catturano parte
-    del testo e non possono essere ripetute (non avrebbe senso
-    ripetere il medesimo riconoscimento sul medesimo testo).
-    Se una di queste asserzioni contiene una sotto-regola di cattura
-    questa viene conteggiata ai fini della numerazione delle regole
-    di cattura. Tuttavia il testo viene effettivamente catturato
-    solo nelle asserzioni positive, dato che non avrebbe senso farlo
-    in quelle negative.
-   </para>
-   <para>
-    Le asserzioni possono essere composte fino ad un massimo
-    di 200 sotto-regole.
-    subpatterns.
-   </para>
-  </refsect2>
-
-  <refsect2 xml:id="regexp.reference.onlyonce">
-   <title>Sotto-regole a riconoscimento singolo (Once-only subpatterns)</title>
-   <para>
-    Con l'indicazione del numero minimo e massimo di ripetizioni,
-    il fallimento del riconoscimento della parte successiva del testo
-    causa una ripetizione dell'identificazione con un numero di
-    occorrenze diverse per verificare se in questa situazione anche il
-    resto  del testo viene identificato. In alcune situazioni può
-    essere utile bloccare questo meccanismo,  per la cambiata
-    natura del criterio, oppure per fare fallire la ricerca prima
-    di quando potrebbe accadere, oppure quando l'autore sa che non
-    ci sono punti da cui ripartire.
-   </para>
-   <para>
-    Consideriamo, ad esempio, il criterio \d+foo applicato alla
-    seguente linea
-    <literal>123456bar</literal>
-   </para>
-   <para>
-    Dopo avere identificato le 6 cifre ed avere mancato nel riconoscimento
-    di "foo", il comportamento normale consiste nel tentare di
-    procedere identificando 5 cifre per l'elemento \d+, quindi
-    tentare con 4 e così via, prima di fallire definitivamente.
-    Le sotto-regole a riconoscimento singolo permettono di specificare
-    che, una volta riconosciuta una porzione della regola, questa
-    non debba essere più considerata, in maniera tale da abortire
-    immediatamente il riconoscimento se non si ha successo
-    nell'identificare la parte restante del criterio.
-    L'espressione per definire questo tipo di sotto-regola richiede
-    un'altro tipologia di utilizzo speciale delle parentesi. Infatti
-    iniziano con (?&gt; come nell'esempio seguente:
-    <literal>(?&gt;\d+)bar</literal>
+   </variablelist>
   </para>
-   <para>
-    Questa tipologia di parentesi "inchioda" la parte di criterio
-    una volta che avviene il riconoscimento, e, quindi, un fallimento
-    successivo impedisce la ri-elaborazione di questo segmento.
-    Tuttavia, occorre notare che gli elementi precedenti a questo
-    si comportano in modo normale, e pertanto la ri-elaborazione,
-    pur non toccando questo elemento, passa ai precedenti.
-   </para>
-   <para>
-    Una descrizione alternativa di questa tipologia di sotto-regola
-    potrebbe essere che questo criterio identifica un testo come
-    avrebbe fatto un singolo criterio se fosse stato ancorato
-    alla posizione corrente.
-   </para>
-   <para>
-    Le sotto-regole a riconoscimento singolo non compiono la cattura
-    del testo identificato. I casi semplici illustrati in precedenza
-    possono essere considerati come una estremizzazione della
-    ripetizione che porta ad inglobare tutto ciò che può. Pertanto,
-    da una parte \d+ e \d+? sono sequenze che si adattano a riconoscere
-    il numero corretto di cifre affinchè la ricerca abbia successo,
-    dall'altra la sequenza (?&gt;\d+) riconosce soltanto una sequenza
-    di cifre.
-   </para>
-   <para>
-    Ovviamente queste costruzioni possono contenere diverse
-    sotto-regole sia complesse, sia annidate.
-   </para>
-   <para>
-    Le sotto-regole a riconoscimento singolo possono essere usate
-    congiuntamente alle asserzioni che guardano indietro, per definire
-    una regola efficiente per riconoscere la fine della stringa.
-    Ad esempio si consideri questo semplice criterio:
-    <literal>abcd$</literal>
-    quando viene applicato ad un lungo testo può non avere successo.
-    Questo perché il riconoscimento procede da sinistra verso destra,
-    quindi PCRE prima cerca la "a", e poi cerca di riconoscere la
-    parte restante del criterio. Se si modifica il criterio nel
-    seguente modo
-    <literal>^.*abcd$</literal>
-    allora la sequenza iniziale .* in prima battuta identificherà
-    tutto il testo, ma quando fallisce (poiché non vi sono più "a"),
-    la ricerca tornerà indietro di uno (quindi tutto il testo tranne
-    l'ultimo carattere), quindi, se continua non esserci la "a", si
-    torna indietro di due, e così via. Continuando a tornare indietro
-    alla ricerca della "a" si percorre tutto il testo da destra a
-    sinistra, senza ottenere nulla di valido. Tuttavia se si
-    riscrive il criterio come:
-    <literal>^(?>.*)(?&lt;=abcd)</literal>
-    non si attiva più lo scorrimento verso sinistra per .* , ma viene
-    costretto a riconoscere tutto il testo (esito del primo tentativo).
-    La asserzione successiva, esegue una verifica sulle ultime 4
-    lettere.Se fallisce, ciò avviene immediatamente, provocando
-    un impatto sensibile nei tempi di elaborazione con testi molto
-    lunghi.
-   </para>
-   <para>
-    Quando un criterio di riconoscimento contiene un elemento
-    ripetuto senza limite all'interno di una sotto-regola che
-    anch'essa possa ripetuta illimitatamente, l'uso delle sotto-regole
-    a riconoscimento singolo è l'unico mezzo per evitare che
-    certi mancati riconoscimenti richiedano molto tempo per essere
-    rilevati. Ad esempio il criterio
-    <literal>(\D+|&lt;\d+>)*[!?]</literal>
-    riconosce un numero indefinito di frammenti di testo contenenti
-    a loro volta numeri o caratteri non numerici racchiusi tra &lt;>,
-    seguiti dai caratteri ! o ?. Quando il riconoscimento ha successo
-    l'esecuzione è rapida, ma quando viene applicato al testo
-    <literal>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</literal>
-    richiede molto tempo prima di evidenziare l'errore. Questo
-    accade perché la stringa può essere suddivisa tra i due elementi
-    ripetuti in un elevato numero di modi che debbono essere
-    verificati. Nell'esempio si usa [!?] piuttosto che un singolo
-    carattere alla fine, questo perché sia Perl sia PCRE hanno una
-    ottimizzazione che permette un veloce riconoscimento dell'errore
-    se si usa un solo carattere. Infatti memorizzano l'ultimo
-    carattere singolo richiesto per un riconoscimento, e, se non
-    lo trovano nel testo, falliscono subito. Se il criterio viene
-    modificato in
-    <literal>((?>\D+)|&lt;\d+>)*[!?]</literal>
-    le sequenze di caratteri non numerici non possono essere
-    interrotte e pertanto il mancato riconoscimento viene rilevato
-    più velocemente.
-   </para>
-  </refsect2>
+  <para>
+   Occorre rilevare che valori ottali maggiori di 100 non devono
+   essere preceduti dallo zero, questo perché la libreria considera
+   solo tre cifre.
+  </para>
+  <para>
+   Tutte le sequenze che definiscono il valore di un singolo byte possono essere
+   utilizzate sia all'interno sia all'esterno delle classe di caratteri. Inoltre,
+   all'interno delle classi di caratteri, la sequenza "<literal>\b</literal>"
+   viene interpretata come carattere di backspace (hex 08), mentre all'esterno ha
+   un altro significato (come descritto più avanti).
+  </para>
+  <para>
+   Il terzo utilizzo possibile per il backslash consiste nello
+   specificare il tipo di carattere:
+  </para>
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><emphasis>\d</emphasis></term>
+     <listitem><simpara>qualsiasi cifra decimale</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\D</emphasis></term>
+     <listitem><simpara>qualsiasi carattere che non sia una cifra decimale</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\h</emphasis></term>
+     <listitem><simpara>qualsiasi carattere identificato come spazio bianco orizzontale (da PHP 5.2.4)</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\H</emphasis></term>
+     <listitem><simpara>qualsiasi carattere che non sia identificato come spazio bianco orizzontale (da PHP 5.2.4)</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\s</emphasis></term>
+     <listitem><simpara>qualsiasi carattere identificato come spazio bianco</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\S</emphasis></term>
+     <listitem><simpara>qualsiasi carattere che non sia identificato come spazio bianco</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\v</emphasis></term>
+     <listitem><simpara>qualsiasi carattere identificato come spazio bianco verticale (da PHP 5.2.4)</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\V</emphasis></term>
+     <listitem><simpara>qualsiasi carattere che non sia identificato come spazio bianco verticale (da PHP 5.2.4)</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\w</emphasis></term>
+     <listitem><simpara>qualsiasi carattere che sia una "parola" (word)</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\W</emphasis></term>
+     <listitem><simpara>qualsiasi carattere che non sia una "parola" (word)</simpara></listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+  <para>
+   Ciascuna coppia di sequenze di escape suddivide il set
+   completo dei caratteri in due insiemi disgiunti. Un dato carattere
+   deve essere identificato da un solo insieme di ciascuna coppia.
+  </para>
+  <para>
+   I caratteri definiti "parole" sono quelle lettere o cifre o il carattere
+   underscore (_), cioè qualsiasi carattere che possa essere parte di una
+   "<literal>parola</literal>" in Perl. In PCRE le definizioni di lettere e cifre vengono
+   gestite tramite le tabelle dei caratteri, che possono variare in base a specifici parametri
+   di localizzazione. Ad esempio, nella localizzazione fr (relativa alla Francia), qualche
+   codice carattere maggiore di 128 è utilizzato per le lettere
+   accentate, e queste sono identificate tramite la sequenza <literal>\w</literal>.
+  </para>
+  <para>
+   Queste sequenze di tipi di caratteri possono apparire sia all'interno sia all'esterno delle
+   classi di caratteri. Ciascuna di esse identifica un carattere del tipo appropriato.
+   Se durante la fase di identificazione di un testo, si giunge al termine della stringa in cui
+   si esegue il riconoscimento e si hanno ancora di queste sequenze da incrociare, l'operazione
+   di identificazione fallirà perché, ovviamente, non vi sono più caratteri in cui riconoscere le suddette sequenze.
+  </para>
+  <para>
+   Il quarto utilizzo per il backslash riguarda la costruzione
+   di particolari asserzioni. L'asserzione è una condizione che deve essere soddisfatta
+   ad un certo punto del riconoscimento, senza "consumare" caratteri dalla stringa oggetto del
+   riconoscimento. Più avanti verranno descritte asserzioni più complicate, costruite tramite
+   l'uso di sotto-criteri di riconoscimento, per ora saranno illustrate delle semplici
+   asserzioni costruite con il backslash:
+  </para>
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><emphasis>\b</emphasis></term>
+     <listitem><simpara>limite di una parola</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\B</emphasis></term>
+     <listitem><simpara>non limite di una parola</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\A</emphasis></term>
+     <listitem><simpara>inizio dell'oggetto di ricerca (a prescindere dalla modalità multi-linea)</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\Z</emphasis></term>
+     <listitem>
+      <simpara>
+       fine dell'oggetto di ricerca oppure newline alla fine  (a prescindere dalla
+       modalità multi-linea)
+      </simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\z</emphasis></term>
+     <listitem><simpara>fine dell'oggetto di ricerca (a prescindere dalla modalità multi-linea)</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><emphasis>\G</emphasis></term>
+     <listitem><simpara>prima posizione trovata nell'oggetto</simpara></listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+  <para>
+   Queste asserzioni non possono apparire all'interno di una
+   classe di caratteri (attenzione che la sequenza "<literal>\b</literal>"
+   all'interno di una classe di caratteri indica il carattere backspace).
+  </para>
+  <para>
+   Viene definito limite di una parola la posizione nella stringa oggetto della ricerca, nella quale
+   il carattere corrente ed il carattere precedente non soddisfano la
+   sequenza <literal>\w</literal> o la sequenza <literal>\W</literal> (ad esempio uno soddisfa la sequenza
+   <literal>\w</literal> e l'altro carattere soddisfa la sequenza
+   <literal>\W</literal>), oppure quella posizione, all'inizio o alla fine della stringa, nella quale rispettivamente
+   il primo o l'ultimo carattere soddisfa la sequenza <literal>\w</literal>.
+  </para>
+  <para>
+   Le asserzioni <literal>\A</literal>, <literal>\Z</literal> e <literal>\z</literal>
+   differiscono dai tradizionali caratteri "^" e "$" (descritti
+   di seguito) per il fatto di identificare sempre l'inizio  o la
+   fine della stringa oggetto di ricerca a prescindere da quale
+   opzione sia stata attivata. Infatti queste asserzioni non sono
+   alterate da <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link>
+   oppure da  <link linkend="reference.pcre.pattern.modifiers">PCRE_DOLLAR_ENDONLY</link>.
+   La differenza tra <literal>\Z</literal> e <literal>\z</literal>
+   consiste nel fatto che <literal>\Z</literal> identifica  sia il carattere
+   precedente il newline posto al termine della stringa sia la fine della
+   stringa, mentre <literal>\z</literal> identifica solo la fine.
+  </para>
+  <para>
+   The <literal>\G</literal> assertion is true only when the current
+   matching position is at the start point of the match, as specified by
+   the <parameter>offset</parameter> argument of
+   <function>preg_match</function>. It differs from <literal>\A</literal>
+   when the value of <parameter>offset</parameter> is non-zero.
+  </para>
+  
+  <para>
+   <literal>\Q</literal> and <literal>\E</literal> can be used to ignore
+   regexp metacharacters in the pattern. For example:
+   <literal>\w+\Q.$.\E$</literal> will match one or more word characters,
+   followed by literals <literal>.$.</literal> and anchored at the end of
+   the string.
+  </para>
+  
+  <para>
+   <literal>\K</literal> can be used to reset the match start since
+   PHP 5.2.4. For example, the pattern <literal>foo\Kbar</literal> matches
+   "foobar", but reports that it has matched "bar". The use of
+   <literal>\K</literal> does not interfere with the setting of captured
+   substrings. For example, when the pattern <literal>(foo)\Kbar</literal>
+   matches "foobar", the first substring is still set to "foo".
+  </para>
+  
+ </section>
+ 
+ <section xml:id="regexp.reference.unicode">
+  <title>Unicode character properties</title>
+  <para>
+   Since 5.1.0, three
+   additional escape sequences to match generic character types are available
+   when <emphasis>UTF-8 mode</emphasis> is selected. They are:
+  </para>
+  <variablelist>
+   <varlistentry>
+    <term><emphasis>\p{xx}</emphasis></term>
+    <listitem><simpara>a character with the xx property</simpara></listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><emphasis>\P{xx}</emphasis></term>
+    <listitem><simpara>a character without the xx property</simpara></listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><emphasis>\X</emphasis></term>
+    <listitem><simpara>an extended Unicode sequence</simpara></listitem>
+   </varlistentry>
+  </variablelist>
+  <para>
+   The property names represented by <literal>xx</literal> above are limited 
+   to the Unicode general category properties. Each character has exactly one 
+   such property, specified by a two-letter abbreviation. For compatibility with
+   Perl, negation can be specified by including a circumflex between the
+   opening brace and the property name. For example, <literal>\p{^Lu}</literal> 
+   is the same as <literal>\P{Lu}</literal>.
+  </para>
+  <para>
+   If only one letter is specified with <literal>\p</literal> or 
+   <literal>\P</literal>, it includes all the properties that start with that
+   letter. In this case, in the absence of negation, the curly brackets in the 
+   escape sequence are optional; these two examples have the same effect:
+  </para>
+  <informalexample>
+   <programlisting>
+<![CDATA[
+\p{L}
+\pL
+]]>
+   </programlisting>
+  </informalexample>
+  <table>
+   <title>Supported property codes</title>
+   <tgroup cols="3">
+    <thead>
+     <row>
+      <entry>Property</entry>
+      <entry>Matches</entry>
+      <entry>Notes</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry><literal>C</literal></entry>
+      <entry>Other</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Cc</literal></entry>
+      <entry>Control</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Cf</literal></entry>
+      <entry>Format</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Cn</literal></entry>
+      <entry>Unassigned</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Co</literal></entry>
+      <entry>Private use</entry>
+      <entry></entry>
+     </row>
+     <row rowsep="1">
+      <entry><literal>Cs</literal></entry>
+      <entry>Surrogate</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>L</literal></entry>
+      <entry>Letter</entry>
+      <entry>
+       Includes the following properties: <literal>Ll</literal>, 
+       <literal>Lm</literal>, <literal>Lo</literal>, <literal>Lt</literal> and 
+       <literal>Lu</literal>.
+      </entry>
+     </row>
+     <row>
+      <entry><literal>Ll</literal></entry>
+      <entry>Lower case letter</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Lm</literal></entry>
+      <entry>Modifier letter</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Lo</literal></entry>
+      <entry>Other letter</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Lt</literal></entry>
+      <entry>Title case letter</entry>
+      <entry></entry>
+     </row>
+     <row rowsep="1">
+      <entry><literal>Lu</literal></entry>
+      <entry>Upper case letter</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>M</literal></entry>
+      <entry>Mark</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Mc</literal></entry>
+      <entry>Spacing mark</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Me</literal></entry>
+      <entry>Enclosing mark</entry>
+      <entry></entry>
+     </row>
+     <row rowsep="1">
+      <entry><literal>Mn</literal></entry>
+      <entry>Non-spacing mark</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>N</literal></entry>
+      <entry>Number</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Nd</literal></entry>
+      <entry>Decimal number</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Nl</literal></entry>
+      <entry>Letter number</entry>
+      <entry></entry>
+     </row>
+     <row rowsep="1">
+      <entry><literal>No</literal></entry>
+      <entry>Other number</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>P</literal></entry>
+      <entry>Punctuation</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Pc</literal></entry>
+      <entry>Connector punctuation</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Pd</literal></entry>
+      <entry>Dash punctuation</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Pe</literal></entry>
+      <entry>Close punctuation</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Pf</literal></entry>
+      <entry>Final punctuation</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Pi</literal></entry>
+      <entry>Initial punctuation</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Po</literal></entry>
+      <entry>Other punctuation</entry>
+      <entry></entry>
+     </row>
+     <row rowsep="1">
+      <entry><literal>Ps</literal></entry>
+      <entry>Open punctuation</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>S</literal></entry>
+      <entry>Symbol</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Sc</literal></entry>
+      <entry>Currency symbol</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Sk</literal></entry>
+      <entry>Modifier symbol</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Sm</literal></entry>
+      <entry>Mathematical symbol</entry>
+      <entry></entry>
+     </row>
+     <row rowsep="1">
+      <entry><literal>So</literal></entry>
+      <entry>Other symbol</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Z</literal></entry>
+      <entry>Separator</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Zl</literal></entry>
+      <entry>Line separator</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Zp</literal></entry>
+      <entry>Paragraph separator</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry><literal>Zs</literal></entry>
+      <entry>Space separator</entry>
+      <entry></entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </table>
+  <para>
+   Extended properties such as "Greek" or "InMusicalSymbols" are not
+   supported by PCRE.
+  </para>
+  <para>
+   Specifying case-insensitive (caseless) matching does not affect these escape sequences.
+   For example, <literal>\p{Lu}</literal> always matches only upper case letters.
+  </para>
+  <para>
+   The <literal>\X</literal> escape matches any number of Unicode characters 
+   that form an extended Unicode sequence. <literal>\X</literal> is equivalent 
+   to <literal>(?>\PM\pM*)</literal>.
+  </para>
+  <para>
+   That is, it matches a character without the "mark" property, followed
+   by zero or more characters with the "mark" property, and treats the
+   sequence as an atomic group (see below). Characters with the "mark"
+   property are typically accents that affect the preceding character.
+  </para>
+  <para>
+   Matching characters by Unicode property is not fast, because PCRE has
+   to search a structure that contains data for over fifteen thousand
+   characters. That is why the traditional escape sequences such as 
+   <literal>\d</literal> and <literal>\w</literal> do not use Unicode properties 
+   in PCRE.
+  </para>
+ </section>
+ 
+ <section xml:id="regexp.reference.anchors">
+ <title>I caratteri "^" e "$"</title>
+ <para>
+   In condizioni normali, il carattere "^", posto all'esterno di una classe di
+   caratteri, indica un asserzione che è vera soltanto se il punto da cui si inizia
+   a identificare il testo si trova all'inizio della stringa oggetto della ricerca.
+   Al contrario, se il carattere "^" si trova all'interno di una classe di
+   caratteri, assume altri significati (vedere i capitoli seguenti).
+  </para>
+  <para>
+   Non è necessario che il carattere "^" sia la prima lettera
+   del criterio di riconoscimento nei casi in cui si utilizzino dei criteri di
+   riconoscimento alternativi. Tuttavia è necessario che sia la prima lettera
+   nei rami alternativi in cui compare. Se si inserisce il carattere "^"
+   in tutte le alternative, caso che ricorre quando si vuole riconoscere un testo a partire
+   dall'inizio della stringa, si dice che si è costruito un criterio
+   di ricerca "ancorato". (Esistono anche altre costruzioni che
+   portano all'ancoraggio di un criterio di ricerca).
+  </para>
+  <para>
+   Il carattere dollaro "$" è una asserzione che è &true; soltanto se il punto a cui
+   si è arrivati ad identificare il testo si trova alla fine della stringa oggetto
+   della ricerca, o nella lettera immediatamente precedente il carattere di "a capo",
+   che (per default) è l'ultimo carattere del testo. Il dollaro "$" non deve essere
+   necessariamente l'ultima lettera di un criterio di riconoscimento se in questo si
+   sono utilizzati dei criteri alternativi.  Deve, comunque, essere l'ultima lettera
+   nei criteri ove compare. Il carattere dollaro "$" non ha significati speciali
+   all'interno di una classe di caratteri.
+  </para>
+  <para>
+   Il comportamento del simbolo "$" può essere variato in modo
+   da identificare la reale fine della stringa oggetto di ricerca attivando il flag
+   <link linkend="reference.pcre.pattern.modifiers">PCRE_DOLLAR_ENDONLY</link>
+   durante la compilazione o durante la fase di riconoscimento. Ciò non influisce sull'asserzione \Z.
+  </para>
+  <para>
+   Il comportamento dei simboli "^" e "$" può essere influenzato
+   dall'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link>. Quando viene
+   attivata, questi caratteri identificano rispettivamente,
+   oltre ai tradizionali inizio e fine testo, la lettera immediatamente
+   successiva ed immediatamente precedente il carattere "\n" presente
+   all'interno della stringa oggetto di ricerca. Per esempio il
+   criterio /^abc$/ riconosce il testo "def\nabc" solo in modalità
+   multi-linea. Di conseguenza i criteri di riconoscimento che
+   sono "ancorati" in modalità singola linea, non lo sono in modalità
+   multi-linea. L'opzione
+   <link linkend="reference.pcre.pattern.modifiers">PCRE_DOLLAR_ENDONLY</link>
+   viene ignorata se si attiva il flag
+   <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link>
+   .
+  </para>
+  <para>
+   Occorre rilevare che le sequenze \A, \Z e \z possono essere utilizzate per riconoscere
+   l'inizio e la fine del testo in entrambe le modalità, e, se tutti i criteri alternativi
+   iniziano con \A, si ha ancora un criterio "ancorato" a prescindere che sia attivata
+   o meno l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link>
+   .
+  </para>
+ </section>
+ 
+ <section xml:id="regexp.reference.dot">
+  <title>Punto</title>
+  <para>
+   Il carattere punto ".", all'esterno di una classe di caratteri,
+   identifica qualsiasi carattere, anche quelli non stampabili,
+   ma (per default) non il carattere "a capo". Invece se si
+   abilita l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link>
+   si avrà anche il riconoscimento del carattere "a capo".
+   La gestione del simbolo "." è svincolata dalla gestione dei
+   simboli "^" ed "$", l'unica relazione che possono avere riguarda
+   il carattere "a capo". Il punto "." non ha significati speciali
+   all'interno delle classi di caratteri.
+  </para>
+  <para>
+   <emphasis>\C</emphasis> can be used to match single byte. It makes sense
+   in <emphasis>UTF-8 mode</emphasis> where full stop matches the whole
+   character which can consist of multiple bytes.
+  </para>
+ </section>
+ 
+ <section xml:id="regexp.reference.character-classes">
+  <title>Classi di caratteri</title>
+  <para>
+   Un parentesi quadrata aperta "[" inizia una classe di caratteri; una parentesi quadrata
+   chiusa "]" termina la definizione della classe. Di suo il carattere di parentesi
+   quadrata chiusa non ha significati speciali. Se occorre inserire la parentesi
+   chiusa all'interno di una classe di caratteri, questa deve
+   essere la prima lettera (ovviamente deve seguire il carattere "^",
+   se presente) oppure deve essere preceduta dal carattere di escape "\".
+  </para>
+  <para>
+   Una classe di caratteri identifica un singolo carattere nella stringa
+   oggetto di ricerca; il carattere deve comparire nel set di caratteri definito
+   dalla classe, a meno che il primo carattere della classe non sia l'accento
+   circonflesso "^", in tal caso il carattere non deve essere nel set definito
+   dalla classe. Se è richiesto l'inserimento del carattere "^" nel set definito
+   dalla classe, questo non deve essere la prima lettera dopo la parentesi di
+   apertura, oppure deve essere preceduto dal carattere di escape (\).
+  </para>
+  <para>
+   Ad esempio, la classe [aeiou] identifica ogni vocale minuscola,
+   mentre [^aeiou] identifica tutti i caratteri che non siano
+   delle vocali minuscole. Occorre notare che il simbolo "^" è
+   un modo pratico per indicare i caratteri che sono nella
+   classe, citando quelli che non lo sono. Questa non è una
+   asserzione: consuma un carattere della stringa oggetto
+   di ricerca e fallisce se ci si trova alla fine
+   del testo.
+  </para>
+  <para>
+   In un riconoscimento senza distinzione tra minuscole e maiuscole,
+   ogni lettera della classe identifica sia la versione maiuscola
+   sia la minuscola. Così, ad esempio, la classe [aeiou] identifica
+   sia "A" sia "a", e, in questo caso, [^aeiou] non identifica "A",
+   mentre con la distinzione delle maiuscole [^aeiou] identifica la lettera "A".
+  </para>
+  <para>
+   Il carattere di "a capo" (newline) non viene trattato in
+   modo speciale nelle classi di caratteri, indipendentemente
+   dalle opzioni <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link> 
+   o <link linkend="pcre.pattern.modifiers">PCRE_MULTILINE</link>.
+   La classe [^a] riconosce sempre il carattere "a capo".
+  </para>
+  <para>
+   Il segno meno (-) può essere usato per definire un intervallo
+   all'interno della classe. Ad esempio, [d-m] identifica ogni
+   lettera compresa tra d ed m inclusi. Se occorre inserire il segno
+   meno (-) come carattere da riconoscere o lo si fa precedere dal carattere
+   di escape (\), oppure lo si mette in una posizione tale che non possa essere
+   identificato come definizione di un intervallo (ad esempio all'inizio o alla fine
+   della definizione della classe).
+  </para>
+  <para>
+   Non è possibile usare il carattere "]" come limite di un
+   intervallo. Un criterio definito come [W-]46], viene inteso
+   come una classe di due caratteri (W e -) seguita dalla stringa
+   46], in tal modo sarebbero riconosciuti i testi "W46]" oppure "-46]".
+   Quindi è necessario precedere la lettera "]" con il carattere di
+   escape (\), in questo modo [W-\]46], viene interpretata
+   correttamente come una singola classe contenente un range seguito
+   da due caratteri separati. In alternativa, per delimitare l'intervallo
+   si può utilizzare la notazione ottale di "]".
+  </para>
+  <para>
+   Gli intervalli utilizzano la sequenza di caratteri ASCII. Inoltre possono
+   essere utilizzati per definire caratteri con specifica numerica
+   (ad esempio [\000-\037]). Nei casi in cui si abiliti il riconoscimento
+   senza distinzione tra lettere maiuscole e minuscole, gli intervalli comprendenti
+   lettere identificano sia la lettera maiuscola che minuscola. Ad esempio, [W-c] è equivalente a
+   [][\^_`wxyzabc] (con il riconoscimento a prescindere dalla lettera maiuscole e minuscole), e, se
+   si utilizza la tabella dei caratteri locali francesi "fr", [\xc8-\xcb] identifica
+   la lettera "e" accentata sia maiuscola sia minuscola.
+  </para>
+  <para>
+   Nelle classi di caratteri si possono utilizzare le sequenze
+   \d, \D, \s, \S,  \w e \W per aggiungere altri tipi di caratteri
+   alla classe. Ad esempio, [\dABCDEF] riconosce qualsiasi cifra
+   esadecimale. Il carattere "^" può essere utilizzato con i caratteri
+   maiuscoli per indicare un set di caratteri più ristretto
+   che l'identificazione del set di caratteri minuscoli. Ad
+   esempio, la classe [^\W_] identifica qualsiasi lettera o cifra
+   ma non il trattino basso (_).
+  </para>
+  <para>
+   Tutti i caratteri non alfabetici, eccetto \,  -,  ^ (posto
+   all'inizio) e ] non sono speciali per la classi di caratteri,
+   e non sono dannosi se preceduti dal caratteri di escape (\). Il terminatore
+   di criterio è sempre speciale e deve essere preceduto da \ quando usato
+   all'interno di un'espressione.
+  </para>
+  <para>
+   Perl supports the POSIX notation for character classes. This uses names
+   enclosed by <literal>[:</literal> and <literal>:]</literal> within the enclosing square brackets. PCRE also
+   supports this notation. For example, <literal>[01[:alpha:]%]</literal>
+   matches "0", "1", any alphabetic character, or "%". The supported class
+   names are:
+   <table>
+    <title>Character classes</title>
+    <tgroup cols="2">
+     <tbody>
+      <row><entry><literal>alnum</literal></entry><entry>letters and digits</entry></row>
+      <row><entry><literal>alpha</literal></entry><entry>letters</entry></row>
+      <row><entry><literal>ascii</literal></entry><entry>character codes 0 - 127</entry></row>
+      <row><entry><literal>blank</literal></entry><entry>space or tab only</entry></row>
+      <row><entry><literal>cntrl</literal></entry><entry>control characters</entry></row>
+      <row><entry><literal>digit</literal></entry><entry>decimal digits (same as \d)</entry></row>
+      <row><entry><literal>graph</literal></entry><entry>printing characters, excluding space</entry></row>
+      <row><entry><literal>lower</literal></entry><entry>lower case letters</entry></row>
+      <row><entry><literal>print</literal></entry><entry>printing characters, including space</entry></row>
+      <row><entry><literal>punct</literal></entry><entry>printing characters, excluding letters and digits</entry></row>
+      <row><entry><literal>space</literal></entry><entry>white space (not quite the same as \s)</entry></row>
+      <row><entry><literal>upper</literal></entry><entry>upper case letters</entry></row>
+      <row><entry><literal>word</literal></entry><entry>"word" characters (same as \w)</entry></row>
+      <row><entry><literal>xdigit</literal></entry><entry>hexadecimal digits</entry></row>
+     </tbody>
+    </tgroup>
+   </table>
+   The <literal>space</literal> characters are HT (9), LF (10), VT (11), FF (12), CR (13),
+   and space (32). Notice that this list includes the VT character (code
+   11). This makes "space" different to <literal>\s</literal>, which does not include VT (for
+   Perl compatibility).
+  </para>
+  <para>
+   The name <literal>word</literal> is a Perl extension, and <literal>blank</literal> is a GNU extension
+   from Perl 5.8. Another Perl extension is negation, which is indicated
+   by a <literal>^</literal> character after the colon. For example,
+   <literal>[12[:^digit:]]</literal> matches "1", "2", or any non-digit.
+  </para>
+  <para>
+   In UTF-8 mode, characters with values greater than 128 do not match any
+   of the POSIX character classes.
+  </para>
+ </section>
+ 
+ <section xml:id="regexp.reference.alternation">
+  <title>Alternation</title>
+  <para>
+   Vertical bar characters are  used  to  separate  alternative
+   patterns. For example, the pattern
+   <literal>gilbert|sullivan</literal>
+   matches either "gilbert" or "sullivan". Any number of alternatives
+   may  appear,  and an empty alternative is permitted
+   (matching the empty string).   The  matching  process  tries
+   each  alternative in turn, from left to right, and the first
+   one that succeeds is used. If the alternatives are within  a
+   subpattern  (defined  below),  "succeeds" means matching the
+   rest of the main pattern as well as the alternative  in  the
+   subpattern.
+  </para>
+ </section>
+ 
+ <section xml:id="regexp.reference.internal-options">
+  <title>Settaggio delle opzioni interne</title>
+  <para>
+   Le opzioni <link linkend="reference.pcre.pattern.modifiers">PCRE_CASELESS</link>,
+   <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link> ,
+   <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link>,
+   <link linkend="reference.pcre.pattern.modifiers">PCRE_UNGREEDY</link>
+   e <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link>
+   possono essere cambiate "al volo" dall'interno del criterio di
+   riconoscimento, utilizzando le sequenze di lettere definite per
+   queste opzioni in Perl, racchiuse tra "(?" ed ")". Le lettere
+   utilizzabili sono:
 
-  <refsect2 xml:id="regexp.reference.conditional">
-   <title>Sotto-regole condizionali (Conditional subpatterns)</title>
-   <para>
-    E' possibile forzare il processo di riconoscimento a obbedire
-    alle sotto-regole in modo condizionato, oppure a scegliere
-    tra due alternative in base al risultato di una asserzione,
-    o piuttosto se la sotto-regola di cattura precedente ha
-    riconosciuto il proprio testo. I due metodi possibili per
-    esprimere una sotto-regola condizionale sono:
-   </para>
-   <literallayout>
-    (?(condizione)yes-pattern)
-    (?(condizione)yes-pattern|no-pattern)
-   </literallayout>
-   <para>
-    Se la condizione è soddisfatta, si usa la regola indicata in
-    yes-pattern, altrimenti si applica il no-pattern (qualora sia
-    specificato). Se nella sotto-regola vi sono più di due
-    alternative, PCRE segnala un errore in fase di compila.
-   </para>
-   <para>
-    Vi sono due tipi di condizioni. Se il testo tra le parentesi
-    consiste in una sequenza di cifre, allora la condizione è
-    soddisfatta se la sotto-regola di cattura di quel numero
-    è stata precedentemente riconosciuta. Si consideri il seguente
-    criterio contenente degli spazi non significativi per renderlo
-    più leggibile (si assuma che sia attiva l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link>)
-    e lo si divida in tre parti per praticità di discussione:
-    <literal>( \( )?    [^()]+    (?(1) \) )</literal>
-   </para>
-   <para>
-    La prima parte riconosce una parentesi aperta opzionale, e,
-    se è presente, indica quello come primo segmento di stringa
-    catturato. La seconda parte riconosce uno o più caratteri che
-    non siano parentesi. Infine la terza parte è una sotto-regola
-    condizionale che verifica se la prima parentesi è stata identifica
-    o meno. Se accade, come nel caso in cui il testo inizi con una
-    parentesi aperta, la condizione è &true;, e quindi viene eseguito
-    il ramo yes-pattern, richiedendo, conseguentemente, la parentesi chiusa.
-    Diversamente, poiché non è specificato ramo no-pattern, non si
-    esegue nessun altro riconoscimento. In altre parole questo criterio
-    identifica un testo che possa essere racchiuso tra parentesi
-    opzionali.
-   </para>
-   <para>
-    Se la condizione non è una sequenza di cifre, deve essere
-    una asserzione. Questa può essere sia una asserzione che
-    guarda avanti, sia una asserzione cha guarda indietro, sia positiva
-    sia negativa. Si consideri il seguente criterio, ancora una volta
-    contenente spazi non significativi, e con due alternative nella
-    seconda linea:
-   </para>
-   <literallayout>
-    (?(?=[^a-z]*[a-z])
-    \d{2}-[a-z]{3}-\d{2}  |  \d{2}-\d{2}-\d{2} )
-   </literallayout>
-   <para>
-    La condizione è una asserzione che guarda avanti positiva, la quale
-    identifica una sequenza opzionale di caratteri non alfabetici
-    seguiti da una lettera. In altre parole, si testa la presenza
-    di almeno una lettera nel testo. Se la lettera viene trovata
-    si applica il primo criterio per il riconoscimento del testo,
-    altrimenti viene applicato il secondo criterio. Questo criterio
-    riconosce  stringhe in due formati dd-aaa-dd oppure dd-dd-dd,
-    dove aaa sono lettere e dd sono numeri.
-   </para>
-  </refsect2>
+   <table>
+    <title>Lettere per le opzioni interne</title>
+    <tgroup cols="2">
+     <tbody>
+      <row>
+       <entry><literal>i</literal></entry>
+       <entry>per <link linkend="reference.pcre.pattern.modifiers">PCRE_CASELESS</link></entry>
+      </row>
+      <row>
+       <entry><literal>m</literal></entry>
+       <entry>per <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link></entry>
+      </row>
+      <row>
+       <entry><literal>s</literal></entry>
+       <entry>per <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link></entry>
+      </row>
+      <row>
+       <entry><literal>x</literal></entry>
+       <entry>per <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link></entry>
+      </row>
+      <row>
+       <entry><literal>U</literal></entry>
+       <entry>per <link linkend="reference.pcre.pattern.modifiers">PCRE_UNGREEDY</link></entry>
+      </row>
+      <row>
+       <entry><literal>X</literal></entry>
+       <entry>per <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTRA</link></entry>
+      </row>
+      <row>
+       <entry><literal>J</literal></entry>
+       <entry>per <link linkend="reference.pcre.pattern.modifiers">PCRE_INFO_JCHANGED</link></entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </table>
+  </para>
+  <para>
+   Ad esempio, (?im) abilita il riconoscimento senza distinzione
+   tra lettere maiuscole e minuscole e la modalità multi-linea.
+   E' anche possibile disabilitare queste opzioni facendo precedere
+   la lettera dal segno meno (-), o combinare l'attivazione con la
+   disattivazione come nel caso (?im-sx), in cui si attiva <link linkend="reference.pcre.pattern.modifiers">PCRE_CASELESS</link> e
+   <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link>
+   e si disattiva <link
+   linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link> e 
+   <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link>.
+   Se la lettera compare sia prima che dopo il segno meno (-)
+   l'opzione resta disabilitata.
+  </para>
+  <para>
+   Quando il settaggio di un'opzione avviene al livello esterno (ovvero, fuori
+   dalle parentesi di un criterio parziale), esso si applica alla parte restante
+   del criterio. Quindi <literal>/ab(?i)c/</literal> riconosce solo "abc"
+   e "abC".
+  </para>
+  <para>
+   Se si inserisce la variazione di un'opzione in una sotto-regola gli effetti
+   sono differenti. Questa è una variazione rispetto al comportamento di Perl 5.005.
+   Una variazione apportata all'interno di una sotto-regola, vale solo per la parte
+   della sotto-regola che segue la variazione, pertanto
+   
+   <literal>(a(?i)b)c</literal>
+   
+   identifica abc, aBc e nessuna altra stringa ( si assume che
+   <link linkend="reference.pcre.pattern.modifiers">PCRE_CASELESS</link> non sia usato).
+   Da ciò deriva che le opzioni possono avere comportamenti differenti
+   nelle varie parti del criterio di riconoscimento. Ogni variazione
+   apportata ad una ramo alternativo del criterio viene estesa alle
+   alternative successive della medesima sotto-regola. Ad esempio,
+   
+   <literal>(a(?i)b|c)</literal>
+   
+   identifica "ab", "aB", "c" e "C", anche se per identificare "C"
+   viene scartato il primo ramo prima di incontrare il settaggio
+   dell'opzione. Questo accade perché gli effetti dei settaggi
+   vengono inseriti nella fase di compilazione. Diversamente si avrebbero dei comportamenti molto bizzarri.
+  </para>
+  <para>
+   Le opzioni specifiche di PCRE
+   <link linkend="reference.pcre.pattern.modifiers">PCRE_UNGREEDY</link> e
+   <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTRA</link>
+   possono essere variate nel medesimo modo delle opzioni
+   Perl compatibili, utilizzando rispettivamente i caratteri
+   U e X. Il flag (?X) è particolare poiché deve comparire
+   prima di qualsiasi opzione esso attivi anche quando si
+   trova al primo livello. E' opportuno inserirlo all'inizio.
+  </para>
+ </section>
+ 
+ <section xml:id="regexp.reference.subpatterns">
+  <title>Sotto-regole</title>
+  <para>
+   Le sotto-regole sono delimitate dalle parentesi tonde e
+   possono essere annidate. La definizione di una parte di
+   una regola di riconoscimento come sotto-regola può servire a:
+  </para>
+  <orderedlist>
+   <listitem>
+    <para>
+     Localizzare un set di alternative. Ad esempio il criterio
+     <literal>cat(aract|erpillar|)</literal> riconosce una tra le parole "cat",
+     "cataract" oppure "caterpillar". Se non fossero state usate le parentesi, il criterio
+     avrebbe riconosciuto "cataract", "erpillar" oppure una stringa vuota.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Identificare e catturare parte del testo riconosciuto dalla sotto-regola (come illustrato in seguito). 
+     Quando il riconoscimento dell'intero criterio ha avuto successo, le porzioni della stringa oggetto
+     della ricerca identificate dalle sotto-regole sono restituite alla funzione chiamante tramite
+     l'argomento <emphasis>vettore</emphasis> della funzione <function>pcre_exec</function>.
+     Per determinare il numero ordinale di ciascuna sotto-regola si contano le parentesi aperte da
+     sinistra verso destra partendo da 1.
+    </para>
+   </listitem>
+  </orderedlist>
+  <para>
+   Ad esempio, se si esegue un riconoscimento nella frase
+   "the red king" con il seguente criterio
+   
+   <literal>the ((red|white) (king|queen))</literal>
+   
+   si ottengono i testi "red king", "red" e "king", rispettivamente
+   identificati dalla sotto-regola 1, 2 e 3.
+  </para>
+  <para>
+   Il fatto che le parentesi tonde adempiano a due funzioni non
+   sempre porta a situazioni comprensibili. Spesso capita di
+   dovere raggruppare delle sotto-regole senza per questo essere
+   richiesta la cattura del testo. A tale scopo l'uso della
+   sequenza "?:" dopo la parentesi di apertura permette di indicare
+   che questa sotto-regola non deve catturare il testo, e non deve essere
+   conteggiata nel numero d'ordine delle sotto-regole di cattura.
+   Ad esempio, applicando il criterio
+   
+   <literal>the ((?:red|white) (king|queen))</literal>
+   
+   alla frase "the  white  queen", si catturano i testi "white queen"
+   e  "queen",  rispettivamente numerati 1 e 2. Il numero massimo
+   di testi catturabili è 99, il numero massimo di sotto-regole,
+   a prescindere che siano di cattura o meno, è 200.
+  </para>
+  <para>
+   Come utile abbreviazione, nei casi in cui l'attivazione di
+   alcune opzioni debba essere fatta all'inizio di una sotto-regola
+   non di cattura, la lettera dell'opzione può comparire tra la
+   "?" e ":". Pertanto i due criteri
+  </para>
+  
+  <informalexample>
+   <programlisting>
+<![CDATA[
+(?i:saturday|sunday)
+(?:(?i)saturday|sunday)
+]]>
+   </programlisting>
+  </informalexample>
+  
+  <para>
+   riconoscono esattamente lo stesso set di parole. Poiché i rami alternativi
+   sono provati da sinistra verso destra, e le opzioni non sono
+   azzerate fino a quando non si è conclusa la sotto-regola, una opzione
+   attivata in un ramo alternativo si applica a tutte le alternative che seguono. Pertanto,
+   nell'esempio di prima, sia la parola "SUNDAY" che la parola "Saturday" sono testi identificati correttamente.
+  </para>
+  
+  <para>
+   È possibile dare un nome ad una sottoregola usando la sintassi
+   <literal>(?P&lt;name&gt;pattern)</literal>. Questa sottoregola sarà quindi
+   indicizzata nella matrice dei riconoscimenti attraverso la sua posizione numerica e
+   anche attraverso il nome. PHP 5.2.2 ha introdotto due sintassi alternative
+   <literal>(?&lt;name&gt;pattern)</literal> e <literal>(?'name'pattern)</literal>.
+  </para>
 
-  <refsect2 xml:id="regexp.reference.comments">
-   <title>Commenti</title>
-   <para>
-    La sequenza (?# indica l'inizio di un commento che si conclude
-    con la successiva parentesi chiusa. Parentesi annidate non sono
-    permesse. I caratteri che fanno parte di un commento non giocano
-    alcun ruolo nella fase di riconoscimento.
-   </para>
-   <para>
-    Se viene attivata l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link>,
-    un carattere # privo della sequenza di escape (\) all'esterno
-    di una classe di caratteri apre un commento che continua fino
-    al carattere di "a capo".
-   </para>
- </refsect2>
+  <para>
+   Qualche volta è necessario avere riconoscimenti multipli, ma con sottogruppi
+   alternativi nell'espressione regolare. Normalmente, ad ognuno di questi verrebbe dato
+   un numero di riferimento anche se solo uno di essi verrà in effetti
+   riconosciuto. Per ovviare a questa situazione, la sintassi <literal>(?|</literal> permette
+   di avere numeri duplicati. Si consideri la seguente espressione eseguita rispetto alla
+   stringa <literal>Sunday</literal>:
+  </para>
 
-  <refsect2 xml:id="regexp.reference.recursive">
-   <title>Criteri ricorsivi</title>
-   <para>
-    Si consideri il caso in cui si debba riconoscere una stringa tra parentesi,
-    si supponga inoltre di dovere ammettere un numero arbitrario
-    di parentesi annidate. Senza l'uso della ricorsione, il miglior
-    metodo consiste nel preparare un criterio che identifichi un
-    numero finito di parentesi annidate. Però, in questo modo non si
-    gestisce un numero arbitrario si parentesi annidate. Nella
-    versione 5.6 di Perl è stata introdotta, a livello sperimentale,
-    la possibilità per i criteri di riconoscimento di essere ricorsivi.
-    Allo scopo è stata definita la sequenza speciale (?R). Il criterio
-    illustrato di seguito risolve il problema delle parentesi
-    (si assume che l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link>
-    sia attivata in modo da ignorare gli spazi):
-    <literal>\( ( (?>[^()]+) | (?R) )* \)</literal>
-   </para>
-   <para>
-    In principio si identifica la parentesi di apertura. Quindi
-    si cerca un numero indefinito di stringhe che possano essere
-    composte da caratteri che non siano parentesi, oppure che
-    siano riconosciute ricorsivamente dal criterio (ad esempio una
-    stringa correttamente tra parentesi). Infine si cerca la
-    parentesi di chiusura.
-   </para>
-   <para>
-    In questo particolare esempio si hanno arbitrarie ripetizioni
-    annidate, e quindi l'uso delle sotto-regole a riconoscimento singolo
-    per il riconoscimento della stringa priva di parentesi è particolarmente
-    utile se il criterio viene applicato ad un testo non riconoscibile.
-    Ad esempio, applicando il criterio a
-    <literal>(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa()</literal>
-    si ottiene un esito di mancato riconoscimento rapidamente. Se,
-    al contrario, non si fosse usato il criterio a riconoscimento
-    singolo, sarebbe occorso molto tempo per avere un esito dato
-    che vi sono moltissimi  modi in cui i caratteri di ripetizione + e *
-    possono essere applicati al testo, richiedendo, pertanto,
-    la verifica di tutte le combinazioni prima di fornire l'esito
-    negativo.
-   </para>
-   <para>
-    Il valori restituiti da una sotto-regola di cattura sono quelli
-    ottenuti dal livello di ricorsione più esterno. Se il criterio
-    illustrato in precedenza venisse applicato al testo
-    <literal>(ab(cd)ef)</literal>
-    Il valore ottenuto sarebbe "ef", che rappresenta l'ultimo
-    valore catturato al livello più alto. Se si aggiungono altre
-    parentesi al criterio, ottenendo
-    <literal>\( ( ( (?>[^()]+) | (?R) )* ) \)</literal>
-    allora il testo ottenuto sarebbe
-    "ab(cd)ef", cioè il valore delle parentesi di livello più alto.
-    Se nel criterio vi sono più di 15 sotto-regole di cattura,
-    PCRE ha necessità di ottenere maggiore memoria per archiviare
-    le informazioni durante la ricorsione. Questa memoria è ottenuta
-    utilizzando pcre_malloc, al termine verrà liberata con pcre_free.
-    Se non può essere ottenuta ulteriore memoria, si ha il salvataggio
-    delle informazioni dei primi 15 testi catturati, dato che non vi è modo
-    di restituire un messaggio di memoria insufficiente dalla
-    ricorsione.
-   </para>
-  </refsect2>
+  <informalexample>
+   <programlisting>
+<![CDATA[(?:(Sat)ur|(Sun))day]]>
+   </programlisting>
+  </informalexample>
 
-  <refsect2 xml:id="regexp.reference.performances">
-   <title>Performances</title>
-   <para>
-    Certi elementi utilizzati per i criteri di riconoscimento sono più
-    efficienti di altri. E' più efficiente usare le classi di caratteri come
-    [aeiou] piuttosto che un gruppo di alternative come (a|e|i|o|u).
-    In generale la costruzione più semplice per ottenere un dato
-    scopo è la più efficiente. Nel libro di Jeffrey Friedl sono
-    illustrate varie tecniche sull'ottimizzazione delle espressioni
-    regolari.
-   </para>
-   <para>
-    Quando un criterio comincia con .* ed è attiva l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link>, il
-    criterio è implicitamente ancorato da PCRE, dato che può rico-
-    noscere solo l'inizio della stringa. Tuttavia, se non è attivo
-    <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link>, PCRE non può
-    fare questa ottimizzazione, perché il meta-carattere .  non ri-
-    conosce più il carattere di "a capo", e quindi se la stringa
-    contiene dei caratteri di "a capo", il riconoscimento può par-
-    tire dal carattere immediatamente successivo ad uno di questi
-    e non dall'inizio. Ad esempio il criterio
-    <literal>(.*) second</literal>
-    può eseguire un riconoscimento nel testo "first\nand second"
-    (dove \n indica il carattere "a capo") ottenendo "and" come
-    prima stringa catturata. perché ciò accada è necessario che
-    PCRE possa iniziare il riconoscimento dopo ogni "a capo".
-   </para>
-   <para>
-    Se si deve usare un simile criterio in stringhe che non conten-
-    gono caratteri di "a capo", le performance migliori si possono
-    ottenere abilitando <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link>,
-    oppure iniziando il criterio con ^.* in modo da richiedere un
-    ancoraggio esplicito. Così si risparmia a PCRE di scandirsi il
-    testo alla ricerca di un "a capo" da cui ripartire per la ri-
-    cerca.
-   </para>
-   <para>
-    Occorre prestare attenzione ai criteri che contengono ripeti-
-    zioni indefinite annidate. Possono richiedere molto tempo se
-    applicati a stringhe non riconoscibili. Si consideri il fram-
-    mento
-    <literal>(a+)*</literal>
-   </para>
-   <para>
-    Questo può riconoscere "aaaa" in 33 modi differenti, e questo
-    numero può crescere molto rapidamente se la stringa da ricono-
-    scere è più lunga. (Il carattere di ripetizione * può eseguire
-    riconoscimenti per 0,1,2,3 o 4 ripetizioni, e per ciascuna di
-    esse, tranne lo 0, il carattere di ripetizione + può esegui-
-    re riconoscimenti per diversi numeri di volte). Quindi se la
-    parte successiva del criterio è tale da non permettere il com-
-    pletamento del riconoscimento, PCRE, per principio, ugualmente
-    tenta tutte le possibili variazioni, richiedendo diverso tempo.
-   </para>
-   <para>
-    Una ottimizzazione riesce a catturare qualche caso semplice
-    come in
-    <literal>(a+)*b</literal>
-    dove si indica che seguirà un  carattere alfanumerico. PCRE,
-    prima di imbarcarsi nella procedura standard di riconoscimen-
-    to, verifica se nel testo vi è la  lettera "b", e  se non c'è
-    restituisce immediatamente un esito negativo. Tuttavia se non
-    viene indicata una lettera seguente questa ottimizzazione non
-    può essere utilizzata. Se ne può notare la differenza analiz-
-    zando il comportamento del criterio
-    <literal>(a+)*\d</literal>
-    rispetto al precedente. Il primo, utilizzato con  una  stringa
-    composta da "a", fallisce immediatamente, l'ultimo richiede un
-    tempo  apprezzabile, soprattutto  se  applicato a stringhe con
-    più di 20 caratteri.
-   </para>
-  </refsect2>
- </refsect1>
-</refentry>
+  <para>
+   In questo caso <literal>Sun</literal> è salvato nel riferimento 2, mentre
+   il riferimento 1 è vuoto. La ricerca metterà <literal>Sat</literal> nel
+   riferimento 1 mentre il riferimento 2 non esiste. La soluzione è cambiare
+   la regola usando <literal>(?|</literal>:
+  </para>
+
+  <informalexample>
+   <programlisting>
+<![CDATA[(?|(Sat)ur|(Sun))day]]>
+   </programlisting>
+  </informalexample>
+
+  <para>
+   Utilizzando questa regola, sia <literal>Sun</literal> che <literal>Sat</literal>
+   sono inseriti nel riferimento 1.
+  </para>
+ </section>
+ 
+ <section xml:id="regexp.reference.repetition">
+  <title>Ripetizioni</title>
+  <para>
+   Le ripetizioni sono il numero delle occorrenze che possono
+   essere indicate dopo i seguenti elementi:
+
+   <itemizedlist>
+    <listitem><simpara>un singolo carattere, possibilmente preceduto dal carattere di escape (\)</simpara></listitem>
+    <listitem><simpara>il metacarattere .</simpara></listitem>
+    <listitem><simpara>una classe di caratteri</simpara></listitem>
+    <listitem><simpara>un riferimento all'indietro (vedere la sezione successiva)</simpara></listitem>
+    <listitem><simpara>una sotto-regola (a meno che non si tratti di una asserzione -
+     vedere più avanti)</simpara></listitem>
+   </itemizedlist>
+  </para>
+  <para>
+   In generale una occorrenza specifica un numero minimo e massimo
+   di riconoscimenti previsti tramite la specifica dei due limiti,
+   posti tra parentesi graffe e separati da una virgola. Entrambi i numeri
+   devono essere minori di 65536 ed il primo deve essere minore o
+   uguale rispetto al secondo. Ad esempio:
+   
+   <literal>z{2,4}</literal>
+   
+   identifica  "zz", "zzz" oppure "zzzz". La parentesi graffa chiusa
+   di suo non rappresenta un carattere speciale. Se si omette il
+   secondo numero, ma si lascia la virgola, non si indica un
+   limite superiore; se sia la virgola sia il secondo numero sono
+   omessi, l'occorrenza specifica l'esatto numero di riconoscimenti richiesti. Il criterio
+   
+   <literal>[aeiou]{3,}</literal>
+   
+   identifica almeno 3 o più vocali consecutive, 
+   mentre
+   
+   <literal>\d{8}</literal>
+   
+   identifica esattamente 8 cifre. Una parentesi graffa aperta
+   che compaia in una posizione in cui non sia prevista una
+   occorrenza, o che comunque non sia riconducibile alla sintassi
+   di una occorrenza, viene tratta come il carattere "{". Ad
+   esempio {,6} non indica delle occorrenze, ma una stringa di 4 caratteri.
+  </para>
+  <para>
+   L'indicazione {0} è permessa. Indica di comportarsi come se
+   l'elemento precedente all'occorrenza non fosse 
+   presente.
+  </para>
+  <para>
+   Per praticità (e compatibilità verso il passato) si usano 3
+   abbreviazioni per le occorrenze più comuni:
+   
+   <table>
+    <title>Indicatore di occorrenza</title>
+    <tgroup cols="2">
+     <tbody>
+      <row>
+       <entry><literal>*</literal></entry>
+       <entry>equivale a <literal>{0,}</literal></entry>
+      </row>
+      <row>
+       <entry><literal>+</literal></entry>
+       <entry>equivale a <literal>{1,}</literal></entry>
+      </row>
+      <row>
+       <entry><literal>?</literal></entry>
+       <entry>equivale a <literal>{0,1}</literal></entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </table>
+  </para>
+  <para>
+   E' anche possibile creare un ciclo infinito facendo seguire
+   ad una sotto-regola che non identifica alcun carattere una
+   occorrenza priva di limite superiore. Ad esempio:
+   
+   <literal>(a?)*</literal>
+  </para>
+  <para>
+   Le versioni precedenti di Perl e di PCRE segnalavano un errore
+   durante la fase di compila per questi criteri. Tuttavia, poiché
+   vi sono casi dove questi criteri possono essere utili, queste
+   regole sono accettate, ma, se la ripetizione non riconosce
+   alcun carattere, il ciclo viene interrotto.
+  </para>
+  <para>
+   Per default le occorrenze sono "bramose", infatti identificano
+   più testi possibile (fino al numero massimo permesso), senza
+   per questo fare fallire il riconoscimento della parte rimanente
+   del criterio di ricerca. Il classico esempio dove questo comportamento
+   può essere un problema, riguarda il riconoscimento dei commenti
+   nei programmi C. Questi compaiono tra le sequenze /* ed */,
+   ma all'interno, nel commento, si possono usare sia il carattere
+   *, sia il carattere /. Il tentativo di individuare i commenti C con il seguente criterio
+   
+   <literal>/\*.*\*/</literal>
+   
+   se applicato al commento
+   
+   <literal>/* primo commento */  nessun commento  /* secondo commento */</literal>
+   
+   non ha successo, perché identifica l'intera stringa a causa
+   della "bramosia" dell'elemento ".*".
+  </para>
+  <para>
+   Tuttavia, se un'occorrenza è seguita da un punto interrogativo,
+   questa cessa di essere "bramosa", e identifica il numero
+   minimo di testi permessi. Pertanto il criterio
+   
+   <literal>/\*.*?\*/</literal>
+   
+   si comporta correttamente con i commenti C. Il significato
+   delle varie occorrenze non è stato cambiato, si è soltanto
+   modificato il numero delle occorrenze da riconoscere. Attenzione
+   a non confondere questo uso del punto interrogativo con il
+   suo proprio significato. Dati i due utilizzi del ?, può
+   anche capitare di averli entrambi come in
+   
+   <literal>\d??\d</literal>
+   
+   che, preferibilmente, identifica una cifra, ma può riconoscerne
+   due se questa è l'unica via per soddisfare il riconoscimento dell'intero criterio.
+  </para>
+  <para>
+   Se si attiva l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_UNGREEDY</link>
+   (un'opzione che non è disponibile in Perl), per default le occorrenze
+   non sono "bramose", ma ogni singola occorrenza può essere
+   resa "bramosa" se seguita dal punto interrogativo. In altre
+   parole si è invertito il normale 
+   comportamento.
+  </para>
+  <para>
+   Le occorrenze seguite da <literal>+</literal> sono "possessive". 
+   Identificano il maggior numero possibile di caratteri e non riconoscono il
+   resto del criterio. Quindi <literal>.*abc</literal> riconosce "aabc" al contrario di
+   <literal>.*+abc</literal> perché <literal>.*+</literal> identifica
+   tutta la stringa. Le occorrenze possessive possono essere utilizzate per velocizzare l'analisi.
+  </para>
+  <para>
+   Quando si indica un numero minimo di occorrenze maggiore di 1,
+   per una sotto-regola posta tra parentesi, oppure
+   si indica un numero massimo di occorrenze, la fase di
+   compila richiede più spazio in proporzione ai valori minimo e massimo.
+  </para>
+  <para>
+   Se un criterio inizia con .* oppure .{0,} e si è attivata
+   l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link>
+   (euivalente al /s di Perl), permettendo al . di identificare
+   il carattere di "a capo", si dice che il criterio è implicitamente
+   ancorato, perché qualsiasi elemento che segue sarà confrontato
+   con ciascun carattere della stringa oggetto della ricerca,
+   e pertanto non vi è nessuna posizione, a parte la prima, da
+   cui ripartire per ritentare il riconoscimento dell'intero criterio.
+   PCRE tratta tale criterio come se fosse preceduto dalla sequenza
+   \A. Nei casi in cui è noto a priori che la stringa oggetto di
+   ricerca non contiene caratteri di "a capo", vale la pena di
+   attivare l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link>
+   se il criterio di ricerca inizia con ".*", per ottenere
+   questa ottimizzazione, oppure, in alternativa, usare "^" per indicare in modo esplicito un ancoraggio.
+  </para>
+  <para>
+   Quando si ripete una sotto-regola di cattura, il testo
+   estrapolato è la parte identificata dall'iterazione finale.  Ad esempio se il criterio
+   
+   <literal>(tweedle[dume]{3}\s*)+</literal>
+   
+   viene applicato al testo "tweedledum tweedledee", il testo
+   estrapolato sarà "tweedledee". Tuttavia se vi sono delle
+   sotto-regole annidate, il testo catturato può essere
+   determinato dalle iterazioni precedenti. Ad esempio nel
+   criterio
+   
+   <literal>/(a|(b))+/</literal>
+   
+   applicato a "aba", la seconda stringa catturata è 
+   "b".
+  </para>
+ </section>
+ 
+ <section xml:id="regexp.reference.back-references">
+  <title>Riferimenti all'indietro</title>
+  <para>
+   Esternamente ad una classe di caratteri, un backslah (\)
+   seguito da una o più cifre maggiori di 0 è un riferimento
+   all'indietro verso testi catturati precedentemente (ad esempio
+   alla sinistra rispetto a dove ci si trova), conteggiati tramite
+   il numero delle parentesi chiuse precedenti.
+  </para>
+  <para>
+   Tuttavia, se il numero che segue il backslash (\) è un valore
+   inferiore a 10, si assume che si tratti sempre di un riferimento
+   all'indietro, e pertanto viene generato un errore se nel criterio
+   non vi sono almeno altrettante parentesi chiuse di sotto-regole di cattura. In altre parole
+   per i numeri inferiori a 10 non è necessario che il numero parentesi precedenti (a sinistra)
+   alla sotto-regola sia pari o maggiore al numero indicato.
+   Un "riferimento all'indietro e all'avanti" ha senso quando è presente una ripetizione
+   e la sotto-regola alla destra ha partecipato 
+   a un'iterazione precedente. Vedere la sezione
+   relativa al backslash per informazioni su
+   come gestire le cifre seguenti il backslash.
+  </para>
+  <para>
+   Un riferimento all'indietro identifica ciò che è già
+   stato catturato dalla sotto-regola, e non ciò che la
+   sotto-regola stessa possa riconoscere. Ad esempio il criterio
+   
+   <literal>(sens|respons)e and \1ibility</literal>
+   
+   può riconoscere "sense and sensibility" oppure "response and
+   responsibility", ma non il testo "sense  and  responsibility".
+   Se al momento del riferimento all'indietro, è attiva la distinzione
+   tra lettere maiuscole e minuscole, il formato della lettera diventa rilevante. Ad esempio,
+   
+   <literal>((?i)rah)\s+\1</literal>
+   
+   può identificare "rah rah" e "RAH RAH", ma non "RAH  rah",
+   anche se la sotto-regola originale eseguiva dei riconoscimenti
+   a prescindere dalle lettere maiuscole e minuscole.
+  </para>
+  <para>
+   Nella medesima sotto-regola si possono avere più di un riferimento
+   all'indietro. Se una sotto-regola non viene utilizzata in
+   un particolare riconoscimento, un riferimento a questa
+   ha sempre esito  negativo. Ad esempio il criterio
+   
+   <literal>(a|(bc))\2</literal>
+   
+   non avrà mai successo se l'identificazione della stringa
+   inizia con "a" e non con "bc". Dato che sono possibili fino a 99
+   riferimenti all'indietro, tutte le cifre che seguono un backslash
+   (\) sono considerate come parte di un potenziale numero di
+   riferimento. Se il criterio continua con altri caratteri
+   numerici, occorre stabilire un carattere per delimitare il
+   numero del riferimento. Se si attiva l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link>
+   questo carattere può essere lo spazio. Altrimenti si può usare un commento vuoto.
+  </para>
+  <para>
+   Un riferimento all'indietro non ha successo se viene inserito
+   in una sotto regola prima che sia applicata. Con questo si
+   intende, ad esempio, che (a\1) non avrà mai successo, ma, nel
+   caso di una sottoregola ripetuta, si avrà un riscontro positivo. Ad esempio
+   
+   <literal>(a|b\1)+</literal>
+   
+   identificherà qualsiasi numero di "a", ma anche "aba" oppure "ababaa" ecc. In
+   pratica a ciascuna iterazione della sotto-regola il riferimento andrà a
+   sostituire la stringa riconosciuta tramite la sotto-regola dell'iterazione precedente.
+   Affinchè il tutto funzioni, è necessario che la prima iterazione sia
+   identificata senza l'ausilio del riferimento "all'indietro". Ciò può essere ottenuto 
+   o usando casi alternativi, come nell'esempio precedente, o usando le occorrenze indicando come numero minimo
+   di occorrenze il valore zero.
+  </para>
+  <para>
+   Dal PHP 5.2.2, la sequenza di escape <literal>\g</literal> può essere
+   utilizzata per referenziare sottoregole assolute e relative.
+   Questa sequenza di escape deve essere seguita da un numero senza segno o un numero
+   negativo, eventualmente racchiuso in parentesi graffe. Le sequenze <literal>\1</literal>,
+   <literal>\g1</literal> e <literal>\g{1}</literal> sono tra loro
+   sinonimi. L'uso di questa regola con numeri senza segno può
+   aiutare a rimuovere l'ambiguità creata quando si usano numeri che seguono un
+   backslash. Questa sequenza permette di distinguere i riferimenti all'indietro dai caratteri
+   ottali e permette anche di avere più facilmente un riferimento all'indietro seguito 
+   da un numero letterale, es. <literal>\g{2}1</literal>.
+  </para>
+  <para>
+   L'utilizzo della sequenza <literal>\g</literal> con un numero negativo
+   significa riferimento negativo. Per esempio, <literal>(foo)(bar)\g{-1}</literal> 
+   identifica la sequenza "foobarbar" e <literal>(foo)(bar)\g{-2}</literal> 
+   identifica "foobarfoo". Questo può essere utile in regole lunghe come un'alternativa
+   per tener nota del numero di sotto-regole, al fine di far riferimento
+   a una specifica sottoregola precedente.
+  </para>
+  <para>
+   I riferimenti all'indietro a sotto-regole con nome possono essere ottenuti con
+   <literal>(?P=name)</literal> o, da PHP 5.2.2, anche con
+   <literal>\k&lt;name&gt;</literal> o <literal>\k'name'</literal>.
+   PHP 5.2.4 ha inoltre aggiunto il supporto per <literal>\k{name}</literal>
+   e <literal>\g{name}</literal>.
+  </para>
+ </section>
+ 
+ <section xml:id="regexp.reference.assertions">
+  <title>Asserzioni</title>
+  <para>
+   L'asserzione è un test basato su un carattere, che può precedere
+   o seguire l'attuale punto di riconoscimento, e non consuma
+   alcun carattere. Le semplici asserzioni quali \b, \B, \A, \Z,
+   \z, ^ e $ sono state descritte precedentemente. Asserzioni più
+   complesse possono essere strutturate come delle sotto-regole. Se ne hanno
+   di due tipologie: quelle che <emphasis>guardano avanti</emphasis> alla posizione attuale
+   nella stringa oggetto del riconoscimento, e quelle che <emphasis>guardano dietro</emphasis> la posizione attuale.
+  </para>
+  <para>
+   Una asserzione definita come sotto-regola esegue il riconoscimento
+   nel modo usuale, ma tale riconoscimento non sposta la posizione
+   attuale nella stringa. Le asserzioni che "guardano avanti" cominciano
+   per "(?=", se sono positive, per "(?!", se sono asserzioni negative. Ad esempio
+   
+   <literal>\w+(?=;)</literal>
+   
+   riconosce una parola seguita da ";", ma non include il
+   punto e virgola nel riconoscimento, mentre
+   
+   <literal>foo(?!bar)</literal>
+   
+   identifica qualsiasi occorrenza di "foo" che non sia seguita da
+   "bar". Attenzione che il criterio, apparentemente simile,
+   
+   <literal>(?!foo)bar</literal>
+   
+   non riconosce alcuna occorrenza di "bar" se questa è preceduta
+   da qualsiasi testo che non sia  "foo"; infatti l'espressione
+   riconosce qualsiasi occorrenza di "bar", poiché l'asserzione (?!foo)
+   è sempre &true; quando i tre caratteri successivi sono "bar".
+   Pertanto è necessario una asserzione che "guarda" all'indietro per ottenere effetto desiderato.
+  </para>
+  <para>
+   Le asserzioni che "guardano" indietro positive iniziano con
+   "(?&lt;=", e con "(?&lt;!" le negative. Ad esempio:
+   
+   <literal>(?&lt;!foo)bar</literal>
+   
+   riconosce una occorrenza di "bar" che non sia preceduta da
+   "foo". Le asserzioni che "guardano" indietro hanno una limitazione:
+   tutte le stringhe che riconoscono devono avere lunghezza fissa.
+   Mentre, se si hanno casi alternativi, la limitazione della lunghezza
+   fissa non sussiste. Quindi
+   
+   <literal>(?&lt;=bullock|donkey)</literal>
+   
+   è una asserzione permessa, ma
+   
+   <literal>(?&lt;!dogs?|cats?)</literal>
+   
+   genera un errore durante la fase di compilazione. Rami alternativi
+   con lunghezze di stringa differenti sono permessi solo
+   al primo livello dell'asserzione. Questa è da considerarsi una
+   estensione rispetto a Perl 5.005, che richiede a tutte le alternative
+   possibili la medesima lunghezza di stringa. Quindi una asserzione tipo
+   
+   <literal>(?&lt;=ab(c|de))</literal>
+   
+   non è permessa, poiché il suo singolo ramo di primo livello
+   può identificare testi di due lunghezze differenti, ma è accettabile
+   se riscritta usando due alternative di primo livello:
+   
+   <literal>(?&lt;=abc|abde)</literal>
+   
+   L'implementazione di questo tipo di asserzioni consiste, per ciascuna
+   alternativa, di uno spostamento all'indietro temporaneo per la lunghezza
+   fissa necessaria, e ad un tentativo di riconoscimento del testo. Se non
+   ci sono sufficienti caratteri precedenti alla posizione attuale,
+   l'asserzione è destinata a fallire. L'uso accoppiato delle asserzioni
+   che "guardano" indietro con sotto-regole a riconoscimento singolo può essere utile
+   per identificare la fine dei testi; un esempio è illustrato al termine
+   della sezione sulle sotto-regole a riconoscimento singolo.
+  </para>
+  <para>
+   Diverse asserzioni (di qualsiasi tipologia) possono essere
+   utilizzate in modo consecutivo. Ad esempio:
+   
+   <literal>(?&lt;=\d{3})(?&lt;!999)foo</literal>
+   
+   riconosce "foo" preceduto da tre cifre che non siano "999".
+   Occorre rilevare che ciascuna asserzione viene applicata
+   singolarmente sul medesimo punto nella stringa oggetto di
+   riconoscimento. Nell'esempio precedente per prima cosa si
+   verifica che i tre caratteri precedenti siano cifre, quindi
+   che non siamo "999". Questo esempio non identifica il testo
+   se "foo" è preceduto da sei caratteri di cui i primi tre siano
+   cifre e i secondi tre non siano "999". In pratica il testo
+   "123abcfoo" non viene riconosciuto. Un criterio per riconoscere tale stringa può essere:
+   
+   <literal>(?&lt;=\d{3}...)(?&lt;!999)foo</literal>
+  </para>
+  <para>
+   In questo caso la prima asserzione controlla i primi sei caratteri
+   verificando che i primi tre siano cifre, mentre la seconda
+   asserzione verifica che i secondi tre caratteri non siano
+   "999".
+  </para>
+  <para>
+   Le asserzioni possono essere annidate in qualsiasi combinazione.  Il seguente esempio
+   
+   <literal>(?&lt;=(?&lt;!foo)bar)baz</literal>
+   
+   identifica il testo "baz" se è preceduto da "bar" il quale
+   non deve essere preceduto da "foo", mentre
+   
+   <literal>(?&lt;=\d{3}...(?&lt;!999))foo</literal>
+   
+   è un'altro criterio che riconosce "foo" preceduto da tre cifre
+   e da tre caratteri che non siano "999".
+  </para>
+  <para>
+   Le asserzioni definite come sotto-regole non catturano parte
+   del testo e non possono essere ripetute (non avrebbe senso
+   ripetere il medesimo riconoscimento sul medesimo testo).
+   Se una di queste asserzioni contiene una sotto-regola di cattura
+   questa viene conteggiata ai fini della numerazione delle regole
+   di cattura. Tuttavia il testo viene effettivamente catturato
+   solo nelle asserzioni positive, dato che non avrebbe senso farlo
+   in quelle negative.
+  </para>
+  <para>
+   Le asserzioni possono essere composte fino ad un massimo
+   di 200 sotto-regole.
+  </para>
+ </section>
+ 
+ <section xml:id="regexp.reference.onlyonce">
+  <title>Sotto-regole a riconoscimento singolo (Once-only subpatterns)</title>
+  <para>
+   Con l'indicazione del numero minimo e massimo di ripetizioni, il fallimento
+   del riconoscimento della parte successiva del testo causa una ripetizione
+   dell'identificazione con un numero di occorrenze diverse per verificare se
+   in questa situazione anche il resto  del testo viene identificato. In alcune
+   situazioni può essere utile bloccare questo meccanismo,  per la cambiata
+   natura del criterio, oppure per fare fallire la ricerca prima
+   di quando potrebbe accadere, oppure quando l'autore sa che non
+   ci sono punti da cui ripartire.
+  </para>
+  <para>
+   Consideriamo, ad esempio, il criterio \d+foo applicato alla
+   seguente linea
+   
+   <literal>123456bar</literal>
+  </para>
+  <para>
+   Dopo avere identificato le 6 cifre ed avere mancato nel riconoscimento di "foo",
+   il comportamento normale consiste nel tentare di procedere identificando 5
+   cifre per l'elemento \d+, quindi tentare con 4 e così via,
+   prima di fallire definitivamente. Le sotto-regole a riconoscimento singolo
+   permettono di specificare che, una volta riconosciuta una porzione della
+   regola, questa non debba essere più considerata, in maniera tale da abortire
+   immediatamente il riconoscimento se non si ha successo nell'identificare la
+   parte restante del criterio. L'espressione per definire questo tipo di
+   sotto-regola richiede un altro uso delle parentesi, iniziando con (?&gt; come nell'esempio seguente:
+   
+   <literal>(?&gt;\d+)bar</literal>
+  </para>
+  <para>
+   Questa tipologia di parentesi "inchioda" la parte di criterio
+   una volta che avviene il riconoscimento, e, quindi, un fallimento
+   successivo impedisce la ri-elaborazione di questo segmento.
+   Tuttavia, occorre notare che gli elementi precedenti a questo si comportano in modo normale, e pertanto la ri-elaborazione, pur non toccando questo elemento, passa ai precedenti.
+  </para>
+  <para>
+   Una descrizione alternativa di questa tipologia di sotto-regola
+   potrebbe essere che questo criterio identifica un testo come
+   avrebbe fatto un singolo criterio se fosse stato ancorato
+   alla posizione corrente.
+  </para>
+  <para>
+   Le sotto-regole a riconoscimento singolo non compiono la cattura del testo
+   identificato. I casi semplici illustrati in precedenza possono essere
+   considerati come una estremizzazione della ripetizione che porta ad inglobare
+   tutto ciò che può. Pertanto, da una parte \d+ e \d+? sono sequenze che si adattano a riconoscere
+   il numero corretto di cifre affinchè la ricerca abbia successo,
+   dall'altra la sequenza (?&gt;\d+) riconosce soltanto una sequenza di cifre.
+  </para>
+  <para>
+   Ovviamente queste costruzioni possono contenere diverse
+   sotto-regole sia complesse, sia annidate.
+  </para>
+  <para>
+   Le sotto-regole a riconoscimento singolo possono essere usate congiuntamente
+   alle asserzioni che guardano indietro, per definire una regola efficiente per
+   riconoscere la fine della stringa. Ad esempio si consideri questo semplice criterio:
+   
+   <literal>abcd$</literal>
+   
+   quando viene applicato ad un lungo testo può non avere successo.
+   Questo perché il riconoscimento procede da sinistra verso destra,
+   quindi PCRE prima cerca la "a", e poi cerca di riconoscere la
+   parte restante del criterio. Se si modifica il criterio nel seguente modo
+   
+   <literal>^.*abcd$</literal>
+   
+   allora la sequenza iniziale .* in prima battuta identificherà tutto il testo, ma
+   quando fallisce (poiché non vi sono più "a"), la ricerca tornerà indietro
+   di uno (quindi tutto il testo tranne l'ultimo carattere), quindi, se continua
+   non esserci la "a", si torna indietro di due, e così via. Continuando a tornare
+   indietro alla ricerca della "a" si percorre tutto il testo da destra a
+   sinistra, senza ottenere nulla di valido. Tuttavia se si riscrive il criterio come:
+   
+   <literal>^(?>.*)(?&lt;=abcd)</literal>
+   
+   non si attiva più lo scorrimento verso sinistra per .* , ma viene
+   costretto a riconoscere tutto il testo (esito del primo tentativo).
+   La asserzione successiva, esegue una verifica sulle ultime 4
+   lettere.Se fallisce, ciò avviene immediatamente, provocando
+   un impatto sensibile nei tempi di elaborazione con testi molto lunghi.
+  </para>
+  <para>
+   Quando un criterio di riconoscimento contiene un elemento ripetuto senza
+   limite all'interno di una sotto-regola che anch'essa possa ripetuta
+   illimitatamente, l'uso delle sotto-regole a riconoscimento singolo è l'unico
+   mezzo per evitare che certi mancati riconoscimenti richiedano molto tempo per essere
+   rilevati. Ad esempio il criterio
+   
+   <literal>(\D+|&lt;\d+>)*[!?]</literal>
+   
+   riconosce un numero indefinito di frammenti di testo contenenti
+   a loro volta numeri o caratteri non numerici racchiusi tra &lt;>,
+   seguiti dai caratteri ! o ?. Quando il riconoscimento ha successo
+   l'esecuzione è rapida, ma quando viene applicato al testo
+   
+   <literal>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</literal>
+   
+   richiede molto tempo prima di evidenziare l'errore. Questo
+   accade perché la stringa può essere suddivisa tra i due elementi
+   ripetuti in un elevato numero di modi che debbono essere
+   verificati. Nell'esempio si usa [!?] piuttosto che un singolo
+   carattere alla fine, questo perché sia Perl sia PCRE hanno una
+   ottimizzazione che permette un veloce riconoscimento dell'errore
+   se si usa un solo carattere. Infatti memorizzano l'ultimo
+   carattere singolo richiesto per un riconoscimento, e, se non
+   lo trovano nel testo, falliscono subito. Se il criterio viene modificato in
+   
+   <literal>((?>\D+)|&lt;\d+>)*[!?]</literal>
+   
+   le sequenze di caratteri non numerici non possono essere interrotte e pertanto il mancato riconoscimento viene rilevato più velocemente.
+  </para>
+ </section>
+ 
+ <section xml:id="regexp.reference.conditional">
+  <title>Sotto-regole condizionali (Conditional subpatterns)</title>
+  <para>
+   E' possibile forzare il processo di riconoscimento a obbedire
+   alle sotto-regole in modo condizionato, oppure a scegliere tra due
+   alternative in base al risultato di una asserzione, o piuttosto se
+   la sotto-regola di cattura precedente ha riconosciuto il proprio testo.
+   I due metodi possibili per esprimere una sotto-regola condizionale sono:
+  </para>
+  
+  <informalexample>
+   <programlisting>
+<![CDATA[
+(?(condizione)yes-pattern)
+(?(condizione)yes-pattern|no-pattern)
+]]>
+   </programlisting>
+  </informalexample>
+  <para>
+   Se la condizione è soddisfatta, si usa la regola indicata in
+   yes-pattern, altrimenti si applica il no-pattern (qualora sia
+   specificato). Se nella sotto-regola vi sono più di due
+   alternative, PCRE segnala un errore in fase di compila.
+  </para>
+  <para>
+   Vi sono due tipi di condizioni. Se il testo tra le parentesi
+   consiste in una sequenza di cifre, allora la condizione è
+   soddisfatta se la sotto-regola di cattura di quel numero
+   è stata precedentemente riconosciuta. Si consideri il seguente
+   criterio contenente degli spazi non significativi per renderlo
+   più leggibile (si assuma che sia attiva l'opzione <link 
+   linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link>)
+   e lo si divida in tre parti per praticità di discussione:
+   
+   <literal>( \( )?    [^()]+    (?(1) \) )</literal>
+  </para>
+  <para>
+   La prima parte riconosce una parentesi aperta opzionale, e,
+   se è presente, indica quello come primo segmento di stringa
+   catturato. La seconda parte riconosce uno o più caratteri che
+   non siano parentesi. Infine la terza parte è una sotto-regola
+   condizionale che verifica se la prima parentesi è stata identifica
+   o meno. Se accade, come nel caso in cui il testo inizi con una
+   parentesi aperta, la condizione è &true;, e quindi viene eseguito
+   il ramo yes-pattern, richiedendo, conseguentemente, la parentesi chiusa.
+   Diversamente, poiché non è specificato ramo no-pattern, non si
+   esegue nessun altro riconoscimento. In altre parole questo criterio
+   identifica un testo che possa essere racchiuso tra parentesi
+   opzionali.
+  </para>
+  <para>
+   Se la condizione è la stringa <literal>(R)</literal>, è soddisfatta se
+   è stata fatta una chiamata ricorsiva alla regola o sotto-regola. Al "top
+   level", la condizione è falsa.
+  </para>
+  <para>
+   Se la condizione non è una sequenza di cifre o (R), deve essere
+   una asserzione. Questa può essere un'asserzione in avanti, all'indietro,
+   Rpositiva o negativa. Si consideri il seguente criterio, ancora una volta
+   contenente spazi non significativi, e con due alternative nella
+   seconda linea:
+  </para>
+  
+  <informalexample>
+   <programlisting>
+<![CDATA[
+(?(?=[^a-z]*[a-z])
+\d{2}-[a-z]{3}-\d{2}  |  \d{2}-\d{2}-\d{2} )
+]]>
+   </programlisting>
+  </informalexample>
+  <para>
+   La condizione è una asserzione che guarda avanti positiva, la quale
+   identifica una sequenza opzionale di caratteri non alfabetici
+   seguiti da una lettera. In altre parole, si testa la presenza
+   di almeno una lettera nel testo. Se la lettera viene trovata
+   si applica il primo criterio per il riconoscimento del testo,
+   altrimenti viene applicato il secondo criterio. Questo criterio
+   riconosce  stringhe in due formati dd-aaa-dd oppure dd-dd-dd,
+   dove aaa sono lettere e dd sono numeri.
+  </para>
+ </section>
+ 
+ <section xml:id="regexp.reference.comments">
+  <title>Commenti</title>
+  <para>
+   La sequenza (?# indica l'inizio di un commento che si conclude
+   con la successiva parentesi chiusa. Parentesi annidate non sono
+   permesse. I caratteri che fanno parte di un commento non giocano
+   alcun ruolo nella fase di riconoscimento.
+  </para>
+  <para>
+   Se viene attivata l'opzione <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTENDED</link>,
+   un carattere # privo della sequenza di escape (\) all'esterno
+   di una classe di caratteri apre un commento che continua fino
+   al carattere di "a capo".
+  </para>
+ </section>
+
+ <section xml:id="regexp.reference.recursive">
+  <title>Criteri ricorsivi</title>
+  <para>
+   Si consideri il caso in cui si debba riconoscere una stringa tra parentesi,
+   si supponga inoltre di dovere ammettere un numero arbitrario
+   di parentesi annidate. Senza l'uso della ricorsione, il miglior
+   metodo consiste nel preparare un criterio che identifichi un
+   numero finito di parentesi annidate. Però, in questo modo non si
+   gestisce un numero arbitrario si parentesi annidate. Nella
+   versione 5.6 di Perl è stata introdotta, a livello sperimentale,
+   la possibilità per i criteri di riconoscimento di essere ricorsivi.
+   Allo scopo è stata definita la sequenza speciale (?R). Il criterio
+   illustrato di seguito risolve il problema delle parentesi
+   (si assume che l'opzione <link linkend="reference.pcre.pattern.modifiers">CRE_EXTENDED</link>
+   sia attivata in modo da ignorare gli spazi):
+   
+   <literal>\( ( (?>[^()]+) | (?R) )* \)</literal>
+  </para>
+  <para>
+   In principio si identifica la parentesi di apertura. Quindi
+   si cerca un numero indefinito di stringhe che possano essere
+   composte da caratteri che non siano parentesi, oppure che
+   siano riconosciute ricorsivamente dal criterio (ad esempio una
+   stringa correttamente tra parentesi). Infine si cerca la parentesi di chiusura.
+  </para>
+  <para>
+   In questo particolare esempio si hanno arbitrarie ripetizioni
+   annidate, e quindi l'uso delle sotto-regole a riconoscimento singolo
+   per il riconoscimento della stringa priva di parentesi è particolarmente
+   utile se il criterio viene applicato ad un testo non riconoscibile.
+   Ad esempio, applicando il criterio a
+   
+   <literal>(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa()</literal>
+   
+   si ottiene un esito di mancato riconoscimento rapidamente. Se, al contrario,
+   non si fosse usato il criterio a riconoscimento singolo, sarebbe occorso
+   molto tempo per avere un esito dato che vi sono moltissimi modi in cui i
+   caratteri di ripetizione + e * possono essere applicati al testo, richiedendo,
+   pertanto, la verifica di tutte le combinazioni prima di fornire l'esito negativo.
+  </para>
+  <para>
+   Il valori restituiti da una sotto-regola di cattura sono quelli
+   ottenuti dal livello di ricorsione più esterno. Se il criterio
+   illustrato in precedenza venisse applicato al testo
+   
+   <literal>(ab(cd)ef)</literal>
+   
+   Il valore ottenuto sarebbe "ef", che rappresenta l'ultimo
+   valore catturato al livello più alto. Se si aggiungono altre
+   parentesi al criterio, ottenendo
+   
+   <literal>\( ( ( (?>[^()]+) | (?R) )* ) \)</literal>
+   allora il testo ottenuto sarebbe
+   "ab(cd)ef", cioè il valore delle parentesi di livello più alto.
+   Se nel criterio vi sono più di 15 sotto-regole di cattura,
+   PCRE ha necessità di ottenere maggiore memoria per archiviare
+   le informazioni durante la ricorsione. Questa memoria è ottenuta
+   utilizzando pcre_malloc, al termine verrà liberata con pcre_free.
+   Se non può essere ottenuta ulteriore memoria, si ha il salvataggio
+   delle informazioni dei primi 15 testi catturati, dato che non vi è modo
+   di restituire un messaggio di memoria insufficiente dalla ricorsione.
+  </para>
+  
+  <para>
+   <literal>(?1)</literal>, <literal>(?2)</literal> e così via
+   possono pure essere usati per sottoregole ricorsive. È anche possibile usare
+   sottoregole con nome: <literal>(?P&gt;name)</literal> oppure
+   <literal>(?P&amp;name)</literal>.
+  </para>
+  <para>
+   Se la sintassi di un riferimento a sottoregola (identificata per numero o
+   per nome) è usata al di fuori delle parentesi a cui si riferisce, si comporta
+   come una funzione di un linguaggio di programmazione. Un esempio precedente
+   mostrava come la regola
+   <literal>(sens|respons)e and \1ibility</literal>
+   trova "sense and sensibility" e "response and responsibility", ma
+   non "sense and responsibility". Se si usa invece la regola
+   <literal>(sens|respons)e and (?1)ibility</literal>,
+   questa identifica anche "sense and responsibility", come pure le altre
+   due stringhe. Questi riferimenti devono, comunque, seguire le sottoregole a
+   cui si riferiscono.
+  </para>
+  
+  <para>
+   La lunghezza massima di una stringa corrisponde al pìù grande numero
+   positivo ammesso per una variabile integer. D'altra parte, PCRE usa la ricorsione per
+   gestire le sottoregole e le ripetizioni indefinite. Questo significa che
+   lo spazio di stack disponibile può limitare la dimensione di una stringa che può
+   essere processata da determinate regole.
+  </para>
+  
+ </section>
+ 
+ <section xml:id="regexp.reference.performance">
+  <title>Performance</title>
+  <para>
+   Certi elementi utilizzati per i criteri di riconoscimento sono più
+   efficienti di altri. E' più efficiente usare le classi di caratteri come
+   [aeiou] piuttosto che un gruppo di alternative come (a|e|i|o|u).
+   In generale la costruzione più semplice per ottenere un dato
+   scopo è la più efficiente. Nel libro di Jeffrey Friedl sono
+   illustrate varie tecniche sull'ottimizzazione delle espressioni
+   regolari.
+  </para>
+  <para>
+   Quando un criterio comincia con .* ed è attiva l'opzione <link
+   linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link>, il
+   criterio è implicitamente ancorato da PCRE, dato che può riconoscere
+   solo l'inizio della stringa. Tuttavia, se non è attivo
+   <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link>,
+   PCRE non può fare questa ottimizzazione, perché il meta-carattere .
+   non riconosce più il carattere di "a capo", e quindi se la stringa
+   contiene dei caratteri di "a capo", il riconoscimento può par-
+   tire dal carattere immediatamente successivo ad uno di questi
+   e non dall'inizio. Ad esempio il criterio
+   
+   <literal>(.*) second</literal>
+   
+   può eseguire un riconoscimento nel testo "first\nand second"
+   (dove \n indica il carattere "a capo") ottenendo "and" come
+   prima stringa catturata. perché ciò accada è necessario che
+   PCRE possa iniziare il riconoscimento dopo ogni "a capo".
+  </para>
+  <para>
+   Se si deve usare un simile criterio in stringhe che non contengono
+   caratteri di "a capo", le performance migliori si possono
+   ottenere abilitando <link linkend="reference.pcre.pattern.modifiers">PCRE_DOTALL</link>,
+   oppure iniziando il criterio con ^.* in modo da richiedere un
+   ancoraggio esplicito. Così si risparmia a PCRE di scandirsi il
+   testo alla ricerca di un "a capo" da cui ripartire per la ricerca.
+  </para>
+  <para>
+   Occorre prestare attenzione ai criteri che contengono ripetizioni
+   indefinite annidate. Possono richiedere molto tempo se
+   applicati a stringhe non riconoscibili. Si consideri il frammento
+   
+   <literal>(a+)*</literal>
+  </para>
+  <para>
+   Questo può riconoscere "aaaa" in 33 modi differenti, e questo
+   numero può crescere molto rapidamente se la stringa da riconoscere è più lunga. (Il carattere
+   di ripetizione * può eseguire riconoscimenti per 0,1,2,3 o 4 ripetizioni, e per ciascuna di
+   esse, tranne lo 0, il carattere di ripetizione + può eseguire riconoscimenti per diversi
+   numeri di volte). Quindi se la parte successiva del criterio è tale
+   da non permettere il completamento del riconoscimento, PCRE, per principio,
+   ugualmente tenta tutte le possibili variazioni, richiedendo
+   diverso tempo.
+  </para>
+  <para>
+   Una ottimizzazione riesce a catturare qualche caso semplice
+   come in
+   
+   <literal>(a+)*b</literal>
+   
+   dove si indica che seguirà un  carattere alfanumerico. PCRE,
+   prima di imbarcarsi nella procedura standard di riconoscimento,
+   verifica se nel testo vi è la  lettera "b", e  se non c'è
+   restituisce immediatamente un esito negativo. Tuttavia se non
+   viene indicata una lettera seguente questa ottimizzazione non
+   può essere utilizzata. Se ne può notare la differenza analizzando il comportamento del criterio
+   
+   <literal>(a+)*\d</literal>
+   
+   rispetto al precedente. Il primo, utilizzato con  una  stringa
+   composta da "a", fallisce immediatamente, l'ultimo richiede un
+   tempo  apprezzabile, soprattutto  se  applicato a stringhe con
+   più di 20 caratteri.
+  </para>
+ </section>
+</chapter>
 
 <!-- Keep this comment at the end of the file
 Local variables:

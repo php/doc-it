@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 96c9d88bad9a7d7d44bfb7f26c226df7ee9ddf26 Maintainer: cucinato status: ready -->
+<!-- splitted from ./en/functions/pcre.xml, last change in rev 1.2 -->
+<article xml:id="reference.pcre.pattern.differences" xmlns="http://docbook.org/ns/docbook">
+ <title>Differenze rispetto a Perl</title>
+ <titleabbrev>Differenze rispetto a Perl</titleabbrev>
+ <para>
+  In questo capitolo saranno descritte le differenze rispetto a Perl 5.005.
+  <orderedlist>
+   <listitem>
+    <simpara>
+     Per default, lo  spazio  bianco  indica  tutti  i  caratteri riconoscibili
+     dalla  funzione  isspace()  della libreria C, ciò non pregiudica la
+     possibilità di compilare PCRE  con  un set di caratteri alternativi.
+     Normalmente isspace() riconosce gli spazi, il salto pagina, il carattere 'a capo' (newline),
+     il carattere carriage return, la tabulazione orizzontale e verticale. Perl 5 non
+     riconosce nel set dei caratteri indicati dallo "spazio bianco" la tabulazione verticale.
+     Infatti il carattere di escape \v è stato presente per diverso tempo nella
+     documentazione di Perl, ma  di fatto non viene riconosciuto. Tuttavia lo
+     stesso carattere viene trattato come spazio bianco fino alla versione 5.002 di Perl.
+     Nelle versioni 5.004 e 5.005 non viene riconosciuto il carattere \s.
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     PCRE non supporta occorrenze ripetute in espressioni che "guardano avanti".
+     Perl lo permette, ma non nel modo a cui si possa pensare. Ad esempio,
+     (?!a){3}, non indica che i tre caratteri successivi non debbano essere
+     delle "a", ma indica per tre volte che il carattere successivo non
+     debba essere una "a".
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     Il riconoscimento di criteri parziali che possono verificarsi
+     all'interno di espressioni che "guardano avanti" negative
+     sono contati, ma i loro riferimenti non sono inseriti nel
+     vettore degli offset. Perl valorizza le sue variabili da
+     qualsiasi criterio che sia riconosciuto prima che l'espressione
+     regolare fallisca nel riconoscere qualcosa, ma questo solo se
+     l'espressione che "guarda avanti" contiene almeno un ramo alternativo.
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     Sebbene il carattere di 0 binario sia supportato nella stringa in cui si
+     deve svolgere la ricerca, non è ammesso nel testo dell'espressione regolare,
+     questo perché il testo viene passato come stringa C conclusa dal carattere zero.
+     Si può comunque utilizzare la sequenza "\\x00" per richiedere il riconoscimento dello zero binario.
+    </simpara>
+    </listitem>
+    <listitem>
+    <simpara>
+     Non sono supportate le seguenti sequenze di escape di Perl:
+     \l,  \u,  \L,  \U,  \E e  \Q. Infatti queste sono implementate
+     nelle funzioni di gestione delle stringhe di Perl e non nel
+     suo motore di riconoscimento delle espressioni regolari.
+    </simpara>
+    </listitem>
+    <listitem>
+    <simpara>
+    L'asserzione di Perl \G non è supportata poiché non è
+    rilevante per il riconoscimento di espressioni singole.
+    </simpara>
+    </listitem>
+    <listitem>
+    <simpara>
+     Ovviamente PCRE non supporta il costrutto (?{code}) e (??{code}).
+     Comunque, le espressioni ricorsive sono supportate.
+    </simpara>
+    </listitem>
+    <listitem>
+    <simpara>
+     Al momento in cui si scrive, in Perl  5.005_02 vi sono alcune particolarità
+     riguardanti la parametrizzazione delle stringhe catturate quando
+     parte del criterio di riconoscimento viene ripetuto. Ad esempio, il riconoscimento
+     di "aba" con il criterio /^(a(b)?)+$/, valorizza $2 con la lettera "b",i
+     usando il testo "aabbaa" con il criterio /^(aa(bb)?)+$/ non si ha la
+     valorizzazione di $2. Tuttavia se il criterio di riconoscimento viene
+     variato in /^(aa(b(b))?)+$/, sia $2 che $3 vengono valorizzate.
+     Nelle versione 5.004 di Perl, la variabile $2 viene valorizzata in
+     entrambi i casi, come pure è &true; in PCRE. Se in futuro Perl cambierà
+     nella gestione anche PCRE potrà cambiare di conseguenza.
+    </simpara>
+    </listitem>
+    <listitem>
+    <simpara>
+     Un'altra discrepanza non ancora risolta riguarda il criterio di
+     riconoscimento /^(a)?(?(1)a|b)+$/, che in Perl 5.005_02 riconosce
+     la stringa "a", mentre non accade in PCRE. Tuttavia in entrambi
+     ( Perl e PCRE ) il riconoscimento di "a" con il criterio /^(a)?a/ non valorizza $1.
+    </simpara>
+    </listitem>
+    <listitem>
+    <para>
+     PCRE prevede alcune estensione alla gestione delle
+     espressioni regolari di Perl:
+      <orderedlist>
+       <listitem>
+        <simpara>
+         Sebbene le asserzioni che "guardano indietro" richiedano testi di
+         lunghezza fissa, è ammesso che ciascun ramo alternativo del criterio
+         di ricerca possa intercettare stringhe di lunghezza differente.
+         Al contrario Perl 5.005 richiede che tutte le stringhe abbiamo la stessa lunghezza.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        Se viene settato <link linkend="reference.pcre.pattern.modifiers">PCRE_DOLLAR_ENDONLY</link>
+        e non viene attivato <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link>,
+        il meta-carattere $ indica soltanto la fine dellai
+        stringa.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        Se si attiva <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTRA</link>,
+        un carattere backslash (\) seguito da una lettera che
+        non abbia un significato speciale genera un errore.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        Se si attiva <link linkend="reference.pcre.pattern.modifiers">PCRE_UNGREEDY</link>,
+        si inverte la "voracità" delle occorrenze, in modo da non
+        essere voraci per default, ma lo tornano ad essere se
+        seguiti da "?".
+       </simpara>
+      </listitem>
+     </orderedlist>
+    </para>
+   </listitem>
+  </orderedlist>
+ </para>
+</article>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

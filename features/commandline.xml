@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 84b8fca68fc762fefe85acde180a38b2e77a28b9 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 4778c21b0ced33780bd3809e4f5ad824a0d21804 Maintainer: pastore Status: ready -->
 <chapter xml:id="features.commandline" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <title>Utilizzo di PHP da linea di comando</title>
  <titleabbrev>Command line usage</titleabbrev>
@@ -1611,15 +1611,16 @@ php >
   </para>
 
   <para>
+    Le richieste vengono fornite in sequenza.
+  </para>
+  
+  <para>
     Le richieste URI sono eseguite dalla cartella di lavoro corrente, in cui
     PHP è stato eseguito, a meno che non sia stata usata l'opzione -t per specificare una
-    radice dei documenti.
-  </para>
-
-  <para>
-    Se una richiesta URI non specifica un file, allora viene restituito il file index.php
-    o index.html che si trova nella cartella specificata. Se nessuno di questi due file
-    esiste, viene restituito un codice di risposta 404.
+    radice dei documenti. Se una richiesta URI non specifica un file,
+   allora viene restituito o index.php o index.html nella directory
+   data. Se i file non esistono, allora una risposta con codice 404
+   viene restituita.
   </para>
 
   <para>
@@ -1628,6 +1629,13 @@ php >
     Lo script è eseguito all'inizio di ogni richiesta HTTP. Se
     restituisce &false;, la risorsa richiesta viene ritornata
     così com'è. altrimenti viene restituito al browser il risultato dello script.
+  </para>
+
+  <para>
+    I tipi MIME standard vengono restituiti per i file con le estensioni: .css,
+   .gif, .htm, .html, .jpe, .jpeg, .jpg, .js, .png, .svg, e .txt.
+   Le estensioni .htm e .svg sono riconosciute da PHP 5.4.4
+   in poi.
   </para>
 
   <example>
@@ -1693,15 +1701,15 @@ Press Ctrl-C to quit
   <example>
    <title>Uso di uno script router</title>
 <para>
-  Le richieste per delle immagini le mostreranno, ma richieste per file HTML mostreranno "Welcome to PHP"
+  In questo esempio, le richieste per delle immagini le mostreranno, ma richieste per file HTML mostreranno "Welcome to PHP":
 </para>
    <programlisting role="php">
 <![CDATA[
 <?php
 // router.php
-if (preg_match('/\.(?:png|jpg|jpeg|gif)$/', $_SERVER["REQUEST_URI"]))
-    return false;    // serve the requested resource as-is.
-else { 
+if (preg_match('/\.(?:png|jpg|jpeg|gif)$/', $_SERVER["REQUEST_URI"])) {
+    return false;    // serve la risorsa richiesta così com'è.
+} else { 
     echo "<p>Welcome to PHP</p>";
 }
 ?>]]>
@@ -1711,22 +1719,68 @@ else {
 $ php -S localhost:8000 router.php
 ]]>
    </programlisting>
-   <para>
-     Dopo parecchie richieste di URI il terminale visualizzerà qualcosa di simile a:
-   </para>
-   <screen>
+  </example>
+  
+  <example>
+   <title>Controllo dell'Uso del Server Web CLI</title>
+<para>
+ Per riutilizzare uno script del router del framework durante lo sviluppo con il web server CLI e successivamente anche con un server web di produzione:
+</para>
+   <programlisting role="php">
 <![CDATA[
-PHP 5.4.0 Development Server started at Thu Jul 21 10:53:19 2011
-Listening on localhost:8000
-Document root is /home/me/public_html
-Press Ctrl-C to quit.
-[Thu Jul 21 10:53:45 2011] ::1:55801 GET /mylogo.jpg - Request read
-[Thu Jul 21 10:53:52 2011] ::1:55803 GET /abc.html - Request read
-[Thu Jul 21 10:53:52 2011] ::1:55804 GET /favicon.ico - Request read
+<?php
+// router.php
+if (php_sapi_name() == 'cli-server') {
+    /* route static assets and return false */
+}
+/* prosegue con le normali operazioni di index.php */
+?>]]>
+   </programlisting>
+   <programlisting role="shell">
+<![CDATA[
+$ php -S localhost:8000 router.php
 ]]>
-   </screen>
+   </programlisting>
   </example>
 
+  <example>
+   <title>Gestione Tipi File Non Supportati</title> 
+<para>
+  Se si ha bisogno di restituire una risorsa statica il cui tipo MIME non viene gestito dal web server CLI, utilizzare:
+</para>
+   <programlisting role="php">
+<![CDATA[
+<?php
+// router.php
+$path = pathinfo($_SERVER["SCRIPT_FILENAME"]);
+if ($path["extension"] == "ogg") {
+    header("Content-Type: video/ogg");
+    readfile($_SERVER["SCRIPT_FILENAME"]);
+}
+else {
+    return FALSE;
+}
+?>]]>
+   </programlisting>
+   <programlisting role="shell">
+<![CDATA[
+$ php -S localhost:8000 router.php
+]]>
+   </programlisting>
+  </example>
+
+  <example>
+   <title>Accedere Al Web Server CLI Da Macchine Remote</title> 
+<para>
+  È possibile rendere accessibile il web server sulla porta 8000 per qualsiasi interfaccia con:
+</para>
+   <programlisting role="shell">
+<![CDATA[
+$ php -S 0.0.0.0:8000
+]]>
+   </programlisting>
+  </example>
+  
  </section>
  <!--}}}-->
 

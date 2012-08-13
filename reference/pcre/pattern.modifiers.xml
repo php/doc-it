@@ -1,27 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/pcre.xml, last change in rev 1.1 -->
-<!-- last change to 'pcre.pattern.modifiers' in en/ tree in rev 1.2 -->
 <!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- OLD-Revision: 1.78/EN.1.2 -->
-<refentry xml:id="reference.pcre.pattern.modifiers" xmlns="http://docbook.org/ns/docbook">
- <refnamediv>
-  <refname>Modificatori di criterio (Pattern Modifiers)</refname>
-  <refpurpose>Questo capitolo descrive i possibili modificatori
-   applicabili ad una espressione regolare</refpurpose>
-  </refnamediv>
-  <refsect1>
-   <title>Descrizione</title>
-   <para>
-    Di seguito saranno elencati i valori attualmente previsti. I nomi
-    posti tra parentesi si riferiscono ai corrispettivi nomi usati
-    internamente da PCRE.
-   </para>
-   <para>
-    <blockquote>
-     <variablelist>
-      <varlistentry>
-       <term><emphasis>i</emphasis> (PCRE_CASELESS)</term>
-       <listitem>
+<!-- splitted from ./it/functions/pcre.xml, last change in rev 1.1 -->
+<article xml:id="reference.pcre.pattern.modifiers" xmlns="http://docbook.org/ns/docbook">
+ <title>Modificatori di criterio (Pattern Modifiers)</title>
+ <titleabbrev>Questo capitolo descrive i possibili modificatori applicabili ad una espressione regolare</titleabbrev>
+  <para>
+   Di seguito saranno elencati i valori attualmente previsti. I nomi
+   posti tra parentesi si riferiscono ai corrispettivi nomi usati
+   internamente da PCRE.
+  </para>
+  <para>
+   <blockquote>
+    <variablelist>
+     <varlistentry>
+      <term><emphasis>i</emphasis> (<literal>PCRE_CASELESS</literal>)</term>
+      <listitem>
        <simpara>
         Se si attiva questo modificatore, l'espressione regolare viene
         riconosciuta senza distinguere tra le lettere maiuscole e minuscole.
@@ -29,7 +22,7 @@
       </listitem>
      </varlistentry>
      <varlistentry>
-      <term><emphasis>m</emphasis> (PCRE_MULTILINE)</term>
+      <term><emphasis>m</emphasis> (<literal>PCRE_MULTILINE</literal>)</term>
       <listitem>
        <simpara>
         Per default, PCRE tratta il testo su cui fare la ricerca come
@@ -48,18 +41,16 @@
         questo carattere). Questo comportamento è equivalente
         al modificatore /m di Perl. Se nel testo passato non vi sono
         caratteri di "a capo" o non vi sono occorrenze dei caratteri
-        ^ o $ nell'espressione regolare, l'uso di questo modificatore
-        non ha effetto.
+        ^ o $ nell'espressione regolare, l'uso di questo modificatore non ha effetto.
        </simpara>
       </listitem>
      </varlistentry>
      <varlistentry>
-      <term><emphasis>s</emphasis> (PCRE_DOTALL)</term>
+      <term><emphasis>s</emphasis> (<literal>PCRE_DOTALL</literal>)</term>
       <listitem>
        <simpara>
         Se si attiva questo modificatore, il carattere . usato
-        nell'espressione regolare indica tutti i possibili caratteri
-        compreso il carattere di "a capo" (newline). Senza questo
+        nell'espressione regolare indica tutti i possibili caratteri compreso il carattere di "a capo" (newline). Senza questo
         modificatore il carattere "a capo" viene escluso.
         Questo modificare è equivalente a /s di Perl. Una espressione
         regolare contenente una forma negativa, come [^a], riconosce
@@ -68,7 +59,7 @@
       </listitem>
      </varlistentry>
      <varlistentry>
-      <term><emphasis>x</emphasis> (PCRE_EXTENDED)</term>
+      <term><emphasis>x</emphasis> (<literal>PCRE_EXTENDED</literal>)</term>
       <listitem>
        <simpara>
         Se si attiva questo modificatore, verranno ignorati gli spazi
@@ -81,35 +72,96 @@
         di Perl e consente di inserire dei commenti all'interno di
         espressioni regolari complesse. Gli spazi bianchi non devono
         mai comparire all'interno di sequenze speciali di caratteri,
-        come, ad esempio, la sequenza (?( che introduce ad un criterio
-        condizionale.
+        come, ad esempio, la sequenza (?( che introduce ad un criterio condizionale.
        </simpara>
       </listitem>
      </varlistentry>
      <varlistentry>
-      <term><emphasis>e</emphasis></term>
+      <term><emphasis>e</emphasis> (<literal>PREG_REPLACE_EVAL</literal>)</term>
       <listitem>
        <simpara>
-        Se viene specificato questo modificatore, la funzione
-        <function>preg_replace</function> valuta la stringa di
-        sostituzione come codice PHP, quindi utilizza il risultato
+        Se viene specificato questo modificatore, la funzione <function>preg_replace</function>
+        attua la sostituzione dei riferimenti all'indietro nella
+        stringa di sostituzione, la interpreta come codice PHP, quindi utilizza il risultato
         come testo da sostituire alle stringhe cercate.
-        Gli apici singoli e doppi sono preceduti dal backslash nei
-        riferimenti sostituiti.
+        Gli apici singoli e doppi  backslash (<literal>\</literal>) e i caratteri NULL sono
+        preceduti dal backslash nei riferimenti sostituiti.
        </simpara>
-       <para>
-        Soltanto <function>preg_replace</function> utilizza questo modificatore;
-        le altre funzioni di PCRE lo ignorano.
-        <note>
-         <simpara>
-         Questo modificatore non è disponibile in PHP 3.
-         </simpara>
-        </note>
-       </para>
+       <caution>
+        <para>
+         Ma funzione <function>addslashes</function> viene eseguita su ogni riferimento prima che
+         la sostituzione venga attuata. Quindi, quando il riferimento all'indietro
+         è utilizzato come una stringa tra apici, i caratteri con escape saranno convertiti
+         nella loro version letterale. Comunque i caratteri con escape che 
+         normalmente non sono tradotti manterranno il loro backslash. Questo rende
+         molto complicato l'utilizzo di questo modificatore.
+        </para>
+       </caution>
+       <caution>
+        <para>
+         Assicurarsi che <parameter>replacement</parameter> costituisca una stringa di codice PHP valido,
+         altrimenti PHP emetterà un errore alla linea che contiene
+         <function>preg_replace</function>.
+        </para>
+       </caution>
+       <caution>
+        <para>
+         L'uso di questo modificatore <emphasis>non è raccomandato</emphasis>, dal momento che può facilmente
+         introdurre delle vulnerabilità:
+        </para>
+        <informalexample>
+         <programlisting role="php">
+<![CDATA[
+<?php
+$html = $_POST['html'];
+
+// uppercase headings
+$html = preg_replace(
+    '(<h([1-6])>(.*?)</h\1>)e',
+    '"<h$1>" . strtoupper("$2") . "</h$1>"',
+    $html
+);
+]]>
+         </programlisting>
+        </informalexample>
+        <para>
+         L'esempio qui sopra può essere facilmente sfruttato passando una stringa come
+         <literal>&lt;h1&gt;{${eval($_GET[php_code])}}&lt;/h1&gt;</literal>. Questo dà
+         all'attaccante la possibiltà di eseguire codice PHP arbitrario e ciò gli permette
+         un access quasi totale al server.
+        </para>
+        <para>
+         Per evitare questo tipo di vulnerabilità, la funzione
+         <function>preg_replace_callback</function> deve essere utilizzata al suo posto:
+        </para>
+        <informalexample>
+         <programlisting role="php">
+<![CDATA[
+<?php
+$html = $_POST['html'];
+
+// uppercase headings
+$html = preg_replace_callback(
+    '(<h([1-6])>(.*?)</h\1>)',
+    function ($m) {
+        return "<h$m[1]>" . strtoupper($m[2]) . "</h$m[1]>";
+    },
+    $html
+);
+]]>
+         </programlisting>
+        </informalexample>
+       </caution>
+       <note>
+        <para>
+         Soltanto <function>preg_replace</function> utilizza questo modificatore;
+         le altre funzioni di PCRE lo ignorano.
+        </para>
+       </note>
       </listitem>
      </varlistentry>
      <varlistentry>
-      <term><emphasis>A</emphasis> (PCRE_ANCHORED)</term>
+      <term><emphasis>A</emphasis> (<literal>PCRE_ANCHORED</literal>)</term>
       <listitem>
        <simpara>
         Se si specifica questo modificatore, si forza un 'ancoraggio'
@@ -122,7 +174,7 @@
       </listitem>
      </varlistentry>
      <varlistentry>
-      <term><emphasis>D</emphasis> (PCRE_DOLLAR_ENDONLY)</term>
+      <term><emphasis>D</emphasis> (<literal>PCRE_DOLLAR_ENDONLY</literal>)</term>
       <listitem>
        <simpara>
         L'uso di questo modificatore forza il carattere $ dell'espressione
@@ -149,20 +201,28 @@
       </listitem>
      </varlistentry>
      <varlistentry>
-      <term><emphasis>U</emphasis> (PCRE_UNGREEDY)</term>
+      <term><emphasis>U</emphasis> (<literal>PCRE_UNGREEDY</literal>)</term>
       <listitem>
        <simpara>
-        Questo modificatore inverte la "voracità" delle occorrenze, in modo
-        da non essere voraci per default, ma lo tornano ad essere se
-        seguiti da "?". Questo flag non è compatibile con Perl.
-        Questo comportamento può anche essere settato dalla
-        sequenza (?U) <link linkend="regexp.reference.internal-options">settaggio dei modificatori
-        all'interno del criterio di ricerca</link>
+        Questo modificatore inverte la "golosità" delle occorrenze, in modo
+        da non essere golose per default, ma lo tornano ad essere se
+        seguiti da <literal>?</literal>. Questo flag non è compatibile con Perl.
+        Questo comportamento può anche essere settato dalla sequenza (<literal>?U</literal>)
+        <link linkend="regexp.reference.internal-options">settaggio dei modificatori
+        all'interno del criterio di ricerca</link> o da un punto di domanda vicino ad un quantificatore (es.
+        <literal>.*?</literal>).
        </simpara>
+       <note>
+        <para>
+         Normalmente non è possibile eseguire una corrispondenza con più di <link
+         linkend="ini.pcre.backtrack-limit">pcre.backtrack_limit</link>
+         caratteri in modalità non golosa.
+        </para>
+       </note>
       </listitem>
      </varlistentry>
      <varlistentry>
-      <term><emphasis>X</emphasis> (PCRE_EXTRA)</term>
+      <term><emphasis>X</emphasis> (<literal>PCRE_EXTRA</literal>)</term>
       <listitem>
        <simpara>
         Questo modificatore attiva funzionalità addizionali di PCRE
@@ -177,21 +237,30 @@
       </listitem>
      </varlistentry>
      <varlistentry>
-      <term><emphasis>u</emphasis> (PCRE_UTF8)</term>
+      <term><emphasis>J</emphasis> (<literal>PCRE_INFO_JCHANGED</literal>)</term>
+      <listitem>
+       <simpara>
+        L'opzione di configurazione interna (?J) cambia l'opzione locale <literal>PCRE_DUPNAMES</literal>
+        Permette la duplicazione dei nomi per le sottoregole.
+       </simpara>
+      </listitem>
+     </varlistentry>
+     <varlistentry>
+      <term><emphasis>u</emphasis> (<literal>PCRE_UTF8</literal>)</term>
       <listitem>
        <simpara>
         Questo modificatore attiva funzionalità di PCRE che sono
         incompatibili con Perl. Le stringhe di ricerca sono considerate
         come UTF-8. Questo modificatore è disponibile dalla versione
         4.1.0 di PHP di Unix e dalla versione 4.2.3 sulla piattaforma win32.
+        La validità UTF-8 della regola è controllata da PHP 4.3.5.
        </simpara>
       </listitem>
      </varlistentry>
     </variablelist>
    </blockquote>
   </para>
- </refsect1>
-</refentry>
+</article>
 
 <!-- Keep this comment at the end of the file
 Local variables:

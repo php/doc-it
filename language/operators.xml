@@ -1,27 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 41c30ef6187db9a5a960a4ec77e6a3bdf3da2655 Maintainer: cucinato Status: ready -->
+<!-- EN-Revision: 4b4ae3e9937a6520b272d4fd794cd6670d47f9e0 Maintainer: cucinato Status: ready -->
  <chapter xml:id="language.operators" xmlns="http://docbook.org/ns/docbook">
   <title>Operatori</title>
   <simpara>
    Un operatore è un qualcosa che si posiziona tra uno o più valori (od espressioni,
    in gergo tecnico) e produce un'altro valore (in modo tale che la costruzione
-   stessa diventi a sua volta un'espressione). In questo modo si può considerare operatori le funzioni
-   o costruzioni che restituiscono valori (tipo print), e quelle che non restituiscono
-   nulla (come echo) possono essere considerate come altro tipo di funzione.
+   stessa diventi a sua volta un'espressione). i
   </simpara>
   <para>
-   Esistono tre tipi di operatori. Una tipologia sono gli operatori unari, i quali richiedono
-   un solo valore, ad esempio ! (l'operatore di negazione) oppure ++
-   (l'operatore di autoincremento). Nel secondo gruppo troviamo gli operatori binari; questi
-   costituiscono la maggior parte degli operatori disponibili in PHP, un e elenco di questi
-   è presente alla sezione <link linkend="language.operators.precedence">Precednza
-   degli operatori</link>.
+   Gli operatori possono essere raggruppati a seconda del numero di valori che trattano. Gli
+   operatori unari quali richiedono un solo valore, ad esempio <literal>!</literal>i
+   (l'<link linkend="language.operators.logical">operatore logico noti</link>) oppure
+   <literal>++</literal> 
+   (l'<link linkend="language.operators.increment">operatore di autoincremento</link>).
+   Gli operatori binari accettano due valor, come i familiari
+   <link linkend="language.operators.arithmetic">operatori aritmetici</link>
+   <literal>+</literal> (più) e <literal>-</literal> (meno), e la
+   maggior parte degli operatori disponibili in PHP ricadono in questa categoria. Infine, esiste un
+   solo <link linkend="language.operators.comparison.ternary">operatore
+   ternario</link>, <literal>? :</literal>, che accetta tre valori; viene
+   normalmente chiamato "l'operatore ternario" (anche se potrebbe
+   forse essere chiamato più precisamente operatore condizionale).
   </para>
   <para>
-   Il terzo gruppo è costituito dal operatore ternario: ?:. Questo si può utilizzare
-   per selezionare un espressione tra due possibili, in base ad una terza; piuttosto che dovere scegliere
-   tra due righe di istruzioni o diversi percorsi di esecuzione. Racchiudere l'operatore ternario
-   tra parentesi tonde è una buona idea.
+   Una lista completa degli operatore è fornita nella sezione
+   <link linkend="language.operators.precedence">Precedenza degli operatori</link>.
+   Questa sezione spiega anche la precedenza degli operatori e l'associatività, che stabiliscono
+   esattamente come le espressioni contenenti differenti operatori sono
+   valutate ed eseguite.
   </para>
 
   <sect1 xml:id="language.operators.precedence">
@@ -34,8 +40,12 @@
     ha una precedenza più alta rispetto all'operatore di addizione ("+").
     Le parentesi possono essere usate per forzare la precedenza, se necessario. Per
     esempio: <literal>(1 + 5) * 3</literal> viene valutata
-    <literal>18</literal>. Se la precedenza tra gli operatori è simile, si utilizza l'associazione
-    da sinistra a destra.
+    <literal>18</literal>.
+   </para>
+   <para>
+    Quando gli operatori hanno precedenza identica, la loro associatività decide
+    se sono valutati partendo da destra o da
+    sinistra - vedere gli esempi qui sotto.
    </para>
    <para>
     La seguente tabella fornisce una lista della precedenza degli operatori con gli
@@ -64,21 +74,14 @@
         <entry><function>array</function></entry>
        </row>
        <row>
-        <entry>non associativi</entry>
-        <entry>++ --</entry>
-        <entry>
-         <link linkend="language.operators.increment">incremento/decremento</link>
-        </entry>
-       </row>
-       <row>
         <entry>destra</entry>
-        <entry>~ - (int) (float) (string) (array) (object) (bool) @</entry>
+        <entry>++ -- ~ (int) (float) (string) (array) (object) (bool) @</entry>
         <entry>
-         <link linkend="language.types">tipi</link>
+         <link linkend="language.types">types</link> and <link linkend="language.operators.increment">increment/decrement</link>
         </entry>
        </row>
        <row>
-        <entry>non associativo</entry>
+        <entry>non associativi</entry>
         <entry>instanceof</entry>
         <entry>
          <link linkend="language.types">tipi</link>
@@ -114,14 +117,14 @@
        </row>
        <row>
         <entry>non associativi</entry>
-        <entry>&lt; &lt;= &gt; &gt;= &lt;&gt;</entry>
+        <entry>&lt; &lt;= &gt; &gt;=</entry>
         <entry>
          <link linkend="language.operators.comparison">operatori di confronto</link>
         </entry>
        </row>
        <row>
         <entry>non associativi</entry>
-        <entry>== != === !==</entry>
+        <entry>== != === !== &lt;&gt;</entry>
         <entry>
          <link linkend="language.operators.comparison">operatori di confronto</link>
         </entry>
@@ -208,8 +211,9 @@
     </table>
    </para>
    <para>
-    L'associazione a sinistra indica che l'espressione viene valutata da sinistra verso destra,
-    l'associazione destra indica il contrario.
+    Per operatori con uguale precedenza, l'associazione a sinistra indica che
+    l'espressione viene valutata da sinistra verso destra, e l'associazione destra indica
+    il contrario.
     <example>
      <title>Associatività</title>
      <programlisting role="php">
@@ -221,11 +225,16 @@ $a = true ? 0 : true ? 1 : 2; // (true ? 0 : true) ? 1 : 2 = 2
 $a = 1;
 $b = 2;
 $a = $b += 3; // $a = ($b += 3) -> $a = 5, $b = 5
+
+// mescolare  ++ e + produce un comportamento indefinito
+$a = 1;
+echo ++$a + $a++; // può stampare 4 o 5
 ?>
 ]]>
      </programlisting>
     </example>
-    Utilizzare le parentesi per aumentare la leggibilità del codice.
+    Utilizzare le parentesi, anche quando non è strettamente necessarion, pùò spesso aumentare
+    la leggibilità del codice.
    </para>
    <note>
     <para>
@@ -297,12 +306,25 @@ $a = $b += 3; // $a = ($b += 3) -> $a = 5, $b = 5
     Gli operandi del modulo sono convertiti a interi (rimuovendo la parte decimale)
     prima dell'operazione.
    </simpara>
-   <note>
-    <simpara>
-     Il resto <literal>$a % $b</literal> è negativo per
-     <literal>$a</literal> negativo.
-    </simpara>
-   </note>
+   <para>
+    Il risultato dell'operatore modulo <literal>%</literal> ha lo stesso segno
+    del dividendo - ovvero, il risultato di <literal>$a % $b</literal>
+    avrà lo stesso segno di <varname>$a</varname>. Per esempio:
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+echo (5 % 3)."\n";           // prints 2
+echo (5 % -3)."\n";          // prints 2
+echo (-5 % 3)."\n";          // prints -2
+echo (-5 % -3)."\n";         // prints -2
+
+?>
+]]>
+     </programlisting>
+    </informalexample>
+   </para>
    <simpara>
     Vedere anche le pagine del manuale sulle
     <link linkend="ref.math">funzioni matematiche</link>.
@@ -364,17 +386,75 @@ $b .= "come va?"; // imposta $b a "Ciao come va?", proprio come $b = $b . "come 
     Si noti che l'assegnamento copia la variabile originale nella nuova
     (assegnamento per valore), così i cambiamenti della prima non si verificheranno nell'
     altra. Ciò può anche avere rilevanza se si ha bisogno di copiare
-    un grande array in un ciclo molto stretto. L'assegnamento
-    per riferimento è pure supportato, usando la sintassi <computeroutput>$var =
-    &amp;$othervar;</computeroutput>.
-    'Assegnamento per riferimento' significa che entrambe le variabili
-    finiscono con il puntare agli stessi dati, e nulla è copiato.
-    Per ulteriori approfondimenti sui riferimenti, consultare <link
-    linkend="language.references">References explained</link>. Dal
-    PHP 5, gli oggetti sono assegnati per riferimento a meno che non venga esplicitamente
-    usata la nuova keyword <link linkend="language.oop5.cloning">clone</link>.
-    
+    un grande array in un ciclo molto stretto. 
    </para>
+   <para>
+    Un'eccezione al comportamento standard dell'assegnamento per valore avviene
+    con gli<type>object</type>, che sono assegnati per riferimento in PHP 5.
+    Gli oggetti possono essere copiati esplicitamente attraverso la keyword <link
+    linkend="language.oop5.cloning">clone</link>.
+   </para>
+
+   <sect2 xml:id="language.operators.assignment.reference">
+    <title>Assegnamento per referimento</title>
+    <para>
+     L'assegnamento per riferimento è pure supportato, usando la sintassi
+     "<computeroutput>$var = &amp;$othervar;</computeroutput>.
+     'Assegnamento per riferimento' significa che entrambe le variabili finiscono con il puntare agli
+     stessi dati, e nulla è copiato.
+    </para>
+    <para>
+     <example>
+      <title>Assegnare per riferimento</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$a = 3;
+$b = &$a; // $b è un riferimento ad $a
+
+print "$a\n"; // stampa 3
+print "$b\n"; // stampa 3
+
+$a = 4; // modifica $a
+
+print "$a\n"; // stampa 4
+print "$b\n"; // stampa ugualmente 4, dal momento che $b è un riferimento ad $a, che è
+              // stata modificata
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Da PHP 5, l'operatore <link linkend="language.oop5.basic.new">new</link>
+     restituisce automaticamente un riferimento, quindi assegnare il risultato di
+     <link linkend="language.oop5.basic.new">new</link> per riferimento risulta
+     in un messaggio <constant>E6DEPRECATED</constant> in PHP 5.3 e successivi, e
+     un messaggio <constant>E_STRICT</constant> nelle version precedenti.
+    </para>
+    <para>
+     Per esempio, quesco codice provocherà un avvertimento:
+     <informalexample>
+      <programlisting role="php">
+<![CDATA[
+<?php
+class C {}
+
+/* la prossima linea genera il seguente messaggio di errore:
+ * Deprecated: Assigning the return value of new by reference is deprecated in...
+ */
+$o = &new C;
+?>
+]]>
+      </programlisting>
+     </informalexample>
+    </para>
+    <para>
+     Ulteriori informazioni sui riferimenti e sul loro uso possono essere trovati
+     nella sezione del manuale <link linkend="language.references">Spiegazioni sui riferimenti</link>
+     .
+    </para>
+   </sect2>
   </sect1>
 
   <sect1 xml:id="language.operators.bitwise">
@@ -1049,32 +1129,32 @@ Espressione: 0 = -4 << 62
       <row>
        <entry>$a == $b</entry>
        <entry>Uguale</entry>
-       <entry>&true; se <varname>$a</varname> è uguale a <varname>$b</varname>.</entry>
+       <entry>&true; se <varname>$a</varname> è uguale a <varname>$b</varname> dopo la manipolazione dei tipi.</entry>
       </row>
       <row>
        <entry>$a === $b</entry>
        <entry>Identico</entry>
        <entry>
- &true; se <varname>$a</varname> è uguale a <varname>$b</varname>, ed sono dello stesso
- tipo. (Dal PHP 4)
+        &true; se <varname>$a</varname> è uguale a <varname>$b</varname>, ed sono dello stesso
+        tipo.
        </entry>
       </row>
       <row>
        <entry>$a != $b</entry>
        <entry>Diversi</entry>
-       <entry>&true; se <varname>$a</varname> è diverso da <varname>$b</varname>.</entry>
+       <entry>&true; se <varname>$a</varname> è diverso da <varname>$b</varname> dopo la manipolazione dei tipi.</entry>
       </row>
       <row>
        <entry>$a &lt;&gt; $b</entry>
        <entry>Diversi</entry>
-       <entry>&true; se <varname>$a</varname> è diverso da <varname>$b</varname>.</entry>
+       <entry>&true; se <varname>$a</varname> è diverso da <varname>$b</varname> dopo la manipolazione dei tipi.</entry>
       </row>
       <row>
        <entry>$a !== $b</entry>
        <entry>Non identici</entry>
        <entry>
- &true; se <varname>$a</varname> è diverso da <varname>$b</varname>, o se non sono dello stesso
- tipo. (Dal PHP 4)
+        &true; se <varname>$a</varname> è diverso da <varname>$b</varname>, o se non sono dello stesso
+        tipo.
        </entry>
       </row>
       <row>
@@ -1327,6 +1407,12 @@ echo ((true ? 'true' : false) ? 't' : 'f');
     essere generato da quella espressione sarà ignorato.
    </simpara>
    <simpara>
+    Se è stata assegnata una funzione personalizzata di gestione degli errori con
+    <function>set_error_handler</function> questa verrà comunque
+    chiamata, ma questa funzione può (e dovrebbe) chiamare <function>error_reporting</function>
+    che restituirà 0 quando la chiamata che ha attivato l'errore era preceduta da un @.
+   </simpara>
+   <simpara>
     Se la caratteristica <link linkend="ini.track-errors"><option>track_errors</option></link>
     è abilitata, qualsiasi messaggio di errore generato dall'espressione
     sarà salvato nella variabile globale 
@@ -1384,7 +1470,7 @@ $value = @$cache[$key];
    <title>Operatori di esecuzione</title>
    <para>
     PHP supporta un operatore di esecuzione: backticks (``). Si noti che
-    non sono apostrofi! PHP cercherà di eseguire
+    non sono apostrofi o apici! PHP cercherà di eseguire
     il contenuto dei backticks come comando di shell; sarà restituito l'output
     (ovvero, non sarà semplicemente inviato all'output, ma potrà
     essere assegnato ad una variabile). L'uso dell'operatore backtick è identico
@@ -1404,6 +1490,12 @@ echo "<pre>$output</pre>";
     <para>
      L'operatore backtick è disabilitato quando è abilitata &safemode;
      oppure quando è disabilitata <function>shell_exec</function>.
+    </para>
+   </note>
+   <note>
+    <para>
+     Diversamente da altri linguaggi, i backtick non posso essere usati all'interno
+     di stringhe delimitate da doppi apici.
     </para>
    </note>
    <para>
@@ -1494,12 +1586,14 @@ echo "Dovrebbe essere 4: " . $a . "<br />\n";
    </para>
    <para>
     Il PHP segue le convenzioni di Perl e non del C quando tratta le operazioni matematiche
-    sui caratteri. Ad esempio, in Perl
-    <literal>'Z'+1</literal> diventa <literal>'AA'</literal>, mentre in C
-    <literal>'Z'+1</literal> diventa <literal>'['</literal>
-    ( <literal>ord('Z') == 90</literal>, <literal>ord('[') == 91</literal> ).
+    sui caratteri. Ad esempio, in PHP e Perl
+    <literal>$a = 'Z'; $a++;</literal> modifica <literal>$a</literal> in <literal>'AA'</literal>, mentre in C
+    <literal>a = 'Z'; a++;</literal> modifica <literal>a</literal> in <literal>'['</literal>
+    (il valore ASCII di <literal>'Z'</literal> è 90, quello di <literal>'['</literal> è 91).
     Si noti che le variabili carattere possono essere incrementate ma non decrementate e
     anche in questo caso solo i caratteri ASCII (a-z e A-Z) sono supportati.
+    Incrementare/decrementare altre variabili di carattere non ha effetto, la
+    stringa originale non viene modificata.
     <example>
      <title>Operazioni aritmetiche su variabili carattere</title>
      <programlisting role="php">
@@ -1719,9 +1813,10 @@ $a .= "Mondo!";     // ora $a contiene "Ciao Mondo!"
     </tgroup>
    </table>
    <para>
-    L'operatore <literal>+</literal>
-    aggiunge la matrice di destra a quella di sinistra, mentre le
-    chiavi duplicate NON sono sovrascritte.
+    L'operatore <literal>+</literal> restituisce la matrice di destra aggiunta
+    a quella di sinistra; per le chiavi esistenti in entrambe le matrici, vengono usati gli elementi
+    della matrice di sinistra, e gli elementi duplicati in quella
+    di destra sono ignorati.
    </para>
    <para>
     <informalexample>
@@ -1957,7 +2052,7 @@ bool(false)
    </para>
    <para>
     Ci sono alcune trappole da evitare. Prima di PHP 5.1.0,
-    <literal>instanceof</literal> chiama <link linkend="language.oop5.autoload">__autoload()</link>
+    <literal>instanceof</literal> chiama <function>__autoload</function>
     se il nome della classe non esiste. Inoltre, se la classe non è stata caricata,
     viene generato un errore fatale. Ciò può essere evitato usando un riferimento
     dinamico alla classe, o una variabile stringa che contenga il nome della classe:

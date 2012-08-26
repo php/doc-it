@@ -1,62 +1,162 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: curcio_it Status: ready -->
-  <refentry xml:id="function.xslt-process" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>xslt_process</refname>
-    <refpurpose>Esegue una trasformazione XSLT</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>mixed</type><methodname>xslt_process</methodname>
-       <methodparam><type>resource</type><parameter>xh</parameter></methodparam>
-       <methodparam><type>string</type><parameter>xmlcontainer</parameter></methodparam>
-       <methodparam><type>string</type><parameter>xslcontainer</parameter></methodparam>
-       <methodparam choice="opt"><type>string</type><parameter>resultcontainer</parameter></methodparam>
-       <methodparam choice="opt"><type>array</type><parameter>arguments</parameter></methodparam>
-       <methodparam choice="opt"><type>array</type><parameter>parameters</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     La funzione <function>xslt_process</function> è una delle più importanti della
-     nuova estensione XSLT. Permette di eseguire una trasformazione XSLT usando quasi ogni tipo di
-     fonte per l'input - i contenitori. Questa è un completamento mediante l'uso dell'argomento
-     buffers -- un concetto preso dal processore XSLT Sablotron
-     (attualmente l'unico processore XSLT supportato da questa estensione).
-     Il contenituore di input di default è il nome del file del documento
-     trasformato. Se il contenitore di destinaizone non viene fornito, ad esempio
-     è impostato a &null; - alla la funzione restituisce il risultato.
-    </para>
-    <para>
-     <warning>
-      <simpara>
-       Questa funzione ha modifica i propri argomenti dalla versione 4.0.6. Infatti non 
-       fornire più il contenuto XML o XSL come secondi e terzi argomenti, poichè questi
-       creano un segmentation fault in Sablotron fino alla versione
-       0.95 inclusa.
-      </simpara>
-     </warning>
-    </para>
-    <para>
-     I contenitori possono essere impostati anche tramite la matrice
-     <parameter>$arguments</parameter> (vedere più avanti).
-    </para>
-    <para>
-     Il più semplice tipo di trasformazione con la funzione <function>xslt_process</function>
-     è la trasformazione di un file XML con un file XSLT, mettendo il
-     risultato in un terzo file contenente un nuovo documento XML (o HTML).
-     Fare questo con Sablotron è davvero molto semplice...
-    </para>
-    <example>
-     <title>Uso di <function>xslt_process</function> per trasformare un file XML e un file XSL
-     in un nuovo file XML</title>
-     <programlisting role="php">
+<!-- EN-Revision: 96c9d88bad9a7d7d44bfb7f26c226df7ee9ddf26 Maintainer: pastore Status: ready -->
+<refentry xml:id="function.xslt-process" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>xslt_process</refname>
+  <refpurpose>Esegue una trasformazione <acronym>XSLT</acronym></refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>mixed</type><methodname>xslt_process</methodname>
+   <methodparam><type>resource</type><parameter>xh</parameter></methodparam>
+   <methodparam><type>string</type><parameter>xmlcontainer</parameter></methodparam>
+   <methodparam><type>string</type><parameter>xslcontainer</parameter></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>resultcontainer</parameter></methodparam>
+   <methodparam choice="opt"><type>array</type><parameter>arguments</parameter></methodparam>
+   <methodparam choice="opt"><type>array</type><parameter>parameters</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   La funzione <function>xslt_process</function> è il punto cruciale dell'estensione
+   <acronym>XSLT</acronym>.  Essa permette di eseguire una trasformazione <acronym>XSLT</acronym> utilizzando
+   quasi qualsiasi tipo di sorgente come input - i contenitori.  Questo si realizza
+   attraverso l'utilizzo di buffer argomento -- un concetto preso dal processore <acronym>XSLT</acronym>
+   <productname>Sablotron</productname> (attualmente l'unico processore <acronym>XSLT</acronym> che questa estensione supporta).
+   I contenitori predefiniti di input ad un nome di file 'contenente' il documento da
+   elaborare. 
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>xh</parameter></term>
+     <listitem>
+      <para>
+       L'identificatore del link al processore <acronym>XSLT</acronym>, creato con
+       <function>xslt_create</function>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>xmlcontainer</parameter></term>
+     <listitem>
+      <para>
+       Percorso al file <acronym>XML</acronym> o un segnaposto per l'argomento
+       <acronym>XML</acronym>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>xslcontainer</parameter></term>
+     <listitem>
+      <para>
+       Percorso al file <acronym>XSL</acronym>o un segnaposto per l'argomento
+       <acronym>XML</acronym>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>resultcontainer</parameter></term>
+     <listitem>
+      <para>
+       Il container risultato predefinito ad un nome di file per il documento
+       trasformato. Se il container risultato non è specificato - p.e. &null;
+       - allora viene restituito il risultato.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>arguments</parameter></term>
+     <listitem>
+      <para>
+       Invece di file <acronym>XML</acronym> e <acronym>XSLT</acronym> come argomenti alla funzione
+       <function>xslt_process</function>, puoi specificare &quot;argomenti segnaposto&quot; che sono poi sostituiti dai valori
+       dati nell'array <parameter>arguments</parameter>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>parameters</parameter></term>
+     <listitem>
+      <para>
+       Un array per qualsiasi parametro di primo livello che sarà passato al documento
+       XSLT.  Dopo si può accedere a questi parametri all'interno dei file XSL
+       utilizzando l'istruzione <literal>&lt;xsl:nome del parametro=&quot;nome_parametro&quot;&gt;</literal>.
+       I parametri devono essere codificati con UTF-8 e i loro valori saranno
+       interpretati come stringhe dal processore <productname>Sablotron</productname>.
+       In altre parole - non si possono passare <literal>set di nodi</literal> come parametri
+       al documento <acronym>XSLT</acronym>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+  <para>
+   I container possono anche essere impostati attraverso l'array <parameter>arguments</parameter>
+   (vedi di seguito).
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success; Se il contenitore risultato non è specificato - p.e.
+   &null; - allora viene restituito il risultato.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>4.0.6</entry>
+       <entry>
+        Questa funzione non prende più stringhe XML in
+        <parameter>xmlcontainer</parameter> o 
+        <parameter>xslcontainer</parameter>. Il passaggio di una stringa contenente XML
+        ad uno di questi parametri si tradurrà in un errore di segmentazione nelle
+        versioni di Sablotron fino a 0.95.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   Il più semplice tipo di trasformazione con la funzione
+   <function>xslt_process</function> è la trasformazione di un file
+   <acronym>XML</acronym> con un file <acronym>XSLT</acronym>, mettendo il risultato
+   in un terzo file contenente il nuovo documento <acronym>XML</acronym> (o HTML).  Fare
+   questo con <productname>Sablotron</productname> è davvero molto semplice...
+  </para>
+  <example>
+   <title>Utilizzare la funzione <function>xslt_process</function> per trasformare un file <acronym>XML</acronym>
+   ed un file <acronym>XSL</acronym> in un nuovo file <acronym>XML</acronym></title>
+   <programlisting role="php">
 <![CDATA[
 <?php
 
-// Allocate a new XSLT processor
+// Allocazione di un nuovo processore XSLT
 $xh = xslt_create();
 
-// Process the document
+// Elaborazione del documento
 if (xslt_process($xh, 'sample.xml', 'sample.xsl', 'result.xml')) {
     echo "SUCCESS, sample.xml was transformed by sample.xsl into result.xml";
     echo ", result.xml has the following contents\n<br />\n";
@@ -73,27 +173,27 @@ xslt_free($xh);
 
 ?>
 ]]>
-     </programlisting>
-    </example>
-    <para>
-     Mentre questa funzionalità è importante, a volte, specialmente in un ambiente web, si vorrebbe
-     avere la possibilità di scrivere a video il risultato direttamente. Quindi, se si omette il terzo argomento
-     alla funzione <function>xslt_process</function> (o si inserisce il valore NULL per l'argomento), lo script 
-     restituirà automaticamente il valore della trasformazione dell'XSLT, invece di scriverlo in un
-     file...
-    </para>
-    <para>
-     <example>
-     <title>Uso di <function>xslt_process</function> per trasformare un file XML e uno XSL 
-     in una variabile contenente i dati XML restituiti</title>
-     <programlisting role="php">
+   </programlisting>
+  </example>
+  <para>
+   Anche se questa funzione è ottima, molte volte, soprattutto in un ambiente web, si vuole
+   essere in grado di stampare direttamente i risultati.  Pertanto, se si omette il terzo argomento della
+   funzione <function>xslt_process</function> (o si fornisce un valore NULL value per l'argomento), sarà
+   automaticamente restituito il valore della trasformazione <acronym>XSLT</acronym>, invece di scriverla direttamente in un
+   file...
+  </para>
+  <para>
+   <example>
+   <title>Utilizzare la funzione <function>xslt_process</function> per trasformare un file <acronym>XML</acronym>
+   ed un file <acronym>XSL</acronym> in una variabile che contiene i dati XML risultanti</title>
+   <programlisting role="php">
 <![CDATA[
 <?php
 
-// Allocate a new XSLT processor
+// Allocazione di un nuovo processore XSLT
 $xh = xslt_create();
 
-// Process the document, returning the result into the $result variable
+// Elaborazione del documento, restituendo il risultato nella variabile $result
 $result = xslt_process($xh, 'sample.xml', 'sample.xsl');
 if ($result) {
     echo "SUCCESS, sample.xml was transformed by sample.xsl into the \$result";
@@ -103,7 +203,7 @@ if ($result) {
     echo "</pre>\n";
 } else {
     echo "Sorry, sample.xml could not be transformed by sample.xsl into";
-    echo "  the \$result variable the reason is that " . xslt_error($xh) . 
+    echo "  the \$result variable the reason is that " . xslt_error($xh);
     echo " and the error code is " . xslt_errno($xh);
 }
 
@@ -111,40 +211,40 @@ xslt_free($xh);
 
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     I due casi sopra sono i due casi più semplici che ci sono quando c'è una trasformazione XSLT
-     e c'è da dire che dovreste essere per la maggior parte delle volte in questi casi, ma, a volte, puoi prendere il tuo
-     codice XML e XSLT da fonti esterne, come database e socket. In questi casi, avrai
-     i dati XML e/o XSLT in una variabile -- nella produzione di applicazioni l'overhead per scaricare
-     questo codice al file potrebbere essere eccessivo. Qui la sinstassi degli argomenti dell'XSLT ci
-     aiuta. Invece dei file come argomenti XML e XSLT alla funzione <function>xslt_process</function>,
-     puoi specificare l' &quot;argument place holders&quot; il quale è poi sostituito dal valore
-     dato nell'argomento dell'array (il quinto parametro della funzione <function>xslt_process</function>).  
-     Di seguito c'è un esempio del processo di inserimento di codice XML e XSLT senza 
-     l'ausilio di file.
-    </para>
-    <para>
-     <example>
-     <title>Uso di <function>xslt_process</function> per trasformare una variabile contenente dati XML 
-     e una variabile contenente dati XSL in una variabile contenente i dati XML risultanti</title>
-     <programlisting role="php">
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   I due casi mostrati sopra sono i due casi più semplici che ci possono essere quando si tratta di trasformazione XSLT
+   e si oserebbe dire che sono i casi più comuni, tuttavia, a volte si ottiene il codice <acronym>XML</acronym> e
+   <acronym>XSLT</acronym> da fonti esterne, come un database o un socket.  In questi casi si avranno
+   i dati <acronym>XML</acronym> e/o <acronym>XSLT</acronym> in una variabile -- e nelle applicazione di produzione il sovraccarico di operazioni di dumping
+   per questi file potrebbe essere troppo.  Questo è il caso in cui la sintassi dell'&quot;argomento&quot; di <acronym>XSLT</acronym>, viene in
+   soccorso.  Invece di file come argomenti <acronym>XML</acronym> e <acronym>XSLT</acronym> alla funzione
+   <function>xslt_process</function>, si possono specificare &quot;segnaposto degli argomenti&quot; che vengono poi sostituiti da valori
+   dati negli argomenti array (5° parametro della funzione <function>xslt_process</function>).
+   Di seguito è riportato un esempio di trasformazione <acronym>XML</acronym> e <acronym>XSLT</acronym> in una variabile risultato senza l'utilizzo
+   di file.
+  </para>
+  <para>
+   <example>
+   <title>Utilizzare la funzione <function>xslt_process</function> per trasformare una variabile contenente dati <acronym>XML</acronym>
+   e una variabile contenente dati <acronym>XSL</acronym> in una variabile contenente i dati <acronym>XML</acronym> risultanti</title>
+   <programlisting role="php">
 <![CDATA[
 <?php
-// $xml and $xsl contain the XML and XSL data
+// $xml e $xsl contengono i dati XML e XSL
 
 $arguments = array(
      '/_xml' => $xml,
      '/_xsl' => $xsl
 );
 
-// Allocate a new XSLT processor
+// Allocazione di un nuovo processore XSLT
 $xh = xslt_create();
 
-// Process the document
-$result = xslt_process($xh, 'arg:/_xml', 'arg:/_xsl', NULL, $arguments); 
+// Elaborazione del documento
+$result = xslt_process($xh, 'arg:/_xml', 'arg:/_xsl', NULL, $arguments);
 if ($result) {
     echo "SUCCESS, sample.xml was transformed by sample.xsl into the \$result";
     echo " variable, the \$result variable has the following contents\n<br />\n";
@@ -153,38 +253,29 @@ if ($result) {
     echo "</pre>\n";
 } else {
     echo "Sorry, sample.xml could not be transformed by sample.xsl into";
-    echo "  the \$result variable the reason is that " . xslt_error($xh) . 
+    echo "  the \$result variable the reason is that " . xslt_error($xh);
     echo " and the error code is " . xslt_errno($xh);
 }
 xslt_free($xh);
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Finalmente, l'ultimo argomento della funzione <function>xslt_process</function> 
-     rappresenta una matrice di qualsiasi parametro di alto livello che si desidera
-     passare al documento XSLT. Questi parametri possono essere referenziati
-     dal file XSL utilizzando l'istruzione &lt;xsl:param name=&quot;parameter_name&quot;&gt;.
-     I parametri devono avere la codifica UTF-8 ed i rispettivi valori devono
-     essere interpretati come stringhe dal processore <productname>Sablotron</productname>.
-     In altre parole non si possono passare come parametri al documento XSLT dei node-set.
-    </para>
-    <para>
-     <example>
-      <title>Passaggio di variabili PHP al file XSL</title>
-      <programlisting role="php">
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Passare variabili PHP ai file XSL</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
- 
-// XML string
+
+// stringa XML
 $xml = '<?xml version="1.0"?>
 <para>
  change me
 </para>';
- 
-// stringa XSL 
+
+// stringa XSL
 $xsl = '
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="html" encoding="ISO-8859-1" indent="no"
@@ -196,38 +287,43 @@ My PHP variable : <xsl:value-of select="$myvar"/><br />
 My node set : <xsl:value-of select="$mynode"/>
  </xsl:template>
 </xsl:stylesheet>';
- 
- 
+
+
 $xh = xslt_create();
- 
-// Il secondo parametro sarà interpretato come stringa
+
+// il secondo parametro sarà interpretato come una stringa
 $parameters = array (
   'myvar' => 'test',
   'mynode' => '<foo>bar</foo>'
 );
- 
+
 $arguments = array (
   '/_xml' => $xml,
   '/_xsl' => $xsl
 );
- 
+
 echo xslt_process($xh, 'arg:/_xml', 'arg:/_xsl', NULL, $arguments, $parameters);
- 
+
 ?>
 ]]>
-      </programlisting>
-      &example.outputs;
-      <screen>
+    </programlisting>
+    &example.outputs;
+    <screen>
 <![CDATA[
 My PHP variable : test<br>
 My node set : &lt;foo&gt;bar&lt;/foo&gt;
 ]]>
-      </screen>
-     </example>
-    </para>
-    &note.xslt.windows;
-   </refsect1>
-  </refentry>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.xslt.windows;
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

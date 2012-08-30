@@ -1,62 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/xml.xml, last change in rev 1.11 -->
-  <refentry xml:id="function.xml-parse-into-struct" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>xml_parse_into_struct</refname>
-    <refpurpose>Analisi di dati XML in una struttura a matrice</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-    <methodsynopsis>
-     <type>int</type><methodname>xml_parse_into_struct</methodname>
-     <methodparam><type>resource</type><parameter>parser</parameter></methodparam>
-     <methodparam><type>string</type><parameter>data</parameter></methodparam>
-     <methodparam><type>array</type><parameter role="reference">valori</parameter></methodparam>
-     <methodparam choice="opt"><type>array</type><parameter role="reference">indice</parameter></methodparam>
-    </methodsynopsis>
-    <para>
-     Questa funzione registra un file XML in 2 strutture a 
-     matrice, una (<parameter>indice</parameter>) contiene i puntatori
-     alla posizione dei valori nella matrice 
-     <parameter>valori</parameter>. Questi due parametri devono essere
-     passati per riferimento.
-    </para>
-    <note>
-     <para>
-      La funzione <function>xml_parse_into_struct</function> restituisce 0
-      in caso di errore e 1 in caso di successo. Questo non è lo stesso di &false;
-      e &true;, fare attenzione con gli operatori tipo ===.
-     </para>
-    </note>
-    <para>
-     Nell'esempio seguente si illustra la struttura interna delle matrici
-     generata dalla funzione. Qui si userà una semplice struttura con il 
-     tag <literal>note</literal> inserito all'interno del tag
-     <literal>para</literal>, e quindi si analizzerà questo visualizzando
-     la struttura ottenuta:
-     <example>
-      <title>Esempio di uso di <function>xml_parse_into_struct</function></title>
-      <programlisting role="php">
+<!-- EN-Revision: 886c5c639f2f33a01278d61c1d72ef39af880714 Maintainer: pastore Status: ready -->
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.xml-parse-into-struct">
+ <refnamediv>
+  <refname>xml_parse_into_struct</refname>
+  <refpurpose>Analizza i dati XML in una struttura array</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>int</type><methodname>xml_parse_into_struct</methodname>
+   <methodparam><type>resource</type><parameter>parser</parameter></methodparam>
+   <methodparam><type>string</type><parameter>data</parameter></methodparam>
+   <methodparam><type>array</type><parameter role="reference">values</parameter></methodparam>
+   <methodparam choice="opt"><type>array</type><parameter role="reference">index</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Questa funzione analizza una stringa XML in 2 strutture array parallele,
+   una (<parameter>index</parameter>) contiene i puntatori alla posizione dei
+   valori opportuni nell'array <parameter>values</parameter>. Quest'ultimi
+   due parametri devono essere passati per riferimento.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>parser</parameter></term>
+     <listitem>
+      <para>
+       Un riferimento al parser XML.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>data</parameter></term>
+     <listitem>
+      <para>
+       Una stringa contenente i dati XML.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>values</parameter></term>
+     <listitem>
+      <para>
+       Una array contenente i valori dei dati XML
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>index</parameter></term>
+     <listitem>
+      <para>
+       Un array contenente i puntatori alla posizione degli opportuni valori in $values.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   <function>xml_parse_into_struct</function> restituisce 0 per fallimento e 1 per
+   successo. Questo non è lo stesso di &false; e &true;, fare attenzione con
+   gli operatori come ===.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   Nell'esempio seguente si illustra la struttura interna degli
+   array generati da questa funzione. Utilizziamo un semplice
+   tag <literal>note</literal> incorporato all'interno di un
+   tag <literal>para</literal>, e quindi lo si analizzerà e stamperemo
+   le strutture generate:
+   <example>
+    <title>Esempio di uso <function>xml_parse_into_struct</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 $simple = "<para><note>simple note</note></para>";
 $p = xml_parser_create();
 xml_parse_into_struct($p, $simple, $vals, $index);
 xml_parser_free($p);
-echo "Array indice\n";
+echo "Index array\n";
 print_r($index);
-echo "\narray dei valori\n";
+echo "\nVals array\n";
 print_r($vals);
 ?>
 ]]>
-      </programlisting>
-     <para>
-      Eseguendo questo codice si otterrà:
-     </para>
-      <screen>
+    </programlisting>
+    <para>
+     Eseguendo questo codice si avrà come output:
+    </para>
+    <screen>
 <![CDATA[
-Array indice
+Index array
 Array
 (
     [PARA] => Array
@@ -72,7 +117,7 @@ Array
 
 )
 
-Array dei valori
+Vals array
 Array
 (
     [0] => Array
@@ -99,60 +144,60 @@ Array
 
 )
 ]]>
-      </screen>
-     </example>
-    </para>
-    <para>
-     Un parsing event-driven (basato sulla libreria expat) può essere
-     molto complicato se si deve trattare un documento XML complesso.
-     Questa funzione non produce un oggetto in stile DOM, ma 
-     genera una struttura che permette di essere gestita a modo di
-     albero. Quindi si può facilmente creare oggetti rappresentanti i dati
-     del file XML. Si consideri il seguente file XML rappresentante
-     un piccolo database di informazioni sugli aminoacidi.
-     <example>
-      <title>moldb.xml - piccolo database di informazioni sulle molecole</title>
-      <programlisting role="xml">
+    </screen>
+   </example>
+  </para>
+  <para>
+   Un parsing event-driven (basato sulla libreria expat) può essere
+   molto complicato se si deve trattare un documento XML complesso.
+   Questa funzione non produce un oggetto in stile DOM, ma 
+   genera una struttura che permette di essere gestita a modo di
+   albero. Quindi si possono facilmente creare oggetti rappresentanti i dati
+   del file XML. Si consideri il seguente file XML rappresentante
+   un piccolo database di informazioni sugli aminoacidi.
+   <example>
+    <title>moldb.xml - piccolo database di informazioni sulle molecole</title>
+	<programlisting role="xml">
 <![CDATA[
 <?xml version="1.0"?>
 <moldb>
 
-    <molecule>
-        <name>Alanine</name>
-        <symbol>ala</symbol>
-        <code>A</code>
-        <type>hydrophobic</type>
-    </molecule>
+  <molecule>
+      <name>Alanine</name>
+      <symbol>ala</symbol>
+      <code>A</code>
+      <type>hydrophobic</type>
+  </molecule>
 
-    <molecule>
-        <name>Lysine</name>
-        <symbol>lys</symbol>
-        <code>K</code>
-        <type>charged</type>
-    </molecule>
+  <molecule>
+      <name>Lysine</name>
+      <symbol>lys</symbol>
+      <code>K</code>
+      <type>charged</type>
+  </molecule>
 
 </moldb>
 ]]>
-      </programlisting>
-     </example>
-     Un codice per analizzare il documento e generare gli oggetti
-     appropriati:
-     <example>
-      <title>
-       parsemoldb.php - analizza moldb.xml e genera una matrice 
-       di oggetti molecole
-      </title>
-      <programlisting role="php">
+    </programlisting>
+   </example>
+   Un codice per analizzare il documento e generare gli oggetti
+   appropriati:
+   <example>
+    <title>
+     parsemoldb.php - analizza moldb.xml in un array di
+     oggetti molecolari
+    </title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 
 class AminoAcid {
-    var $name;  // aa nome
+    var $name;  // nome aa
     var $symbol;    // simbolo di tre lettere
     var $code;  // codice di una lettera
-    var $type;  // hydrophobic, charged or neutral
+    var $type;  // idrofobo, carico o neutro
     
-    function AminoAcid ($aa)
+    function AminoAcid ($aa) 
     {
         foreach ($aa as $k=>$v)
             $this->$k = $aa[$k];
@@ -161,7 +206,7 @@ class AminoAcid {
 
 function readDatabase($filename) 
 {
-    // legge il database degli aminoacidi
+    // legge il database XML di amminoacidi
     $data = implode("", file($filename));
     $parser = xml_parser_create();
     xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
@@ -169,14 +214,14 @@ function readDatabase($filename)
     xml_parse_into_struct($parser, $data, $values, $tags);
     xml_parser_free($parser);
 
-    // loop attraverso la struttura
+    // cicla attraverso le strutture
     foreach ($tags as $key=>$val) {
         if ($key == "molecule") {
             $molranges = $val;
-            // ciascuna coppia di elementi della matrice contigui
-            // sono il limite inferiore e superiore per la definizione di ciascuna molecola
+            // ciascuna coppia di elementi contigua dell'array è
+            // l'intervallo inferiore o superiore per la definizione di ciascuna molecola
             for ($i=0; $i < count($molranges); $i+=2) {
-                    $offset = $molranges[$i] + 1;
+                $offset = $molranges[$i] + 1;
                 $len = $molranges[$i + 1] - $offset;
                 $tdb[] = parseMol(array_slice($values, $offset, $len));
             }
@@ -187,27 +232,28 @@ function readDatabase($filename)
     return $tdb;
 }
 
-function parseMol($mvalues) {
-    for ($i=0; $i < count($mvalues); $i++)
+function parseMol($mvalues) 
+{
+    for ($i=0; $i < count($mvalues); $i++) {
         $mol[$mvalues[$i]["tag"]] = $mvalues[$i]["value"];
     }
     return new AminoAcid($mol);
 }
 
 $db = readDatabase("moldb.xml");
-echo "** Database di oggetti Aminoacidi:\n";
+echo "** Database degli oggetti Aminoacidi:\n";
 print_r($db);
 
 ?>
 ]]>
-      </programlisting>
-     </example>
-     Dopo l'esecuzione di <filename>parsemoldb.php</filename>, la variabile 
-     <varname>$db</varname> contiene una matrice di oggetti
-     <classname>AminoAcid</classname>, e ciò viene confermato
-     dall'output dello script:
-     <informalexample>
-      <screen>
+    </programlisting>
+   </example>
+   Dopo l'esecuzione di <filename>parsemoldb.php</filename>, la variabile
+   <varname>$db</varname> contiene un array di oggetti
+   <classname>AminoAcid</classname>, e ciò viene confermato
+   dall'output dello script:
+   <informalexample>
+    <screen>
 <![CDATA[
 ** Database di oggetti Aminoacidi:
 Array
@@ -230,11 +276,12 @@ Array
 
 )
 ]]>
-      </screen>
-     </informalexample>
-    </para>
-   </refsect1>
-  </refentry>
+    </screen>
+   </informalexample>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

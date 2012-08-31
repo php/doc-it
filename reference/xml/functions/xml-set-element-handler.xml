@@ -1,122 +1,150 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/xml.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.xml-set-element-handler" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>xml_set_element_handler</refname>
-    <refpurpose>Valorizza i gestori di inizio e fine elemento</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-    <methodsynopsis>
-     <type>bool</type><methodname>xml_set_element_handler</methodname>
-     <methodparam><type>resource</type><parameter>parser</parameter></methodparam>
-     <methodparam><type>callback</type><parameter>gestore_inizio_elemento</parameter></methodparam>
-     <methodparam><type>callback</type><parameter>gestore_fine_elemento</parameter></methodparam>
-    </methodsynopsis>
-    <para>
-     La funzione indica le funzioni di gestione di inizio e fine elemento per il
-     <parameter>parser</parameter> XML.
-     <parameter>gestore_inizio_elemento</parameter> e
-     <parameter>gestore_fine_elemento</parameter> sono stringhe contenenti
-     i nomi di funzioni che devono esistere quando
-     viene eseguito <function>xml_parse</function> per il
-     <parameter>parser</parameter>.
-    </para>
-    <para>
-     La funzione indicata da <parameter>gestore_inizio_elemento</parameter>
-     deve accettare tre parametri:
-     <methodsynopsis>
-      <methodname><replaceable>gestore</replaceable></methodname>
-      <methodparam><type>resource</type><parameter>parser</parameter></methodparam>
-      <methodparam><type>string</type><parameter>nome</parameter></methodparam>
-      <methodparam><type>array</type><parameter>attibuti</parameter></methodparam>
-     </methodsynopsis>
-     <variablelist>
-      <varlistentry>
-       <term><parameter>parser</parameter></term> 
-       <listitem>
-        <simpara>
-         Il primo parametro, <replaceable>parser</replaceable>, è il riferimento
-         al parser XML chiamante il gestore.
-        </simpara>
-       </listitem>
-      </varlistentry>
-      <varlistentry>
-       <term><parameter>nome</parameter></term>
-       <listitem>
-        <simpara>
-         Il secondo parametro, <parameter>nome</parameter>, contiene il nome
-         dell'elemento per il quale viene chiamato il gestore. Se è attivo il
-         <link linkend="xml.case-folding">case-folding</link> per questo parser,
-         il nome dell'elemento sarà in maiuscolo.
-        </simpara>
-       </listitem>
-      </varlistentry>
-      <varlistentry>
-       <term><parameter>attributi</parameter></term>
-       <listitem>
-        <simpara>
-         Il terzo parametro, <parameter>attributi</parameter>, contiene un array
-         associativo con gli attributi dell'elemento (se presenti). Le chiavi
-         di questo array sono i nomi degli attributi, mentre i valori delle chiavi sono i valori
-         degli attributi. I nomi degli attributi sono <link
-         linkend="xml.case-folding">case-folded</link> allo stesso modo dei
-         nomi degli elementi. I valori degli attributi <emphasis>non</emphasis>
-         lo sono.
-        </simpara>
-        <simpara>
-         L'ordine originale degli attributi può essere recuperato attraversando
-         <parameter>attributi</parameter> in modo normale utilizzando la funzione
-         <function>each</function>. La prima chiave dell'array è il primo attributo,
-         e così via.
-        </simpara>
-       </listitem>
-      </varlistentry>
-     </variablelist>
-    </para>
-    <para>
-     La funzione indicata da <parameter>gestore_fine_elemento</parameter>
-     deve accettare due parametri:
-     <methodsynopsis>
-       <methodname><replaceable>gestore</replaceable></methodname>
-       <methodparam><type>resource</type><parameter>parser</parameter></methodparam>
-       <methodparam><type>string</type><parameter>nome</parameter></methodparam>
-     </methodsynopsis>
-     <variablelist>
-      <varlistentry>
-       <term><parameter>parser</parameter></term> 
-       <listitem>
-        <simpara>
-         Il primo parametro, <replaceable>parser</replaceable>, è il riferimento
-         al parser XML chiamante il gestore.
-        </simpara>
-       </listitem>
-      </varlistentry>
-      <varlistentry>
-       <term><parameter>nome</parameter></term>
-       <listitem>
-        <simpara>
-         Il secondo parametro, <parameter>nome</parameter>, contiene il nome
-         dell'elemento per il quale viene chiamato il gestore. Se è attivo il
-         <link linkend="xml.case-folding">case-folding</link> per questo parser,
-         il nome dell'elemento sarà in maiuscolo.
-        </simpara>
-       </listitem>
-      </varlistentry>
-     </variablelist>
-    </para>
-    <para>
-     Se il nome della funzione del gestore viene valorizzato con una stringa vuota oppure a &false;,
-     il gestore in questione viene disabilitato.
-    </para>
-    <para>
-     La funzione restituisce &true; se il gestore viene attivato, &false; se 
-     <parameter>parser</parameter> non indica un parser XML.
-    </para>
-    &note.func-callback;
-   </refsect1>
-  </refentry>
+<!-- EN-Revision: 5faa7a6747bca628b3bdcc9f93aec5603b65581f Maintainer: pastore Status: ready -->
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.xml-set-element-handler">
+ <refnamediv>
+  <refname>xml_set_element_handler</refname>
+  <refpurpose>Valorizza i gestori di inizio e fine elemento</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>xml_set_element_handler</methodname>
+   <methodparam><type>resource</type><parameter>parser</parameter></methodparam>
+   <methodparam><type>callable</type><parameter>start_element_handler</parameter></methodparam>
+   <methodparam><type>callable</type><parameter>end_element_handler</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Imposta le funzioni di gestione per il <parameter>parser</parameter> XML.
+   <parameter>start_element_handler</parameter> e
+   <parameter>end_element_handler</parameter> sono stringhe contenenti
+   i nomi di funzioni che devono esistere quando viene eseguito
+   <function>xml_parse</function> per il <parameter>parser</parameter>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>parser</parameter></term>
+     <listitem>
+      <para>
+       Un riferimento al parser XML per impostare le funzioni di gestione degli elementi inizio e fine.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>start_element_handler</parameter></term>
+     <listitem>
+      <para>
+       La funzione indicata da <parameter>start_element_handler</parameter>
+       deve accettare tre parametri:
+       <methodsynopsis>
+        <methodname><replaceable>start_element_handler</replaceable></methodname>
+        <methodparam><type>resource</type><parameter>parser</parameter></methodparam>
+        <methodparam><type>string</type><parameter>name</parameter></methodparam>
+        <methodparam><type>array</type><parameter>attribs</parameter></methodparam>
+       </methodsynopsis>
+       <variablelist>
+        <varlistentry>
+         <term><parameter>parser</parameter></term> 
+         <listitem>
+          <simpara>
+           Il primo parametro, <replaceable>parser</replaceable>, è un
+           riferimento al parser XML che chiama il gestore.
+          </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term><parameter>name</parameter></term>
+         <listitem>
+          <simpara>
+           Il secondo parametro, <parameter>name</parameter>, contiene il nome
+           dell'elemento per il quale questo gestore viene chiamato.Se il <link
+           linkend="xml.case-folding">case-folding</link> è attivato per questo
+           parser, il nome dell'elemento sarà in lettere maiuscole.
+          </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term><parameter>attribs</parameter></term>
+         <listitem>
+          <simpara>
+           Il terzo parametro, <parameter>attribs</parameter>, contiene un
+           array associativo con gli attributi degli elementi (eventuali).Le chiavi
+           di questo array sono i nomi degli attributi, i valori sono i valori degli
+           attributi.I nomi degli attributi sono <link
+           linkend="xml.case-folding">case-folded</link> con gli stessi criteri con
+           i nomi degli elementi.I valori degli attributi <emphasis>not</emphasis> sono
+           case-folded.
+          </simpara>
+          <simpara>
+           L'ordine originale degli attributi può essere recuperato percorrendo
+           gli <parameter>attribs</parameter> normalmente, utilizzando
+           <function>each</function>.La prima chiave nell'array era il primo
+           attributo, e così via.
+          </simpara>
+         </listitem>
+        </varlistentry>
+       </variablelist>
+      </para>
+      &note.func-callback;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>end_element_handler</parameter></term>
+     <listitem>
+      <para>
+       La funzione indicata da <parameter>end_element_handler</parameter>
+       deve accettare due parametri:
+       <methodsynopsis>
+        <methodname><replaceable>end_element_handler</replaceable></methodname>
+        <methodparam><type>resource</type><parameter>parser</parameter></methodparam>
+        <methodparam><type>string</type><parameter>name</parameter></methodparam>
+       </methodsynopsis>
+       <variablelist>
+        <varlistentry>
+         <term><parameter>parser</parameter></term> 
+         <listitem>
+          <simpara>
+           Il primo parametro, <replaceable>parser</replaceable>, è un
+           riferimento al parser XML che chiama il gestore.
+          </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term><parameter>name</parameter></term>
+         <listitem>
+          <simpara>
+           Il secondo parametro, <parameter>name</parameter>, contiene il nome
+           dell'elemento per il quale questo gestore viene chiamato.Se il <link
+           linkend="xml.case-folding">case-folding</link> è attivato per questo
+           parser, il nome dell'elemento sarà in lettere maiuscole.
+          </simpara>
+         </listitem>
+        </varlistentry>
+       </variablelist>
+      </para>
+      <para>
+       Se una funzione di gestione è impostata con una stringa vuota, oppure a &false;, il gestore
+       in questione è disabilitato.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

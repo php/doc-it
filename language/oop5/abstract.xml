@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: f0550025342228d4a7e6caa0edd2ec9d6ff63a00 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: ac5ed968ff8350fd736e38af04587180e1059a3d Maintainer: pastore Status: ready -->
  <sect1 xml:id="language.oop5.abstract" xmlns="http://docbook.org/ns/docbook">
   <title>Astrazione delle classi</title>
 
@@ -19,7 +19,9 @@
    se il metodo astratto è definito come protetto, l'implementazione della funzione
    può essere definita come protetta o publica, ma non privata. Inoltre
    le firme dei metodi devono corrispondere, cioè il tipo e il numero
-   degli argomenti richiesti deve essere lo stesso. Questo vale anche per i costruttori
+   degli argomenti richiesti deve essere lo stesso. Per esempio, se la classe figlio
+   definisce un argomento opzionale, mentre la firma del metodo astratto non lo
+   fa, non ci sono conflitti nella firma. Questo vale anche per i costruttori
    a partire da PHP 5.4. Prima della 5.4 le firme dei costruttori possono essere differenti.
   </para>
 
@@ -79,6 +81,49 @@ ConcreteClass1
 FOO_ConcreteClass1
 ConcreteClass2
 FOO_ConcreteClass2
+]]>
+   </screen>
+  </example>
+
+  <example>
+   <title>Abstract class example</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+abstract class AbstractClass
+{
+    // Il nostro metodo astratto ha solo bisogno di definire gli argomenti richiesti
+    abstract protected function prefixName($name);
+
+}
+
+class ConcreteClass extends AbstractClass
+{
+
+    // La nostra classe figlio può definire argomenti opzionali non presenti nella firma del padre
+    public function prefixName($name, $separator = ".") {
+        if ($name == "Pacman") {
+            $prefix = "Mr";
+        } elseif ($name == "Pacwoman") {
+            $prefix = "Mrs";
+        } else {
+            $prefix = "";
+        }
+        return "{$prefix}{$separator} {$name}";
+    }
+}
+
+$class = new ConcreteClass;
+echo $class->prefixName("Pacman"), "\n";
+echo $class->prefixName("Pacwoman"), "\n";
+?>
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+Mr. Pacman
+Mrs. Pacwoman
 ]]>
     </screen>
    </example>

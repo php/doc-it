@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: fcddfb2551140fba9a14a4c44dc9fa60004440c8 Maintainer: pastore Status: ready -->
 <!-- splitted from ./it/functions/var.xml, last change in rev 1.1 -->
-<!-- last change to 'var-export' in en/ tree in rev 1.6 -->
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- OLD-Revision: 1.104/EN.1.6 -->
 <refentry xml:id="function.var-export" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
- <refname>var_export</refname>
- <refpurpose>Visualizza o restituisce una variabile in formato stringa</refpurpose>
-</refnamediv>
+  <refname>var_export</refname>
+  <refpurpose>Visualizza o restituisce una variabile in formato stringa</refpurpose>
+ </refnamediv>
 
-<refsect1 role="description">
- &reftitle.description;
- <methodsynopsis>
-  <type>mixed</type><methodname>var_export</methodname>
-  <methodparam><type>mixed</type><parameter>expression</parameter></methodparam>
-  <methodparam choice="opt"><type>bool</type><parameter>return</parameter></methodparam>
- </methodsynopsis>
- <simpara>
-  La funzione <function>var_export</function> restituisce informazioni strutturate
-  sulla data variabile. E' simile a <function>var_dump</function> con
-  una differenza:  il valore restituito è codice PHP.
- </simpara>
-</refsect1>
-<refsect1 role="parameters">
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>mixed</type><methodname>var_export</methodname>
+   <methodparam><type>mixed</type><parameter>expression</parameter></methodparam>
+   <methodparam choice="opt"><type>bool</type><parameter>return</parameter></methodparam>
+  </methodsynopsis>
+  <simpara>
+   La funzione <function>var_export</function> restituisce informazioni strutturate
+   sulla data variabile. E' simile a <function>var_dump</function> con
+   una differenza:  il valore restituito è codice PHP.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="parameters">
   &reftitle.parameters;
   <para>
    <variablelist>
@@ -51,11 +50,42 @@
   &reftitle.returnvalues;
   <para>
    Restituisce la rappresentazione della variabile quando il parametro  <parameter>return</parameter>
-   viene impostato a &true;. Altrimenti la funzione restituisce
+   viene utilizzato ed impostato a &true;. Altrimenti la funzione restituisce
    &null;.
   </para>
  </refsect1>
 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.uses-ob;
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>5.1.0</entry>
+       <entry>
+        Possibilità di esportare classi e array contenenti classi utilizzando il
+        metodo magico
+        <link linkend="object.set-state">__set_state()</link>.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+ 
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
@@ -87,9 +117,11 @@ array (
    <programlisting role="php">
 <![CDATA[
 <?php
+
 $b = 3.1;
 $v = var_export($b, true);
 echo $v;
+
 ?>
 ]]>
     </programlisting>
@@ -101,14 +133,90 @@ echo $v;
      </screen>
     </example>
    </para>
+   <para>
+   <example>
+    <title>Esportazione classi da PHP 5.1.0</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class A { public $var; }
+$a = new A;
+$a->var = 5;
+var_export($a);
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+A::__set_state(array(
+   'var' => 5,
+))
+]]>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Utilizzo di <link linkend="object.set-state">__set_state()</link> (da PHP 5.1.0)</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class A
+{
+    public $var1;
+    public $var2;
+
+    public static function __set_state($an_array)
+    {
+        $obj = new A;
+        $obj->var1 = $an_array['var1'];
+        $obj->var2 = $an_array['var2'];
+        return $obj;
+    }
+}
+
+$a = new A;
+$a->var1 = 5;
+$a->var2 = 'foo';
+
+eval('$b = ' . var_export($a, true) . ';'); // $b = A::__set_state(array(
+                                            //    'var1' => 5,
+                                            //    'var2' => 'foo',
+                                            // ));
+var_dump($b);
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+object(A)#2 (2) {
+  ["var1"]=>
+  int(5)
+  ["var2"]=>
+  string(3) "foo"
+}
+]]>
+    </screen>
+   </example>
+  </para>
  </refsect1>
 
  <refsect1 role="notes">
   &reftitle.notes;
   <note>
    <para>
-    Le variabili di tipo <type>resource</type>, le matrici e gli oggetti contenenti
-    oggetti non possono essere esportati da questa funzione.
+    Le variabili di tipo <type>resource</type>, non possono essere esportate da questa
+    funzione.
+   </para>
+  </note>
+  <note>
+   <para>
+    <function>var_export</function> non gestisce i riferimenti circolari poichè
+    sarebbe quasi impossibile generare codice PHP analizzabile per questo.
+    Se si vuole fare qualcosa con la rappresentazione completa di un array
+    o di un oggetto, utilizzare <function>serialize</function>.
    </para>
   </note>
  </refsect1>
@@ -117,13 +225,13 @@ echo $v;
   &reftitle.seealso;
   <para>
    <simplelist>
-    <member><function>var_dump</function></member>
     <member><function>print_r</function></member>
+    <member><function>serialize</function></member>
+    <member><function>var_dump</function></member>
    </simplelist>
   </para>
  </refsect1>
 </refentry>
-
 
 <!-- Keep this comment at the end of the file
 Local variables:

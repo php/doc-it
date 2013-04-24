@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: acf6ac20dd49781cf346245248733c8d281042d9 Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 8ad0d94e1c87b2daabff88e74acc31e8a11eec0a Maintainer: pastore Status: ready -->
 <refentry xml:id="function.empty" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>empty</refname>
@@ -12,7 +12,7 @@
    <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Determina se una variabile è da considerare vuota.
+   Determina se una variabile è da considerare vuota. Una variabile è considerata vuota se non esiste oppure se il suo valore è uguale a &false;. <function>empty</function> non genera un avviso se la variabile non esiste.
   </para>
  </refsect1>
  <refsect1 role="parameters">
@@ -23,19 +23,20 @@
      <term><parameter>var</parameter></term>
      <listitem>
       <para>
-       Varibaile da controllare
+       Variabile da controllare
       </para>
       <note>
        <para>
-        <function>empty</function> agisce solo su variabili, qualsiasi altra cosa
-         genera un errore di parsing. In altre parole, il seguente comando non funziona:
-        <command>empty(trim($name))</command>.
+        Prima di PHP 5.5, <function>empty</function> supporta solo variabili;
+        qualsiasi altra cosa si traduce in un errore di analisi. In altre parole, il
+        seguente comando non funziona: <command>empty(trim($name))</command>.
+        Invece, utilizzare <command>trim($name) == false</command>.
        </para>
       </note>
       <para>
-       <function>empty</function> è l'opposto di 
-       <literal>(boolean) var</literal>,
-       tranne che non viene dato alcun warning quando  la variabile non è valorizzata.
+       Se la variabile non esiste, nessun avviso verrà generato.
+       Questo significa che <function>empty</function> è essenzialmente l'equivalente
+       conciso di <command>!isset($var) || $var == false</command>.
       </para>
      </listitem>
     </varlistentry>
@@ -45,19 +46,20 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce &false; se <parameter>var</parameter> non è vuota
-   ed ha un valore diverso da zero.
+   Restituisce &false; se <parameter>var</parameter> esiste e ha un valore non vuoto e diverso da zero.
+   Altrimenti restituisce &true;.
   </para>
   <para>
    I seguenti valori sono considerati vuoti:
    <simplelist>
-    <member><literal>"" (stringa vuota)</literal></member>
-    <member><literal>0 (0 come intero)</literal></member>
-    <member><literal>"0" (0 come stringa)</literal></member>
+    <member><literal>""</literal> (una stringa vuota)</member>
+    <member><literal>0</literal> (0 come intero)</member>
+    <member><literal>0.0</literal> (0 come numero decimale)</member>
+    <member><literal>"0"</literal> (0 come stringa)</member>
     <member>&null;</member>
     <member>&false;</member>
-    <member><literal>array() (matrice vuota)</literal></member>
-    <member><literal>var $var; (una variabile dichiarata, ma senza valore in una classe)</literal></member>
+    <member><literal>array()</literal> (un array vuoto)</member>
+    <member><literal>$var;</literal> (una variabile dichiarata, ma senza un valore)</member>
    </simplelist>
   </para>
  </refsect1>
@@ -74,18 +76,27 @@
      </thead>
      <tbody>
       <row>
-       <entry>PHP 5</entry>
+       <entry>5.5.0</entry>
        <entry>
         <para>
-         Dal PHP 5, oggetti privi di proprietà non sono più considerati vuoti.
+         <function>empty</function> ora supporta le espressioni, piuttosto che solo
+         variabili.
         </para>
        </entry>
       </row>
       <row>
-       <entry>PHP 4</entry>
+       <entry>5.4.0</entry>
        <entry>
         <para>
-         Dal PHP 4, la stringa "0" è considerata vuota.
+         Il controllo su offset non numerici di stringhe restituisce &true;.
+        </para>
+       </entry>
+      </row>
+      <row>
+       <entry>5.0.0</entry>
+       <entry>
+        <para>
+         Gli oggetti senza proprietà non sono più considerati vuoti.
         </para>
        </entry>
       </row>
@@ -121,16 +132,66 @@ if (isset($var)) {
     </programlisting>
    </example>
   </para>
+  <example>
+   <title><function>empty</function> on String Offsets</title>
+   <para>
+    PHP 5.4 cambia il comportamento di <function>empty</function>
+    quando vengono passati offset di stringhe.
+   </para>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$expected_array_got_string = 'somestring';
+var_dump(empty($expected_array_got_string['some_key']));
+var_dump(empty($expected_array_got_string[0]));
+var_dump(empty($expected_array_got_string['0']));
+var_dump(empty($expected_array_got_string[0.5]));
+var_dump(empty($expected_array_got_string['0.5']));
+var_dump(empty($expected_array_got_string['0 Mostel']));
+?>
+]]>
+   </programlisting>
+   &example.outputs.53;
+   <screen>
+<![CDATA[
+bool(false)
+bool(false)
+bool(false)
+bool(false)
+bool(false)
+bool(false)
+]]>
+   </screen>
+   &example.outputs.54;
+   <screen>
+<![CDATA[
+bool(true)
+bool(false)
+bool(false)
+bool(false)
+bool(true)
+bool(true)
+]]>
+   </screen>
+  </example>
  </refsect1>
  <refsect1 role="notes">
   &reftitle.notes;
   &note.language-construct;
+  <note>
+   <para>
+    Quando viene utilizzata <function>empty</function> su proprietà di oggetti inaccessibili,
+    il metodo di overloading <link linkend="object.isset">__isset()</link>
+    sarà chiamato, se dichiarato.
+   </para>
+  </note>
  </refsect1>
  <refsect1 role="seealso">
   &reftitle.seealso;
   <para>
    <simplelist>
     <member><function>isset</function></member>
+    <member><link linkend="object.isset">__isset()</link></member>
     <member><function>unset</function></member>
     <member><function>array_key_exists</function></member>
     <member><function>count</function></member> 

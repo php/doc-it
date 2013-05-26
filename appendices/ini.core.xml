@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 84b8fca68fc762fefe85acde180a38b2e77a28b9 Maintainer: cucinato Status: ready -->   
+<!-- EN-Revision: 972cca8b717293ca66970dc3c93b8bb5d8dc0d89 Maintainer: cucinato Status: ready -->   
 
  <section xml:id="ini.core" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
   <title>Descrizione dei parametri core  di &php.ini;</title>
@@ -58,8 +58,8 @@
        <row>
         <entry><link linkend="ini.short-open-tag">short_open_tag</link></entry>
         <entry>"1"</entry>
-        <entry>PHP_INI_ALL</entry>
-        <entry>PHP_INI_ALL in PHP 4.0.0. PHP_INI_PERDIR in PHP &lt; 5.3.0</entry>
+        <entry>PHP_INI_PERDIR</entry>
+        <entry>PHP_INI_ALL in PHP 4.0.0. PHP_INI_PERDIR in PHP &gt;= 4.0.1.</entry>
        </row>
        <row>
         <entry><link linkend="ini.asp-tags">asp_tags</link></entry>
@@ -303,14 +303,23 @@
       <listitem>
        <para>
         Indica se il PHP deve indicare il fatto che è installato su un server, il che include la
-        versione di PHP all'interno delle intestazioni HTTP (es. X-Powered-By: PHP/5.3.7). Sono esposti anche
-        i guid del logo PHP, quindi apponendoli alla URL di un sito basato su PHP
-        si visualizza il corrispondente logo
+        versione di PHP all'interno delle intestazioni HTTP (es. X-Powered-By: PHP/5.3.7).
+        Nelle versioni precedenti a PHP 5.5.0 erano esposti anche i guid del logo PHP, quindi apponendoli
+        alla URL di un sito basato su PHP si visualizza il corrispondente logo
         (es. <link xlink:href="&url.php;?=PHPE9568F34-D428-11d2-A769-00AA001ACF42">&url.php;?=PHPE9568F34-D428-11d2-A769-00AA001ACF42</link>).
-        Questo influisce anche sul risultato di <function>phpinfo</function> in quanto, se disabilitato, il logo PHP
-        e i crediti non sono visualizzati.
+        Questo influiva anche sul risultato di <function>phpinfo</function> in quanto, se disabilitato, il logo PHP
+        e i crediti non erano visualizzati.
        </para>
-       <para>
+       <note>
+        <para>
+         A partire da PHP 5.5.0 questi guid e la funzione <function>php_logo_guid</function>
+         sono stati rimossi da PHP e i guid sono stati sostituiti con URI dati.
+         Quindi, l'accesso al logo PHP mediante l'apposizione del guid alla URL non funziona più.
+         Allo stesso modo, la disabilitazione di <parameter>expose_php</parameter> non modifica
+         la visualizzazione del logo PHP in <function>phpinfo</function>.
+        </para>
+       </note>
+       <para>       
         Vedere anche <function>php_logo_guid</function> e <function>phpcredits</function>.
        </para>
       </listitem>
@@ -656,7 +665,13 @@
         <entry><link linkend="ini.register-long-arrays">register_long_arrays</link></entry>
         <entry>"1"</entry>
         <entry>PHP_INI_PERDIR</entry>
-        <entry>Disponibile da PHP 5.0.0. Deprecata in PHP 5.3.0. Rimossa da PHP 5.4.0.</entry>
+        <entry>Disponibile da PHP 5.0.0. Deprecata in PHP 5.3.0. Rimossa in PHP 5.4.0.</entry>
+       </row>
+       <row>
+        <entry><link linkend="ini.enable-post-data-reading">enable_post_data_reading</link></entry>
+        <entry>"1"</entry>
+        <entry>PHP_INI_PERDIR</entry>
+        <entry>Disponibile da PHP 5.4.0</entry>
        </row>
        <row>
         <entry><link linkend="ini.post-max-size">post_max_size</link></entry>
@@ -668,7 +683,7 @@
         <entry><link linkend="ini.gpc-order">gpc_order</link></entry>
         <entry>"GPC"</entry>
         <entry>PHP_INI_ALL</entry>
-        <entry></entry>
+        <entry>Rimossa in PHP 5.0.0.</entry>
        </row>
        <row>
         <entry><link linkend="ini.auto-prepend-file">auto_prepend_file</link></entry>
@@ -699,12 +714,6 @@
         <entry>"0"</entry>
         <entry>PHP_INI_PERDIR</entry>
         <entry>PHP_INI_ALL in PHP &lt;= 4.2.3. Disponibile da PHP 4.1.0.</entry>
-       </row>
-       <row>
-        <entry><link linkend="ini.allow-webdav-methods">allow_webdav_methods</link></entry>
-        <entry>"0"</entry>
-        <entry>PHP_INI_PERDIR</entry>
-        <entry></entry>
        </row>
       </tbody>
      </tgroup>
@@ -1026,7 +1035,7 @@
        </para>
        <note>
         <para>
-         Questo parametro non è disponibile in PHP 4.
+         Questa opzione è stata rimossa in PHP 5.0.0.
          Al suo posto utilizzare
          <link linkend="ini.variables-order">variables_order</link>.
         </para>
@@ -1118,22 +1127,6 @@
       </listitem>
      </varlistentry>
      
-     <varlistentry xml:id="ini.allow-webdav-methods">
-      <term>
-       <parameter>allow_webdav_methods</parameter>
-       <type>boolean</type>
-      </term>
-      <listitem>
-       <para>
-        Permette la gestione delle richieste http di WebDAV all'interno di script PHP (ad esempio.
-        PROPFIND, PROPPATCH, MOVE, COPY, etc.).
-        Questo parametro non esisteva prima di PHP 4.3.2.
-        Se si vuole ricevere i dati post di queste richieste, occorre
-        impostare anche <link linkend="ini.always-populate-raw-post-data">
-        always_populate_raw_post_data</link>.
-       </para>
-      </listitem>
-     </varlistentry>
     </variablelist>
    </para>
    <para>
@@ -1321,6 +1314,27 @@ include_path=".;c:\php\includes"
         È più efficiente usare esplicitamente <literal>include
         './file'</literal> piuttosto che lasciare che PHP controlli nella direcory correente
         ad ogni inclusione.
+       </para>
+       <note>
+        <para>
+         Le variabili <literal>ENV</literal> sono accessibili anche nei file .ini.
+         Di conseguenza è possibile fare riferimento alla cartella home utilizzando
+         <literal>${LOGIN}</literal> e <literal>${USER}</literal>.
+        </para>
+        <para>
+         Le variabili d'ambiente possono variare tra le Server API, dal momento che questi ambienti
+         possono essere differenti.
+        </para>       
+       </note>
+       <para>
+        <example>
+         <title>include_path su Unix utilizzando la variabile d'ambiente ${USER}</title>
+         <programlisting role="php.ini">
+<![CDATA[
+include_path = ".:${USER}/pear/php"
+]]>
+         </programlisting>
+        </example>
        </para>
       </listitem>
      </varlistentry>
@@ -1592,11 +1606,20 @@ include_path=".;c:\php\includes"
        <type>int</type>
       </term>
       <listitem>
-       <para>
+      <para>
         Indica al PHP quale tipo di intestazione utilizzare quando si inviano risposte HTTP.
-        Se impostato a 0, il PHP invia una intestazione Status:, che è supportata
-        da Apache ed altri server web. Quando il parametro è impostato a 1, il PHP
-        invia una intestazione conforme alle specifiche indicate in <link xlink:href="&url.rfc;2616">RFC 2616</link>.
+        Se impostato a 0, il PHP invia un'intestazione <link xlink:href="&url.rfc;3875">RFC 3875</link>
+        "Status:", che è supportata da Apache ed altri server web. Quando il parametro
+        è impostato a 1, il PHP invia una intestazione conforme alle specifiche indicate in <link xlink:href="&url.rfc;2616">RFC 2616</link>
+        .
+       </para>
+       <para>
+        Se questa opzione è abilitata, e si sta eseguendo PHP in un ambiente CGI (es. PHP-FPM)
+        non si devono utilizzare le intestazioni HTTP di risposta standard RFC 2616, si devono
+        piuttosto utilizzare gli equivalenti RFC 3875, per esempio invece di header("HTTP/1.0 404 Not found");
+        si deve usare header("Status: 404 Not Found");
+       </para>
+       <para>
         Lasciare il parametro a 0 a meno che non si sappia cosa si sta facendo.
        </para>
       </listitem>

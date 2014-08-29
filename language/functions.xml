@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: d22ce6b9c952e5bb15766b5f55cfe50dacf3f0b9 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 0e9eb8a8c76de2365decd77a46d96ddfeec2bac8 Maintainer: pastore Status: ready -->
  <chapter xml:id="language.functions" xmlns="http://docbook.org/ns/docbook">
   <title>Funzioni</title>
 
@@ -178,10 +178,7 @@ function recursion($a)
     per riferimento</link>, e <link
     linkend="functions.arguments.default">i valori di default
     degli argomenti</link>. Le <link linkend="functions.variable-arg-list">liste di argomenti
-    di lunghezza varabile</link> sono ugualmente supportate, vedere anche i riferimenti alle funzioni
-    <function>func_num_args</function>,
-    <function>func_get_arg</function>, e
-    <function>func_get_args</function> per maggiori informazioni.
+    di lunghezza varabile</link> sono ugualmente supportate.
    </para>
    <para>
     <example>
@@ -351,7 +348,7 @@ Fare una vaschetta di yogurt a fragola.
     </para>
     <note>
      <simpara>
-      Dal PHP 5 i valori di default possono essere passati per riferimento.
+      Da PHP 5, i parametri che sono passati per riferimento possono avere un valore di default.
      </simpara>
     </note>
 
@@ -362,17 +359,172 @@ Fare una vaschetta di yogurt a fragola.
 
     <simpara>
      PHP 4 ha il supporto per le liste di argomenti a lunghezza variabile nelle
-     funzioni definite dall'utente. Ciò è realmente abbastanza semplice, usando le funzioni
+     funzioni definite dall'utente. Questo è implementato utilizzando il
+     token <literal>...</literal> in PHP 5.6 e successivi, e usando le funzioni
      <function>func_num_args</function>,
      <function>func_get_arg</function>, e
-     <function>func_get_args</function>.
+     <function>func_get_args</function> in PHP 5.5 e precedenti.
     </simpara>
 
-    <simpara>
-     Non è richiesta una speciale sintassi, e le liste di argomenti possono ancora essere
-     provviste esplicitamente con le definizioni di funzioni e si comporteranno
-     normalmente.
-    </simpara>
+    <sect3 xml:id="functions.variable-arg-list.new">
+     <title><literal>...</literal> in PHP 5.6+</title>
+
+     <para>
+      In PHP 5.6 e successivi, le liste dei parametri possono includere il token
+      <literal>...</literal> per denotare che la funzione accetta un
+      numero variabile di parametri. I parametri saranno passati nella
+      variabile data come un array; per esempio:
+
+      <example>
+       <title>Utilizzo di <literal>...</literal> per accedere ai parametri variabili</title>
+       <programlisting role="php">
+<![CDATA[
+<?php
+function sum(...$numbers) {
+    $acc = 0;
+    foreach ($numbers as $n) {
+        $acc += $n;
+    }
+    return $acc;
+}
+
+echo sum(1, 2, 3, 4);
+?>
+]]>
+       </programlisting>
+       &example.outputs;
+       <screen>
+<![CDATA[
+10
+]]>
+       </screen>
+      </example>
+     </para>
+
+     <para>
+      Si può anche usare <literal>...</literal> quando vengono chiamate funzioni per spacchettare
+      un <type>array</type> o una variabile <classname>Traversable</classname> o
+      literal all'interno della lista degli argomenti:
+
+      <example>
+       <title>Uso di <literal>...</literal> per fornire parametri</title>
+       <programlisting role="php">
+<![CDATA[
+<?php
+function add($a, $b) {
+    return $a + $b;
+}
+
+echo add(...[1, 2])."\n";
+
+$a = [1, 2];
+echo add(...$a);
+?>
+]]>
+       </programlisting>
+       &example.outputs;
+       <screen>
+<![CDATA[
+3
+3
+]]>
+       </screen>
+      </example>
+     </para>
+
+     <para>
+      Si possono specificare parametri con posizione normale prima del
+      token <literal>...</literal>. In questo caso, solo i parametri seguenti
+      che non corrispondono ad un parametro posizionale saranno aggiunti all'array
+      generato da <literal>...</literal>.
+     </para>
+
+     <para>
+      È anche possibile aggiungere un
+      <link linkend="language.oop5.typehinting">type hint</link> prima del
+      token <literal>...</literal>. Se questo è presente, allora tutti i parametri
+      catturati da <literal>...</literal> devono essere oggetti della classe suggerita.
+
+      <example>
+       <title>Parametri variabili con Type hint</title>
+       <programlisting role="php">
+<![CDATA[
+<?php
+function total_intervals($unit, DateInterval ...$intervals) {
+    $time = 0;
+    foreach ($intervals as $interval) {
+        $time += $interval->$unit;
+    }
+    return $time;
+}
+
+$a = new DateInterval('P1D');
+$b = new DateInterval('P2D');
+echo total_intervals('d', $a, $b).' days';
+
+// Questo fallirà, dato che null non è un oggetto DateInterval.
+echo total_intervals('d', null);
+?>
+]]>
+       </programlisting>
+       &example.outputs;
+       <screen>
+<![CDATA[
+3 days
+Catchable fatal error: Argument 2 passed to total_intervals() must be an instance of DateInterval, null given, called in - on line 14 and defined in - on line 2
+]]>
+       </screen>
+      </example>
+     </para>
+
+     <para>
+      Infine, si possono anche passare parametri variabili
+      <link linkend="functions.arguments.by-reference">per riferimento</link>
+      anteponendo <literal>...</literal> con un ampersand
+      (<literal>&amp;</literal>).
+     </para>
+    </sect3>
+
+    <sect3 xml:id="functions.variable-arg-list.old">
+     <title>Versioni precedenti di PHP</title>
+
+     <para>
+      Non è richiesta una sintassi speciale per annotare che una funzione è variadica;
+      tuttavia per accedere ai parametri della funzione bisogna usare
+      <function>func_num_args</function>, <function>func_get_arg</function>
+      e <function>func_get_args</function>.
+     </para>
+
+     <para>
+      Il primo esempio di sopra sarebbe implementato come segue in PHP 5.5 e
+      precedenti:
+
+      <example>
+       <title>Accesso ai parametri variabili in PHP 5.5 e precedenti</title>
+       <programlisting role="php">
+<![CDATA[
+<?php
+function sum() {
+    $acc = 0;
+    foreach (func_get_args() as $n) {
+        $acc += $n;
+    }
+    return $acc;
+}
+
+echo sum(1, 2, 3, 4);
+?>
+]]>
+       </programlisting>
+       &example.outputs;
+       <screen>
+<![CDATA[
+10
+]]>
+       </screen>
+      </example>
+     </para>
+    </sect3>
 
    </sect2>
 
@@ -677,10 +829,11 @@ $greet('PHP');
    </example>
    
    <simpara>
-    Le chiusure possono anche ereditare le variabili dal contesto del genitore. Ognuna di queste
-    variabili deve essere dichiarata nell'intestazione della funzione. Ereditare le variabili
-    dall'ambito genitore <emphasis>non</emphasis> la stessa cosa che usare variabili
-    globali. Le variabili globali esistono nell'ambito globale, che è lo stesso, indipendentemente
+    Le chiusure possono anche ereditare le variabili dal contesto del genitore.
+    Ognuna di queste variabili deve essere passata al costrutto del linguaggio <literal>use</literal>.
+    Ereditare le variabili dall'ambito genitore <emphasis>non</emphasis>
+    è la stessa cosa che usare variabili globali.
+    Le variabili globali esistono nell'ambito globale, che è lo stesso, indipendentemente
     da quale funzione è in esecuzione. L'ambito genitore di una chiusura è la
     funzione nella quale la chiusura è stata dichiarata (non necessariamente la funzione da
     cui è stata chiamata). Si veda l'esempio seguente:

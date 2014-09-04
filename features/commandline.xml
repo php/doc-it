@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 3a8dc25d68cb882feae6163cf5384356f31647ea Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 2bb07c8c43f028c665a33bfc08a22639e9e35dc6 Maintainer: pastore Status: ready -->
 <chapter xml:id="features.commandline" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <title>Utilizzo di PHP da linea di comando</title>
  <titleabbrev>Command line usage</titleabbrev>
@@ -9,14 +9,14 @@
   <title>Introduzione</title>
   
   <para>
-   A partire dalla versione 4.3.0, il PHP supporta &cli.sapi;. Questo tipo di
-   <acronym>SAPI</acronym> è mirato allo sviluppo di applicazioni shell (o desktop) con PHP. Esistono
+   L'obiettivo principale di &cli.sapi;
+   è quello di sviluppare applicazioni shell con PHP. Esistono
    alcune differenze tra la &cli.sapi; e le altre
    <acronym>SAPI</acronym>; queste saranno illustrate nel corrente capitolo. Val la pena
    ricordare che &cli; e <acronym>CGI</acronym> sono differenti
    <acronym>SAPI</acronym> sebbene condividano il medesimo comportamento in diverse situazioni.
   </para>
-  
+
   <para>
    La &cli.sapi; è abilitata di default con l'opzione
    <option role="configure">--enable-cli</option>, ma può esseredisattivata usando
@@ -1601,26 +1601,30 @@ php >
  <section xml:id="features.commandline.webserver">
   <title>Web server interno</title>
 
+  <warning>
+   <para>
+    Questo server web è stato sviluppato per aiutare lo sviluppo di applicazioni.  Può
+    anche essere utile per scopo di test o per dimostrazioni applicative che sono
+    eseguite in ambienti controllati. Non è destinato ad essere un web server
+    con tutte le funzionalità. Non dovrebbe essere usato su una rete pubblica.
+   </para>
+  </warning>
+  
   <para>
    A partire da PHP 5.4.0, la &cli.sapi; fornisce un web server interno.
   </para>
 
   <para>
-   Questo web server è concepito solo per scopi di sviluppo, e non dovrebbe mai
-   essere usato in produzione.
-  </para>
-
-  <para>
-    Le richieste vengono fornite in sequenza.
+   Le applicazioni PHP andranno in stallo se una richiesta è bloccata.
   </para>
   
   <para>
     Le richieste URI sono eseguite dalla cartella di lavoro corrente, in cui
     PHP è stato eseguito, a meno che non sia stata usata l'opzione -t per specificare una
     radice dei documenti. Se una richiesta URI non specifica un file,
-   allora viene restituito o index.php o index.html nella directory
-   data. Se i file non esistono, allora una risposta con codice 404
-   viene restituita.
+    allora viene restituito o index.php o index.html nella directory
+    data. Se i file non esistono, allora una risposta con codice 404
+    viene restituita.
   </para>
 
   <para>
@@ -1632,14 +1636,64 @@ php >
   </para>
 
   <para>
-    I tipi MIME standard vengono restituiti per i file con le estensioni: .css,
-   .gif, .htm, .html, .jpe, .jpeg, .jpg, .js, .png, .svg, e .txt.
-   Le estensioni .htm e .svg sono riconosciute da PHP 5.4.4
-   in poi.
+    I tipi MIME standard vengono restituiti per i file con le estensioni: 3gp,
+    .apk, .avi, .bmp, .css, .csv, .doc, .docx, .flac, .gif, .gz,
+    .gzip, .htm, .html, .ics, .jpe, .jpeg, .jpg, .js, .kml, .kmz,
+    .m4a, .mov, .mp3, .mp4, .mpeg, .mpg, .odp, .ods, .odt, .oga, .ogg,
+    .ogv, .pdf, .pdf, .png, .pps, .pptx, .qt, .svg, .swf, .tar, .text,
+    .tif, .txt, .wav, .webm, .wmv, .xls, .xlsx, .xml, .xsl, .xsd, e .zip.
   </para>
 
+
+  <table>
+   <title>Changelog: Tipi MIME Supportati (estensioni dei file)</title>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>5.5.12</entry>
+      <entry>
+       .xml, .xsl, and .xsd
+      </entry>
+     </row>
+     <row>
+      <entry>5.5.7</entry>
+      <entry>
+       .3gp, .apk, .avi, .bmp, .csv, .doc, .docx, .flac, .gz, .gzip,
+       .ics, .kml, .kmz, .m4a, .mp3, .mp4, .mpg, .mpeg, .mov, .odp, .ods,
+       .odt, .oga, .pdf, .pptx, .pps, .qt, .swf, .tar, .text, .tif, .wav,
+       .wmv, .xls, .xlsx, and .zip
+      </entry>
+     </row>
+     <row>
+      <entry>5.5.5</entry>
+      <entry>
+       .pdf
+      </entry>
+     </row>
+     <row>
+      <entry>5.4.11</entry>
+      <entry>
+       .ogg, .ogv, and .webm
+      </entry>
+     </row>
+     <row>
+      <entry>5.4.4</entry>
+      <entry>
+        .htm and .svg
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </table>
+
   <example>
-   <title>Starting the web server</title> 
+   <title>Avvio del web server</title> 
    <programlisting role="shell">
 <![CDATA[
 $ cd ~/public_html
@@ -1753,8 +1807,8 @@ $ php -S localhost:8000 router.php
 <?php
 // router.php
 $path = pathinfo($_SERVER["SCRIPT_FILENAME"]);
-if ($path["extension"] == "ogg") {
-    header("Content-Type: video/ogg");
+if ($path["extension"] == "el") {
+    header("Content-Type: text/x-script.elisp");
     readfile($_SERVER["SCRIPT_FILENAME"]);
 }
 else {

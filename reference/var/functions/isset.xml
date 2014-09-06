@@ -1,53 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-  <refentry xml:id="function.isset" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>isset</refname>
-    <refpurpose>Verifica se una variabile è definita</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>isset</methodname>
-      <methodparam><type>mixed</type><parameter>variabile</parameter></methodparam>
-      <methodparam choice="opt"><parameter>...</parameter></methodparam> 
-     </methodsynopsis>
-    
-    <simpara>
-     Restituisce &true; se la <parameter>variabile</parameter> esiste;
-     &false; in caso contrario.
-    </simpara>
-    <para>
-     Se una variabile è stata cancellata con <function>unset</function>,
-     non potrà essere impostata. La funzione <function>isset</function>
-     restituirà &false; se viene utilizzata per testare una variabile valorizzata
-     a &null;. Inoltre occorre notare che il byte &null; (<literal>"\0"</literal>)
-     non equivale alla costante PHP &null;.
-    </para>
-     <note>
-      <title>Attenzione</title>
+<!-- EN-Revision: eac82849b3c30b0779c0397391f5776bceb2da0a Maintainer: pastore Status: ready -->
+<refentry xml:id="function.isset" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>isset</refname>
+  <refpurpose>Verifica se una variabile è definita e non è &null;</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+ &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>isset</methodname>
+   <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
+   <methodparam choice="opt"><type>mixed</type><parameter>...</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Verifica se una variabile è definita e non è &null;.
+  </para>
+  <para>
+   Se una variabile è stata distrutta con <function>unset</function>, essa non sarà
+   più definita. <function>isset</function> restituirà &false; se si testa
+   una variabile che è stata impostata a &null;. Da notare anche che un byte &null;
+   (<literal>"\0"</literal>) non è equivalente alla costante &null; di PHP.
+  </para>
+  <para>
+   Se vengono forniti parametri multipli allora <function>isset</function>
+   restituirà &true; solo se tutti i parametri sono definiti. La valuazione va da
+   sinistra verso destra e si ferma appena si incontra una variabile non definita.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>var</parameter></term>
+     <listitem>
       <para>
-       La funzione <function>isset</function> lavora soltanto con variabili, il
-       passaggio di qualsiasi altro tipo di parametro genera un errore di parsing.
-       Per verificare se le <link linkend="language.constants">costanti</link>
-       sono definite utilizzare la funzione <function>defined</function>.
+       La variabile da controllare.
       </para>
-     </note> 
-    <para>
-     <informalexample>
-      <programlisting role="php">
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>...</parameter></term>
+     <listitem>
+      <para>
+       Un'altra variabile ...
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce &true; se <parameter>var</parameter> esiste e ha un valore diverso
+   da &null;, &false; in caso contrario.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>5.4.0</entry>
+       <entry>
+        <para>
+         Il controllo su offset di stringhe non numerici ora restituisce &false;.
+        </para>
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempi di <function>isset</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 
 $var = '';
 
-// Questo test sarà TRUE pertanto sarà visualizzato il testo.
+// Questo verrà valutato come TRUE quindi il testo sarà stampato.
 if (isset($var)) {
-    echo "Questa variabile è valorizzata, pertanto scrivo.";
+    echo "This var is set so I will print.";
 }
 
-// Nel prossimo esempio useremo var_dump per visualizzare
-// il valore restituito da isset().
+// Nei prossimi esempi si userà var_dump per stampare
+// il valore di ritorno di isset().
 
 $a = "test";
 $b = "anothertest";
@@ -63,46 +120,119 @@ var_dump(isset($a, $b)); // FALSE
 $foo = NULL;
 var_dump(isset($foo));   // FALSE
 
-?>  
-]]>  
-      </programlisting>  
-     </informalexample>  
-    </para>  
-    <para>  
-     Questo esempio utilizza gli elementi di un array:  
-     <informalexample>  
-      <programlisting role="php">  
-<![CDATA[  
-<?php  
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   Questo funziona anche per gli elementi negli array:
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
 
-$a = array ('test' => 1, 'hello' => NULL);
+$a = array ('test' => 1, 'hello' => NULL, 'pie' => array('a' => 'apple'));
 
 var_dump(isset($a['test']));            // TRUE
 var_dump(isset($a['foo']));             // FALSE
 var_dump(isset($a['hello']));           // FALSE
 
-// La chiave 'hello' vale NULL pertanto viene considerata non impostata.
-// Se si desidera verificare l'esistenza di chiavi con valore NULL, usare:
+// La chiave 'hello' è uguale a NULL e quindi è considerata indefinita
+// Se si vogliono controllare i valori delle chiavi NULL allora si deve provare: 
 var_dump(array_key_exists('hello', $a)); // TRUE
 
-?> 
+// Checking deeper array values
+var_dump(isset($a['pie']['a']));        // TRUE
+var_dump(isset($a['pie']['b']));        // FALSE
+var_dump(isset($a['cake']['a']['b']));  // FALSE
+
+?>
 ]]>
-      </programlisting>
-     </informalexample>
-    </para>
+    </programlisting>
+   </informalexample>
+  </para>
+  <example>
+   <title><function>isset</function> su Offset di Stringhe</title>
+   <para>
+    PHP 5.4 ha cambiato il comportamtento di <function>isset</function>
+    quando vengono passati offset ti stringhe.
+   </para>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$expected_array_got_string = 'somestring';
+var_dump(isset($expected_array_got_string['some_key']));
+var_dump(isset($expected_array_got_string[0]));
+var_dump(isset($expected_array_got_string['0']));
+var_dump(isset($expected_array_got_string[0.5]));
+var_dump(isset($expected_array_got_string['0.5']));
+var_dump(isset($expected_array_got_string['0 Mostel']));
+?>
+]]>
+   </programlisting>
+   &example.outputs.53;
+   <screen>
+<![CDATA[
+bool(true)
+bool(true)
+bool(true)
+bool(true)
+bool(true)
+bool(true)
+]]>
+   </screen>
+   &example.outputs.54;
+   <screen>
+<![CDATA[
+bool(false)
+bool(true)
+bool(true)
+bool(true)
+bool(false)
+bool(false)
+]]>
+   </screen>
+  </example>
+ </refsect1>
 
-    &note.language-construct;
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <warning>
+   <para>
+    <function>isset</function> funziona solo con variabili, quindi passare qualsiasi
+    altra cosa risulterà in un errore di analisi.  Per controllare se
+    le <link linkend="language.constants">costanti</link> sono definite, usare la 
+    funzione <function>defined</function>.
+   </para>
+  </warning>
+  &note.language-construct;
+  <note>
+   <para>
+    Quando si usa <function>isset</function> su proprietà di oggetti inaccessibili
+    il metodo di overloading <link linkend="object.isset">__isset()</link>
+    verrà richiamato, se dichiarato.
+   </para>
+  </note>
+ </refsect1>
 
-    <simpara>
-     Vedere anche <function>empty</function>,
-     <function>unset</function>, 
-     <function>defined</function>,
-     <link linkend="types.comparisons">la tabella di comparazione dei tipi</link>,
-     <function>array_key_exists</function> e l'operatore di controllo 
-     degli errori <link linkend="language.operators.errorcontrol">@</link>.
-    </simpara>
-   </refsect1>
-  </refentry>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>empty</function></member>
+    <member><link linkend="object.isset">__isset()</link></member>
+    <member><function>unset</function></member>
+    <member><function>defined</function></member>
+    <member><link linkend="types.comparisons">le tabelle di comparazione dei tipi</link></member>
+    <member><function>array_key_exists</function></member>
+    <member><function>is_null</function></member>
+    <member>l'operatore <link linkend="language.operators.errorcontrol">@</link> di controllo degli errori</member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

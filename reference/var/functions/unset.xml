@@ -1,61 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-  <refentry xml:id="function.unset" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>unset</refname>
-    <refpurpose>Cancella una data variabile</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>void</type><methodname>unset</methodname>
-      <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
-      <methodparam choice="opt"><type>mixed</type><parameter>var</parameter></methodparam>
-      <methodparam choice="opt"><type>mixed</type><parameter>...</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>unset</function> distrugge la variabile specificata. Occorre
-     notare che in PHP 3 la funzione <function>unset</function> restituiva sempre &true;
-     (in realtà era il valore 1). In PHP 4, invece, la funzione 
-     <function>unset</function> non è più una vera funzione, ora è una
-     istruzione. In questa veste non ritorna alcun valore, e cercare di ottenere
-     un valore dalla funzione <function>unset</function> produce un errore
-     di parsing.
-    </para>
-    <para>
-     <example>
-      <title>Esempio di <function>unset</function></title>
-      <programlisting role="php">
+<!-- EN-Revision: afc3f34c682418a582b0f9199db0bac4a087821f Maintainer: pastore Status: ready -->
+<refentry xml:id="function.unset" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>unset</refname>
+  <refpurpose>Cancella una data variabile</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>void</type><methodname>unset</methodname>
+   <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
+   <methodparam choice="opt"><type>mixed</type><parameter>...</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>unset</function> distrugge la variabile specificata. 
+  </para>
+  <para>
+   Il comportamento di <function>unset</function> all'interno di una funzione
+   può dipendere molto dal tipo di variabile che si intende
+   distruggere.
+  </para>
+  <para>
+   Se una variabile globale è <function>unset</function> all'interno di
+   una funzione, solo la variabile locale viene distrutta.  La variabile
+   nell'ambiente chiamante conserverà lo stesso valore che aveva prima che
+   <function>unset</function> venisse chiamata.
+   <informalexample>
+    <programlisting role="php">
 <![CDATA[
 <?php
-// Distrugge una singola variabile
-unset($foo);
-
-// distrugge un singolo elemento di un array
-unset($bar['quux']);
-
-// distrugge più di una variabile
-unset($foo1, $foo2, $foo3);
-?>
-]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Il comportamento di <function>unset</function> all'interno di una funzione
-     può variare in funzione del tipo di variabile che si intende
-     distruggere.
-    </para>
-    <para>
-     Se si applica <function>unset</function> ad una variabile globale all'interno
-     di una funzione, sarà distrutta solo la variabile locale. Nell'ambiente 
-     chiamante, la variabile manterrà il medesimo valore che aveva prima dell'uso 
-     di <function>unset</function>.
-     <informalexample>
-      <programlisting role="php">
-<![CDATA[
-<?php
-function destroy_foo()
+function destroy_foo() 
 {
     global $foo;
     unset($foo);
@@ -66,27 +41,47 @@ destroy_foo();
 echo $foo;
 ?>
 ]]>
-      </programlisting>
-     </informalexample>
-    </para>
-    &example.outputs;
-    <para>
-     <informalexample>
-      <screen>
+    </programlisting>
+   </informalexample>
+  </para>
+  &example.outputs;
+  <para>
+   <informalexample>
+    <screen>
 <![CDATA[
 bar
 ]]>
-      </screen>
-     </informalexample>
-    </para>
-    <para>
-     Nel caso di una variabile PASSATA PER RIFERIMENTO ad una funzione, 
-     l'uso della funzione <function>unset</function> distrugge solo la copia
-     locale della variabile. Nell'ambiente chiamante, la variabile manterrà
-     il medesimo valore che aveva prima dell'uso 
-     di <function>unset</function>.
-     <informalexample>
-      <programlisting role="php">
+    </screen>
+   </informalexample>
+  </para>
+  <para>
+   Per <function>unset</function> una variabile globale
+   all'interno di una funzione, viene usato
+   l'array <varname>$GLOBALS</varname>:
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+function foo() 
+{
+    unset($GLOBALS['bar']);
+}
+
+$bar = "something";
+foo();
+?>
+]]>
+    </programlisting>
+   </informalexample>
+  </para>
+  <para>
+   Se una variabile che è PASSATA PER RIFERIMENTO viene
+   <function>unset</function> all'interno di una funzione, solo la variabile
+   locale viene distrutta.  La variabile nell'ambiente chiamante
+   conserverà lo stesso valore che aveva prima che <function>unset</function>
+   venisse chiamata.
+   <informalexample>
+    <programlisting role="php">
 <![CDATA[
 <?php
 function foo(&$bar) 
@@ -102,35 +97,37 @@ foo($bar);
 echo "$bar\n";
 ?>
 ]]>
-      </programlisting>
-     </informalexample>
-    </para>
-     &example.outputs;
-    <para>
-     <informalexample>
-      <screen>
+    </programlisting>
+   </informalexample>
+  </para>
+   &example.outputs;
+  <para>
+   <informalexample>
+    <screen>
 <![CDATA[
 something
 something
 ]]>
-      </screen>
-     </informalexample>
-    </para>
-    <para>
-     Se si usa <function>unset</function> su una variabile statica all'interno
-     di una funzione, <function>unset</function> cancella la variabile e tutti
-     i suoi riferimenti.
-     <informalexample>
-      <programlisting role="php">
+    </screen>
+   </informalexample>
+  </para>
+  <para>
+   Se una variabile statica viene <function>unset</function> all'interno di una
+   funzione, <function>unset</function> distrugge la variabile solo nel
+   contesto del resto della funzione. Le chiamate successive ripristineranno il
+   precedente valore di una variabile.
+   <informalexample>
+    <programlisting role="php">
 <![CDATA[
 <?php
-function foo() 
+function foo()
 {
-    static $a;
-    $a++;
-    echo "$a\n";
-
-    unset($a);
+    static $bar;
+    $bar++;
+    echo "Before unset: $bar, ";
+    unset($bar);
+    $bar = 23;
+    echo "after unset: $bar\n";
 }
 
 foo();
@@ -138,50 +135,139 @@ foo();
 foo();
 ?>
 ]]>
-      </programlisting>
-     </informalexample>
-    </para>
-     &example.outputs;
-    <para>
-     <informalexample>
-      <screen>
+    </programlisting>
+   </informalexample>
+  </para>
+   &example.outputs;
+  <para>
+   <informalexample>
+    <screen>
 <![CDATA[
-1
-2
-3
+Before unset: 1, after unset: 23
+Before unset: 2, after unset: 23
+Before unset: 3, after unset: 23
 ]]>
-      </screen>
-     </informalexample>
-    </para>
-    <para>
-     Se si desidera cancellare una variabile globale dall'interno di una funzione, 
-     occorre usare <function>unset</function> sull'array <varname>$GLOBALS</varname> 
-     nel seguente modo:
-     <informalexample>
-      <programlisting role="php">
+    </screen>
+   </informalexample>
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>var</parameter></term>
+     <listitem>
+      <para>
+       La variabile da distruggere.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>...</parameter></term>
+     <listitem>
+      <para>
+       Un'altra variabile ...
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.void;
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>unset</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-function foo() 
-{
-    unset($GLOBALS['bar']);
-}
+// distrugge una singola variabile
+unset($foo);
 
-$bar = "something";
-foo();
+// distrugge un singolo elemento dell'array
+unset($bar['quux']);
+
+// distrugge più di una variabile
+unset($foo1, $foo2, $foo3);
 ?>
 ]]>
-      </programlisting>
-     </informalexample>
-    </para>
-
-    &note.language-construct;
-
+    </programlisting>
+   </example>
+   <example>
+    <title>Uso del casting di <literal>(unset)</literal></title>
     <para>
-     Vedere anche <function>isset</function> e
-     <function>empty</function>.
+     Il casting di <literal>(unset)</literal> è spesso confuso con la
+     funzione <function>unset</function>. Il casting di
+     <literal>(unset)</literal> serve solo come un casting del tipo <literal>NULL</literal>, per
+     completezza. Esso non altera la variabile a cui sta facendo il casting.
     </para>
-   </refsect1>
-  </refentry>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$name = 'Felipe';
+
+var_dump((unset) $name);
+var_dump($name);
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+NULL
+string(6) "Felipe"
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.language-construct;
+  <note>
+   <para>
+    È possibile distruggere anche proprietà degli oggetti visibili nel contesto corrente.
+   </para>
+  </note>
+  <note>
+   <para>
+    Non è possibile distruggere <literal>$this</literal> all'interno di un metodo
+    di un oggetto da PHP 5.
+   </para>
+  </note>
+  <note>
+   <para>
+    Quando viene usato <function>unset</function> su proprietà di oggetti inaccessibili,
+    il metodo overloading <link linkend="object.unset">__unset()</link>
+    verrà richiamato, se dichiarato.
+   </para>
+  </note>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>isset</function></member>
+    <member><function>empty</function></member>
+    <member><link linkend="object.unset">__unset()</link></member>
+    <member><function>array_splice</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

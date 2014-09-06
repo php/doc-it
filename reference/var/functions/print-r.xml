@@ -1,54 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-  <refentry xml:id="function.print-r" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>print_r</refname>
-    <refpurpose>
-     Stampa informazioni relative al contenuto di una variabile in formato leggibile
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>print_r</methodname>
-      <methodparam><type>mixed</type><parameter>expression</parameter></methodparam>
-      <methodparam choice="opt"><type>bool</type><parameter>return</parameter></methodparam>
-     </methodsynopsis>
-    <note>
-     <simpara>
-      Il parametro <parameter>return</parameter> è stato aggiunto in PHP 4.3.0.
-     </simpara>
-    </note>
-    <simpara>
-     Questa funzione stampa delle informazioni sul contenuto di una variabile in un formato 
-     facilmente leggibile. Se la variabile contiene una stringa, un intero o un numero decimale, 
-     il valore stesso viene visualizzato. Se la variabile contiene un array i valori 
-     vengono visualizzati in un formato che evidenzia le chiavi ed i relativi elementi. Una notazione 
-     simile viene utilizzata per gli oggetti. 
-     Le funzioni <function>print_r</function> e <function>var_export</function>, a differenza
-     di <function>var_dump</function>, visualizzano
-     le proprietà protette e private degli oggetti di PHP 5.
-    </simpara>
-    <simpara>
-     Occorre ricordarsi che  <function>print_r</function> posiziona il puntatore
-     dell'array alla fine. Pertanto utilizzare <function>reset</function> per 
-     riportarsi all'inizio.
-    </simpara>
-    
-    <para>
-     <informalexample>
-      <programlisting role="php">
+<!-- EN-Revision: afc3f34c682418a582b0f9199db0bac4a087821f Maintainer: pastore Status: ready -->
+<refentry xml:id="function.print-r" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>print_r</refname>
+  <refpurpose>
+   Stampa informazioni relative al contenuto di una variabile in formato leggibile
+  </refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>mixed</type><methodname>print_r</methodname>
+   <methodparam><type>mixed</type><parameter>expression</parameter></methodparam>
+   <methodparam choice="opt"><type>bool</type><parameter>return</parameter><initializer>false</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>print_r</function> mostra informazioni su una variabile
+   in un modo che sia leggibile dagli umani.  
+  </para>
+  <para>
+   <function>print_r</function>, <function>var_dump</function> e
+   <function>var_export</function> mostreranno
+   anche proprietà protette e private di oggetti con PHP 5.
+   I membri della classe statici non verranno mostrati.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>expression</parameter></term>
+     <listitem>
+      <para>
+       L'espressione da stampare.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>return</parameter></term>
+     <listitem>
+      <para>
+       Se si volesse catturare l'output di <function>print_r</function>, 
+       utilizzare il parametro <parameter>return</parameter>.  Quando questo parametro è impostato
+       a &true;, <function>print_r</function> restituirà le informazioni invece di stamparle.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Se viene data una <type>string</type>, un <type>integer</type> o un <type>float</type>,
+   verrà stampato il valore stesso.  Se viene dato un <type>array</type>, i valori
+   saranno presentati in un formato che mostra chiavi ed elementi.  Una notazione
+   simile è usata per un <type>object</type>.
+  </para>
+  <para>
+   Quando il parametro <parameter>return</parameter> è &true;, questa funzione
+   restituirà una <type>string</type>. Altrimenti, il valore restituito è &true;.
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.uses-ob;
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>print_r</function></title>
+    <programlisting role="php">
 <![CDATA[
 <pre>
 <?php
-    $a = array ('a' => 'apple', 'b' => 'banana', 'c' => array ('x','y','z'));
-    print_r ($a);
+$a = array ('a' => 'apple', 'b' => 'banana', 'c' => array ('x', 'y', 'z'));
+print_r ($a);
 ?>
 </pre>
 ]]>
-      </programlisting>     
-     &example.outputs;
-     <screen>
+    </programlisting>
+    &example.outputs;
+    <screen>
 <![CDATA[
 <pre>
 Array
@@ -64,52 +104,36 @@ Array
 )
 </pre>
 ]]>
-       </screen>
-      </informalexample>
-     </para>
-     <para> 
-     Se si desidera catturare l'output di <function>print_r</function>,
-     occorre utilizzare il parametro <parameter>return</parameter>. Se questo
-     viene impostato a &true;, <function>print_r</function> restituirà l'output
-     anzichè visualizzarlo (come accade per default).
-    </para> 
-    <para> 
-     <example> 
-      <title>Esempio dell'uso di <parameter>return</parameter></title> 
-       <programlisting role="php"> 
-<![CDATA[ 
-<?php 
-    $b = array ('m' => 'monkey', 'foo' => 'bar', 'x' => array ('x', 'y', 'z')); 
-    $results = print_r($b, true); //$results ora contiene l'output di print_r 
-?> 
-]]> 
-      </programlisting> 
-     </example> 
-    </para> 
-    <note> 
-     <simpara> 
-      Se occorre catturare l'output di <function>print_r</function> con versioni di
-      PHP precedenti alla 4.3.0, occorre utlizzare le <link linkend="ref.outcontrol"> 
-      funzioni di controllo dell'output</link>. 
-     </simpara> 
-    </note>
-    <note>
-     <simpara>
-      Questa funzione continua all'infinito se riceve come parametro un vettore o un oggetto 
-      contenente un riferimento diretto od indiretto a se stesso oppure contenente ulteriori 
-      vettori o oggetti che a loro volta referenziano il padre o se stessi. 
-      Un caso evidente è <literal>print_r($GLOBALS)</literal>,
-      in quanto <literal>$GLOBALS</literal> è a sua volta una variabile globale e in quanto tale 
-      contiene una referenza a se stessa.
-     </simpara>
-    </note>
-    <simpara>
-      Vedere anche <function>ob_start</function>, 
-      <function>var_dump</function>
-      e <function>var_export</function>.
-    </simpara>
-   </refsect1>
-  </refentry>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Esempio con il parametro <parameter>return</parameter></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$b = array ('m' => 'monkey', 'foo' => 'bar', 'x' => array ('x', 'y', 'z'));
+$results = print_r($b, true); // $results ora contiene l'output ottenuto da print_r
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>ob_start</function></member>
+    <member><function>var_dump</function></member>
+    <member><function>var_export</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+<!-- EN-Revision: 5554e138cc713c534ba25ba9faf28cde3a648056 Maintainer: pastore Status: ready -->
 <refentry xml:id="function.intval" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>intval</refname>
@@ -11,12 +11,14 @@
   <methodsynopsis>
    <type>int</type><methodname>intval</methodname>
    <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>base</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>base</parameter><initializer>10</initializer></methodparam>
   </methodsynopsis>
   <para>
    Estrae il valore <type>intero</type> di <parameter>var</parameter>,
-   utilizzando la <parameter>base</parameter> definita a parametro per la conversione. 
-   (La base vale 10 di default).   
+   utilizzando la <parameter>base</parameter> definita a parametro per la conversione
+   (la base vale 10 di default). <function>intval</function> non dovrebbe essere usata
+   sugli oggetti, poichè facendolo emetterà un errore di livello
+   <constant>E_NOTICE</constant> e restituirà 1.
   </para>
  </refsect1>
 
@@ -36,8 +38,33 @@
      <term><parameter>base</parameter></term>
      <listitem>
       <para>
-      Base per la conversione (il default è 10)
+       Base per la conversione
       </para>
+      <note>
+       <para>
+        Se <parameter>base</parameter> è 0, la base usata è determinata
+        dal formato di <parameter>var</parameter>:
+        <itemizedlist>
+         <listitem>
+          <simpara>
+           se la stringa include un prefisso "0x" (o "0X"), la base è considerata
+           16 (esadecimale); altrimenti,
+          </simpara>
+         </listitem>
+         <listitem>
+          <simpara>
+           se la stringa inizia con "0", la base è considerata 8 (ottale);
+           altrimenti,
+          </simpara>
+         </listitem>
+         <listitem>
+          <simpara>
+           la base è considerata 10 (decimale).
+          </simpara>
+         </listitem>
+        </itemizedlist>
+       </para>
+      </note>
      </listitem>
     </varlistentry>
    </variablelist>
@@ -48,8 +75,7 @@
   &reftitle.returnvalues;
   <para>
    Il valore intero di <parameter>var</parameter> se riesce, oppure 0 in caso
-   di errore. Le matrici e gli oggetti vuoti restituiscono 0, la matrici e gli
-   oggetti pieni restituiscono 1.
+   di errore. Gli array vuoti restituiscono 0, gli array non vuoti restituiscono 1.
   </para>
   <para>
    Il valore massimo dipende dal sistema. Nei sistemi a 32 bit si ha come
@@ -92,6 +118,8 @@ echo intval(420000000000000000000);   // 0
 echo intval('420000000000000000000'); // 2147483647
 echo intval(42, 8);                   // 42
 echo intval('42', 8);                 // 34
+echo intval(array());                 // 0
+echo intval(array('foo', 'bar'));     // 1
 ?>
 ]]>
     </programlisting>
@@ -109,16 +137,43 @@ echo intval('42', 8);                 // 34
   </note>
  </refsect1>
 
+ <refsect1 role="changelog"><!-- {{{ -->
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>5.1.0</entry>
+       <entry>
+        Genera <constant>E_NOTICE</constant> e
+        restituisce 1, quando un oggetto è passato a 
+        <parameter>var</parameter>.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1><!-- }}} -->
+
  <refsect1 role="seealso">
   &reftitle.seealso;
   <para>
    <simplelist>
+    <member><function>boolval</function></member>
     <member><function>floatval</function></member>
     <member><function>strval</function></member>
     <member><function>settype</function></member>
     <member><function>is_numeric</function></member>
-    <member><link linkend="language.types.type-juggling">Type juggling</link></member>
-    <member><link linkend="ref.bc">BCMath Arbitrary Precision Mathematics Functions</link></member>
+    <member><link linkend="language.types.type-juggling">Manipolazione del tipo</link></member>
+    <member><link linkend="ref.bc">Funzioni Matematiche con Precisione Arbitraria BCMath</link></member>
    </simplelist>
   </para>
  </refsect1>

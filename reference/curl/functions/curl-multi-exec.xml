@@ -1,29 +1,122 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: fernando Status: ready -->
-<!-- CREDITS: darvina -->
-  <refentry xml:id="function.curl-multi-exec" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>curl_multi_exec</refname>
-    <refpurpose>
-     Esegue la sotto-connessione dell'handle cURL corrente
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>curl_multi_exec</methodname>
-      <methodparam><type>resource</type><parameter>mh</parameter></methodparam>
-      <methodparam><type>int</type><parameter role="reference">still_running</parameter></methodparam>
-     </methodsynopsis>
-    &warn.undocumented.func;
-    
-    <simpara>
-     Vedere anche
-     <function>curl_multi_init</function> e
-     <function>curl_exec</function>.
-    </simpara>
-   </refsect1>
-  </refentry>
+<!-- EN-Revision: 85a5197678823726fe23c94757ab39d1fcfefd1f Maintainer: pastore Status: ready -->
+<refentry xml:id="function.curl-multi-exec" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>curl_multi_exec</refname>
+  <refpurpose>Esegue la sotto-connessione dell'handle cURL corrente</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>int</type><methodname>curl_multi_exec</methodname>
+   <methodparam><type>resource</type><parameter>mh</parameter></methodparam>
+   <methodparam><type>int</type><parameter role="reference">still_running</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Processa ogni handle nello stack.  Questo metodo può essere chiamato anche quando un handle
+   necessita di leggere o scrivere dati.
+  </para> 
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    &curl.mh.description;
+    <varlistentry>
+     <term><parameter>still_running</parameter></term>
+     <listitem>
+      <para>
+       Un riferimento ad un flag per dire se le operazioni sono ancora in esecuzione.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Un codice cURL definito nelle <link linkend="curl.constants">Costanti Predefinite</link> di cURL.
+  </para>
+  <note>
+   <para>
+    Questa funzione restituisce solo errori riguardanti l'intero stack multiplo. Potrebbero essersi
+    verificati problemi su singoli trasferimenti anche quando questa funzione restituisce
+    <constant>CURLM_OK</constant>.
+   </para>
+  </note>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>curl_multi_exec</function></title>
+    <para>
+     Questo esempio creerà due handle cURL, li aggiungerà ad un handle
+     multiplo, e poi li eseguirà in parallelo.
+    </para>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// crea entrambe le risorse cURL
+$ch1 = curl_init();
+$ch2 = curl_init();
+
+// imposta l'URL ed altre opzioni appropriate
+curl_setopt($ch1, CURLOPT_URL, "http://lxr.php.net/");
+curl_setopt($ch1, CURLOPT_HEADER, 0);
+curl_setopt($ch2, CURLOPT_URL, "http://www.php.net/");
+curl_setopt($ch2, CURLOPT_HEADER, 0);
+
+//crea l'handle cURL multiplo
+$mh = curl_multi_init();
+
+//aggiunge i due handle
+curl_multi_add_handle($mh,$ch1);
+curl_multi_add_handle($mh,$ch2);
+
+$active = null;
+//esegue gli handle
+do {
+    $mrc = curl_multi_exec($mh, $active);
+} while ($mrc == CURLM_CALL_MULTI_PERFORM);
+
+while ($active && $mrc == CURLM_OK) {
+    if (curl_multi_select($mh) != -1) {
+        do {
+            $mrc = curl_multi_exec($mh, $active);
+        } while ($mrc == CURLM_CALL_MULTI_PERFORM);
+    }
+}
+
+//chiude gli handle
+curl_multi_remove_handle($mh, $ch1);
+curl_multi_remove_handle($mh, $ch2);
+curl_multi_close($mh);
+
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>curl_multi_init</function></member>
+    <member><function>curl_multi_select</function></member>
+    <member><function>curl_exec</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+ 
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

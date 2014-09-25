@@ -1,89 +1,157 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.addcslashes" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>addcslashes</refname>
-    <refpurpose>Esegue il quoting di una stringa con gli slash nello stile del C</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>addcslashes</methodname>
-      <methodparam><type>string</type><parameter>str</parameter></methodparam>
-      <methodparam><type>string</type><parameter>charlist</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     La funzione restituisce una stringa con il carattere di backslash '\' anteposto
-     ai caratteri che sono indicati nel parametro <parameter>charlist</parameter>. La funzione
-     inserisce il carattere di escape nello stile C in caso di <literal>\n</literal>, <literal>\r</literal> ecc.,
-     in caso di caratteri con codifica ASCII minore di 32 o superiore a 126
-     si applica la conversione nella rappresentazione ottale.
-    </para>
-    <para>
-     Occorre prestare attenzione se si imposta di anteporre il carattere di escape ai caratteri
-     0, a, b, f, n, r, t e v. Questi saranno convertiti in \0, \a, \b, \f, \n, \r, \t 
-     e \v. 
-     In PHP \0 (NULL), \r (carriage return), \n (newline) e \t (tab) 
-     sono sequenze di escape predefinite, anche in C tutte queste sono
-     sequenze di escape predefinite.
-    </para>
-    <para>
-     Valorizzare il parametro <parameter>charlist</parameter> con "\0..\37", 
-     significa che si vuole inserire il carattere di escape davanti ai caratteri la cui codifica ASCII
-     è comprese tra 0 e 31.
-     <example>
-      <title>Esempio di uso di <function>addcslashes</function></title>
-      <programlisting role="php">
-<![CDATA[
-<?php
-$escaped = addcslashes($not_escaped, "\0..\37!@\177..\377");
-?>
-]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Quando si definisca una sequenza di caratteri nel parametro <parameter>charlist</parameter> 
-     occorre essere consapevoli di quali caratteri sono compresi
-     nel range.
-     <informalexample>
-      <programlisting role="php">
+<!-- EN-Revision: ab480f7d497b61ebebbf7d98f0bec6bc2fc564c4 Maintainer: pastore Status: ready -->
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.addcslashes">
+ <refnamediv>
+  <refname>addcslashes</refname>
+  <refpurpose>Esegue il quoting di una stringa con gli slash nello stile del C</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>addcslashes</methodname>
+   <methodparam><type>string</type><parameter>str</parameter></methodparam>
+   <methodparam><type>string</type><parameter>charlist</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   La funzione restituisce una stringa con il carattere di backslash '\' anteposto
+   ai caratteri che sono indicati nel parametro <parameter>charlist</parameter>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>str</parameter></term>
+     <listitem>
+      <para>
+       La stringa su cui effettuare l'escape.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>charlist</parameter></term>
+     <listitem>
+      <para>
+       Una lista dei caratteri su cui effettuare l'escape. Se
+       <parameter>charlist</parameter> contiene i caratteri
+       <literal>\n</literal>, <literal>\r</literal> ecc., essi sono
+       convertiti nello stile C-like, mentre gli altri caratteri non alfanumerici
+       con codici ASCII minori di 32 e maggiori di 126 sono convertiti nella
+       rappresentazione ottale.
+      </para>
+      <para>
+       Quando si definisce una sequenza di caratteri nel parametro charlist
+       assicurarsi di sapere quali caratteri sono presenti tra i
+       caratteri che si sono impostati come inizio e la fine dell'intervallo.
+       <informalexample>
+        <programlisting role="php">
 <![CDATA[
 <?php
 echo addcslashes('foo[ ]', 'A..z');
 // output:  \f\o\o\[ \]
-// Inserisce l'escape davanti a tutti i caratteri maiuscoli e minuscoli
-// ... ma anche [\]^_` i tab, line
-// feeds, carriage returns, etc.
+// Su tutte le lettere maiuscole e minuscole verrà effettuato l'escape
+// ... ma anche [\]^_`
 ?>
 ]]>
-      </programlisting>
-     </informalexample>
-     Inoltre, se il primo carattere di un range ha una codifica ASCII maggiore del secondo,
-     il range non sarà applicato.
-     Soltanto il primo, i punti, e l'ultimo carattere avrà la sequenza di escape.
-     Utilizzare la funzione <function>ord</function> per ottenere la
-     codifica ASCII di un carattere.
-     <informalexample>
-      <programlisting role="php">
+        </programlisting>
+       </informalexample>
+       Inoltre, se il primo carattere in un intervallo ha un valore ASCII maggiore
+       del secondo carattere nell'intervallo, non verrà costruito
+       nessun intervallo.  Solo sull'inizio, sulla fine e sui caratteri period ('.') sarà
+       effettuato l'escape. Usare la funzione <function>ord</function> per trovare il
+       valore ASCII per un carattere.
+       <informalexample>
+        <programlisting role="php">
 <![CDATA[
 <?php
 echo addcslashes("zoo['.']", 'z..A');
 // output:  \zoo['\.']
 ?>
 ]]>
-      </programlisting>
-     </informalexample>
-    </para>
-    <para>
-     Vedere anche <function>stripcslashes</function>, 
-     <function>stripslashes</function>, 
-     <function>htmlspecialchars</function> e
-     <function>quotemeta</function>.
-    </para>
-   </refsect1>
-  </refentry>
+        </programlisting>
+       </informalexample>
+      </para>
+      <para>
+       Occorre prestare attenzione se si imposta di anteporre il carattere di escape ai caratteri
+       0, a, b, f, n, r, t e v. Questi saranno convertiti in \0, \a, \b, \f, \n, \r, \t e \v,
+       i quali sono sequenze di escape predefinite in C. Molte di queste sequenze sono
+       anche definite in altri linguaggi derivati da C, incluso PHP, il che significa che
+       non si possono ottenere i risultati desiderati se si usa l'output di
+       <function>addcslashes</function> per generare codice in questi linguaggi
+       con questi caratteri definiti in <parameter>charlist</parameter>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce la stringa con l'escape.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>5.2.5</entry>
+       <entry>
+        Sono state aggiunte le sequenze di escape \v e \f.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+    Usare <parameter>charlist</parameter> pari a "\0..\37", significa che si vuole effettuare
+    l'escape di tutti i caratteri con codice ASCII tra 0 e 31.
+   <example>
+    <title>Esempio di <function>addcslashes</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$escaped = addcslashes($not_escaped, "\0..\37!@\177..\377");
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>stripcslashes</function></member>
+    <member><function>stripslashes</function></member>
+    <member><function>addslashes</function></member>
+    <member><function>htmlspecialchars</function></member>
+    <member><function>quotemeta</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

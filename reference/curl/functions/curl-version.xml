@@ -1,24 +1,130 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: fernando Status: ready -->
-<!-- CREDITS: cortesi -->
-<!-- splitted from ./it/functions/curl.xml, last change in rev 1.1 -->
-  <refentry xml:id="function.curl-version" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>curl_version</refname>
-    <refpurpose>Restituisce la versione di CURL in uso</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>curl_version</methodname>
-      <methodparam choice="opt"><type>int</type><parameter>version</parameter></methodparam>
-     </methodsynopsis>
+<!-- EN-Revision: ee73d0055757da9bf56cc2df7a155caacf8c254d Maintainer: pastore Status: ready -->
+<refentry xml:id="function.curl-version" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>curl_version</refname>
+  <refpurpose>Restituisce informazioni sulla versione di cURL</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>array</type><methodname>curl_version</methodname>
+   <methodparam choice="opt"><type>int</type><parameter>age</parameter><initializer>CURLVERSION_NOW</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Restituisce informazioni sulla versione di cURL.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>age</parameter></term>
+     <listitem>
+      <para>
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce un array associativo con i seguenti elementi: 
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>Indice</entry>
+       <entry>Descrizione valore</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>version_number</entry>
+       <entry>numero della versione di 24 bit di cURL</entry>
+      </row>
+      <row>
+       <entry>version</entry>
+       <entry>numero della versione di cURL, come una stringa</entry>
+      </row>
+      <row>
+       <entry>ssl_version_number</entry>
+       <entry>Numero della versione di 24 bit di OpenSSL</entry>
+      </row>
+      <row>
+       <entry>ssl_version</entry>
+       <entry>Numero della versione di OpenSSL, come una stringa</entry>
+      </row>
+      <row>
+       <entry>libz_version</entry>
+       <entry>Numero della versione di zlib, come una stringa</entry>
+      </row>
+      <row>
+       <entry>host</entry>
+       <entry>Informazioni sull'host dove è stato effettuato il build di cURL</entry>
+      </row>
+      <row>
+       <entry>age</entry>
+       <entry></entry>
+      </row>
+      <row>
+       <entry>features</entry>
+       <entry>Una maschera di bit delle costanti <literal>CURL_VERSION_XXX</literal></entry>
+      </row>
+      <row>
+       <entry>protocols</entry>
+       <entry>Un array dei nomi dei protocolli supportati da cURL</entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>curl_version</function></title>
     <para>
-     La funzione <function>curl_version</function> restituisce una stringa 
-     contenente la versione di CURL attualmente in uso.
+     Questo esempio controllerà quali funzionalità sono disponibili 
+     nel build di cURL utilizzando la maschera di bit <literal>'features'</literal> restituita 
+     da <function>curl_version</function>.
     </para>
-   </refsect1>
-  </refentry>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// Ottiene l'array delle versioni di curl
+$version = curl_version();
+
+// Questo sono i bitfield che possono essere usati 
+// per verificare le caratteristiche nella build di curl
+$bitfields = Array(
+            'CURL_VERSION_IPV6', 
+            'CURL_VERSION_KERBEROS4', 
+            'CURL_VERSION_SSL', 
+            'CURL_VERSION_LIBZ'
+            );
+
+
+foreach($bitfields as $feature)
+{
+    echo $feature . ($version['features'] & constant($feature) ? ' matches' : ' does not match');
+    echo PHP_EOL;
+}
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

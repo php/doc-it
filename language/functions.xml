@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 0e9eb8a8c76de2365decd77a46d96ddfeec2bac8 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 850354823a33c044b39aedcfd96b8c196f6e84f2 Maintainer: pastore Status: ready -->
  <chapter xml:id="language.functions" xmlns="http://docbook.org/ns/docbook">
   <title>Funzioni</title>
 
@@ -11,7 +11,7 @@
    </para>
    <para>
     <example>
-     <title>Psuedo codice per dimostrare l'uso delle funzioni</title>
+     <title>Pseudo codice per dimostrare l'uso delle funzioni</title>
      <programlisting role="php">
 <![CDATA[
 <?php
@@ -831,6 +831,69 @@ $greet('PHP');
    <simpara>
     Le chiusure possono anche ereditare le variabili dal contesto del genitore.
     Ognuna di queste variabili deve essere passata al costrutto del linguaggio <literal>use</literal>.
+    </simpara>
+
+   <example>
+    <title>Ereditare variabili dal contesto del genitore</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$message = 'hello';
+
+// Nessun "use"
+$example = function () {
+    var_dump($message);
+};
+echo $example();
+
+// Eredita $message
+$example = function () use ($message) {
+    var_dump($message);
+};
+echo $example();
+
+// Il valore della variabile ereditata è da quando la funzione
+// è definita, non quando chiamata
+$message = 'world';
+echo $example();
+
+// Resetta il messaggio
+$message = 'hello';
+
+// Eredita per riferimento
+$example = function () use (&$message) {
+    var_dump($message);
+};
+echo $example();
+
+// Il valore cambiato nel contesto del genitore
+// è riflesso all'interno della chiamata della funzione
+$message = 'world';
+echo $example();
+
+// Le closure possono anche accettare argomenti regolari
+$example = function ($arg) use ($message) {
+    var_dump($arg . ' ' . $message);
+};
+$example("hello");
+?>
+]]>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+Notice: Undefined variable: message in /example.php on line 6
+NULL
+string(5) "hello"
+string(5) "hello"
+string(5) "hello"
+string(5) "world"
+string(11) "hello world"
+]]>
+    </screen>
+   </example>
+
+   <simpara>
     Ereditare le variabili dall'ambito genitore <emphasis>non</emphasis>
     è la stessa cosa che usare variabili globali.
     Le variabili globali esistono nell'ambito globale, che è lo stesso, indipendentemente

@@ -1,29 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-<!-- CREDITS: cortesi -->
+<!-- EN-Revision: c4c0f7fc58a2d5d5f892bc03f2e9f5db7dbfc63a Maintainer: fernando Status: working -->
 <refentry xml:id="function.fread" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>fread</refname>
-    <refpurpose>Legge un file salvaguardando la corrispondenza binaria</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>fread</methodname>
-      <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
-      <methodparam><type>int</type><parameter>length</parameter></methodparam>
-     </methodsynopsis>
-    <simpara>
-     <function>fread</function> legge fino a
-     <parameter>length</parameter> byte dal puntatore al file
-     indicato da <parameter>handle</parameter>. La lettura finisce quando sono stati letti
-     <parameter>length</parameter> byte o è stata raggiunta EOF, o (nel caso di flussi
-     via rete) quando un pacchetto divnta disponibile,
-     in base a quale evento accada prima.
-    </simpara> 
-    <para>
-     <informalexample>
-      <programlisting role="php">
+ <refnamediv>
+  <refname>fread</refname>
+  <refpurpose>Legge un file salvaguardando la corrispondenza binaria</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+   <methodsynopsis>
+    <type>string</type><methodname>fread</methodname>
+    <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
+    <methodparam><type>int</type><parameter>length</parameter></methodparam>
+   </methodsynopsis>
+  <para>
+   <function>fread</function> legge fino a
+   <parameter>length</parameter> byte dal puntatore al file
+   indicato da <parameter>handle</parameter>. La lettura finisce quando una
+   delle seguenti condizioni è raggiunta:
+   <itemizedlist>
+     <listitem>
+      <simpara>
+       sono stati letti <parameter>length</parameter> byte
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       è stata raggiunta EOF (end of file - fine del file)
+      </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      un pacchetto diventa disponibile o si verifica un <link linkend="function.socket-set-timeout">
+      socket timeout</link> (nel caso di stream sulla rete) 
+     </simpara> 
+    </listitem>
+    <listitem>
+     <simpara>
+      se lo stream è letto attraverso un buffer e non rappresenta un normale file, viene
+      fatta almeno una lettura di un numero di byte uguale alla dimensione del chunk (di solito
+      8192); a seconda dei dati precedentemente messi nel buffer, la dimensione dei
+      dati restituiti può essere maggiore della dimensione del chunk.
+     </simpara>
+    </listitem>
+   </itemizedlist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>handle</parameter></term>
+     <listitem>
+      &fs.file.pointer;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>length</parameter></term>
+     <listitem>
+      <para>
+       Fino a <parameter>length</parameter> numero di byte letti.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce la stringa letta &return.falseforfailure;.
+  </para>
+ </refsect1>
+  
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Un semplice esempio di <function>fread</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 // copia il contenuto di un file in una stringa
@@ -33,9 +91,12 @@ $contents = fread($handle, filesize($filename));
 fclose($handle);
 ?>
 ]]>
-      </programlisting>
-     </informalexample>
-    </para>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Esempio di <function>fread</function> binario</title>
     <warning>
      <para>
       Sui sistemi che differenziano fra file di testo e binari  
@@ -43,9 +104,7 @@ fclose($handle);
       <function>fopen</function> impostato a 'b'.
      </para>
     </warning>
-    <para>
-     <informalexample>
-      <programlisting role="php">
+    <programlisting role="php">
 <![CDATA[
 <?php
 $filename = "c:\\files\\somepic.gif";
@@ -54,56 +113,91 @@ $contents = fread($handle, filesize($filename));
 fclose($handle);
 ?>
 ]]>
-      </programlisting>
-     </informalexample>
-    </para>
-
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Esempi di <function>fread</function> remoti</title>
     <warning>
      <para>
-      Quando si ricevono dati via rete o pipe, tipo quelli ottenuti leggendo da
+      Quando si legge da qualsiasi cosa non sia un normale file locale, come gli
+      stream restituiti leggendo da
       <link linkend="features.remote-files">file remoti</link> o da 
       <function>popen</function> e <function>fsockopen</function>, la lettura
-      si fermerà dopo avere ricevuto il pacchetto disponibile.
-      Questo significa che i dati sono ricevuti a blocchi
-      che devono essere raggruppati, come illustrato nell'esempio seguente.
+      si fermerà dopo che un pacchetto si è reso disponibile. Questo significa che si evono
+      raccogliere i dati in blocchi come illustrato nell'esempio seguente.
      </para>
     </warning>
-    <para>
-     <informalexample>
-      <programlisting role="php">
+    <programlisting role="php">
 <![CDATA[
 <?php
+// For PHP 5 and up
 $handle = fopen("http://www.example.com/", "rb");
-$contents = '';
-while (!feof($handle))  {
-   $contents .=fread($handle, 8192);
-  }
-    $contents .= $data;
-} while (true);
+$contents = stream_get_contents($handle);
 fclose($handle);
 ?>
 ]]>
+    </programlisting> 
+    <programlisting role="php">
+<![CDATA[
+<?php
+$handle = fopen("http://www.example.com/", "rb");
+if (FALSE === $handle) {
+    exit("Failed to open stream to URL");
+}
 
-      </programlisting>
-     </informalexample>
-    </para>
-    
-    <note>
-     <para>
-      Se si desidera ottenere il contenuto del file in una stringa, utilizzare
-      la funzione <function>file_get_contents</function> la quale è ancora più
-      performante del codice precedente.
-     </para>
-    </note>
-    <simpara>
-     Vedere anche <function>fwrite</function>, <function>fopen</function>,
-     <function>fsockopen</function>, <function>popen</function>,
-     <function>fgets</function>, <function>fgetss</function>,
-     <function>fscanf</function>, <function>file</function> e
-     <function>fpassthru</function>.
-    </simpara>
-   </refsect1>
-  </refentry>
+$contents = '';
+
+while (!feof($handle))  {
+   $contents .=fread($handle, 8192);
+}
+fclose($handle);
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    Se si desidera ottenere il contenuto del file in una stringa, utilizzare
+    la funzione <function>file_get_contents</function> la quale è ancora più
+    performante del codice precedente.
+   </para>
+  </note>
+  <note>
+   <para>
+    Si noti che <function>fread</function> legge dalla posizione attuale del
+    puntatore al file. Usare <function>ftell</function> per trovare la posizione
+    attuale del puntatore e <function>rewind</function> per riportare il puntatore
+    all'inizio del file.
+   </para>
+  </note>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitel.seealso;
+  <para>
+   <simplelist>
+    <member><function>fwrite</function></member>
+    <member><function>fopen</function></member>
+    <member><function>fsockopen</function></member>
+    <member><function>popen</function></member>
+    <member><function>fgets</function></member>
+    <member><function>fgetss</function></member>
+    <member><function>fscanf</function></member>
+    <member><function>file</function></member>
+    <member><function>fpassthru</function></member>
+    <member><function>ftell</function></member>
+    <member><function>rewind</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

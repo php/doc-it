@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: d69425501f5e368f1156c24f1d06ccf091a002a2 Maintainer: pastore Status: ready --> <!-- CREDITS: cortesi -->
+<!-- EN-Revision: b67451f6fb5aa8602d88fb8680c581f79b76655c Maintainer: pastore Status: ready --> <!-- CREDITS: cortesi -->
 <refentry xml:id="function.curl-setopt" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>curl_setopt</refname>
@@ -219,8 +219,8 @@
           <row>
            <entry valign="top"><constant>CURLOPT_TCP_NODELAY</constant></entry>
            <entry valign="top">
-            Passare un long specificando se l'opzione TCP_NODELAY è da impostare o
-            eliminare (1 = impostare, 0 = eliminare). L'opzione è pulita per impostazione predefinita.
+            &true; per disabilitare l'algoritmo di Nagle del TCP, che prova a minimizzare
+            il numero di piccoli pacchetti sulla rete.
            </entry>
            <entry valign="top">
             Disponibile da PHP 5.2.1 per versioni compilate con libcurl 7.11.2 o
@@ -688,8 +688,11 @@
           <row>
            <entry valign="top"><constant>CURLOPT_PROXYTYPE</constant></entry>
            <entry valign="top">
-            O <parameter>CURLPROXY_HTTP</parameter> (valore predefinito) o
-            <parameter>CURLPROXY_SOCKS5</parameter>.
+            O <parameter>CURLPROXY_HTTP</parameter> (valore predefinito),
+            <constant>CURLPROXY_SOCKS4</constant>,
+            <constant>CURLPROXY_SOCKS5</constant>,
+            <constant>CURLPROXY_SOCKS4A</constant> o
+            <parameter>CURLPROXY_SOCKS5_HOSTNAME</parameter>.
            </entry>
            <entry valign="top">
             Aggiunta in cURL 7.10.
@@ -1481,7 +1484,7 @@
       <row>
        <entry>5.6.0</entry>
        <entry>
-        <constant>CURL_SAFE_UPLOAD</constant> è ora &true; per impostazione predefinita.
+        <constant>CURLOPT_SAFE_UPLOAD</constant> è ora &true; per impostazione predefinita.
        </entry>
       </row>
       <row>
@@ -1573,7 +1576,7 @@ curl_close($ch);
   </para>
   <para>
    <example>
-    <title>Effettuare l'upload di un file</title>
+    <title>Effettuare l'upload di un file (deprecato in PHP 5.5.0)</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -1589,6 +1592,7 @@ $data = array('name' => 'Foo', 'file' => '@/home/user/test.png');
 
 curl_setopt($ch, CURLOPT_URL, 'http://localhost/upload.php');
 curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_SAFE_UPLOAD, false); // richiesto in PHP 5.6.0
 curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
 curl_exec($ch);

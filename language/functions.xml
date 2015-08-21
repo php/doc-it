@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 850354823a33c044b39aedcfd96b8c196f6e84f2 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 8243002f324f1d66e5414d7da0b52c86ee8d06f3 Maintainer: pastore Status: ready -->
  <chapter xml:id="language.functions" xmlns="http://docbook.org/ns/docbook">
   <title>Funzioni</title>
 
@@ -141,9 +141,7 @@ bar();
    </simpara>
    
    <para>
-    In PHP è possibile utilizzare le chiamate ricorsive. Tuttavia si consiglia di
-    evitare funzioni/metodi ricorsivi profondi oltre 100-200 livelli, potrebbero
-    riempire lo stack e bloccare l'esecuzione dello script.
+    In PHP è possibile utilizzare le chiamate a funzioni ricorsive.
     <example>
      <title>Funzioni ricorsive</title>
      <programlisting role="php">
@@ -160,6 +158,13 @@ function recursion($a)
 ]]>
      </programlisting>
     </example>
+   <note>
+    <simpara>
+     Funzioni/metodi ricorsivi con oltre 100-200 livelli di ricorsione possono
+     riempire lo stack e causare la terminazione dello script corrente. In particolare,
+     la ricorsione infinita è considerata un errore di programmazione.
+    </simpara>
+   </note>
    </para>
 
   </sect1>
@@ -172,6 +177,7 @@ function recursion($a)
     che sono liste di espressioni delimitati dalla virgola. Gli argomenti sono
     valutati da sinistra a destra.
    </simpara> 
+
    <para>
     PHP supporta il passaggio di argomenti per valore (comportamento di default), <link
     linkend="functions.arguments.by-reference">il passaggio
@@ -195,9 +201,8 @@ function prende_array($input)
      </programlisting>
     </example>
    </para>
- 
    <sect2 xml:id="functions.arguments.by-reference">
-    <title>Costruire argomenti passati per riferimento</title>
+    <title>Passare argomenti per riferimento</title>
  
     <simpara>
      Di default, gli argomenti della funzione sono passati per valore (così se
@@ -227,9 +232,7 @@ echo $str;    // l'output sarà 'Questa è una stringa, e qualche altra cosa.'
       </programlisting>
      </example>
     </para>
- 
    </sect2>
- 
    <sect2 xml:id="functions.arguments.default">
     <title>Valori predefiniti degli argomenti</title>
  
@@ -351,9 +354,331 @@ Fare una vaschetta di yogurt a fragola.
       Da PHP 5, i parametri che sono passati per riferimento possono avere un valore di default.
      </simpara>
     </note>
-
    </sect2>
 
+   <sect2 xml:id="functions.arguments.type-declaration">
+    <title>Dichiarazioni dei tipi</title>
+
+    <note>
+     <para>
+      Le dichiarazioni dei tipi erano anche conosciute come type hints in PHP 5.
+     </para>
+    </note>
+
+    <para>
+     La dichiarazioni dei tipi permettono alle funzioni di richiedere che i parametri siano di un
+     certo tipo in fase di chiamata. Se il valore dato è di un tipo scorretto,
+     allora viene generato un errore: in PHP 5, questo sarà un recuperabile errore
+     fatale, mentre PHP 7 genererà un'eccezione
+     <classname>TypeError</classname>.
+    </para>
+
+    <para>
+     Per specificare una dichiarazione di tipo, il nome del tipo dovrebbe essere aggiunto prima del
+     nome del parametro. La dichiarazione può essere fatta per accettare valori &null; se
+     il valore di default del parametro è impostato a &null;.
+    </para>
+
+    <sect3 xml:id="functions.arguments.type-declaration.types">
+     <title>Tipi validi</title>
+     <informaltable>
+      <tgroup cols="3">
+       <thead>
+        <row>
+         <entry>Tipo</entry>
+         <entry>Descrizione</entry>
+         <entry>Versione PHP minima</entry>
+        </row>
+       </thead>
+       <tbody>
+        <row>
+         <entry>Nome della Classe/interfaccia</entry>
+         <entry>
+          Il parametro deve essere un &instanceof; della classe o interfaccia
+          descritta dal nome.
+         </entry>
+         <entry>PHP 5.0.0</entry>
+        </row>
+        <row>
+         <entry><type>array</type></entry>
+         <entry>
+          Il parametro deve essere un <type>array</type>.
+         </entry>
+         <entry>PHP 5.1.0</entry>
+        </row>
+        <row>
+         <entry><type>callable</type></entry>
+         <entry>
+          Il parametro deve essere una <type>callable</type> valida.
+         </entry>
+         <entry>PHP 5.4.0</entry>
+        </row>
+        <row>
+         <entry><type>bool</type></entry>
+         <entry>
+          Il parametro deve essere un valore <type>boolean</type>.
+         </entry>
+         <entry>PHP 7.0.0</entry>
+        </row>
+        <row>
+         <entry><type>float</type></entry>
+         <entry>
+          Il parametro deve essere un numero <type>float</type>.
+         </entry>
+         <entry>PHP 7.0.0</entry>
+        </row>
+        <row>
+         <entry><type>int</type></entry>
+         <entry>
+          Il parametro deve essere un <type>integer</type>.
+         </entry>
+         <entry>PHP 7.0.0</entry>
+        </row>
+        <row>
+         <entry><type>string</type></entry>
+         <entry>
+          Il parametro deve essere una <type>string</type>.
+         </entry>
+         <entry>PHP 7.0.0</entry>
+        </row>
+       </tbody>
+      </tgroup>
+     </informaltable>
+    </sect3>
+
+    <sect3 xml:id="functions.arguments.type-declaration.examples">
+     &reftitle.examples;
+     <example>
+      <title>Dichiarazione del tipo classe basilare</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+class C {}
+class D extends C {}
+
+// Questa non estende C.
+class E {}
+
+function f(C $c) {
+    echo get_class($c)."\n";
+}
+
+f(new C);
+f(new D);
+f(new E);
+?>
+]]>
+      </programlisting>
+      &example.outputs;
+      <screen>
+<![CDATA[
+C
+D
+
+Fatal error: Uncaught TypeError: Argument 1 passed to f() must be an instance of C, instance of E given, called in - on line 14 and defined in -:8
+Stack trace:
+#0 -(14): f(Object(E))
+#1 {main}
+  thrown in - on line 8
+]]>
+      </screen>
+     </example>
+
+     <example>
+      <title>Dichiarazione del tipo interfaccia basilare</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+interface I { public function f(); }
+class C implements I { public function f() {} }
+
+// Questa non implementa I.
+class E {}
+
+function f(I $i) {
+    echo get_class($i)."\n";
+}
+
+f(new C);
+f(new E);
+?>
+]]>
+      </programlisting>
+      &example.outputs;
+      <screen>
+<![CDATA[
+C
+
+Fatal error: Uncaught TypeError: Argument 1 passed to f() must implement interface I, instance of E given, called in - on line 13 and defined in -:8
+Stack trace:
+#0 -(13): f(Object(E))
+#1 {main}
+  thrown in - on line 8
+]]>
+      </screen>
+     </example>
+
+     <example>
+      <title>Dichiarazione del tipo nullable</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+class C {}
+
+function f(C $c = null) {
+    var_dump($c);
+}
+
+f(new C);
+f(null);
+?>
+]]>
+      </programlisting>
+      &example.outputs;
+      <screen>
+<![CDATA[
+object(C)#1 (0) {
+}
+NULL
+]]>
+      </screen>
+     </example>
+    </sect3>
+
+    <sect3 xml:id="functions.arguments.type-declaration.strict">
+     <title>Tipizzazione</title>
+
+     <para>
+      Per impostazione predefinita, PHP convertirà i valori scalari del tipo errato in quello aspettato
+      se possibile. Per esempio, una funzione a cui è dato un
+      <type>integer</type> per un parametro che aspetta una <type>string</type>
+      otterrà una variabile di tipo <type>string</type>.
+     </para>
+
+     <para>
+      È possibile abilitare la modalità rigorosa su una base per file. In modalità
+      rigorosa, solo una variabile di esatto tipo di quello dichiarato sarà
+      accettata, o verrà generata una <classname>TypeError</classname>.
+      L'unica eccezione a questa regola è che un <type>integer</type> può essere dato
+      ad una funzione che si aspetta un <type>float</type>.
+     </para>
+
+     <para>
+      Per abilitare la modalità rigorosa, l'istruzione &declare; è usata con la
+      dichiarazione <literal>strict_types</literal>:
+     </para>
+
+     <caution>
+      <para>
+       L'abilitazione della modalità rigorosa avrà effetti anche sulle
+       <link linkend="functions.returning-values.type-declaration">dichiarazioni dei tipi restituiti</link>.
+      </para>
+     </caution>
+
+     <note>
+      <para>
+       La tipizzazione si applica alle funzioni le cui chiamate sono fatte dall'
+       <emphasis>interno</emphasis> del file con la tipizzazione abilitata, non alle
+       funzioni dichiarate all'interno di quel file. Se un file senza tipizzazione
+       abilitata fa una chiamata ad una funzione che era definita in un file
+       con la tipizzazione, la preferenza del chiamante (tipizzazione debole) verrà
+       rispettata, e il valore sarà convertito.
+      </para>
+     </note>
+
+     <note>
+      <para>
+       La tipizzazione è definita solo per le dichiarazioni di tipi scalari, e come
+       tale, richiede PHP 7.0.0 o successivi, dato che le dichiarazioni dei tipi scalari furono
+       aggiunti in quella versione.
+      </para>
+     </note>
+
+     <example>
+      <title>Tipizzazione</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+declare(strict_types=1);
+
+function sum(int $a, int $b) {
+    return $a + $b;
+}
+
+var_dump(sum(1, 2));
+var_dump(sum(1.5, 2.5));
+?>
+]]>
+      </programlisting>
+      &example.outputs;
+      <screen>
+<![CDATA[
+int(3)
+
+Fatal error: Uncaught TypeError: Argument 1 passed to sum() must be of the type integer, float given, called in - on line 9 and defined in -:4
+Stack trace:
+#0 -(9): sum(1.5, 2.5)
+#1 {main}
+  thrown in - on line 4
+]]>
+      </screen>
+     </example>
+
+     <example>
+      <title>Tipizzazione debole</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+function sum(int $a, int $b) {
+    return $a + $b;
+}
+
+var_dump(sum(1, 2));
+
+// Questi verranno convertiti in integer: notare l'output sotto!
+var_dump(sum(1.5, 2.5));
+?>
+]]>
+      </programlisting>
+      &example.outputs;
+      <screen>
+<![CDATA[
+int(3)
+int(3)
+]]>
+      </screen>
+     </example>
+
+     <example>
+      <title>Gestire il <classname>TypeError</classname></title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+declare(strict_types=1);
+
+function sum(int $a, int $b) {
+    return $a + $b;
+}
+
+try {
+    var_dump(sum(1, 2));
+    var_dump(sum(1.5, 2.5));
+} catch (TypeError $e) {
+    echo 'Error: '.$e->getMessage();
+}
+?>
+]]>
+      </programlisting>
+      &example.outputs;
+      <screen>
+<![CDATA[
+int(3)
+Error: Argument 1 passed to sum() must be of the type integer, float given, called in - on line 10
+]]>
+      </screen>
+     </example>
+    </sect3>
+   </sect2>
    <sect2 xml:id="functions.variable-arg-list">
     <title>Liste di argomenti a lunghezza variabile</title>
 
@@ -527,7 +852,6 @@ echo sum(1, 2, 3, 4);
     </sect3>
 
    </sect2>
-
   </sect1>
  
   <sect1 xml:id="functions.returning-values">
@@ -540,12 +864,16 @@ echo sum(1, 2, 3, 4);
     alla linea da cui è stata chiamata. Vedere <function>return</function>
     per maggiori informazioni.
    </para>
+
    <note>
     <para>
      Se <function>return</function> è omesso, verrà restituito il 
      valore &null;.
     </para>
    </note>
+
+   <sect2>
+    <title>Uso di return</title>
    <para>
     <example>
      <title>Esempio di uso di <function>return</function></title>
@@ -609,6 +937,117 @@ $nuovo_riferimento =& restituisce_riferimento();
     Per maggiori informazioni sui riferimenti, consultare <link
     linkend="language.references">References Explained</link>.
    </simpara>
+  </sect2>
+
+  <sect2 xml:id="functions.returning-values.type-declaration">
+   <title>Dichiarazioni dei tipi di ritorno</title>
+
+   <para>
+    PHP 7 aggiunge il supporto per le dichiarazioni dei tipi di ritorno. Analogamente alle
+    <link linkend="functions.arguments.type-declaration">dichiarazioni dei tipi degli argomenti</link>,
+    le dichiarazioni dei tipi di ritorno specificano il tipo del valore che sarà
+    restituito dalla funzione. Sono disponibili gli stessi
+    <link linkend="functions.arguments.type-declaration.types">tipi</link>
+    per le dichiarazioni dei tipi di ritorno come per le dichiarazioni dei
+    tipi degli argomenti.
+   </para>
+
+   <para>
+    La <link linkend="functions.arguments.type-declaration.strict">tipizzazione</link>
+    ha anche un effetto sulle dichiarazioni dei tipi di ritorno. Nella modalità di default debole,
+    i valori restituiti saranno convertiti nel tipo corretto se non sono
+    già di quel tipo. Nella modalità forte, il tipo restituito deve essere del
+    tipo corretto, altrimenti verrà generata un <classname>TypeError</classname>.
+   </para>
+
+   <note>
+    <para>
+     Quando si sovrascrive un metodo genitore, il metodo del figlio deve avere la stessa
+     dichiarazione del tipo di ritorno del genitore. Se il genitore non definisce un
+     tipo, allora il metodo del figlio può farlo.
+    </para>
+   </note>
+
+   <sect3 xml:id="functions.returning-values.type-declaration.examples">
+    &reftitle.examples;
+
+    <example>
+     <title>Dichiarazione del tipo di ritorno di base</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function sum($a, $b): float {
+    return $a + $b;
+}
+
+// Notare che verrà restituito un float.
+var_dump(sum(1, 2));
+?>
+]]>
+      </programlisting>
+      &example.outputs;
+      <screen>
+<![CDATA[
+float(3)
+]]>
+      </screen>
+     </example>
+
+     <example>
+      <title>Modalità rigorosa in azione</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+declare(strict_types=1);
+
+function sum($a, $b): int {
+    return $a + $b;
+}
+
+var_dump(sum(1, 2));
+var_dump(sum(1, 2.5));
+?>
+]]>
+      </programlisting>
+      &example.outputs;
+      <screen>
+<![CDATA[
+int(3)
+
+Fatal error: Uncaught TypeError: Return value of sum() must be of the type integer, float returned in - on line 5 in -:5
+Stack trace:
+#0 -(9): sum(1, 2.5)
+#1 {main}
+  thrown in - on line 5
+]]>
+      </screen>
+     </example>
+
+     <example>
+      <title>Restituzione di un oggetto</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+class C {}
+
+function getC(): C {
+    return new C;
+}
+
+var_dump(getC());
+?>
+]]>
+      </programlisting>
+      &example.outputs;
+      <screen>
+<![CDATA[
+object(C)#1 (0) {
+}
+]]>
+      </screen>
+     </example>
+    </sect3>
+   </sect2>
   </sect1>
  
   <sect1 xml:id="functions.variable-functions">
@@ -718,12 +1157,70 @@ Foo::$variable();  // Questo chiama $foo->Variable() leggendo $variable da quest
      </programlisting>
     </example>
    </para>
+   <para>
+     In PHP 5.4.0, si può chiamare qualsiasi <type>callable</type> immagazzinata in una variabile.
+    <example>
+     <title>Callable complesse</title>
+     <programlisting role="php">
+<![CDATA[
+class Foo
+{
+    static function bar()
+    {
+        echo "bar\n";
+    }
+    function baz()
+    {
+        echo "baz\n";
+    }
+}
+
+$func = array("Foo", "bar");
+$func(); // stampa "bar"
+$f = array(new Foo, "baz");
+$func(); // stampa "baz"
+$f = "Foo::bar";
+$func(); // stampa "bar" in PHP 7.0.0; prima, sollevava un errore fatale
+]]>
+     </programlisting>
+    </example>
+   </para>
       
    <para>
     Vedere anche <function>is_callable</function>, <function>call_user_func</function>,
     <link linkend="language.variables.variable">
     variabili variabili</link> e <function>function_exists</function>.
    </para>
+   
+   <sect2 role="changelog">
+    &reftitle.changelog;
+    <para>
+     <informaltable>
+      <tgroup cols="2">
+       <thead>
+        <row>
+         <entry>&Version;</entry>
+         <entry>&Description;</entry>
+        </row>
+       </thead>
+       <tbody>
+        <row>
+         <entry>7.0.0</entry>
+         <entry>
+          'NomeDellaClasse::nomeDelMetodo' è permesso come funzione di variabile.
+         </entry>
+        </row>
+        <row>
+         <entry>5.4.0</entry>
+         <entry>
+          Gli array, che sono callable valide, sono permesse come funzioni di variabile.
+         </entry>
+        </row>
+       </tbody>
+      </tgroup>
+     </informaltable>
+    </para>
+   </sect2>
   </sect1>
   
   <sect1 xml:id="functions.internal">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: a44a1e0b7918846659a3c91013855d2c3d674fb9 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 727d05975829ab4666b3aa767e49479a5adeea4b Maintainer: pastore Status: ready -->
 <!-- Reviewed: yes Maintainer: cucinato -->
  <sect1 xml:id="language.oop5.basic" xmlns="http://docbook.org/ns/docbook">
   <title>Nozioni di base</title>
@@ -225,6 +225,75 @@ bool(true)
    </example>
   </sect2>
 
+  <sect2 xml:id="language.oop5.basic.properties-methods">
+   <title>Proprietà e metodi</title>
+   <para>
+    Le proprietà e i metodi della classe vivono in "namespace" separati, quindi è
+    possibile avere una proprietà ed un metodo con lo stesso nome. Dato che
+    sia una proprietà che un metodo hanno la stessa notazione, e la scelta se
+    verrà letta la proprietà o se verrà chiamato il metodo, dipende solo dal contesto,
+    per esempio se l'uso è un accesso ad una variabile o una chiamata ad una funzione.
+   </para>
+   <example>
+    <title>Accesso alla proprietà vs. chiamata del metodo</title>
+    <programlisting role="php">
+<![CDATA[
+class Foo
+{
+    public $bar = 'property';
+    
+    public function bar() {
+        return 'method';
+    }
+}
+
+$obj = new Foo();
+echo $obj->bar, PHP_EOL, $obj->bar(), PHP_EOL;
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+property
+method
+]]>
+    </screen>
+   </example>
+   <para>
+    Ciò significa che chiamare una <link linkend="functions.anonymous">funzione
+    anonima</link> che è stata assegnata ad una proprietà non è direttamente
+    possibile. Per esempio, la proprietà deve essere assegnata prima ad una
+    variabile.
+   </para>
+   <example>
+    <title>Chiamare una funzione anonima memorizzata in una proprietà</title>
+    <programlisting role="php">
+<![CDATA[
+class Foo
+{
+    public $bar;
+    
+    public function __construct() {
+        $this->bar = function() {
+            return 42;
+        };
+    }
+}
+
+$obj = new Foo();
+$func = $obj->bar;
+echo $func(), PHP_EOL;
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+42
+]]>
+    </screen>
+   </example>
+  </sect2>
+  
   <sect2 xml:id="language.oop5.basic.extends">
    <title>extends</title>
    <para>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: ea5ef878791d0182c69e3fb69e05a7ddd97aad15 Maintainer: SvenHolmgren Status: ready -->
+<sect1 xml:id="language.types.float" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>Numeri floating point</title>
+
+ <para>
+  I valori floating point (anche conosciuti come "float", "double", o "numeri reali")
+  possono essere specificati utilizzando una delle seguenti sintassi:
+ </para>
+
+ <informalexample>
+  <programlisting role="php">
+<![CDATA[
+<?php
+$a = 1.234; 
+$b = 1.2e3; 
+$c = 7E-10;
+?>
+]]>
+  </programlisting>
+ </informalexample>
+
+ <para>
+  Formalmente:
+ </para>
+
+ <informalexample>
+  <programlisting>
+<![CDATA[
+LNUM          [0-9]+
+DNUM          ([0-9]*[\.]{LNUM}) | ({LNUM}[\.][0-9]*)
+EXPONENT_DNUM [+-]?(({LNUM} | {DNUM}) [eE][+-]? {LNUM})
+]]>
+  </programlisting>
+ </informalexample>
+
+ <para>
+  La dimensione di una variabile float dipende dalla piattaforma in uso, sebbene un massimo di ~1.8e308 con
+  una precisione di circa 14 cifre decimali sia il valore comune (il formato a 64 bit
+  IEEE).
+ </para>
+
+ <warning xml:id="warn.float-precision">
+  <title>Precisione di un valore floating point</title>
+
+  <para>
+   I numeri floating point hanno una precisione limitata. Nonostante questa dipenda dal
+   sistema in uso. PHP tipicamente utilizza il formato IEEE 754 double-precision, il quale
+   pone un errore relativo massimo causato dall'arrotondamento nell'ordine di 1.11e-16.
+   Operazioni aritmetiche non elementari possono restituire un errore maggiore e, di conseguenza,
+   la propagazione dell'errore deve essere considerata quando più operazioni vengono eseguite
+   in successione.
+  </para>
+  
+  <para>
+   In più, alcuni numeri razionali che sono esattamente rappresentabili come numeri
+   floating point in base 10, ad esempio <literal>0.1</literal> o
+   <literal>0.7</literal>), non hanno, al contrario, una rappresentazione come numeri
+   floating point in base 2, la quale viene utilizzata internamente dal sistema, indipendentemente dalla dimensione
+   della mantissa. Dunque, questi non possono essere convertiti nella loro controparte binaria
+   interna senza una piccola perdita di precisione. Ciò può portare a risultati
+   confusionari: per esempio, <literal>floor((0.1+0.7)*10)</literal> solitamente
+   ritornerà come risultato <literal>7</literal> invece di <literal>8</literal>,
+   in quanto la sua rappresentazione interna sarà qualcosa di simile a
+   <literal>7.9999999999999991118...</literal>.
+  </para>
+
+  <para>
+   Perciò non fate mai affidamento sui risultati numerici decimali sino all'ultima cifra e non comparate 
+   numeri floating point direttamente per uguaglianza. Se è necessaria una maggior
+   precisione, sono disponibili le <link linkend="ref.bc">funzioni matematiche con precisione arbitraria</link>
+   e le funzioni <link linkend="ref.gmp">gmp</link>.
+  </para>
+  
+  <para>
+   Per una "semplice" spiegazione, vedere la <link xlink:href="&url.floating.point.guide;">guida per floating point</link>,
+   la quale è anche intitolata "Why don’t my numbers add up?"
+  </para>
+ </warning>
+
+ <sect2 xml:id="language.types.float.casting">
+  <title>Conversione a float</title>
+  
+  <para>
+   Per informazioni sulla conversione di <type>string</type> a <type>float</type>, vedere
+   <link linkend="language.types.string.conversion">Conversione di stringhe in
+   numeri</link>. Per valori di altro tipo il procedimento viene effettuato
+   convertendo inizialmente il valore a <type>integer</type> e, successivamente, a
+   <type>float</type>. Vedere
+   <link linkend="language.types.integer.casting">Convertire in interi</link>
+   per maggiori informazioni. A partire da PHP 5 comparirà un avviso se un
+   <type>object</type> viene convertito a <type>float</type>.
+  </para>
+
+ </sect2>
+
+ <sect2 xml:id="language.types.float.comparison">
+  <title>Comparare float</title>
+
+  <para>
+   Come fatto notare nell'esempio sopra, comparare valori floating point per uguaglianza potrebbe risultare
+   problematico a causa della loro rappresentazione interna. Tuttavia
+   esistono dei metodi per comparare dei valori floating point che aggirano
+   queste limitazioni.
+  </para>
+
+  <para>
+   Per confrontare valori floating point per uguaglianza viene scelto un limite superiore all'errore
+   relativo creato dall'arrotondamento. Questo valore è conosciuto come la macchina epsilon,
+   o unità roundoff, ed è la più piccola differenza accettabile nel calcolo.
+  </para>
+  
+  <informalexample>
+   <simpara>
+    <varname>$a</varname> e <varname>$b</varname> sono uguali per 5 cifre di
+    precisione.
+   </simpara>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$a = 1.23456789;
+$b = 1.23456780;
+$epsilon = 0.00001;
+
+if(abs($a-$b) < $epsilon) {
+    echo "true";
+}
+?>
+]]>
+   </programlisting>
+  </informalexample>
+ </sect2>
+ 
+ <sect2 xml:id="language.types.float.nan">
+  <title>NaN</title>
+  <para>
+   Alcune operazioni possono ritornare un valore rappresentato dalla costante
+   <constant>NAN</constant>. Questo risultato rappresenta un valore indefinito o
+   non presentabile nei calcoli di numeri floating point. Qualsiasi comparazione
+   per uguaglianza o per identicità di questo valore con qualsiasi altro, incluso se stesso,
+   risulterà &false;.
+  </para>
+  <para>
+   Poiché <constant>NAN</constant> rappresenta un qualsiasi numero di differenti valori,
+   <constant>NAN</constant> non dovrebbe essere comparato ad altri valori, incluso
+   se stesso, e dovrebbe invece essere verificato tramite la funzione <function>is_nan</function>.
+  </para>
+ </sect2>
+</sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

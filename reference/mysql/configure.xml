@@ -1,55 +1,153 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: geppo  Status: ready -->
-<section xml:id="mysql.installation" xmlns="http://docbook.org/ns/docbook">
+<!-- EN-Revision: ae6be5bb4f40f334c713bdf0dc11ac6a59f6461d Maintainer: pastore Status: ready -->
+<section xml:id="mysql.installation" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  &reftitle.install;
- <para xml:id="mysql.configure">
-  Usando l'opzione di configurazione <option role="configure">--with-mysql[=DIR]</option>
-  si abilita <literal>PHP</literal> l'accesso ai
-  database MySQL. 
- </para>
- <para>
-   In PHP 4, il parametro <option role="configure">--with-mysql</option> è abilitato per default.
-   Per disabilitarlo si può utilizzare
-  <option role="configure">--without-mysql</option> .
-  Inoltre in PHP 4, se si abilita MySql senza indicare il percorso
-  directory di installazione di MySql, il <literal>PHP</literal> utilizzerà
-  le librerie incluse nella distribuzione. In Windows non vi sono DLL, è semplicemente compilato nel PHP.
-  Gli utenti che eseguano altre applicazioni basate su MySql (come, ad esempio,
-  auth-mysql), non dovrebbero utilizzare le librerie allegate al PHP, ma, piuttosto,
-  indicare il percorso alla directory di instalalzione di MySQL, come, ad esempio;
-  <option role="configure">--with-mysql=/percorso/a/mysql</option>.
-  Questo forzerà  <literal>PHP</literal> ad usare le librerie client installate
-  da MySQL evitando ogni conflitto.
-  </para>
- <para>
-  In PHP 5, MySQL non sarà più abilitato per default, e nè la libreria MySQL
-  sarà allegata al PHP. Per maggiori dettagli sul perché leggere:
-  <link linkend="faq.databases.mysql.php5">FAQ</link>.
- </para>
- <para>
-  Questo modulo di interfaccia a MySQL non supporta completamente le tutte le funzioni presenti nelle
-  versioni di MySQL successive alla 4.1.0. Per avere il pieno supporto a queste vedere <link linkend="ref.mysqli">MySQLi</link>.
- </para>
- <para>
-  Se si desidera installare sia il modulo mysql sia il modulo mysqli
-  utilizzare la stessa libreria client per evitare conflitti.
- </para>
- 
+
  <warning>
-  <para>
-   Problemi di blocco e di avvio di <literal>PHP</literal> possono essere riscontrati
-   quando si carica questa estensione insieme ad estensioni recode.
-   Vedere anche l'estensione <link linkend="ref.recode">recode</link> per
-   maggiori informazioni.
-  </para>
+  &mysql.alternative.note;
  </warning>
- <note>
+
+ <para xml:id="mysql.configure">
+  Per compilare, semplicemente utilizzare l'opzione di 
+  configurazione <option role="configure">--with-mysql[=DIR]</option>
+  dove il parametro opzionale <literal>[DIR]</literal> punta alla 
+  directory di installazione di MySQL.
+ </para>
+ <para> 
+  Sebbene questa estensione MySQL sia compatibile con MySQL 4.1.0 e successivi, 
+  essa non supporta la funzionalità extra che queste versioni forniscono. 
+  Per quello, utilizzare l'estensione <link linkend="book.mysqli">MySQLi</link>.
+ </para>
+ <para>
+  Se si volesse installare l'estensione mysql insieme all'estensione mysqli
+  si deve utilizzare la stessa libreria client per evitare che ci siano conflitti.
+ </para>
+
+ <section xml:id="mysql.installation.linux">
+  <title>Installazione su Sistemi Linux</title>
   <para>
-   Se occorre utilizzare set di caratteri differenti rispetto al <emphasis>latin</emphasis> (il default), 
-   si deve installare la libreria esterna (non allegata al PHP) libmysql compilata
-   con il supporto dei set di caratteri.
+   Nota: <literal>[DIR]</literal> è il percorso ai file della libreria client di 
+   MySQL (<emphasis>header e librerie</emphasis>), i quali possono essere scaricati da 
+   <link xlink:href="&url.mysql;">MySQL</link>.
   </para>
- </note>
+  <table>
+   <title>Matrice di supporto di ext/mysql</title>
+   <tgroup cols="5">
+    <thead>
+     <row>
+      <entry>PHP &Version;</entry>
+      <entry>&Default;</entry>
+      <entry>&ConfigureOptions;: <link linkend="mysqlnd.overview">mysqlnd</link></entry>
+      <entry>&ConfigureOptions;: <literal>libmysqlclient</literal></entry>
+      <entry>&Changelog;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>4.x.x</entry>
+      <entry>libmysqlclient</entry>
+      <entry>&NotAvailable;</entry>
+      <entry><option role="configure">--without-mysql</option> per disabilitare</entry>
+      <entry>MySQL abilitato per impostazione predefinita, le librerie client di MySQL sono in bundle</entry>
+     </row>
+     <row>
+      <entry>5.0.x, 5.1.x, 5.2.x</entry>
+      <entry>libmysqlclient</entry>
+      <entry>&NotAvailable;</entry>
+      <entry><option role="configure">--with-mysql=[DIR]</option></entry>
+      <entry>
+       MySQL non è più abilitato per impostazione predefinita, e le librerie client di MySQL
+       non sono più in bundle
+      </entry>
+     </row>
+     <row>
+      <entry>5.3.x</entry>
+      <entry>libmysqlclient</entry>
+      <entry><option role="configure">--with-mysql=mysqlnd</option></entry>
+      <entry><option role="configure">--with-mysql=[DIR]</option></entry>
+      <entry>Ora è disponibile mysqlnd</entry>
+     </row>
+     <row>
+      <entry>5.4.x</entry>
+      <entry>mysqlnd</entry>
+      <entry><option role="configure">--with-mysql</option></entry>
+      <entry><option role="configure">--with-mysql=[DIR]</option></entry>
+      <entry>Ora il predefinito è mysqlnd</entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </table>
+ </section>
+
+ <section xml:id="mysql.installation.windows">
+  <title>Installazione su Sistemi Windows</title>
+  <section xml:id="mysql.installation.windows.php4">
+   <title>PHP 4</title>
+   <para>
+    L'estensione MySQL di PHP è compilata in PHP.
+   </para>
+  </section>
+  <section xml:id="mysql.installation.windows.php52">
+   <title>PHP 5.0.x, 5.1.x, 5.2.x</title>
+   <para>
+    MySQL non è più abilitato per impostazione predefinita, quindi la 
+    DLL <filename>php_mysql.dll</filename> deve essere abilitata dentro il 
+    &php.ini;. Inoltre, PHP ha bisogno di accedere alla libreria client di MySQL. Un file
+    chiamato <filename>libmysql.dll</filename> viene incluso nella distribuzione PHP 
+    di Windows e affinchè PHP riesca a comunicare con MySQL questo file ha bisogno di essere 
+    disponibile nella variabile d'ambiente <envar>PATH</envar> dei sistemi Windows. Leggere la FAQ
+    intitolata "<link linkend="faq.installation.addtopath">Come aggiungere la mia directory 
+    PHP al <envar>PATH</envar> di Windows</link>" per informazioni su come fare
+    questo. Sebbene funzioni anche copiando <filename>libmysql.dll</filename> nella
+    directory di sistema di Windows (perchè la directory di sistema è per impostazione predefinita nella 
+    variabile di sistema <envar>PATH</envar>), non è raccomandato.
+   </para>
+   <para>
+    Come con l'abilitazione di qualsiasi estensione PHP (come 
+    <filename>php_mysql.dll</filename>), la direttiva PHP 
+    <link linkend="ini.extension-dir">extension_dir</link> dovrebbe essere impostata 
+    alla directory dove le estensioni PHP sono localizzate. Guardare anche le 
+    <link linkend="install.windows.manual">Istruzioni per l'Installazione Manuale
+    di Windows</link>. Un valore di esempio per extension_dir per PHP 5 è
+    <literal>c:\php\ext</literal>
+   </para>
+   <note>
+    <para>
+     Se avviando il web server si verifica un errore simile al seguente:
+     <literal>"Unable to load dynamic library './php_mysql.dll'"</literal>, 
+     questo è perchè <filename>php_mysql.dll</filename> e/o 
+     <filename>libmysql.dll</filename> non può essere trovato dal sistema.
+    </para>
+   </note>
+  </section>
+  <section xml:id="mysql.installation.windows.php53">
+   <title>PHP 5.3.0+</title>
+   <para>
+    Il <link linkend="mysqlnd.overview">Driver Nativo di MySQL</link> è abilitato per impostazione
+    predefinita. Includere <filename>php_mysql.dll</filename>, ma non <filename>libmysql.dll</filename>
+    perchè non è più necessario o utilizzato.
+   </para>
+  </section>
+ </section>
+
+ <section xml:id="mysql.installation.notes">
+  <title>Note di Installazione di MySQL</title>
+   <warning>
+    <para>
+     Possono incontrarsi arresti e problemi di avvio di PHP
+     quando viene caricata questa estensione in congiunzione con l'estensione recode.
+     Vedere l'estensione <link linkend="ref.recode">recode</link> per più
+     informazioni.
+    </para>
+   </warning>
+   <note>
+    <para>
+     Se si avesse bisogno di set di caratteri diversi da <emphasis>latin</emphasis> (impostazione predefinita), si
+     deve installare la libreria esterna (non in bundle) libmysqlclient con il supporto a set di caratteri
+     compilati. 
+    </para>
+   </note>
+ </section>
 </section>
 
 <!-- Keep this comment at the end of the file
@@ -72,4 +170,3 @@ vim600: syn=xml fen fdm=syntax fdl=2 si
 vim: et tw=78 syn=sgml
 vi: ts=1 sw=1
 -->
-

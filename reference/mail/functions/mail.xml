@@ -1,207 +1,399 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: cortesi Status: ready -->
-<!-- splitted from ./it/functions/mail.xml, last change in rev 1.3 -->
-  <refentry xml:id="function.mail" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
-   <refnamediv>
-    <refname>mail</refname>
-    <refpurpose>Invio mail</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>mail</methodname>
-      <methodparam><type>string</type><parameter>a</parameter></methodparam>
-      <methodparam><type>string</type><parameter>oggetto</parameter></methodparam>
-      <methodparam><type>string</type><parameter>messaggio</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>header_addizionali</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>parametri_addizionali</parameter></methodparam>
-     </methodsynopsis>
-    <simpara>
-     <function>mail</function> invia automaticamente il messaggio specificato
-     in <parameter>messaggio</parameter> al destinatario specificato in
-     <parameter>a</parameter>. Destinatari multipli possono essere specificati
-     mettendo una virgola tra ogni indirizzo in <parameter>a</parameter>. 
-     Email con allegati e tipi speciali di
-     contenuto possono essere spedite usando questa funzione. Questo è
-     possibile tramite la codifica MIME. Per maggiori informazioni, fare riferimento a
-     <!-- Removed link to fix the build ~sobak 12/06/2016 -->
-     un articolo Zend o alle <link xlink:href="&url.pear.package;Mail_Mime">
-     Classi Mime del PEAR</link>.
-    </simpara>
-    <simpara>
-     Le seguenti RFC possono essere di aiuto:
-     <link xlink:href="&url.rfc;1896">RFC 1896</link>,
-     <link xlink:href="&url.rfc;2045">RFC 2045</link>,
-     <link xlink:href="&url.rfc;2046">RFC 2046</link>,
-     <link xlink:href="&url.rfc;2047">RFC 2047</link>,
-     <link xlink:href="&url.rfc;2048">RFC 2048</link> e
-     <link xlink:href="&url.rfc;2049">RFC 2049</link>.
-    </simpara>
-    <para>
-     <function>mail</function> restituisce &true; se la mail è stata accettata per
-     la spedizione con successo, altrimenti restituisce &false;.
-    </para>
-    <warning>
-     <para>
-      L'implementazione Windows della funzione <function>mail</function> differisce sotto molti
-      aspetti dall'implementazione Unix. Primo, non usa una un programma in locale
-      per comporre i messaggi, ma opera soltanto direttamente sui socket, il che significa che deve 
-      essere presente in ascolto un <literal>MTA</literal> su un socket di rete (che può
-      essere su localhost o su una macchina remota). Secondo, gli header custom
-      quali <literal>From:</literal>, <literal>Cc:</literal>,
-      <literal>Bcc:</literal> e <literal>Date:</literal> <emphasis
-      role="strong">non</emphasis> vengono interpretati subito dal 
-      <literal>MTA</literal>, ma ne viene fatto prima il parsing da parte di PHP.
-      PHP &lt; 4.3 supportava solo gli header <literal>Cc:</literal>
-      (ed era case-sensitive). PHP &gt;= 4.3
-      supporta tutti gli header e non è più
-      case-sensitive.
-     </para>
-    </warning>
-    <para>
-     <example>
-      <title>Inviare mail.</title>
-      <programlisting role="php">
-<![CDATA[
-<?php
-mail("pippo@example.com", "Oggetto", "Linea 1\nLinea 2\nLinea 3");
-?>
-]]>
-      </programlisting>
-     </example>
-    </para>
-    <simpara>
-     Se viene passata come parametro una quarta stringa, questa stringa viene inserita
-     alla fine dell'intestazione (header).  Ciò viene tipicamente usato per aggiungere intestazioni
-     supplementari. Intestazioni multiple supplementari sono separate da un carattere 
-     di "a capo" (sia newline che carriage return).
-    </simpara>
-    <note>
-     <para>
-     È necessario usare <literal>\r\n</literal> per separare le intestazioni,
-     alcuni mail transfer agent sotto Unix potrebbero funzionare anche solo con un singolo newline
-     (<literal>\n</literal>).
-     </para>
-    </note>
-    <para>
-     <example>
-      <title>Invio di mail con intestazioni supplementari.</title>
-      <programlisting role="php">
-<![CDATA[
-<?php
-mail("nessuno@example.com", "oggetto", $messaggio,
-     "From: webmaster@{$_SERVER['SERVER_NAME']}\r\n" .
-     "Reply-To: webmaster@{$_SERVER['SERVER_NAME']}\r\n" .
-     "X-Mailer: PHP/" . phpversion());
-?>
-]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Con il parametro <parameter>parametri_addizionali</parameter> 
-     è possibile impostare un parametro addizionale a linea di comando per 
-     il programma configurato per inviare mail usando <literal>sendmail_path</literal>. 
-     Per esempio si può impostare il corretto valore per envelope sender di
-     sendmail con l'opzione <literal>-f</literal> di sendmail. Potrebbe essere necessario aggiungere l'utente che ha in esecuzione il server web
-     alla configurazione di sendmail per prevenire l'aggiunta
-     dell'intestazione 'X-Warning' quando si imposta envelope sender
-     in questo modo. 
-     <example>
-      <title>Invio di mail con intestazioni supplementari e impostazione dei parametri addizionali a linea di comando.</title>
-      <programlisting role="php">
-<![CDATA[
-<?php
-mail("nessuno@example.com", "oggetto", $messaggio,
-     "From: webmaster@{$_SERVER['SERVER_NAME']}", "-fwebmaster@{$_SERVER['SERVER_NAME']}");
-?>
-]]>
-      </programlisting>
-     </example>
-    </para>
-    <note>
-     <para>
-      Questo quinto parametro è stato aggiunto in PHP 4.0.5. A partire da PHP 4.2.3, 
-      questo parametro è disabilitato in modalità <link linkend="ini.safe-mode">safe_mode</link>,
-      se si cerca di usarlo comunque, la funzione <function>mail</function> darà un 
-      messaggio di errore e restituirà &false;.
-     </para>
-    </note>
-    <para>
-     È possibile costruire messaggi complessi utilizzando la tecnica di 
-     concatenazione delle stringhe. 
-     <example>
-      <title>Invio di mail complessa.</title>
-      <programlisting role="php">
-<![CDATA[
-<?php
-/* destinatari */
-$destinatari  = "Maria <maria@example.com>" . ", " ; // notare la virgola
-$destinatari .= "Enrica <enrica@example.com>";
+<!-- EN-Revision: f10ab85a2947f2ebf32fd3ee05df0dbca4095188 Maintainer: pastore Status: ready -->
+<refentry xml:id="function.mail" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <refnamediv>
+  <refname>mail</refname>
+  <refpurpose>Invio mail</refpurpose>
+ </refnamediv>
 
-/* oggetto */
-$oggetto = "Promemoria compleanni di Agosto";
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>mail</methodname>
+   <methodparam><type>string</type><parameter>to</parameter></methodparam>
+   <methodparam><type>string</type><parameter>subject</parameter></methodparam>
+   <methodparam><type>string</type><parameter>message</parameter></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>additional_headers</parameter></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>additional_parameters</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Invia una email.
+  </para>
+ </refsect1>
 
-/* messaggio */
-$messaggio = '
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>to</parameter></term>
+     <listitem>
+      <para>
+       Destinatario, o destinatari della mail.
+      </para>
+      <para>
+       La formattazione della stringa deve rispettare l'
+       <link xlink:href="&url.rfc;2822">RFC 2822</link>. Alcuni esempi sono:
+       <simplelist>
+        <member>user@example.com</member>
+        <member>user@example.com, anotheruser@example.com</member>
+        <member>Utente &lt;user@example.com&gt;</member>
+        <member>Utente &lt;user@example.com&gt;, Un Altro utente &lt;anotheruser@example.com&gt;</member>
+       </simplelist>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>subject</parameter></term>
+     <listitem>
+      <para>
+       L'oggetto dell'email da inviare.
+      </para>
+      <caution>
+       <para>
+        L'oggetto deve soddisfare l'<link xlink:href="&url.rfc;2047">RFC 2047</link>.
+       </para>
+      </caution>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>message</parameter></term>
+     <listitem>
+      <para>
+       Il messaggio da inviare.
+      </para>
+      <para>
+       Ogni riga dovrebbe essere separata con un CRLF (\r\n). Le righe non dovrebbero essere
+       più lunghe di 70 caratteri.
+      </para>
+      <caution>
+       <para>
+        (Solo per Windows) Quando PHP comunica direttamente con un server SMTP, se viene trovato
+        un punto all'inizio di una riga, esso viene rimosso. Per contrastare questo,
+        sostituire queste occorrenze con un doppio punto.
+        <programlisting role="php">
+<![CDATA[
+<?php
+$text = str_replace("\n.", "\n..", $text);
+?>
+]]>
+        </programlisting>
+       </para>
+      </caution>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>additional_headers</parameter> (opzionale)</term>
+     <listitem>
+      <para>
+       Stringa da inserire alla fine dell'header dell'email.
+      </para>
+      <para>
+       Questa è tipicamente usata per aggiungere degli header extra (Da, Cc, e Bcc).
+       Gli header extra multipli dovrebbero essere separati con un CRLF (\r\n).
+       Se vengono utilizzati dati esterni per comporre questo header, i dati dovrebbero essere sanitizzati
+       in modo che nessun header non voluto possa essere iniettato. 
+      </para>
+      <note>
+       <para>
+        <parameter>additional_headers</parameter> non ha una protezione per l'injection
+        dell'header della mail. Quindi, gli utenti devono assicurarsi che gli header specifici
+        siano sicuri e che contengano solo header. p.e. Mai iniziare il corpo della mail mettendo
+        righe vuote multiple.
+       </para>
+      </note>      
+      <note>
+       <para>
+        Quando si invia una mail, la mail <emphasis>deve</emphasis> contenere
+        un header <literal>From</literal>. Questo può essere settato con il
+        parametro <parameter>additional_headers</parameter>, o può essere settato
+        un valore di default in &php.ini;.
+       </para>
+       <para>
+        Non riuscendo a fare questo si avrà un messaggio di
+        errore simile a <literal>Warning: mail(): "sendmail_from" not
+        set in php.ini or custom "From:" header missing</literal>.
+        L'header <literal>From</literal> setta anche
+        <literal>Return-Path</literal> sotto Windows.
+       </para>
+      </note>
+      <note>
+       <para>
+        Se i messaggi non vengono ricevuti, provare ad utilizzare solo un LF (\n).
+        Alcuni agent di trasferimento mail Unix (soprattutto
+        <link xlink:href="&url.qmail;">qmail</link>) sostituiscono LF con CRLF
+        automaticamente (che porta a raddoppiare CR se viene utilizzato CRLF).
+        Questa dovrebbe essere un'ultima spiaggia, in quanto non è conforme con l'
+        <link xlink:href="&url.rfc;2822">RFC 2822</link>.
+       </para>
+      </note>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>additional_parameters</parameter> (opzionale)</term>
+     <listitem>
+      <para>
+       Il parametro <parameter>additional_parameters</parameter>
+       può essere usato per passare flag aggiuntive come opzioni della linea di comando al
+       programma configurato per essere usato quando si inviano mail, come definito dall'
+       impostazione di configurazione <literal>sendmail_path</literal>. Per esempio,
+       questo può essere utilizzato per impostare l'indirizzo del mittente della mail quando si usa
+       sendmail con l'opzione <literal>-f</literal> di sendmail.
+      </para>
+      <para>
+       Su questo parametro è effettuato internamente l'escape da <function>escapeshellcmd</function>
+       per impedire l'esecuzione di comandi. <function>escapeshellcmd</function> impedisce
+       l'esecuzione del comando, ma permette di aggiungere parametri aggiuntivi. Per motivi di sicurezza,
+       è raccomandato che l'utente sanitizzi questo parametro per evitare di aggiungere parametri
+       non voluti sulla shell di comando.
+      </para>
+      <para>
+       Dato che <function>escapeshellcmd</function> viene applicato automaticamente, alcuni caratteri
+       che sono permessi come indirizzo email dall'internet di RFC non possono essere utilizzati. 
+       <function>mail</function> non può permettere tali caratteri, così in programmi dove l'uso di
+       tali caratteri è richiesto, sono raccomandati mezzi alternativi di invio delle email (come l'utilizzo
+       di un framework o di una libreria). 
+      </para>
+      <para>
+       L'utente con il quale il webserver viene eseguito dovrebbe essere aggiunto come utente fidato alla
+       configurazione sendmail per prevenire l'aggiunta di un header 'X-Warning'
+       al messaggio quando il mittente del messaggio (-f) viene impostato usando questo metodo.
+       Per gli utenti sendmail, questo file è <filename>/etc/mail/trusted-users</filename>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce &true; se la mail è stata acccettata con successo per la consegna, &false; in caso contrario.
+  </para>
+  <para>
+   È importante notare che solo perchè la mail è stata accettata per la consegna,
+   questo NON significa che la mail raggiungerà effettivamente la destinazione prevista.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>4.2.3</entry>
+       <entry>
+        Il parametro <parameter>additional_parameters</parameter> è disabilitato in
+        <link linkend="ini.safe-mode">safe_mode</link> e la
+        funzione <function>mail</function> esporrà un messaggio di avviso
+        e restituirà &false; quando è utilizzato.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Invio di mail.</title>
+    <para>
+     Utilizzo di <function>mail</function> per inviare una semplice email:
+    </para>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// Il messaggio
+$message = "Line 1\r\nLine 2\r\nLine 3";
+
+// Nel caso in cui qualsiasi delle linee sarà più lunga di 70 caratteri, si dovrà utilizzare wordwrap()
+$message = wordwrap($message, 70, "\r\n");
+
+// Invio
+mail('caffeinated@example.com', 'My Subject', $message);
+?>
+]]>
+    </programlisting>
+   </example>
+   <example>
+    <title>Inviare mail con header extra.</title>
+    <para>
+     L'aggiunta di header di base, indicando gli indirizzi MUA
+     From e Reply-To:
+    </para>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$to      = 'nobody@example.com';
+$subject = 'the subject';
+$message = 'hello';
+$headers = 'From: webmaster@example.com' . "\r\n" .
+    'Reply-To: webmaster@example.com' . "\r\n" .
+    'X-Mailer: PHP/' . phpversion();
+
+mail($to, $subject, $message, $headers);
+?>
+]]>
+    </programlisting>
+   </example>
+   <example>
+    <title>Invio mail con un parametro di linea di comando aggiuntivo.</title>
+    <para>
+     Il parametro <parameter>additional_parameters</parameter>
+     può essere usato per passare un parametro aggiuntivo al programma configurato
+     da usare quando si inviano mail utilizzando il <literal>sendmail_path</literal>.
+    </para>
+    <programlisting role="php">
+<![CDATA[
+<?php
+mail('nobody@example.com', 'the subject', 'the message', null,
+   '-fwebmaster@example.com');
+?>
+]]>
+    </programlisting>
+   </example>
+   <example>
+    <title>Invio di email HTML</title>
+    <para>
+     È anche possibile inviare email HTML con <function>mail</function>.
+    </para>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// Destinatari multipli
+$to = 'johny@example.com, sally@example.com'; // notare la virgola
+
+// Oggetto
+$subject = 'Promemoria compleanni di Agosto';
+
+// Messaggio
+$message = '
 <html>
 <head>
- <title>Promemoria compleanni di Agosto</title>
+  <title>Promemoria compleanni di Agosto</title>
 </head>
 <body>
-<p>Questi sono i compleanni di Agosto!</p>
-<table>
- <tr>
-  <th>Persona</th><th>Giorno</th><th>Mese</th><th>Anno</th>
- </tr>
- <tr>
-  <td>Walter</td><td>11</td><td>Agosto</td><td>1946</td>
- </tr>
- <tr>
-  <td>Sara</td><td>14</td><td>Agosto</td><td>1985</td>
- </tr>
-</table>
+  <p>Questi sono i compleanni di Agosto!</p>
+  <table>
+    <tr>
+      <th>Persona</th><th>Giorno</th><th>Mese</th><th>Anno</th>
+    </tr>
+    <tr>
+      <td>Johny</td><td>10</td><td>Agosto</td><td>1970</td>
+    </tr>
+    <tr>
+      <td>Sally</td><td>17</td><td>Agosto</td><td>1973</td>
+    </tr>
+  </table>
 </body>
 </html>
 ';
 
-/* Per inviare email in formato HTML, si deve impostare l'intestazione Content-type. */
-$intestazioni  = "MIME-Version: 1.0\r\n";
-$intestazioni .= "Content-type: text/html; charset=iso-8859-1\r\n";
+// Per inviare mail HTML, deve essere impostato l'header Content-type
+$headers[] = 'MIME-Version: 1.0';
+$headers[] = 'Content-type: text/html; charset=iso-8859-1';
 
-/* intestazioni addizionali */
-$intestazioni .= "To: Mary <mary@example.com>, Kelly <kelly@example.com>\r\n";
-$intestazioni .= "From: Promemoria Compleanni <compleanni@example.com>\r\n";
-$intestazioni .= "Cc: archiviocompleanni@example.com\r\n";
-$intestazioni .= "Bcc: controllocompleanni@example.com\r\n";
+// Header aggiuntivi
+$headers[] = 'To: Mary <mary@example.com>, Kelly <kelly@example.com>';
+$headers[] = 'From: Birthday Reminder <birthday@example.com>';
+$headers[] = 'Cc: birthdayarchive@example.com';
+$headers[] = 'Bcc: birthdaycheck@example.com';
 
-/* ed infine l'invio */
-mail($destinatari, $oggetto, $messaggio, $intestazioni);
+// Invia la mail
+mail($to, $subject, $message, implode("\r\n", $headers));
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <note>
-     <para>
-       Assicurarsi di non avere nessun carattere di newline nei parametri
-       <parameter>a</parameter> o <parameter>oggetto</parameter>,
-       o la mail non verrà spedita correttamente.
-     </para>
-    </note>
-    <note>
-     <para>
-      Il parametro <parameter>a</parameter> non può essere un indirizzo nella
-      forma &quot;Qualcosa &lt;qualcuno@example.com&gt;&quot;. Il comando di 
-      mail non sarebbe in grado di effettuare correttamente il parsing mentre dialoga
-      con il MTA (in particolare sotto Windows).
-     </para>
-    </note>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <note>
     <para>
-     Vedere anche <function>imap_mail</function>.
+     Se si intende inviare mail HTML o mail complesse, è raccomandato
+     usare il package PEAR <link xlink:href="&url.pear.package;Mail_Mime">PEAR::Mail_Mime</link>.
     </para>
-   </refsect1>
-  </refentry>
+   </note>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">    
+  &reftitle.notes;
+  <note>
+   <para>
+    L'implementazione di Windows di <function>mail</function> differisce in molti
+    modi dall'implementazione di Unix. Innanzitutto, essa non usa un binario locale
+    per comporre i messaggi ma opera solo sui socket diretti che significa
+    che è necessario un <literal>MTA</literal> in ascolto su un socket della rete (che
+    può essere sia sul localhost che su una macchina remota).
+   </para>
+   <para>
+    In secondo luogo, gli header personalizzati come
+    <literal>From:</literal>,
+    <literal>Cc:</literal>,
+    <literal>Bcc:</literal> e
+    <literal>Date:</literal>
+    <emphasis role="strong">non</emphasis> sono interpretati dall'
+    <literal>MTA</literal> in primo luogo, ma sono analizzati da PHP.
+   </para>
+   <para>
+    Pertanto, il parametro <parameter>to</parameter> non dovrebbe essere un indirizzo
+    nella forma di &quot;Qualcosa &lt;someone@example.com&gt;&quot;. Il
+    comando mail non può analizzarlo correttamente mentre comunica con 
+    l'MTA.
+   </para>
+  </note>
+  
+  <note>
+   <para>
+    Vale la pena notare che la funzione <function>mail</function> non è
+    adatta per grandi volumi di email in un ciclo. Questa funzione apre
+    e chiude un socket SMTP per ogni email, che non è molto efficiente.
+   </para>
+   <para>
+    Per l'invio di grandi quantità di email, vedere i package
+    <link xlink:href="&url.pear.package;Mail">PEAR::Mail</link>, e
+    <link xlink:href="&url.pear.package;Mail_Queue">PEAR::Mail_Queue</link>.
+   </para>
+  </note>
+
+  <note>
+   <para>
+    I seguenti RFC possono essere utili:
+    <link xlink:href="&url.rfc;1896">RFC 1896</link>,
+    <link xlink:href="&url.rfc;2045">RFC 2045</link>,
+    <link xlink:href="&url.rfc;2046">RFC 2046</link>,
+    <link xlink:href="&url.rfc;2047">RFC 2047</link>,
+    <link xlink:href="&url.rfc;2048">RFC 2048</link>,
+    <link xlink:href="&url.rfc;2049">RFC 2049</link>, e
+    <link xlink:href="&url.rfc;2822">RFC 2822</link>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>imap_mail</function></member>
+    <member><link xlink:href="&url.pear.package;Mail">PEAR::Mail</link></member>
+    <member><link xlink:href="&url.pear.package;Mail_Mime">PEAR::Mail_Mime</link></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
+
 
 <!-- Keep this comment at the end of the file
 Local variables:

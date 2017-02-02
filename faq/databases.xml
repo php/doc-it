@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<!-- EN-Revision: ae6be5bb4f40f334c713bdf0dc11ac6a59f6461d Maintainer: BeRaimondo Status: ready -->
+<!-- Reviewed: yes -->
+ <chapter xml:id="faq.databases" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>Problemi di Database</title>
+  <titleabbrev>Problemi di Database</titleabbrev>
+
+  <para>
+   Questa sezione contiene alcune delle domande più comuni a proposito della relazione fra
+   PHP e i database. Sì, PHP virtualmente può accedere a qualsiasi
+   database oggi disponibile.
+  </para>
+
+  <qandaset>
+   <qandaentry xml:id="faq.databases.mssql">
+    <question>
+     <para>
+      Ho sentito che è possibile accedere al Server Microsoft SQL da PHP. Come?
+     </para>
+    </question>
+    <answer>
+     <para>
+      Sulle macchine Unix puoi usare <link linkend="ref.pdo-odbc">PDO_ODBC</link>
+      oppure <link linkend="book.uodbc">Unified ODBC API</link>.
+     </para>
+     <para>
+      Sulle macchine Windows puoi anche usare <link linkend="ref.pdo-sqlsrv">PDO_SQLSRV</link>
+      oppure <link linkend="book.sqlsrv">SQLSRV</link>.
+     </para>
+     <para>
+      Guarda anche la risposta alla prossima domanda.
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry xml:id="faq.databases.access">
+    <question>
+     <para>Posso accedere ai database Microsoft Access?</para>
+    </question>
+    <answer>
+     <para>
+      Sì. Hai già tutti gli strumenti che ti servono se stai utilizzando
+	  Windows 9x/Me o NT/2000. Qui hai a disposizione
+	  i driver ODBC e ODBC di Microsoft per i database Microsoft Access.
+     </para>
+     <para>
+      Se stai utilizzando PHP su una Unix box e vuoi interagire con MS Access
+	  su una Windows box, avrai bisogno dei driver ODBC di Unix.
+      <link xlink:href="&url.openlink;">OpenLink Software</link> ha dei driver
+	  ODBC basati su Unix che possono aiutarti in questo senso.
+     </para>
+     <para>
+      Un'altra alternativa è quella di usare un server SQL che ha
+	  i driver ODBC di Windows e utilizzare questo per memorizzare i dati, che puoi
+      successivamente accedere da Microsoft Access (usando gli ODBC) e PHP (usando i
+	  driver inclusi), oppure puoi usare un formato di file intermedio che sia
+	  leggibile sia da Access che da PHP, come ad esempio flat files o database dBase.
+      Su questo punto, Tim Hayes di OpenLink software scrive:
+      <blockquote>
+       <para>
+        Usare un altro database come intermediario, non è una buona idea, quando puoi usare
+		gli ODBC da PHP direttamente sul tuo database (ad esempio con i driver di OpenLink). Se
+		hai bisogno di usare un formato di file intermedio, OpenLink ha appena rilasciato
+		"Virtuoso" (un motore virtuale di database) per NT, Linux e altre piattaforme Unix.
+		Per favore, visita il nostro <link xlink:href="&url.openlink;">sito web</link> per il download gratuito.
+       </para>
+      </blockquote>
+     </para>
+     <para>
+      Una opzione che ha dimostrato di avere successo è quella di usare MySQL e i
+	  suoi driver MyODBC su Windows e sincronizzare i database. Steve Lawrence
+	  scrive:
+     </para>
+     <para>
+      <itemizedlist>
+       <listitem>
+        <simpara>
+         Installa MySQL sulla tua piattaforma seguendo le istruzioni di MySQL. 
+         Le ultime disponibili su <link xlink:href="&url.mysql;">&url.mysql;</link>
+         Non sono richieste speciali configurazioni, eccetto quando imposti il database, e configuri
+		 l' account dell' utente, dovresti mettere % nel campo host, oppure il nome host del
+		 computer Windows con cui vuoi accedere a MySQL. Prendi nota del nome del tuo
+		 server, della username e della password.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         Scarica il driver MyODBC per Windows dal sito MySQL.
+         Installalo sulla tua macchina Windows. Puoi eseguire il test di questa operazione con
+		 le utilities incluse in questo programma.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         Crea una user oppure un dns di sistema nel tuo ODBC administrator, situato nel
+		 pannello di controllo. Crea un nome dns, inserisci il tuo hostname, username, password,
+		 porta, ecc. per il tuo database MySQL configurato al punto 1.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         Installa Access con una installazione completa, in questo modo sarai sicuro di aver ottenuto i giusti
+		 add-ins... Perlomeno avrai bisogno del supporto ODBC e il gestore di tabelle
+		 collegato.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         Adesso la parte divertente! Crea un nuovo database di accesso. Nella finestra della
+		 tabella, clicca col tasto destro e seleziona Link Tables, oppure sotto l' opzione
+		 file menu, seleziona Get External Data e poi Link Tables.
+         Quando esce fuori il box del file browser, seleziona i file del tipo: ODBC.
+         Seleziona i dns di Sistema e il nome del tuo dns creato allo step 3.
+         Seleziona la tabella da collegare, seleziona OK e fatto! Adesso puoi
+		 aprire la tabella e aggiungere/cancellare/modificare i dati sul tuo server MySQL!
+         Puoi anche costruire query, importare/esportare tabelle su MySQL,
+		 costruire form e report, ecc.
+        </simpara>
+       </listitem>
+      </itemizedlist>
+     </para>
+     <para>
+      Trucchi e suggerimenti:
+      <itemizedlist>
+       <listitem>
+        <simpara>
+         Puoi costruire le tue tabelle in Access ed esportarle
+		 su MySQL, poi ricollegarle in direzione opposta. Questo velocizza
+		 la creazione delle tabelle.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         Quando crei le tabelle in Access, devi aver definito una chiave
+		 primaria per avere accesso in scrittura alla tabella in
+		 Access. Accertati di aver creato una chiave primaria in MySQL prima
+		 di effettuare i collegamenti ad Access.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         Se cambi una tabela in MySQL, devi ri-collegarla
+		 ad Access. Vai a tools&gt;add-ins&gt;gestore delle tabelle collegate,
+         incrocialo al tuo DSN ODBC, e seleziona la tabella da ri-collegare
+		 da questo punto. Puoi anche spostare il sorgente del tuo dns,
+		 seleziona giusto il checkbox "always prompt for new location", prima
+		 di cliccare su OK.
+        </simpara>
+       </listitem>
+      </itemizedlist>
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry xml:id="faq.databases.mysql.deprecated">
+    <question>
+     <para>
+      Perchè si scoraggia l' utilizzo dell' estensione MySQL (ext/mysql)
+	  che ho usato per più di 10 anni? E' stata deprecata? Cosa posso usare al suo posto?
+	  Come faccio a migrare?
+     </para>
+    </question>
+    <answer>
+     <para>
+      Ci sono tre estensioni MySQL, come descritto nella sezione
+      <link linkend="mysqlinfo.api.choosing">Scegliere una API MySQL</link>. Non
+      bisognerebbe usare la API vecchia, è stata deprecata a partire da PHP 5.5.0 ed è stata spostata su PECL a partire da PHP 7.0.0.
+      Ti incoraggiamo fortemente a scrivere
+	  il tuo nuovo codice o con <link linkend="book.mysqli">mysqli</link> oppure con
+      <link linkend="ref.pdo-mysql">PDO_MySQL</link>. 
+     </para>
+     <para>
+      In questo momento gli script di migrazione non sono ancora disponibili, nonostante la API di mysqli contenga
+	  allo stesso tempo una API procedurale e una API OPP. La versione procedurale è simile alla ext/mysql.
+     </para>
+     <para>
+      Non è possibile mixare le estensioni. Quindi, ad esempio, passare una connessione mysqli a
+	  PDO_MySQL o ad ext/mysql non funziona.
+     </para>
+    </answer>
+   </qandaentry>
+
+   <qandaentry xml:id="faq.databases.mysqlresource">
+    <question>
+     <para>
+      Perchè ottengo un errore che suona più o meno così:
+      "Warning: 0 is not a MySQL result index in &lt;file&gt;
+      on line &lt;x&gt;" oppure "Warning: Supplied argument is not
+      a valid MySQL result resource in &lt;file&gt; on line &lt;x&gt;"?
+     </para>
+    </question>
+    <answer>
+     <para>
+      Stai cercando di usare un identificatore di risultato che è 0. Lo 0 indica
+	  che la tua richiesta è fallita per qualche motivo. Devi controllare gli errori
+	  dopo aver inviato la tua richiesta e prima del tentativo di usare le informazioni
+	  restituite dall'identificatore di risultato. Il modo corretto di farlo è con codice simile
+	  al seguente:
+      <programlisting role="php">
+<![CDATA[
+<?php
+
+$result = mysql_query("SELECT * FROM tables_priv");
+if (!$result) {
+    echo mysql_error();
+    exit;
+}
+?>
+]]>
+      </programlisting>
+      or
+      <programlisting role="php">
+<![CDATA[
+<?php
+
+$result = mysql_query("SELECT * FROM tables_priv")
+    or die("Bad query: " . mysql_error());
+?>
+]]>
+      </programlisting>
+     </para>
+    </answer>
+   </qandaentry>
+  </qandaset>
+ </chapter>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

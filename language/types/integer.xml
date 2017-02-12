@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- EN-Revision: 371a80eac9b930d2c442df07d5cd1622bc9c6e96 Maintainer: cucinato Status: ready -->
-<!-- Reviewed: no -->
-
 <sect1 xml:id="language.types.integer">
  <title>Interi</title>
- 
+
  <simpara>
   Un <type>integer</type> è un numero che appartiene all'insieme
   &#8484; = {..., -2, -1, 0, 1, 2, ...}.
  </simpara>
-  
+
  <para>
   Vedere anche:
  </para>
@@ -17,7 +15,7 @@
  <itemizedlist>
   <listitem>
    <simpara>
-    <link linkend="ref.gmp">Interi a lungezza arbitraria / GMP</link>
+    <link linkend="book.gmp">Interi a lungezza arbitraria / GMP</link>
    </simpara>
   </listitem>
   <listitem>
@@ -27,7 +25,7 @@
   </listitem>
   <listitem>
    <simpara>
-    <link linkend="ref.bc">Precisione arbitraria / BCMath</link>
+    <link linkend="book.bc">Precisione arbitraria / BCMath</link>
    </simpara>
   </listitem>
  </itemizedlist>
@@ -60,6 +58,7 @@ $a = 1234; // numero decimale
 $a = -123; // numero negativo
 $a = 0123; // numero ottale (equivalente a 83 decimale)
 $a = 0x1A; // numero esadecimale (equivalente a 26 decimale)
+$a = 0b11111111; // binary number (equivalent to 255 decimal)
 ?>
 ]]>
    </programlisting>
@@ -68,7 +67,7 @@ $a = 0x1A; // numero esadecimale (equivalente a 26 decimale)
   <para>
    Formalmente, la struttura di un <type>integer</type> letterale è:
   </para>
- 
+
   <informalexample>
    <programlisting>
 <![CDATA[
@@ -92,29 +91,21 @@ integer     : [+-]?decimal
   <para>
    La dimensione di un <type>integer</type> dipende dalla piattaforma, anche se il valore massimo tipico
    è di circa due miliardi (corrispondente a 32 bit col segno).
-   Le piattaforme a 64 bit hanno normalmente un valore massimo di circa 9E18. PHP
-   non supporta gli <type>integer</type> senza segno. La dimensione di un <type>integer</type>
+   Le piattaforme a 64 bit hanno normalmente un valore massimo di circa 9E18, tranne che su
+   Windows prima di PHP 7, dove era sempre 32 bit. PHP non supporta
+   gli <type>integer</type> senza segno. La dimensione di un <type>integer</type>
    può essere determinata usando la costante <constant>PHP_INT_SIZE</constant>, e il
-   valore massimo usando la costante <constant>PHP_INT_MAX</constant> a partire da
-   PHP 4.4.0 e PHP 5.0.5.
+   valore massimo usando la costante <constant>PHP_INT_MAX</constant> a partire da PHP 5.0.5,
+   e valore minimo usando la costante <constant>PHP_INT_MIN</constant> da
+   PHP 7.0.0.
   </para>
 
   <warning>
    <para>
-    If an invalid digit is given in an octal <type>integer</type> (i.e. 8 or 9),
-    the rest of the number is ignored.
+    Prima di PHP 7, se una cifra non valida era inserita in un <type>integer</type> ottale
+    (es. 8 o 9), il resto del numero veniva ignorato. A partire da PHP 7, viene generato
+    un errore di parsing.
    </para>
-
-   <example>
-    <title>Octal weirdness</title>
-    <programlisting role="php">
-<![CDATA[
-<?php
-var_dump(01090); // 010 octal = 8 decimal
-?>
-]]>
-    </programlisting>
-   </example>
   </warning>
  </sect2>
 
@@ -165,11 +156,11 @@ var_dump($large_number);                     // float(5.0E+19)
 ]]>
    </programlisting>
   </example>
-  
+
   <para>
    Non esiste un operatore di divisione <type>integer</type> in PHP.
    <literal>1/2</literal> produce il <type>float</type> <literal>0.5</literal>.
-   Il valore può essere convertito in un <type>integer</type> per arrotondarlo verso il basso, oppure
+   Il valore può essere convertito in un <type>integer</type> per arrotondarlo verso lo zero, oppure
    la funzione <function>round</function> fornisce un controllo più preciso sull'arrotondamento.
   </para>
 
@@ -177,9 +168,9 @@ var_dump($large_number);                     // float(5.0E+19)
    <programlisting role="php">
 <![CDATA[
 <?php
-var_dump(25/7);         // float(3.5714285714286) 
+var_dump(25/7);         // float(3.5714285714286)
 var_dump((int) (25/7)); // int(3)
-var_dump(round(25/7));  // float(4) 
+var_dump(round(25/7));  // float(4)
 ?>
 ]]>
    </programlisting>
@@ -199,6 +190,12 @@ var_dump(round(25/7));  // float(4)
   </simpara>
 
   <simpara>
+   Se un <type>resource</type> è convertito in <type>integer</type>, allora
+   il risultato sarà il numero unico di risorsa assegnato al
+   <type>resource</type> da PHP a runtime.
+  </simpara>
+  
+  <simpara>
    Vedere anche: <link linkend="language.types.type-juggling">manipolazione dei tipi</link>.
   </simpara>
    
@@ -217,19 +214,26 @@ var_dump(round(25/7));  // float(4)
    </title> 
 
    <simpara>
-    When converting from <type>float</type> to <type>integer</type>, the number
-    will be rounded <emphasis>towards zero</emphasis>.
+    Quando si converte da <type>float</type> a <type>integer</type>, il numero
+    verrà arrotondato <emphasis>towards zero</emphasis>.
    </simpara>
-    
+
    <para>
-    If the float is beyond the boundaries of <type>integer</type> (usually
-    <literal>+/- 2.15e+9 = 2^31</literal> on 32-bit platforms and
-    <literal>+/- 9.22e+18 = 2^63</literal> on 64-bit platforms), the result is
-    undefined, since the <type>float</type> doesn't have enough precision to
-    give an exact <type>integer</type> result. No warning, not even a notice
-    will be issued when this happens!
+    Se il float è oltre i limiti di <type>integer</type> (di solito
+    <literal>+/- 2.15e+9 = 2^31</literal> sulle piattaforme 32-bit e
+    <literal>+/- 9.22e+18 = 2^63</literal> sulle piattaforme 64-bit eccetto
+    Windows), il risultato non è definito, dal momento che <type>float</type> non
+    ha abbastanza precisione per dare un risultato <type>integer</type> esatto. Nessun
+    allarme, neanche un avvertimento viene generato quando questo avviene!
    </para>
-    
+
+   <note>
+    <para>
+     A partire da PHP 7.0.0, invece di essere non definiti e dipendenti dalla piattaforma, NaN e Infinity saranno
+     sempre zero quando convertiti in <type>integer</type>.
+    </para>
+   </note>
+
    <warning>
     <para>
      Never cast an unknown fraction to <type>integer</type>, as this can
@@ -245,14 +249,14 @@ echo (int) ( (0.1+0.7) * 10 ); // echoes 7!
 ]]>
      </programlisting>
     </informalexample>
-    
+
     <para>
      See also the <link linkend="warn.float-precision">warning about float
      precision</link>.
     </para>
    </warning>
   </sect3>
-   
+
   <sect3 xml:id="language.types.integer.casting.from-string">
    <title>From strings</title>
 
@@ -261,7 +265,7 @@ echo (int) ( (0.1+0.7) * 10 ); // echoes 7!
     numbers</link>
    </simpara>
   </sect3>
-   
+
   <sect3 xml:id="language.types.integer.casting.from-other">
    <title>From other types</title>
 

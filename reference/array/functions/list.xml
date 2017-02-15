@@ -1,36 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/array.xml, last change in rev 1.6 -->
-<!-- last change to 'list' in en/ tree in rev 1.2 -->
 <!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.173/EN.1.2 -->
-  <refentry xml:id="function.list" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>list</refname>
-    <refpurpose>
-     Assegna valori a delle variabili come se fossero un array
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>void</type><methodname>list</methodname>
-      <methodparam rep="repeat"><type>mixed</type><parameter>...</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Come <function>array</function>, questa non è in realtà una funzione,
-     bensì un costrutto del linguaggio.  <function>list</function> è usata per
-     assegnare valori ad una lista di variabili in una sola operazione.
-    </para>
-    <note>
-     <para>
-      <function>list</function> funziona solo su array numerici e si aspetta
-      che gli indici numerici partano da 0.
-     </para>
-    </note>
-    <para>
-     <example>
-      <title>esempio di <function>list</function></title>
-      <programlisting role="php">
+<refentry xml:id="function.list" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>list</refname>
+  <refpurpose>Assegna valori a delle variabili come se fossero un array</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>array</type><methodname>list</methodname>
+   <methodparam><type>mixed</type><parameter>var1</parameter></methodparam>
+   <methodparam rep="repeat" choice="opt"><type>mixed</type><parameter>...</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Come <function>array</function>, questa non è in realtà una funzione,
+   bensì un costrutto del linguaggio.  <function>list</function> è usata per
+   assegnare valori ad una lista di variabili in una sola operazione.
+  </para>
+  <note>
+   <para>
+    <function>list</function> funziona solo su array numerici e si aspetta
+    che gli indici numerici partano da 0.
+   </para>
+  </note>
+  <warning>
+   <para>
+    In PHP 5, <function>list</function> assegna i valori partendo dal
+    parametro più a destra. In PHP 7, <function>list</function> comincia dal
+    parametro più a sinistra.
+   </para>
+   <para>
+    Se si stanno usando variabili semplici, non ci si deve preoccupare di questo comportamento. Ma
+    se si stanno usando array con indici ci si aspetta che l'ordine degli
+    indici nell'array sia lo stesso scritto nella funzione <function>list</function>
+    da sinitra a destra; non è il caso in PHP 5, dal momento che sono assegnati
+    in ordine inverso.
+   </para>
+   <para>
+    In generale, è sconsigliato fare affidamento su uno specifico ordine
+    di operazioni, dal momento che questo può cambiare in futuro.
+   </para>
+  </warning>
+  <warning>
+   <para>
+    La modifica dell'array durante l'esecuzione di <function>list</function> (es.
+    usando <literal>list($a, $b) = $b</literal> ha un comportamento indefinito.
+   </para>
+  </warning>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>var1</parameter></term>
+     <listitem>
+      <para>
+       Una variabile.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce l'array assegnato.
+  </para>
+ </refsect1>
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>7.0.0</entry>
+       <entry>
+        <link linkend="migration70.incompatible.variable-handling.list.order">
+         L'ordine di esecuzione delle operazioni di assegnazione è
+         cambiato.
+        </link>
+       </entry>
+      </row>
+      <row>
+       <entry>7.0.0</entry>
+       <entry>
+        <link linkend="migration70.incompatible.variable-handling.list.empty">
+         Le espressioni <function>list</function> non possono più essere completamente
+         vuote.
+        </link>
+       </entry>
+      </row>
+      <row>
+       <entry>7.0.0</entry>
+       <entry>
+        <link linkend="migration70.incompatible.variable-handling.list.string">
+         Le stringhe non possono più essere spacchettate.
+        </link>
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>esempio di <function>list</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 
@@ -46,17 +133,20 @@ echo "Il $bevanda ha la $componente.\n";
 
 // oppure assegnamo solo l'ultima variabile
 list( , , $componente) = $info;
-echo"Ho voglia di $bevanda!\n";
+echo"Ho voglia di $componente!\n";
 
+// list() non funziona con le stringhe
+list($bar) = "abcde";
+var_dump($bar); // NULL
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     <example>
-      <title>Esempio di uso di <function>list</function></title>
-      <programlisting role="php">
+   </programlisting>
+  </example>
+  </para>
+  <para>
+   <example>
+    <title>Esempio di uso di <function>list</function></title>
+    <programlisting role="php">
 <![CDATA[
 <table>
  <tr>
@@ -65,9 +155,8 @@ echo"Ho voglia di $bevanda!\n";
  </tr>
 
 <?php
-
-$risultato = mysql_query("SELECT id, nome, stipendio FROM impiegati", $conn);
-while (list($id, $nome, $stipendio) = mysql_fetch_row ($risultato)) {
+$risultato = $pdo_query("SELECT id, nome, stipendio FROM impiegati");
+while (list($id, $nome, $stipendio) = $result->fetch(PDO::FETCH_NUM)) {
     echo (" <tr>\n".
           "  <td><a href=\"info.php?id=$id\">$nome</a></td>\n".
           "  <td>$stipendio</td>\n".
@@ -78,23 +167,36 @@ while (list($id, $nome, $stipendio) = mysql_fetch_row ($risultato)) {
 
 </table>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <warning>
-     <para>
-     <function>list</function> assegna i valori cominciando dal parametro più a
-     destra. Se si stanno usando variabili semplici, non ci si deve preoccupare
-     di questo fatto. Ma se si stanno usando array con indici di solito ci si aspetta che
-     l'ordine degli indici negli array sia quello scritto negli argomenti della funzione
-     <function>list</function>, da sinistra a destra; non è così. L'ordine è
-     invertito.
-     </para>
-    </warning>
-    <para>
-     <example>
-      <title>Utilizzo di <function>list</function> con gli indici</title>
-      <programlisting role="php">
+   </programlisting>
+  </example>
+  </para>
+  <para>
+   <example>
+    <title>Utilizzare <function>list</function> annidate</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+list($a, list($b, $c)) = array(1, array(2, 3));
+
+var_dump($a, $b, $c);
+
+?>
+]]>
+   </programlisting>
+   <screen>
+<![CDATA[
+int(1)
+int(2)
+int(3)
+]]>
+   </screen>
+  </example>
+  </para>
+  <para>
+   <example>
+    <title>Utilizzo di <function>list</function> con gli indici</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 
@@ -106,12 +208,13 @@ var_dump($a);
 
 ?>
 ]]>
-      </programlisting>
-      <para>
-       Restituisce il segente risultato (si noti l'ordine degli elementi rispetto
-       all'ordine con cui sono stati scritti nella sintassi di <function>list</function>).
-      </para>
-      <screen>
+   </programlisting>
+   <para>
+    Restituisce il seguente risultato (si noti l'ordine degli elementi rispetto
+    all'ordine con cui sono stati scritti nella sintassi di <function>list</function>).
+   </para>
+   &example.outputs.7;
+   <screen>
 <![CDATA[
 array(3) {
   [2]=>
@@ -122,15 +225,74 @@ array(3) {
   string(5) "caffè"
 }
 ]]>
-      </screen>
-     </example>
-    </para>
+   </screen>
+   &example.outputs.5;
+  <screen>
+<![CDATA[
+array(3) {
+  [2]=>
+  string(8) "caffeine"
+  [1]=>
+  string(5) "brown"
+  [0]=>
+  string(6) "coffee"
+}
+]]>
+    </screen>
+  </example>
+  </para>
+  <para>
+   <example>
+    <title><function>list</function> e ordine delle definizioni dell'indice</title>
+    <simpara>
+     L'ordine con il quale sono definiti gli indici dell'array da consumare da parte di 
+     <function>list</function> è irrilevante.
+    </simpara>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$foo = array(2 => 'a', 'foo' => 'b', 0 => 'c');
+$foo[1] = 'd';
+list($x, $y, $z) = $foo;
+var_dump($foo, $x, $y, $z);
+]]>
+    </programlisting>
     <para>
-     Vedere anche <function>each</function> e <function>array</function>
-     e <function>extract</function>.
+     Restituisce il seguente risultato (si noti l'ordine degli elementi in rapporto a
+     quello con cui sono scritti nella sintassi di <function>list</function>):
     </para>
-   </refsect1>
-  </refentry>
+    <screen>
+<![CDATA[
+array(4) {
+  [2]=>
+  string(1) "a"
+  ["foo"]=>
+  string(1) "b"
+  [0]=>
+  string(1) "c"
+  [1]=>
+  string(1) "d"
+}
+string(1) "c"
+string(1) "d"
+string(1) "a"
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>each</function></member>
+    <member><function>array</function></member>
+    <member><function>extract</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

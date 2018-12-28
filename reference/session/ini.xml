@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 9f540f9e097d21f500736538d653d4bd85f80a2a Maintainer: cucinato Status: ready -->
+<!-- EN-Revision: ffe8f84ec5ec175a2b8ddf23a569d4e621866d76 Maintainer: pastore Status: ready -->
 <section xml:id="session.configuration" xmlns="http://docbook.org/ns/docbook">
  &reftitle.runtime;
  &extension.runtime;
@@ -50,7 +50,7 @@
      <entry><link linkend="ini.session.gc-divisor">session.gc_divisor</link></entry>
      <entry>"100"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>Disponibile da PHP 4.3.2.</entry>
+     <entry></entry>
     </row>
     <row>
      <entry><link linkend="ini.session.gc-maxlifetime">session.gc_maxlifetime</link></entry>
@@ -86,13 +86,19 @@
      <entry><link linkend="ini.session.cookie-secure">session.cookie_secure</link></entry>
      <entry>""</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>Disponibile da PHP 4.0.4.</entry>
+     <entry></entry>
     </row>
     <row>
      <entry><link linkend="ini.session.cookie-httponly">session.cookie_httponly</link></entry>
      <entry>""</entry>
      <entry>PHP_INI_ALL</entry>
      <entry>Disponibile da PHP 5.2.0.</entry>
+    </row>
+    <row>
+     <entry><link linkend="ini.session.cookie-samesite">session.cookie_samesite</link></entry>
+     <entry>""</entry>
+     <entry>PHP_INI_ALL</entry>
+     <entry>Disponibile da PHP 7.3.0.</entry>
     </row>
     <row>
      <entry><link linkend="ini.session.use-strict-mode">session.use_strict_mode</link></entry>
@@ -110,7 +116,7 @@
      <entry><link linkend="ini.session.use-only-cookies">session.use_only_cookies</link></entry>
      <entry>"1"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>Disponibile da PHP 4.3.0.</entry>
+     <entry></entry>
     </row>
     <row>
      <entry><link linkend="ini.session.referer-check">session.referer_check</link></entry>
@@ -134,7 +140,7 @@
      <entry><link linkend="ini.session.use-trans-sid">session.use_trans_sid</link></entry>
      <entry>"0"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>PHP_INI_ALL in PHP &lt;= 4.2.3. PHP_INI_PERDIR in PHP &lt;= 4-cvs. Disponibile da PHP 4.0.3.</entry>
+     <entry></entry>
     </row>
     <row>
      <entry><link linkend="ini.session.trans-sid-tags">session.trans_sid_tags</link></entry>
@@ -206,19 +212,19 @@
      <entry><link linkend="ini.url-rewriter.tags">url_rewriter.tags</link></entry>
      <entry>"a=href,area=href,frame=src,form="</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>Disponibile da PHP 4.0.4. Da PHP 7.1.0, questa proprietà INI non viene più usata dalla sessione.</entry>
+     <entry>Da PHP 7.1.0, questa proprietà INI non viene più usata dalla sessione.</entry>
     </row>
     <row>
      <entry><link linkend="ini.session.hash-function">session.hash_function</link></entry>
      <entry>"0"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>Disponibile da PHP 5.0.0. Rimossa in PHP 7.1.0.</entry>
+     <entry>Rimossa in PHP 7.1.0.</entry>
     </row>
     <row>
      <entry><link linkend="ini.session.hash-bits-per-character">session.hash_bits_per_character</link></entry>
      <entry>"4"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>Disponibile da PHP 5.0.0. Rimossa in PHP 7.1.0.</entry>
+     <entry>Rimossa in PHP 7.1.0.</entry>
     </row>
     <row>
      <entry><link linkend="ini.session.entropy-file">session.entropy_file</link></entry>
@@ -236,13 +242,13 @@
      <entry><link linkend="ini.session.bug-compat-42">session.bug_compat_42</link></entry>
      <entry>"1"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>Disponibile da PHP 4.3.0. Rimossa in PHP 5.4.0.</entry>
+     <entry>Rimossa in PHP 5.4.0.</entry>
     </row>
     <row>
      <entry><link linkend="ini.session.bug-compat-warn">session.bug_compat_warn</link></entry>
      <entry>"1"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>Disponibile da PHP 4.0.4. Rimossa in PHP 5.4.0.</entry>
+     <entry>Rimossa in PHP 5.4.0.</entry>
     </row>
    </tbody>
   </tgroup>
@@ -324,7 +330,7 @@
       Quando si utilizza l'argomento opzionale livelli di cartelle <literal>N</literal>,
       come descritto sopra, notare che utilizzare un valore più grande di 1 o 2 è
       inappropriato per la maggior parte dei siti per la grande quantità di cartelle
-      richieste: per esempio, un valore di 3 implica che <literal>64^3</literal>
+      richieste: per esempio, un valore di 3 implica che <literal>(2 ** session.sid_bits_per_character) ** 3</literal>
       cartelle esistano nel filesystem, che può risultare in un sacco di spazio
       e inode sprecati.
      </para>
@@ -575,7 +581,7 @@
      il modulo userà <emphasis role="strong">solo</emphasis> i
      cookie per salvare il session id sul client.
      L'abilitazione di questa impostazione previene gli attacchi che passano
-     session id nelle URL. Questa impostazione è stata aggiunta in PHP 4.3.0.
+     session id nelle URL.
      Il valore predefinito è <literal>1</literal> (abilitato) da PHP 5.3.0.
     </simpara>
    </listitem>
@@ -646,7 +652,7 @@
      <literal>session.cookie_secure</literal> specifica se i
      cookie devono essere mandati solo su connessioni sicure. Il valore predefinito è
      <literal>off</literal>.
-     Questa impostazione è stata aggiunta in PHP 4.0.4. Vedere anche
+     Vedere anche
      <function>session_get_cookie_params</function> e
      <function>session_set_cookie_params</function>.
     </simpara>
@@ -664,6 +670,27 @@
      che il cookie non sarà accessibile dai linguaggi di scripting, come
      JavaScript. Questa impostazione aiuta efficacemente a ridurre i furti di identità
      attraverso attacchi XSS (anche se non è accettato da tutti i browser).
+    </simpara>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry xml:id="ini.session.cookie-samesite">
+   <term>
+    <parameter>session.cookie_samesite</parameter>
+    <type>string</type>
+   </term>
+   <listitem>
+    <simpara>
+     Permette ai server di affermare che un cookie non deve essere inviato insieme a
+     richieste cross-site. Questa asserzione consente agli user agent di mitigare il rischio
+     di perdita di informazioni di cross-origin, e fornisce una certa protezione contro
+     gli attacchi di contraffazione delle richieste cross-site. Notare che questo non è supportato da tutti i
+     browser.
+     Un valore vuoto significa che non verrà impostato alcun attributo del cookie SameSite.
+     <literal>Lax</literal> e <literal>Strict</literal> indicano che il cookie
+     non verrà inviato per richieste POST cross-domain; <literal>Lax</literal>
+     invierà il cookie per richieste GET cross-domain, mentre <literal>Strict</literal>
+     non lo farà.
     </simpara>
    </listitem>
   </varlistentry>
@@ -926,7 +953,7 @@
     </simpara>
     <note>
      <simpara>
-      Questo è stata introdotto in PHP 5. Rimosso in PHP 7.1.0.
+      Rimosso in PHP 7.1.0.
      </simpara>
     </note>
    </listitem>

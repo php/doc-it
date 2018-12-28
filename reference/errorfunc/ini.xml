@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: dc2135dccf125e2b335522efee53cdb80b133226 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: aceea02784025ae4c461c889d2c891920bf9a5ed Maintainer: pastore Status: ready -->
 <section xml:id="errorfunc.configuration" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  &reftitle.runtime;
  &extension.runtime;
@@ -117,6 +117,24 @@
      <entry>NULL</entry>
      <entry>PHP_INI_ALL</entry>
      <entry></entry>
+    </row>
+    <row>
+     <entry><link linkend="ini.syslog.facility">syslog.facility</link></entry>
+     <entry>"LOG_USER"</entry>
+     <entry>PHP_INI_SYSTEM</entry>
+     <entry>Disponibile da PHP 7.3.0.</entry>
+    </row>
+    <row>
+     <entry><link linkend="ini.syslog.filter">syslog.filter</link></entry>
+     <entry>"no-ctrl"</entry>
+     <entry>PHP_INI_ALL</entry>
+     <entry>Disponibile da PHP 7.3.0.</entry>
+    </row>
+    <row>
+     <entry><link linkend="ini.syslog.ident">syslog.ident</link></entry>
+     <entry>"php"</entry>
+     <entry>PHP_INI_SYSTEM</entry>
+     <entry>Disponibile da PHP 7.3.0.</entry>
     </row>
     </tbody>
    </tgroup>
@@ -280,7 +298,7 @@
       alcuna limitazione.
       Questa dimensione viene applicata agli errori registrati, agli errori visualizzati e anche a 
       <varname>$php_errormsg</varname>, ma non alle funzioni chiamate esplicitamente
-      come <function>error_log()</function>.
+      come <function>error_log</function>.
      </para>
 
      &ini.shorthandbytes;
@@ -356,12 +374,15 @@
     </term>
     <listitem>
      <para>
-      Disabilita i tag HTML nei messaggi di errore. Il nuovo formato per i messaggi in HTML
-      produce un testo cliccabile che dirige l'utente alla pagina che descrive
-      l'errore o la funzione che generato l'errore. Questi riferimenti sono
-      influenzati da
+      Se abilitato, i messaggi di errore includeranno i tag HTML. Il formato per gli errori
+      in HTML produce un testo cliccabile che indirizza l'utente alla pagina
+      che descrive l'errore o la funzione che ha generato l'errore. Questi riferimenti
+      sono influenzati da
       <link linkend="ini.docref-root">docref_root</link> e
       <link linkend="ini.docref-ext">docref_ext</link>.
+     </para>
+     <para>
+      Se disabilitato, il messaggio di errore sarà solo testo normale.
      </para>
     </listitem>
    </varlistentry>
@@ -373,7 +394,8 @@
     </term>
     <listitem>
      <para>
-      Disattiva il normale rapporto degli errori e formatta gli errori come un messaggio d'errore XML-RPC.
+      Se abilitato, disattiva il normale rapporto degli errori e formatta gli errori come
+      un messaggio d'errore XML-RPC.
      </para>
     </listitem>
    </varlistentry>
@@ -475,13 +497,65 @@
       essere modificabile dall'utilizzatore del web server. Se si indica il 
       nome speciale <literal>syslog</literal>, gli errori saranno
       inviati al log di sistema. Sui sistemi Unix, ciò significa
-      syslog(3) e sui sistemi Windows NT indica l'event log. Il log
-      di sistema non è supportato in Windows 95. Vedere anche:
+      syslog(3) e sui sistemi Windows indica l'event log. Vedere anche:
       <function>syslog</function>.
       Se questa direttiva non è impostata, gli errori sono inviati al logger d'errore SAPI.
       Per esempio, è un log di errore in Apache o <literal>stderr</literal>
       in CLI.
       Vedi anche <function>error_log</function>.
+     </para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry xml:id="ini.syslog.facility">
+    <term>
+     <parameter>syslog.facility</parameter>
+     <type>string</type>
+    </term>
+    <listitem>
+     <para>
+      Specifica che tipo di programma sta registrando il messaggio.
+      Efficace solo se <link linkend="ini.error-log">error_log</link> è impostato a "syslog".
+     </para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry xml:id="ini.syslog.filter">
+    <term>
+     <parameter>syslog.filter</parameter>
+     <type>string</type>
+    </term>
+    <listitem>
+     <para>
+      Specifica il tipo di filtro per filtrare i messaggi di log. I caratteri
+      permessi vengono passati senza modifiche; tutti gli altri sono scritti nella loro
+      rappresentazione esadecimale prefissata con <literal>\x</literal>. Ci sono
+      tre tipi di filtro supportati:
+      <itemizedlist>
+       <listitem>
+        <simpara><literal>all</literal> – tutti i caratteri</simpara>
+       </listitem>
+       <listitem>
+        <simpara><literal>no-ctrl</literal> – tutti i caratteri eccetto i caratteri di controllo</simpara>
+       </listitem>
+       <listitem>
+        <simpara><literal>ascii</literal> – tutti i caratteri ASCII stampabili e <literal>NL</literal></simpara>
+       </listitem>
+      </itemizedlist>
+      Efficace solo se <link linkend="ini.error-log">error_log</link> è impostato a "syslog".
+     </para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry xml:id="ini.syslog.ident">
+    <term>
+     <parameter>syslog.ident</parameter>
+     <type>string</type>
+    </term>
+    <listitem>
+     <para>
+      Specifica la stringa radice che è anteposta ad ogni messaggio.
+      Efficace solo se <link linkend="ini.error-log">error_log</link> è impostato a "syslog".
      </para>
     </listitem>
    </varlistentry>

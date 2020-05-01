@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 82d79c66531b3a08b781ac8c89c0c2f2fe4efb8f Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 9268006bcf989f31baeaa9035e4ef7cfc7690c28 Maintainer: pastore Status: ready -->
  <chapter xml:id="language.functions" xmlns="http://docbook.org/ns/docbook">
   <title>Funzioni</title>
 
@@ -36,7 +36,7 @@ function foo($arg_1, $arg_2, /* ..., */ $arg_n)
     nome di funzione valido comincia con una lettera o un underscore, seguito
     da un qualsiasi numero di lettere, numeri o underscore. Come espressione
     regolare, questo viene rappresentato così:
-    <literal>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*</literal>.
+    <code>^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$</code>.
    </para>
    &tip.userlandnaming;
    <simpara>
@@ -126,7 +126,7 @@ bar();
    </simpara>
    <note>
     <simpara>
-     I nomi delle funzioni non distinguono tra maiuscolo e minuscolo, ma, solitamente, è
+     I nomi delle funzioni non distinguono tra maiuscolo e minuscolo per i caratteri ASCII da <literal>A</literal> a <literal>Z</literal>, ma, solitamente, è
      buona norma richiamare le funzioni nel modo con cui sono state definite.
     </simpara>
    </note>   
@@ -450,6 +450,20 @@ Fare una vaschetta di yogurt a fragola.
          </entry>
          <entry>PHP 7.0.0</entry>
         </row>
+        <row>
+         <entry><literal>iterable</literal></entry>
+         <entry>
+          Il parametro deve essere o un <type>array</type> o un &instanceof; <classname>Traversable</classname>.
+         </entry>
+         <entry>PHP 7.1.0</entry>
+        </row>
+        <row>
+         <entry><literal>object</literal></entry>
+         <entry>
+          Il parametro deve essere un <type>object</type>.
+         </entry>
+         <entry>PHP 7.2.0</entry>
+        </row>
        </tbody>
       </tgroup>
      </informaltable>
@@ -556,6 +570,36 @@ Stack trace:
       </screen>
      </example>
 
+     <example>
+      <title>Parametri passati per riferimento tipizzati</title>
+      <simpara>
+       I tipi dichiarati dei parametri di riferimento sono controllati all'entrata della funzione, ma
+       non quando la funzione ritorna, quindi dopo che la funzione ha ritornato, il
+       tipo dell'argomento può essere cambiato.
+      </simpara>
+      <programlisting role="php">
+<![CDATA[
+<?php
+function array_baz(array &$param)
+{
+    $param = 1;
+}
+$var = [];
+array_baz($var);
+var_dump($var);
+array_baz($var);
+?>
+]]>
+      </programlisting>
+      &example.outputs.similar;
+      <screen>
+<![CDATA[
+int(1)
+
+Fatal error: Uncaught TypeError: Argument 1 passed to array_baz() must be of the type array, int given, called in %s on line %d
+]]>
+      </screen>
+     </example>
      <example>
       <title>Dichiarazione del tipo nullable</title>
       <programlisting role="php">
@@ -1000,6 +1044,12 @@ $nuovo_riferimento =& restituisce_riferimento();
     tipo corretto, altrimenti verrà generata un <classname>TypeError</classname>.
    </para>
 
+   <para>
+    Da PHP 7.1.0, i valori di ritorno possono essere contrassegnati come nullable prefissando il
+    nome del tipo con un punto interrogativo (<literal>?</literal>). Questo significa che
+    la funzione ritorna o il tipo specificato o &null;.
+   </para>
+
    <note>
     <para>
      Quando si sovrascrive un metodo genitore, il metodo del figlio deve avere la stessa
@@ -1085,6 +1135,23 @@ object(C)#1 (0) {
 }
 ]]>
       </screen>
+     </example>
+
+     <example>
+      <title>Dichiarazione del tipo di ritorno nullable (da PHP 7.1.0)</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+function get_item(): ?string {
+    if (isset($_GET['item'])) {
+        return $_GET['item'];
+    } else {
+        return null;
+    }
+}
+?>
+]]>
+      </programlisting>
      </example>
     </sect3>
    </sect2>
@@ -1275,9 +1342,9 @@ $func(); // stampa "bar" in PHP 7.0.0; prima, sollevava un errore fatale
     le funzioni <link linkend="ref.image">image</link>, tipo
     <function>imagecreatetruecolor</function>, occorre che il PHP sia compilato
     con il supporto <productname>GD</productname>. Oppure, per 
-    utilizzare <function>mysql_connect</function> occorre
-    che il PHP sia compilato con il supporto per <link linkend="ref.mysql">MySQL</link>
-    Esistono anche diversi funzioni di base incluse in ogni versione
+    utilizzare <function>mysqli_connect</function> occorre
+    che il PHP sia compilato con il supporto per <link linkend="ref.mysqli">MySQL</link>.
+    Esistono anche diverse funzioni di base incluse in ogni versione
     del PHP tipo le funzioni <link linkend="ref.strings">stringa</link> e
     <link linkend="ref.var">per variabili</link>. L'esecuzione di
     <function>phpinfo</function> o di
@@ -1372,8 +1439,10 @@ $greet('PHP');
    </example>
    
    <simpara>
-    Le chiusure possono anche ereditare le variabili dal contesto del genitore.
-    Ognuna di queste variabili deve essere passata al costrutto del linguaggio <literal>use</literal>.
+    Le chiusure possono anche ereditare le variabili dal contesto del genitore. Ognuna di queste
+    variabili deve essere passata al costrutto del linguaggio <literal>use</literal>.
+    Da PHP 7.1, queste variabili non devono includere &link.superglobals;,
+    <varname>$this</varname>, o variabili con lo stesso nome di un parametro.
     </simpara>
 
    <example>
@@ -1566,14 +1635,18 @@ NULL]]>
 <![CDATA[
 <?php
 
-new class {
+class Foo
+{
     function __construct()
     {
-        (static function() {
+        $func = static function() {
             var_dump($this);
-        })();
+        };
+        $func();
     }
 };
+new Foo();
+
 ?>
 ]]>
       </programlisting>
@@ -1594,16 +1667,19 @@ NULL
 <![CDATA[
 <?php
 
-(static function() {
+$func = static function() {
     // function body
-})->call(new StdClass);
+};
+$func = $func->bindTo(new StdClass);
+$func();
+
 ?>
 ]]>
       </programlisting>
       &example.outputs;
       <screen>
 <![CDATA[
-Warning: Cannot bind an instance to a static closure in /in/sLLS9 on line 5
+Warning: Cannot bind an instance to a static closure in %s on line %d
 ]]>
       </screen>
      </example>
@@ -1622,6 +1698,14 @@ Warning: Cannot bind an instance to a static closure in /in/sLLS9 on line 5
         </row>
        </thead>
        <tbody>
+        <row>
+         <entry>7.1.0</entry>
+         <entry>
+          Le funzioni anonime non possono catturare &link.superglobals;,
+          <varname>$this</varname>, o qualsiasi variabile con lo stesso nome di un
+          parametro nel contesto in cui sono definite.
+         </entry>
+        </row>
         <row>
          <entry>5.4.0</entry>
          <entry>
@@ -1652,6 +1736,170 @@ Warning: Cannot bind an instance to a static closure in /in/sLLS9 on line 5
     </note>
    </sect2>
 
+  </sect1>
+  <sect1 xml:id="functions.arrow">
+   <title>Le arrow Function</title>
+
+   <simpara>
+    Le arrow function sono state introdotte in PHP 7.4 come sintassi più concisa per le 
+    <link linkend="functions.anonymous">funzioni anonime</link>.
+   </simpara>
+   <simpara>
+    Sia le funzioni anonime che le arrow function sono implementate usando la 
+    classe <link linkend="class.closure"><classname>Closure</classname></link>.
+   </simpara>
+
+   <simpara>
+    Le arrow function hanno la forma base 
+    <code>fn (argument_list) =&gt; expr</code>.
+   </simpara>
+
+   <simpara>
+    Le arrow function supportano le stesse funzionalità delle 
+    <link linkend="functions.anonymous">funzioni anonime</link>, 
+    eccetto che l'uso delle variabili dallo scope padre è sempre automatico.
+   </simpara>
+
+   <simpara>
+    Quando una variabile usata nell'espressione è definita nello scope padre 
+    essa sarà implicitamente catturata per valore.
+    Nel seguente esempio, le funzioni <varname>$fn1</varname> e 
+    <varname>$fn2</varname> si comportano allo stesso modo. 
+   </simpara>
+
+   <para>
+    <example>
+     <title>Le arrow function catturano variabili per valore automaticamente</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+$y = 1;
+ 
+$fn1 = fn($x) => $x + $y;
+// equivalent all'utilizzo di $y per valore:
+$fn2 = function ($x) use ($y) {
+    return $x + $y;
+};
+
+var_export($fn1(3));
+?>
+]]>
+     </programlisting>
+     &example.outputs;
+     <screen>
+<![CDATA[
+4
+]]>
+      </screen>
+    </example>
+   </para>
+   <simpara>
+    Questo funziona anche se le arrow function sono nidificate: 
+   </simpara>
+   <para>
+    <example>
+     <title>Le arrow function catturano variabili per valore automaticamente, anche quando nidificate</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+$z = 1;
+$fn = fn($x) => fn($y) => $x * $y + $z;
+// Produce 51
+var_export($fn(5)(10));
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+   <simpara>
+    Analogamente alle funzioni anonime, 
+    la sintassi delle arrow function permette firme di funzioni arbitrarie,
+    inclusi parametri e tipi di ritorno, valori di default, variadiche,
+    così come passaggio di parametri e ritorno per riferimento.
+    Tutti i seguenti sono esempi validi di arrow function: 
+   </simpara>
+   <para>
+    <example>
+     <title>Esempi di arrow function</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+fn(array $x) => $x;
+static fn(): int => $x;
+fn($x = 42) => $x;
+fn(&$x) => $x;
+fn&($x) => $x;
+fn($x, ...$rest) => $rest;
+
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+   <simpara>
+    Le arrow function usano il binding della variabili per valore.
+    Questo è grossomodo equivalente ad eseguire uno <code>use($x)</code> per ogni 
+    variabile <varname>$x</varname> usata all'interno della arrow function.
+    Un binding per valore significa che non è possibile modificare qualsiasi valore 
+    dallo scope esterno. 
+    Le <link linkend="functions.anonymous">funzioni anonime</link> 
+    possono invece essere usate per il binding per riferimento.
+   </simpara>
+   <para>
+    <example>
+     <title>I valori dello scope esterno non possono essere modificati dalle arrow function</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+$x = 1;
+$fn = fn() => $x++; // Non ha effetto
+$fn();
+var_export($x);  // Produce 1
+
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+   
+   <sect2 role="changelog">
+    &reftitle.changelog;
+    <para>
+     <informaltable>
+      <tgroup cols="2">
+       <thead>
+        <row>
+         <entry>&Version;</entry>
+         <entry>&Description;</entry>
+        </row>
+       </thead>
+       <tbody>
+        <row>
+         <entry>7.4.0</entry>
+         <entry>
+          Le arrow function sono diventate disponibili.
+         </entry>
+        </row>
+       </tbody>
+      </tgroup>
+     </informaltable>
+    </para>
+   </sect2>
+
+   <sect2 role="notes">
+    &reftitle.notes;
+    <note>
+     <simpara>
+      È possibile usare <function>func_num_args</function>,
+      <function>func_get_arg</function>, e <function>func_get_args</function>
+      dall'interno di una arrow function.
+     </simpara>
+    </note>
+   </sect2>
   </sect1>
 
  </chapter>

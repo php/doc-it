@@ -1,104 +1,112 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/info.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.get-magic-quotes-gpc" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>get_magic_quotes_gpc</refname>
-    <refpurpose>
-     Restituisce l'attuale configurazione di magic quotes gpc
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>get_magic_quotes_gpc</methodname>
-      <void/>
-     </methodsynopsis>
-    <simpara>
-     Restituisce l'impostazione attuale della direttiva di configurazione  <link
-     linkend="ini.magic-quotes-gpc">magic_quotes_gpc</link> (0 uguale a
-     off, 1 per on).
-    </simpara>
-    <note>
-     <para>      
-      Se la direttiva <link linkend="ini.magic-quotes-sybase">
-      magic_quotes_sybase</link> è impostata a ON, questa è prioritaria rispetto a
-      <parameter>magic_quotes_gpc</parameter>.  Pertanto, anche se
-      <function>get_magic_quotes</function> restituisce
-      &true; ne i doppi apici, ne i backslashes o i NUL saranno
-      preceduti dal caratteri di escape. Lo saranno soltanto gli apici singoli. In questo
-      caso saranno: <emphasis>''</emphasis>
-     </para>
-    </note>
-    <simpara>
-     Si ricordi che <link linkend="ini.magic-quotes-gpc">
-     magic_quotes_gpc</link> non può essere impostata a runtime.
-    </simpara>
-    <para>
-     <example>
-      <title>Esempio di uso di <function>get_magic_quotes_gpc</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 3e15d2894fb35432d2a111db36fe8ba8ebc62024 Maintainer: pastore Status: ready -->
+<refentry xml:id="function.get-magic-quotes-gpc" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>get_magic_quotes_gpc</refname>
+  <refpurpose>Restituisce l'attuale configurazione di magic_quotes_gpc</refpurpose>
+ </refnamediv>
+ 
+ <refsynopsisdiv>
+   &warn.deprecated.function-7-4-0;
+ </refsynopsisdiv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>get_magic_quotes_gpc</methodname>
+   <void/>
+  </methodsynopsis>
+  <para>
+   Restituisce l'attuale impostazione di configurazione di <link
+   linkend="ini.magic-quotes-gpc">magic_quotes_gpc</link> 
+  </para>
+  <para>
+   Tenere presente che il tentativo di impostare <link linkend="ini.magic-quotes-gpc">
+   magic_quotes_gpc</link> in fase di esecuzione non funzionerà.
+  </para>
+  <para>
+   Per ulteriori informazioni su magic_quotes, vedere la
+   <link linkend="security.magicquotes">sezione sulla sicurezza</link>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce 0 se magic_quotes_gpc è spento, 1 in caso contrario. 
+   O restituisce sempre &false; per PHP 5.4.0. 
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>7.4.0</entry>
+       <entry>
+        Questa funzione è stata deprecata.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>get_magic_quotes_gpc</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-echo get_magic_quotes_gpc();         // 1
+// Se le magic quotes sono abilitate
 echo $_POST['lastname'];             // O\'reilly
 echo addslashes($_POST['lastname']); // O\\\'reilly
 
-if (!get_magic_quotes_gpc()) {
-    $lastname = addslashes($_POST['lastname']);
-} else {
+// Utilizzo in tutte le versioni di PHP
+if (get_magic_quotes_gpc()) {
+    $lastname = stripslashes($_POST['lastname']);
+}
+else {
     $lastname = $_POST['lastname'];
 }
+
+// Se si utilizza MySQL
+$lastname = mysql_real_escape_string($lastname);
 
 echo $lastname; // O\'reilly
 $sql = "INSERT INTO lastnames (lastname) VALUES ('$lastname')";
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Nell'ottica di scrittura di codice portabile (codice che funzioni
-     in qualsiasi ambiente), o, se non si hanno i permessi di modifica
-     del php.ini, è possibile disabilitare gli effetti della funzione
-     da script. Questo può essere fatto in due modi, o con una
-     impostazione da .htaccess (php_value magic_quotes_gpc 0),
-     oppure aggiungendo il codice sottostante allo script.
-     <example>
-      <title>Disattivare magic quotes da script</title>
-      <programlisting role="php">
-<![CDATA[
-<?php
-if (get_magic_quotes_gpc()) {
-    function stripslashes_deep($value)
-    {
-        $value = is_array($value) ?
-                    array_map('stripslashes_deep', $value) :
-                    stripslashes($value);
- 
-        return $value;
-    }
- 
-    $_POST = array_map('stripslashes_deep', $_POST);
-    $_GET = array_map('stripslashes_deep', $_GET);
-    $_COOKIE = array_map('stripslashes_deep', $_COOKIE);
-}
-?>
-]]>
-      </programlisting>
-     </example>
-      Il parametro magic-quote è stato aggiunto per ridurre il rischio di scrivere codice pericoloso da parte dei principianti.
-      Se si disabilita magic-quote, occorre prestare molta attenzione a proteggersi
-      dagli attacchi di SQL injection.
-    </para>
-    <simpara>
-     Vedere anche <function>addslashes</function>,
-     <function>stripslashes</function>,
-     <function>get_magic_quotes_runtime</function> e
-     <function>ini_get</function>.
-    </simpara>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>addslashes</function></member>
+    <member><function>stripslashes</function></member>
+    <member><function>get_magic_quotes_runtime</function></member>
+    <member><function>ini_get</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

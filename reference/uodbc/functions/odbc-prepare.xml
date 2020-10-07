@@ -1,52 +1,99 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/uodbc.xml, last change in rev 1.10 -->
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-  <refentry xml:id="function.odbc-prepare" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>odbc_prepare</refname>
-    <refpurpose>Predispone un'espressione all'esecuzione</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-    <methodsynopsis>
-     <type>resource</type><methodname>odbc_prepare</methodname>
-     <methodparam><type>resource</type><parameter>id_connessione</parameter></methodparam>
-     <methodparam><type>string</type><parameter>testo_query</parameter></methodparam>
-    </methodsynopsis>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 38c38330244df2cef54a6a3dfb51795c5cef5906 Maintainer: pastore Status: ready -->
+<refentry xml:id="function.odbc-prepare" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>odbc_prepare</refname>
+  <refpurpose>Predispone un'espressione all'esecuzione</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>resource</type><methodname>odbc_prepare</methodname>
+   <methodparam><type>resource</type><parameter>connection_id</parameter></methodparam>
+   <methodparam><type>string</type><parameter>query_string</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Predispone un'espressione all'esecuzione. L'identificativo restituito può essere utilizzato
+   successivamente per eseguire l'espressione utilizzando la funzione <function>odbc_execute</function>.
+  </para>
+  <para>   
+   Alcuni database (tipo IBM DB2, MS SQL Server e Oracle) supportano
+   le stored procedure che accettano parametri di tipo IN, INOUT e OUT come
+   definito nelle specifiche ODBC.  Tuttavia il driver Unified ODBC
+   attualmente supporta soltanto i parametri di tipo IN nelle stored procedure.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>connection_id</parameter></term>
+     <listitem>
+      &odbc.connection.id;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>query_string</parameter></term>
+     <listitem>
+      <para>
+       The query che viene predisposta.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce un identificativo di risultato ODBC se l'espressione SQL viene predisposta
+   correttamente. Restituisce &false; in caso di errore.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>odbc_execute</function> e <function>odbc_prepare</function></title>
     <para>
-     La funzione restituisce &false; su errore.
+     Nel seguente codice, <varname>$success</varname> sarà &true; soltanto
+     se tutti i tre parametri per myproc sono dei parametri IN:
     </para>
-    <para>
-     Restituisce un identificativo di risultato ODBC se l'espressione SQL viene predisposta 
-     correttamente. L'identificativo restituito può essere utilizzato successivamente per eseguire 
-     l'espressione utilizzando la funzione <function>odbc_execute</function>.
-    </para>
-    <para>
-     Alcuni database (tipo IBM DB2, MS SQL server e Oracle) gestiscono le
-     le stored procedure che accettano parametri di tipo IN, INOUT e OUT come
-     definito nelle specifiche ODBC. Tuttavia il driver Unified ODBC
-     supporta soltanto i parametri di tipo IN.
-    </para>
-    <para>
-     Nel seguente codice, <varname>$res</varname> sarà valido soltanto
-     se tutti i tre parametri per myproc sono di tipo IN:
-     <programlisting role="php">
-<![CDATA[<?php
+    <programlisting role="php">
+<![CDATA[
+<?php
 $a = 1;
 $b = 2;
 $c = 3;
-$stmt = odbc_prepare($conn, 'CALL myproc(?,?,?)');
-$res = odbc_execute($stmt, array($a, $b, $c));
+$stmt    = odbc_prepare($conn, 'CALL myproc(?,?,?)');
+$success = odbc_execute($stmt, array($a, $b, $c));
 ?>
 ]]>
-     </programlisting>
-     Se occorre utilizzare stored procedure che richiedono parametri INOUT od OUT,
-     si suggerisce di utilizzare i moduli nativi del database
-     (ad esempio, <link linkend="ref.mssql">mssql</link> per MS SQL Server,
-     o <link linkend="ref.mssql">oci8</link> per Oracle).
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   Se occorre chiamare una stored procedure che richiede parametri INOUT od OUT,
+   si suggerisce di utilizzare il modulo nativo del database
+   (ad esempio, <link linkend="ref.oci8">oci8</link> per Oracle).
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>odbc_execute</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

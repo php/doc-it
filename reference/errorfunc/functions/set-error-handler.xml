@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: 761987938381cd0071806f1c5c75fa89f48d78ad Maintainer: reghe Status: ready -->
+<!-- EN-Revision: 80872147aa52367137bd3d168412f70cbe2ddf9c Maintainer: reghe Status: ready -->
 <refentry xml:id="function.set-error-handler" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>set_error_handler</refname>
@@ -47,7 +47,7 @@
    <constant>E_ERROR</constant>, <constant>E_PARSE</constant>,
    <constant>E_CORE_ERROR</constant>, <constant>E_CORE_WARNING</constant>,
    <constant>E_COMPILE_ERROR</constant>,
-   <constant>E_COMPILE_WARNING</constant>, e
+   <constant>E_COMPILE_WARNING</constant> indipendentemente da dove sono stati sollevati, e
    buona parte degli <constant>E_STRICT</constant> sollevati nel file dove
    viene richiamata <function>set_error_handler</function>.
   </para>
@@ -68,6 +68,8 @@
       <para>
        Una funzione di callback con la seguente firma.
        &null; può essere invece passato per ripristinare il gestore di default.
+       Invece di un nome di funzione, possono anche essere forniti un array contenente un riferimento ad un oggetto
+       ed un nome di metodo.
       </para>
       <para>
        <methodsynopsis>
@@ -126,6 +128,12 @@
            l'errore è avvenuto.
            La funzione utente che gestisce gli errori non dovrebbe mai modificare il contesto dell'errore.
           </simpara>
+          <warning xmlns="http://docbook.org/ns/docbook">
+           <simpara>
+            Questo parametro è stato <emphasis>DEPRECATO</emphasis> da PHP 7.2.0.
+            Fare affidamento su di esso è altamente scoraggiato.
+           </simpara>
+          </warning>
          </listitem>
         </varlistentry>
        </variablelist>
@@ -177,38 +185,9 @@
      </thead>
      <tbody>
       <row>
-       <entry>5.5.0</entry>
+       <entry>7.2.0</entry>
        <entry>
-        <parameter>error_handler</parameter> ora accetta &null;.
-       </entry>
-      </row>
-      <row>
-       <entry>5.2.0</entry>
-       <entry>
-        <parameter>error_handler</parameter> deve ritornare &false; per popolare
-        <varname>$php_errormsg</varname>.
-       </entry>
-      </row>
-      <row>
-       <entry>5.0.0</entry>
-       <entry>
-        Il parametro <parameter>error_types</parameter> è stato introdotto.
-       </entry>
-      </row>
-      <row>
-       <entry>4.3.0</entry>
-       <entry>
-        Al posto del nome della funzione, un vettore contenente il riferimento
-        all'oggetto e al nome del metodo può essere utilizzato in
-        <parameter>error_handler</parameter>.
-       </entry>
-      </row>
-      <row>
-       <entry>4.0.2</entry>
-       <entry>
-        Sono stati aggiunti tre parametri opzionali a
-        <parameter>error_handler</parameter>. Questi sono il nome del file, il numero di riga
-        e il contesto.
+        <parameter>errcontext</parameter> è diventato deprecato. L'utilizzo di questo parametro ora genera un avviso <constant>E_DEPRECATED</constant>.
        </entry>
       </row>
      </tbody>
@@ -233,9 +212,13 @@
 function myErrorHandler($errno, $errstr, $errfile, $errline)
 {
     if (!(error_reporting() & $errno)) {
-        // Questo codice di errore non è incluso in error_reporting
+        // Questo codice di errore non è incluso in error_reporting, quindi lascia che ricada
+        // nel gestore degli errori PHP standard
         return;
     }
+
+    // potrebbe essere necessario effettuare l'escape di $errstr:
+    $errstr = htmlspecialchars($errstr);
 
     switch ($errno) {
     case E_USER_ERROR:
@@ -244,7 +227,6 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
         echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
         echo "Aborting...<br />\n";
         exit(1);
-        break;
 
     case E_USER_WARNING:
         echo "<b>My WARNING</b> [$errno] $errstr<br />\n";
@@ -364,7 +346,6 @@ Aborting...<br />
     <member><function>restore_error_handler</function></member>
     <member><function>trigger_error</function></member>
     <member><link linkend="errorfunc.constants">error level constants</link></member>
-    <member>&seealso.callback;</member>
    </simplelist>
   </para>
  </refsect1>

@@ -1,101 +1,260 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-  <refentry xml:id="function.preg-replace-callback" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>preg_replace_callback</refname>
-    <refpurpose>Esegue ricerche e sostituzioni con espressioni regolari 
-    usando il callback</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>mixed </type><methodname>preg_replace_callback</methodname> 
-      <methodparam><type>mixed </type><parameter>espressione_regolare</parameter></methodparam>
-      <methodparam><type>callback</type><parameter>callback</parameter></methodparam>
-      <methodparam><type>mixed </type><parameter>testo</parameter></methodparam>
-      <methodparam choice="opt"><type>int </type><parameter>limite</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Fondamentalmente questa funzione si comporta come
-     <function>preg_replace</function>, eccetto che per la 
-     presenza del <parameter>callback</parameter>. Con quest'ultimo
-     parametro si indica una funzione da richiamare a cui verrà
-     passata una matrice con i testi riconosciuti in <parameter>testo</parameter>.
-     La funzione di callback dovrebbe restituire la stringa da sostituire.
-    </para>
-    <example> 
-     <title>Esempio dell'uso di <function>preg_replace_callback</function></title> 
-     <programlisting role="php">
-<![CDATA[
-<?php 
-// questo test è stato usato nel 2002
-// lo si vuole avere aggiornato per il 2003
-$text = "April fools day is 04/01/2002\n"; 
-$text.= "Last christmas was 12/24/2001\n"; 
-// la funzione di callback
-function next_year($matches) 
-{ 
-// come solito: $matches[0] è il testo riconosciuto completo
-// $matches[1] la parte riconosciuta per il primo criterio
-// racchiuso in '(...)' e così via
-return $matches[1].($matches[2]+1); 
-}
-echo preg_replace_callback(
-     "|(\d{2}/\d{2}/)(\d{4})|",
-     "next_year",
-     $text);
-// il risultato sarà:
-// April fools day is 04/01/2003
-// Last christmas was 12/24/2002
-?>
-]]>
-     </programlisting>
-    </example>
-    <para>
-     Spesso si ha la necessità di richiamare la funzione <parameter>callback</parameter>
-     soltanto in un unico posto.
-     In questo caso si può utilizzare <function>create_function</function>
-     per dichiarare una funzione anonima come callback per 
-     <function>preg_replace_callback</function>.In questo modo si
-     hanno tutte le informazioni per la chiamata in un unico posto
-     e non si disperde con funzioni di callback non
-     utilizzate altrove.
-    </para>
-    <example>
-     <title><function>preg_replace_callback</function> e <function>create_function</function></title>
-     <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 80872147aa52367137bd3d168412f70cbe2ddf9c Maintainer: pastore Status: ready -->
+<refentry xml:id="function.preg-replace-callback" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>preg_replace_callback</refname>
+  <refpurpose>Esegue ricerche e sostituzioni con espressioni regolari usando una callback</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>mixed</type><methodname>preg_replace_callback</methodname>
+   <methodparam><type>mixed</type><parameter>pattern</parameter></methodparam>
+   <methodparam><type>callable</type><parameter>callback</parameter></methodparam>
+   <methodparam><type>mixed</type><parameter>subject</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>limit</parameter><initializer>-1</initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter role="reference">count</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>flags</parameter><initializer>0</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Il comportamento di questa funzione è quasi identico a
+   <function>preg_replace</function>, eccetto per il fatto che invece del 
+   parametro <parameter>replacement</parameter>, si deve specificare una
+   <parameter>callback</parameter>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>pattern</parameter></term>
+     <listitem>
+      <para>
+       Il pattern da cercare. Può essere una stringa o un array con
+       stringhe.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>callback</parameter></term>
+     <listitem>
+      <para>
+       Una callback che verrà chiamata e a cui verrà passato un array di elementi corrispondenti
+       nella stringa <parameter>subject</parameter>. La callback dovrebbe
+       restituire la stringa di sostituzione. Questa è la firma della callback:
+      </para>
+      <para>
+       <methodsynopsis>
+        <type>string</type><methodname><replaceable>handler</replaceable></methodname>
+        <methodparam><type>array</type><parameter>matches</parameter></methodparam>
+       </methodsynopsis>
+      </para>
+      <para>
+       Si avrà spesso bisogno della funzione <parameter>callback</parameter>
+       per una <function>preg_replace_callback</function> in un solo posto.
+       In questo caso si può usare una
+       <link linkend="functions.anonymous">funzione anonima</link> per
+       dichiarare la callback all'interno della chiamata a
+       <function>preg_replace_callback</function>. In questo modo
+       si hanno tutte le informazioni per la chiamata in un posto e non
+       si ingombra il namespace della funzione con un nome di funzione della callback
+       non utilizzato da nessun'altra parte.
+      </para>
+      <para>
+       <example>
+        <title><function>preg_replace_callback</function> e
+        le funzioni anonime</title>
+        <programlisting role="php">
 <![CDATA[
 <?php
-/* Un filtro da linea di comando stile Unix che converte
- * la maiuscole poste all'inizio delle parole in minuscolo */
+/* un filtro della linea di comando stile unix per convertire le lettere
+ * maiuscole all'inizio del paragrafo in minuscole */
 $fp = fopen("php://stdin", "r") or die("can't read stdin");
 while (!feof($fp)) {
-      $line = fgets($fp);
-      $line = preg_replace_callback(
-             '|<p>\s*\w|',
-             create_function(
-                  // l'apice singolo è essenziale qui, 
-                  // o in alternativa occorre usare la sequenza di escape \$ 
-                  // per tutte le occorrenze di $ 
-                 '$matches',
-                 'return strtolower($matches[0]);' 
-                 ), 
-               $line 
-      );
-      echo $line; 
+    $line = fgets($fp);
+    $line = preg_replace_callback(
+        '|<p>\s*\w|',
+        function ($matches) {
+            return strtolower($matches[0]);
+        },
+        $line
+    );
+    echo $line;
 }
 fclose($fp);
 ?>
-]]> 
-     </programlisting>
-    </example>
-    <para>
-     Vedere anche <function>preg_replace</function>
-     <function>create_function</function>,
-     &listendand; &seealso.callback;.
-    </para>
-   </refsect1>
-  </refentry>
+]]>
+        </programlisting>
+       </example>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>subject</parameter></term>
+     <listitem>
+      <para>
+       La stringa o l'array con le stringhe da cercare e sostituire.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>limit</parameter></term>
+     <listitem>
+      <para>
+       Le massime sostituzioni possibili per ogni pattern in ogni
+       stringa <parameter>subject</parameter>. Il valore predefinito è
+       <literal>-1</literal> (senza limiti).
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>count</parameter></term>
+     <listitem>
+      <para>
+       Se specificato, questa variabile sarà riempita con il numero di
+       sostituzioni fatte.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>flags</parameter></term>
+     <listitem>
+      <para>
+       <parameter>flags</parameter> può essere una combinazione dei flag
+       <constant>PREG_OFFSET_CAPTURE</constant> e
+       <constant>PREG_UNMATCHED_AS_NULL</constant>, che influenzano il
+       formato dell'array delle corrispondenze.
+       Vedere la descrizione in <function>preg_match</function> per ulteriori dettagli.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   <function>preg_replace_callback</function> restituisce un array se il
+   parametro <parameter>subject</parameter> è un array, o una stringa
+   in caso contrario. In caso di errori il valore di ritorno è &null;
+  </para>
+  <para>
+   Se vengono trovate corrispondenze, verrà restituito il nuovo subject, in caso contrario
+   verrà restituito il valore di <parameter>subject</parameter> invariato.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>7.4.0</entry>
+       <entry>
+        È stato aggiunto il parametro <parameter>flags</parameter>.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>preg_replace_callback</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// questo testo veniva usato nel 2002
+// vogliamo aggiornarlo per il 2003
+$text = "April fools day is 04/01/2002\n";
+$text.= "Last christmas was 12/24/2001\n";
+// la funzione callback
+function next_year($matches)
+{
+  // come solito: $matches[0] è la corrispondenza completa
+  // $matches[1] la corrispondenza per il primo sub-pattern
+  // racchiuso in '(...)' e così via
+  return $matches[1].($matches[2]+1);
+}
+echo preg_replace_callback(
+            "|(\d{2}/\d{2}/)(\d{4})|",
+            "next_year",
+            $text);
+
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+April fools day is 04/01/2003
+Last christmas was 12/24/2002
+]]>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title><function>preg_replace_callback</function> usando una struttura ricorsiva
+     per gestire codice BB incapsulato</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$input = "plain [indent] deep [indent] deeper [/indent] deep [/indent] plain";
+
+function parseTagsRecursive($input)
+{
+
+    $regex = '#\[indent]((?:[^[]|\[(?!/?indent])|(?R))+)\[/indent]#';
+
+    if (is_array($input)) {
+        $input = '<div style="margin-left: 10px">'.$input[1].'</div>';
+    }
+
+    return preg_replace_callback($regex, 'parseTagsRecursive', $input);
+}
+
+$output = parseTagsRecursive($input);
+
+echo $output;
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><link linkend="pcre.pattern">PCRE Patterns</link></member>
+    <member><function>preg_replace_callback_array</function></member>
+    <member><function>preg_quote</function></member>
+    <member><function>preg_replace</function></member>
+    <member><function>preg_last_error</function></member>
+    <member><link linkend="functions.anonymous">Funzioni anonime</link></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

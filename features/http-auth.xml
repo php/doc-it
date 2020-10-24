@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 230af446aeada3cc862356fc15f3796035295e21 Maintainer: cucinato Status: ready -->
+<!-- EN-Revision: dec1f8445ab2af7fbafef012fb7907ab2cd349b5 Maintainer: pastore Status: ready -->
  <chapter xml:id="features.http-auth" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
   <title>Autenticazione HTTP usando PHP</title>
 
@@ -13,20 +13,10 @@
    <varname>PHP_AUTH_USER</varname>, <varname>PHP_AUTH_PW</varname> e
    <varname>AUTH_TYPE</varname> impostate con nome, password e
    tipo di autenticazione. Queste variabili predefinite possono essere trovate
-   negli array <varname>$_SERVER</varname> e
-   <varname>$HTTP_SERVER_VARS</varname>. Saranno supportati entrambi i
+   nell'array <varname>$_SERVER</varname>. Saranno supportati entrambi i
    metodi di autenticazione, "Basic" e "Digest" (a partire dal PHP 5.1.0).
    Fare riferimento alla funzione <function>header</function> per ulteriori informazioni.
   </simpara>
-
-  <note>
-   <title>Nota sulla versione di PHP</title>
-   <para>
-    Le <link linkend="language.variables.superglobals">variabili autoglobali</link>,
-    come <varname>$_SERVER</varname>, esistono
-    a partire da PHP <link xlink:href="&url.php.release4.1.0;">4.1.0</link>.
-   </para>
-  </note>
 
   <para>
    Un frammento di script di esempio che richiede l'autenticazione da parte del browser
@@ -148,17 +138,6 @@ function http_digest_parse($txt)
    il momento.
   </para>
 
-  <simpara>
-   A partire da PHP 4.3.0, al fine di prevenire che qualcuno scriva uno script che
-   rivela la password di una pagina che era stata autenticata tramite un
-   tradizionale meccanismo esterno, le variabili PHP_AUTH non verranno
-   impostate se è abilitata l'autenticazione esterna per quella determinata
-   pagina e &safemode; è abilitato. Ciò nonostante, la variabile
-   <varname>REMOTE_USER</varname> può essere
-   usata per identificare un utente autenticato esternamente.  Quindi, si può usare
-   <varname>$_SERVER['REMOTE_USER']</varname>.
-  </simpara>
-
   <note>
    <title>Nota sulla Configurazione</title>
    <para>
@@ -219,20 +198,11 @@ if (!isset($_SERVER['PHP_AUTH_USER']) ||
    tasto '_' al fine di cancellare le sue informazioni di autenticazione.
   </simpara>
   <simpara>
-   Si noti anche che, prima di PHP 4.3.3, l'Autenticazione HTTP non funzionava
-   usando il server IIS di Microsoft e con la versione CGI di PHP a causa di una
-   limitazione di IIS. Al fine di farla funzionare in PHP 4.3.3+,
-   si deve modificare la configurazione di IIS "<literal>Directory Security</literal>".
+   Al fine di far funzionare l'Autenticazione HTTP usando il server IIS con la versione CGI
+   di PHP si deve modificare la configurazione di IIS "<literal>Directory Security</literal>".
    Cliccare su "<literal>Edit</literal>" e selezionare solo
    "<literal>Anonymous Access</literal>", tutti gli altri campi
    devono essere lasciati deselezionati.
-  </simpara>
-  <simpara>
-   Un'altra limitazione è che se si usa il modulo IIS (ISAPI) e PHP 4, non si possono
-   usare le variabili <literal>PHP_AUTH_*</literal> ma, al contrario, la variabile
-   <literal>HTTP_AUTHORIZATION</literal> è disponibile. Per esempio, si consideri
-   il seguente codice: <literal>list($user, $pw) = explode(':',
-    base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));</literal>
   </simpara>
   <note>
    <title>Nota su IIS:</title>
@@ -241,13 +211,6 @@ if (!isset($_SERVER['PHP_AUTH_USER']) ||
     <link linkend="ini.cgi.rfc2616-headers">cgi.rfc2616_headers</link> deve
     essere impostata al valore <literal>0</literal> (il valore predefinito).
    </simpara>
-  </note>
-  <note>
-   <para>
-    Se è abilitato <link linkend="ini.safe-mode">safe mode</link> viene
-    aggiunto lo uid dello script al <literal>realm</literal>
-    dell'header <literal>WWW-Authenticate</literal>.
-   </para>
   </note>
 
  </chapter>

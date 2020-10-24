@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 995eaea8640022c0337a0e5d1bcab4a9df92d8e2 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: dec1f8445ab2af7fbafef012fb7907ab2cd349b5 Maintainer: pastore Status: ready -->
  <chapter xml:id="language.operators" xmlns="http://docbook.org/ns/docbook">
   <title>Operatori</title>
   <simpara>
@@ -78,7 +78,7 @@
       </thead>
       <tbody>
        <row>
-        <entry>non associativi</entry>
+        <entry>(n/a)</entry>
         <entry>
          <literal>clone</literal>
          <literal>new</literal>
@@ -86,17 +86,12 @@
         <entry><link linkend="language.oop5.cloning">clone</link> e <link linkend="language.oop5.basic.new">new</link></entry>
        </row>
        <row>
-        <entry>sinistra</entry>
-        <entry><literal>[</literal></entry>
-        <entry><function>array</function></entry>
-       </row>
-       <row>
         <entry>destra</entry>
         <entry><literal>**</literal></entry>
         <entry><link linkend="language.operators.arithmetic">operatori aritmetici</link></entry>
        </row>
        <row>
-        <entry>destra</entry>
+        <entry>(n/a)</entry>
         <entry>
          <literal>++</literal> 
          <literal>--</literal> 
@@ -114,14 +109,14 @@
         </entry>
        </row>
        <row>
-        <entry>non associativi</entry>
+        <entry>sinistra</entry>
         <entry><literal>instanceof</literal></entry>
         <entry>
          <link linkend="language.types">tipi</link>
         </entry>
        </row>
        <row>
-        <entry>destra</entry>
+        <entry>(n/a)</entry>
         <entry><literal>!</literal></entry>
         <entry>
          <link linkend="language.operators.logical">operatori logici</link>
@@ -224,7 +219,7 @@
         <entry>destra</entry>
         <entry><literal>??</literal></entry>
         <entry>
-         <link linkend="language.operators.comparison">operatori di confronto</link>
+         <link linkend="language.operators.comparison.coalesce">null coalescing</link>
         </entry>
        </row>
        <row>
@@ -250,10 +245,30 @@
          <literal>^=</literal> 
          <literal>&lt;&lt;=</literal> 
          <literal>&gt;&gt;=</literal>
+         <literal>??=</literal>
         </entry>
         <entry>
          <link linkend="language.operators.assignment">operatori di assegnazione</link>
         </entry>
+       </row>
+       <row>
+        <entry>(n/a)</entry>
+        <entry><literal>yield from</literal></entry>
+        <entry>
+         <link linkend="control-structures.yield.from">yield from</link>
+        </entry>
+       </row>
+       <row>
+        <entry>(n/a)</entry>
+        <entry><literal>yield</literal></entry>
+        <entry>
+         <link linkend="control-structures.yield">yield</link>
+        </entry>
+       </row>
+       <row>
+        <entry>(n/a)</entry>
+        <entry><literal>print</literal></entry>
+        <entry><function>print</function></entry>
        </row>
        <row>
         <entry>sinistra</entry>
@@ -508,7 +523,7 @@ $b .= "come va?"; // imposta $b a "Ciao come va?", proprio come $b = $b . "come 
    </para>
    <para>
     Un'eccezione al comportamento standard dell'assegnazione per valore avviene
-    con gli<type>object</type>, che sono assegnati per riferimento in PHP 5.
+    con gli<type>object</type>, che sono assegnati per riferimento.
     Gli oggetti possono essere copiati esplicitamente attraverso la keyword <link
     linkend="language.oop5.cloning">clone</link>.
    </para>
@@ -544,33 +559,168 @@ print "$b\n"; // stampa ugualmente 4, dal momento che $b è un riferimento ad $a
      </example>
     </para>
     <para>
-     Da PHP 5, l'operatore <link linkend="language.oop5.basic.new">new</link>
+     L'operatore <link linkend="language.oop5.basic.new">new</link>
      restituisce automaticamente un riferimento, quindi assegnare il risultato di
-     <link linkend="language.oop5.basic.new">new</link> per riferimento risulta
-     in un messaggio <constant>E6DEPRECATED</constant> in PHP 5.3 e successivi, e
-     un messaggio <constant>E_STRICT</constant> nelle version precedenti.
+     <link linkend="language.oop5.basic.new">new</link> per riferimento
+     non è permesso in PHP 7.0.0,
+     provoca un messaggio <constant>E_DEPRECATED</constant> in PHP 5.3.0, ed
+     un messaggio <constant>E_STRICT</constant> nelle versioni precedenti.
     </para>
     <para>
-     Per esempio, quesco codice provocherà un avvertimento:
+     Per esempio, quesco codice provocherà un errore o un avvertimento:
      <informalexample>
       <programlisting role="php">
 <![CDATA[
 <?php
 class C {}
 
-/* la prossima linea genera il seguente messaggio di errore:
- * Deprecated: Assigning the return value of new by reference is deprecated in...
- */
 $o = &new C;
 ?>
 ]]>
       </programlisting>
+      &example.outputs.7;
+      <screen>
+<![CDATA[
+Parse error: syntax error, unexpected 'new' (T_NEW) in …
+]]>
+      </screen>
+      &example.outputs.53;
+      <screen>
+<![CDATA[
+Deprecated: Assigning the return value of new by reference is deprecated in …
+]]>
+      </screen>
+      &example.outputs.5;
+      <screen>
+<![CDATA[
+Strict Standards: Assigning the return value of new by reference is deprecated in …
+]]>
+      </screen>
      </informalexample>
     </para>
     <para>
      Ulteriori informazioni sui riferimenti e sul loro uso possono essere trovati
-     nella sezione del manuale <link linkend="language.references">Spiegazioni sui riferimenti</link>
-     .
+     nella sezione del manuale
+     <link linkend="language.references">Spiegazioni sui riferimenti</link>.
+    </para>
+   </sect2>
+
+   <sect2 xml:id="language.operators.assignment.arithmetic">
+    <title>Operatori di Assegnamento Aritmetici</title>
+    <informaltable>
+     <tgroup cols="3">
+      <thead>
+       <row>
+        <entry>Esempio</entry>
+        <entry>Equivalente</entry>
+        <entry>Operazione</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry>$a += $b</entry>
+        <entry>$a = $a + b</entry>
+        <entry>Addizione</entry>
+       </row>
+       <row>
+        <entry>$a -= $b</entry>
+        <entry>$a = $a - $b</entry>
+        <entry>Sottrazione</entry>
+       </row>
+       <row>
+        <entry>$a *= $b</entry>
+        <entry>$a = $a * $b</entry>
+        <entry>Moltiplicazione</entry>
+       </row>
+       <row>
+        <entry>$a /= $b</entry>
+        <entry>$a = $a / $b</entry>
+        <entry>Divisione</entry>
+       </row>
+       <row>
+        <entry>$a %= $b</entry>
+        <entry>$a = $a % $b</entry>
+        <entry>Modulo</entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+   </sect2>
+
+   <sect2 xml:id="language.operators.assignment.bitwise">
+    <title>Operatori di Assegnazione Bit A Bit</title>
+    <informaltable>
+     <tgroup cols="3">
+      <thead>
+       <row>
+        <entry>Esempio</entry>
+        <entry>Equivalente</entry>
+        <entry>Operazione</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry>$a &amp;= $b</entry>
+        <entry>$a = $a &amp; $b</entry>
+        <entry>And Bit a Bit</entry>
+       </row>
+       <row>
+        <entry>$a |= $b</entry>
+        <entry>$a = $a | $b</entry>
+        <entry>Or Bit a Bit</entry>
+       </row>
+       <row>
+        <entry>$a ^= $b</entry>
+        <entry>$a = $a ^ $b</entry>
+        <entry>Xor Bit a Bit</entry>
+       </row>
+       <row>
+        <entry>$a &lt;&lt;= $b</entry>
+        <entry>$a = $a &lt;&lt; $b</entry>
+        <entry>Shift a Sinistra</entry>
+       </row>
+       <row>
+        <entry>$a &gt;&gt;= $b</entry>
+        <entry>$a = $a &gt;&gt; $b</entry>
+        <entry>Shift a Destra</entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+   </sect2>
+
+   <sect2 xml:id="language.operators.assignment.other">
+    <title>Altri Operatori di Assegnamento</title>
+    <informaltable>
+     <tgroup cols="3">
+      <thead>
+       <row>
+        <entry>Esempio</entry>
+        <entry>Equivalente</entry>
+        <entry>Operazione</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry>$a .= $b</entry>
+        <entry>$a = $a . $b</entry>
+        <entry>Concatenazione di stringhe</entry>
+       </row>
+       <row>
+        <entry>$a ??= $b</entry>
+        <entry>$a = $a ?? $b</entry>
+        <entry>Null Coalesce</entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+   </sect2>
+   <sect2 xml:id="language.operators.assignment.see-also">
+    <para>
+     Vedere anche le sezioni del manuale sugli <link linkend="language.operators.arithmetic">
+     operatori aritmetici</link>, <link linkend="language.operators.bitwise">operatori bit a bit</link>, 
+     <link linkend="language.operators.string">operatori di stringa</link>, e 
+     <link linkend="language.operators.comparison.coalesce">operatori null coalescing</link>.
     </para>
    </sect2>
   </sect1>
@@ -1318,8 +1468,8 @@ Espressione: 0 = -4 << 62
        <entry>Spaceship</entry>
        <entry>
         Un <type>integer</type> minore di, uguale a, o maggiore di zero quando
-        <varname>$a</varname> è rispettivamente minore di, uguale a, o maggiore
-        di <varname>$b</varname>. Disponibile da PHP 7.
+        <varname>$a</varname> è minore di, uguale a, o maggiore di
+        <varname>$b</varname>. Disponibile da PHP 7.
        </entry>
       </row>
      </tbody>
@@ -1394,7 +1544,7 @@ $a = (object) ["a" => "c"];
 $b = (object) ["a" => "b"]; 
 echo $a <=> $b; // 1
  
-// vengono confrontati solo i valori
+// non vengono confrontati solo i valori; le chiavi devono corrispondere
 $a = (object) ["a" => "b"]; 
 $b = (object) ["b" => "b"]; 
 echo $a <=> $b; // 1
@@ -1435,9 +1585,8 @@ echo $a <=> $b; // 1
        <entry><type>object</type></entry>
        <entry><type>object</type></entry>
        <entry>Le classi predefinite possono avere la propria funzione di confronto, classi differenti
-        non sono confrontabili, classi uguali confrontano le proprietà nello stesso modo delle
-        matrici (PHP 4), PHP 5 ha il suo <link
-        linkend="language.oop5.object-comparison">metodo di confronto</link>.
+        non sono confrontabili, per la stessa classe vedere <link
+        linkend="language.oop5.object-comparison">Confronto di Oggetti</link>.
        </entry>
       </row>
       <row>
@@ -1693,12 +1842,9 @@ echo $foo ?? $bar ?? $baz ?? $qux; // stampa 1
     che restituirà 0 quando la chiamata che ha attivato l'errore era preceduta da un @.
    </simpara>
    <simpara>
-    Se la caratteristica <link linkend="ini.track-errors"><option>track_errors</option></link>
-    è abilitata, qualsiasi messaggio di errore generato dall'espressione
-    sarà salvato nella variabile globale 
-    <varname>$php_errormsg</varname>.
-    Questa variabile sarà sovrascritta ad ogni errore, quindi va controllata spesso per
-    poterla utilizzare.
+    Qualsiasi messaggio di errore generato dall'espressione è disponibile nell'elemento
+    <literal>"message"</literal> dell'array restituito da <function>get_error_last</function>.
+    Il risultato di quella funzione cambierà ad ogni errore, quindi deve essere controllato in anticipo.
    </simpara>
    <para>
     <informalexample>
@@ -1707,7 +1853,7 @@ echo $foo ?? $bar ?? $baz ?? $qux; // stampa 1
 <?php
 /* Errore di file intenzionale */
 $my_file = @file ('file_inesistente') or
-    die ("Apertura del file fallita: l'errore è '$php_errormsg'");
+    die ("Apertura del file fallita: l'errore è stato '" . error_get_last()['message'] . "'");
 
 // questo funziona per qualsiasi espressione, non solo funzioni:
 $value = @$cache[$key];
@@ -1768,8 +1914,8 @@ echo "<pre>$output</pre>";
    </para>
    <note>
     <para>
-     L'operatore backtick è disabilitato quando è abilitata &safemode;
-     oppure quando è disabilitata <function>shell_exec</function>.
+     L'operatore backtick è disabilitato quando
+     è disabilitata <function>shell_exec</function>.
     </para>
    </note>
    <note>
@@ -1796,7 +1942,7 @@ echo "<pre>$output</pre>";
    <note>
     <simpara>
      Gli operatori di incremento e decremento agiscono solo su numeri e stringhe.
-     Array, oggetti e risorse non ne sono interessati.
+     Array, oggetti, booleani e risorse non ne sono interessati.
      Anche decrementare il valore &null; non ha effetti, ma incrementarlo
      darà come risultato <literal>1</literal>.
     </simpara>
@@ -2170,11 +2316,11 @@ array(3) {
 }
 Union of $a += $b:
 array(3) {
-  'a' =>
+  ["a"]=>
   string(5) "apple"
-  'b' =>
+  ["b"]=>
   string(6) "banana"
-  'c' =>
+  ["c"]=>
   string(6) "cherry"
 }
 ]]>
@@ -2304,7 +2450,7 @@ bool(true)
     una variable è un oggetto istanziato da una classe che implementa una
     <link linkend="language.oop5.interfaces">interfaccia</link>:
     <example>
-     <title>Utilizzo di <literal>instanceof</literal> per una classe</title>
+     <title>Utilizzo di <literal>instanceof</literal> con interfacce</title>
      <programlisting role="php">
 <![CDATA[
 <?php
@@ -2371,7 +2517,8 @@ bool(false)
    </para>
    <para>
     instanceof non genera errori se la variabile che viene controllata non è
-    un oggetto, ma ritorna semplicemente &false;. Le costanti non sono comunque ammesse.
+    un oggetto, ma ritorna semplicemente &false;. Le costanti non erano comunque ammesse
+    prima di PHP 7.3.0.
     <example>
      <title>Utilizzo di <literal>instanceof</literal> per controllare altre variabili</title>
      <programlisting role="php">
@@ -2394,6 +2541,26 @@ bool(false)
 bool(false)
 bool(false)
 PHP Fatal error:  instanceof expects an object instance, constant given
+]]>
+     </screen>
+    </example>
+   </para>
+   <para>
+    A partire da PHP 7.3.0, le costanti sono permesse sul lato sinistro
+    dell'operatore <literal>instanceof</literal>.
+    <example>
+     <title>Utilizzo di <literal>instanceof</literal> per testare le costanti</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+var_dump(FALSE instanceof stdClass);
+?>
+]]>
+    </programlisting>
+    &example.outputs.73;
+    <screen>
+<![CDATA[
+bool(false)
 ]]>
      </screen>
     </example>

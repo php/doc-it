@@ -1,63 +1,80 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: fernando Status: ready -->
-<!-- CREDITS: cortesi,spisto -->
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-  <refentry xml:id="function.chmod" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>chmod</refname>
-    <refpurpose>Cambia le impostazioni del file</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>chmod</methodname>
-      <methodparam><type>string</type><parameter>filename</parameter></methodparam>
-      <methodparam><type>int</type><parameter>mode</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Tenta di cambiare le impostazioni del file 
-     <parameter>filename</parameter> in quelle date in
-     <parameter>mode</parameter>.
-    </para>
-    <para>
-     Si osservi che <parameter>mode</parameter> non viene automaticamente
-     assunto come valore ottale, per cui le stringhe (come "g+w") non verranno
-     elaborate correttamente. Per ottenere l'operazione desiderata, è necessario
-     far precedere <parameter>mode</parameter> da uno zero (0):
-    </para>
-    <para>
-     <informalexample>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: dec1f8445ab2af7fbafef012fb7907ab2cd349b5 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi,spisto,fernando -->
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.chmod">
+ <refnamediv>
+  <refname>chmod</refname>
+  <refpurpose>Cambia le impostazioni del file</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>chmod</methodname>
+   <methodparam><type>string</type><parameter>filename</parameter></methodparam>
+   <methodparam><type>int</type><parameter>mode</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Tenta di cambiare le impostazioni del file specificato in quelle date in
+   <parameter>mode</parameter>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>filename</parameter></term>
+     <listitem>
+      <para>
+       Percorso del file.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>mode</parameter></term>
+     <listitem>
+      <para>
+       Si osservi che <parameter>mode</parameter> non viene automaticamente
+       assunto come valore ottale, quindi per ottenere l'operazione desiderata,
+       è necessario far precedere <parameter>mode</parameter> da uno zero (0).
+       Le stringhe come "g+w" non verranno elaborate correttamente.
+      </para>
+      <para>
+       <informalexample>
+        <programlisting role="php">
 <![CDATA[
 <?php
-chmod("/somedir/somefile", 755);   // decimale; probabilmente errato   
-chmod("/somedir/somefile", "u+rwx,go+rx"); // stringa; errato       
-chmod("/somedir/somefile", 0755);  // ottale; valore corretto di mode (preceduto da uno 0)
+chmod("/somedir/somefile", 755);   // decimale; probabilmente errato
+chmod("/somedir/somefile", "u+rwx,go+rx"); // stringa; errato
+chmod("/somedir/somefile", 0755);  // ottale; valore corretto di mode
 ?>
 ]]>
-      </programlisting>
-     </informalexample>
-    </para>
-    <para>
-     Il parametro <parameter>mode</parameter> consiste in tre numeri
-     ottali costituenti le restrizioni dell'accesso per il proprietario,
-     il gruppo utente a cui appartiene il proprietario, e gli altri utenti, nell'ordine dato.
-     Ciascun numero può essere calcolato aggiungendo i permessi
-     al valore base per l'utente. Il numero 1 indica che si abilita all'esecuzione del file,
-     con il numero 2 si assegnano i diritti di scrittura, con il numero 4
-     si assegna il permesso di lettura del file. Aggiungere questi
-     numeri per ottenere i diritti richiesti. Si possono avere maggiori
-     dettagli sui permessi dei sistemi Unix usando il comando 'man 1 chmod' e 'man 2 chmod'.
-    </para>
-    <para>
-     <informalexample>
-      <programlisting role="php">
+        </programlisting>
+       </informalexample>
+      </para>
+      <para>
+       Il parametro <parameter>mode</parameter> consiste in tre numeri
+       ottali costituenti le restrizioni dell'accesso per il proprietario,
+       il gruppo utente a cui appartiene il proprietario, e gli altri utenti,
+       nell'ordine dato. Ciascun numero può essere calcolato aggiungendo i permessi
+       necessari per quel bacino di utenti di destinazione. Il numero 1 indica che
+       si abilita all'esecuzione del file, con il numero 2 si assegnano i permessi di
+       scrittura, con il numero 4 si assegna il permesso di lettura del file. Sommare
+       questi numeri per ottenere i permessi richiesti. Si possono avere maggiori
+       dettagli sui permessi dei sistemi Unix usando il comando '<command>man 1 chmod</command>'
+       e '<command>man 2 chmod</command>'.
+      </para>
+      <para>
+       <informalexample>
+        <programlisting role="php">
 <![CDATA[
 <?php
-// Lettura e scrittura per il proprietario, e nessun permesso per gli altri
+// Lettura e scrittura per il proprietario, e nessun permesso per tutti gli altri
 chmod("/somedir/somefile", 0600);
 
-// Lettura e scrittura per il proprietario, e lettura per gli altri
+// Lettura e scrittura per il proprietario, e lettura per tutti gli altri
 chmod("/somedir/somefile", 0644);
 
 // Accesso completo per il proprietario, e lettura ed esecuzione per gli altri
@@ -67,35 +84,47 @@ chmod("/somedir/somefile", 0755);
 chmod("/somedir/somefile", 0750);
 ?>
 ]]>
-      </programlisting>
-     </informalexample>
-    </para>
-    <para>
-     &return.success;
-    </para>
-    <note>
-     <para>
-      L'utente corrente è l'utente con il quale viene eseguito il PHP.
-      Probabilmente non è il medesimo utente che si usa da shell o
-      dall'accesso FTP.
-     </para>
-    </note>
-    
-    &note.no-remote;
-    <note>
-     <simpara>
-      Quando &safemode; viene abilitato, PHP controlla se i files o le directory su cui si sta operando, hanno il
-      medesimo UID (proprietario) dello script che sta per essere eseguito. In aggiunta,
-      non si può impostare il SUID, SGID e sticky bit.
-     </simpara>
-    </note>
-    <para>
-     Vedere anche <function>chown</function> e
-     <function>chgrp</function>.
-    </para>
-    
-   </refsect1>
-  </refentry>
+        </programlisting>
+       </informalexample>
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    L'utente corrente è l'utente con il quale viene eseguito PHP. Probabilmente non è lo
+    stesso utente che si usa per la shell normale o per l'accesso FTP. Il mode può essere cambiato
+    solo dall'utente che possiede il file sulla maggior parte dei sistemi.
+   </para>
+  </note>
+  &note.no-remote;
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>chown</function></member>
+    <member><function>chgrp</function></member>
+    <member><function>fileperms</function></member>
+    <member><function>stat</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

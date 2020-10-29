@@ -1,63 +1,134 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: cortesi Status: working -->
-  <refentry xml:id="function.move-uploaded-file" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>move_uploaded_file</refname>
-    <refpurpose>Muove un file caricato in una nuova posizione</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>move_uploaded_file</methodname>
-      <methodparam><type>string</type><parameter>filename</parameter></methodparam>
-      <methodparam><type>string</type><parameter>destination</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Questa funzione verifica che il file indicato da 
-     <parameter>filename</parameter> è un file validamente caricato (nel senso
-     che è stato caricato attraverso il meccanismo di caricamento HTTP POST di PHP).
-     Se il file è valido, verrà spostato nel file dato da
-     <parameter>destination</parameter>.
-    </para>
-    <para>
-     Se <parameter>filename</parameter> non è un file validamente caricato,
-     allora non verrà compiuta alcuna azione e 
-     <function>move_uploaded_file</function> restituirà
-     &false;. 
-    </para>
-    <para>
-     Se <parameter>filename</parameter> è un file validamente caricato, ma
-     non può essere mossi per qualche ragione, non verrà compiuto alcunchè e
-     <function>move_uploaded_file</function> restituirà
-     &false;. In più verrà visualizzato un avviso di pericolo.
-    </para>
-    <para>
-     Questo tipo di verifica è particolarmente importante se sussiste la possibilità
-     che qualcosa fatto con i file caricati possa rivelare il loro contenuto agli utenti
-     o ad altri utenti dello stesso 
-     sistema.
-    </para>
-    &note.sm.uidcheck;
-     <note>
-     <para>
-      <function>move_uploaded_file</function> non è limitato dalle normali restrizioni 
-      del &safemode; UID. QCiò non è insicuro poiché
-      <function>move_uploaded_file</function> operara solo sui file uplodati
-      via PHP.
-     </para>
-    </note>
-    <warning>
-     <para>
-      Se il file di destinazione esiste, sarà sovrascritto.
-     </para>
-    </warning>
-    <para>
-     Vedere anche <function>is_uploaded_file</function> e la sessione
-     <link linkend="features.file-upload">Handling file uploads</link>
-     per un semplice esempio.
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: dec1f8445ab2af7fbafef012fb7907ab2cd349b5 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi -->
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.move-uploaded-file">
+ <refnamediv>
+  <refname>move_uploaded_file</refname>
+  <refpurpose>Sposta un file caricato in una nuova posizione</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>move_uploaded_file</methodname>
+   <methodparam><type>string</type><parameter>filename</parameter></methodparam>
+   <methodparam><type>string</type><parameter>destination</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Questa funzione verifica che il file indicato da 
+   <parameter>filename</parameter> sia un file caricato correttamente (nel senso
+   che è stato caricato attraverso il meccanismo di caricamento HTTP POST di PHP). Se
+   il file è valido, verrà spostato nel file dato da
+   <parameter>destination</parameter>.
+  </para>
+  <para>
+   Questo tipo di verifica è particolarmente importante se sussiste la possibilità
+   che qualsiasi cosa fatta con i file caricati possa rivelarne il
+   contenuto all'utente, o anche ad altri utenti sullo stesso
+   sistema.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>filename</parameter></term>
+     <listitem>
+      <para>
+       Il nome del file caricato.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>destination</parameter></term>
+     <listitem>
+      <para>
+       La destinazione del file spostato.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce &true; in caso di successo.
+  </para>
+  <para>
+   Se <parameter>filename</parameter> non è un file caricato valido,
+   allora non verrà compiuta alcuna azione e 
+   <function>move_uploaded_file</function> restituirà
+   &false;.
+  </para>
+  <para>
+   Se <parameter>filename</parameter> è un file caricato valido, ma
+   non può essere spostato per qualche ragione, non verrà compiuto alcunchè e
+   <function>move_uploaded_file</function> restituirà
+   &false;. In più verrà emesso un avviso.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Caricamento di più file</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$uploads_dir = '/uploads';
+foreach ($_FILES["pictures"]["error"] as $key => $error) {
+    if ($error == UPLOAD_ERR_OK) {
+        $tmp_name = $_FILES["pictures"]["tmp_name"][$key];
+        // basename() può impedire attacchi di attraversamento del file system
+        // un'ulteriore convalida/sanificazione del nome del file può essere appropriata
+        $name = basename($_FILES["pictures"]["name"][$key]);
+        move_uploaded_file($tmp_name, "$uploads_dir/$name");
+    }
+}
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    <function>move_uploaded_file</function> prende in considerazione
+    <link linkend="ini.open-basedir">open_basedir</link>.
+    Tuttavia, le restrizioni sono poste solo sul
+    percorso definito da <parameter>destination</parameter> per consentire lo spostamento
+    dei file caricati in cui <parameter>filename</parameter> potrebbe entrare in conflitto
+    con tali restrizioni. <function>move_uploaded_file</function> garantisce
+    la sicurezza di questa operazione consentendo lo spostamento solo dei file
+    caricati tramite PHP.
+   </para>
+  </note>
+  <warning>
+   <para>
+    Se il file di destinazione esiste già, esso verrà sovrascritto.
+   </para>
+  </warning>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>is_uploaded_file</function></member>
+    <member><function>rename</function></member>
+    <member>Vedere <link linkend="features.file-upload">Gestione dei caricamenti di file</link> per un semplice esempio di utilizzo</member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

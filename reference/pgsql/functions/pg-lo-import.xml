@@ -1,50 +1,114 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: cucinato Status: working -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: dec1f8445ab2af7fbafef012fb7907ab2cd349b5 Maintainer: pastore Status: ready -->
+<!-- CREDITS: fabio,cortesi,denny,cucinato -->
 <!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.6 -->
-<!-- CREDITS: fabio,cortesi,denny -->
-  <refentry xml:id="function.pg-lo-import" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_lo_import</refname>
-    <refpurpose>Importa un large object da un file</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>pg_lo_import</methodname>
-      <methodparam choice="opt"><type>resource</type><parameter>connessione</parameter></methodparam>
-      <methodparam><type>string</type><parameter>percorso</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Nelle versioni precedenti al PHP 4.2.0 la sintassi di questa funzione era differente,
-     come nella seguente definizione:
-    </para>
-     <methodsynopsis>
-      <type>int</type><methodname>pg_lo_import</methodname>
-      <methodparam><type>string</type><parameter>percorso</parameter></methodparam>
-      <methodparam choice="opt"><type>resource</type><parameter>connessione</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Il parametro <parameter>percorso</parameter> specifica il
-     percorso del file che deve essere importato nel large object. Restituisce
-     &false; in caso di errore, altrimenti l'oid del large  object appena
-     creato. 
-    </para>
-    <para>
-     Per utilizzare l'interfaccia large object (lo), occorre
-     includere il comando in un blocco di transazione.
-    </para>
-    &note.sm.uidcheck;
-    <note>
-     <para>
-      Questa fuinzione si chiamava <literal>pg_loimport()</literal>.
-     </para>
-    </note>
-    <para>
-     Vedere anche <function>pg_lo_export</function> e
-     <function>pg_lo_open</function>.
-    </para>
-   </refsect1>
-  </refentry>
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.pg-lo-import">
+ <refnamediv>
+  <refname>pg_lo_import</refname>
+  <refpurpose>Importa un large object da un file</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>int</type><methodname>pg_lo_import</methodname>
+   <methodparam choice="opt"><type>resource</type><parameter>connection</parameter></methodparam>
+   <methodparam><type>string</type><parameter>pathname</parameter></methodparam>
+   <methodparam choice="opt"><type>mixed</type><parameter>object_id</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_lo_import</function> crea un nuovo large object
+   nel database utilizzando un file sul filesystem come origine
+   dati.
+  </para>
+  <para>
+   Per utilizzare l'interfaccia large object, è necessario
+   racchiuderla in un blocco di transazione.
+  </para>
+  <note>
+   <para>
+    Questa funzione si chiamava <function>pg_loimport</function>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>connection</parameter></term>
+     <listitem>
+      <para>
+       Risorsa di connessione al database PostgreSQL.  Quando 
+       <parameter>connection</parameter> non è presente, viene utilizzata la connessione
+       di default. La connessione di default è l'ultima connessione fatta da 
+       <function>pg_connect</function> o <function>pg_pconnect</function>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>pathname</parameter></term>
+     <listitem>
+      <para>
+       Il percorso completo e il nome del file sul filesystem
+       del client da cui leggere i dati del large object.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>object_id</parameter></term>
+     <listitem>
+      <para>
+       Se viene fornito un <parameter>object_id</parameter> la funzione
+       proverà a creare un large object con questo id, altrimenti il server
+       assegna un object ID libero. Il parametro
+       è stato aggiunto in PHP 5.3 e si basa sulle funzionalità apparse
+       per la prima volta in PostgreSQL 8.1.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   L'<varname>OID</varname> del large object appena creato, o
+   &false; in caso di fallimento.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>pg_lo_import</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+   $database = pg_connect("dbname=jacarta");
+   pg_query($database, "begin");
+   $oid = pg_lo_import($database, '/tmp/lob.dat');
+   pg_query($database, "commit");
+?>
+]]>
+    </programlisting>
+   </example> 
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_lo_export</function></member>
+    <member><function>pg_lo_open</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

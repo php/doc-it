@@ -1,74 +1,146 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-<!-- CREDITS: cortesi -->   
-  <refentry xml:id="function.mkdir" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>mkdir</refname>
-    <refpurpose>Crea una directory</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>mkdir</methodname>
-      <methodparam><type>string</type><parameter>pathname</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>mode</parameter></methodparam>
-      <methodparam choice="opt"><type>bool</type><parameter>recursive</parameter></methodparam>
-      <methodparam choice="opt"><type>resource</type><parameter>context</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Tenta di creare la directory specificata da pathname.
-    </para>
-    <para>
-     Nota che probabilmente vuoi specificare mode come un ottale, per cui deve
-     iniziare con uno zero.
-     La modalità è anche modificata dall'umask corrente, che
-     puoi cambiare con <function>umask</function>.
-    </para>
-    <para>
-     <note>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: dec1f8445ab2af7fbafef012fb7907ab2cd349b5 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi,fernando -->   
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.mkdir">
+ <refnamediv>
+  <refname>mkdir</refname>
+  <refpurpose>Crea una directory</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>mkdir</methodname>
+   <methodparam><type>string</type><parameter>pathname</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>mode</parameter><initializer>0777</initializer></methodparam>
+   <methodparam choice="opt"><type>bool</type><parameter>recursive</parameter><initializer>&false;</initializer></methodparam>
+   <methodparam choice="opt"><type>resource</type><parameter>context</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Tenta di creare la directory specificata da pathname. 
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>pathname</parameter></term>
+     <listitem>
       <para>
-       Il parametro mode è ignorato sui sistemi Windows, ed è opzionale dal PHP 4.2.0.
+       Il percorso della directory.
       </para>
-     </note>
-    </para>
-    <para>
-     Il parametro mode viene impostato a 0777 per default; ciò significa dare i maggiori
-     accessi possibili. Per maggiori dettagli sui valori di mode, leggere le pagine
-     relative a <function>chmod</function>.
-     <example>
-     <title>Esempio di uso di <function>mkdir</function></title>
-      <programlisting role="php">
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>mode</parameter></term>
+     <listitem>
+      <para>
+       Il parametro mode viene impostato a 0777 per default, ciò significa dare i maggiori
+       accessi possibili. Per ulteriori informazioni sui valori di mode, leggere i dettagli
+       sulla pagina di <function>chmod</function>.
+      </para>
+      <note>
+       <para>
+        <parameter>mode</parameter> viene ignorato su Windows.
+       </para>
+      </note>
+      <para>
+       Nota che probabilmente si vuole specificare mode come un ottale,
+       per cui deve iniziare con uno zero. La modalità è anche modificata
+       dall'umask corrente, che può essere cambiato usando
+       <function>umask</function>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>recursive</parameter></term>
+     <listitem>
+      <para>
+       Consente la creazione di directory nidificate specificate in 
+       <parameter>pathname</parameter>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>context</parameter></term>
+     <listitem>
+      &note.context-support;
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>mkdir</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 mkdir("/path/to/my/dir", 0700);
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     &return.success;
-    </para>
-    <note>
-     <simpara>
-      A partire da PHP 5.0.0 la funzione <function>mkdir</function> può anche essere
-      utilizzata con <emphasis>alcuni</emphasis> wrapper URL. Fare riferimento a <xref linkend="wrappers"/>
-      per avere l'elenco dei wrapper supportati da <function>mkdir</function>.
-     </simpara>
-    </note>
-    <note>
-     <simpara>
-      I parametri <parameter>recursive</parameter> e <parameter>context</parameter> sono
-      stati aggiunti in PHP 5.0.0.
-     </simpara>
-    </note>
-    &note.sm.uidcheck.dir;
-    <para>
-     Vedere anche <function>rmdir</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title><function>mkdir</function> usando il parametro <parameter>recursive</parameter></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// Struttura delle cartelle desiderata
+$structure = './depth1/depth2/depth3/';
+
+// Per creare la struttura nidificata, deve essere specificato
+// il parametro $recursive nella mkdir()
+
+if (!mkdir($structure, 0777, true)) {
+    die('Failed to create folders...');
+}
+
+// ...
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <para>
+   Emette un errore di livello <constant>E_WARNING</constant> se la directory
+   esiste già.
+  </para>
+  <para>
+   Emette un errore di livello <constant>E_WARNING</constant> se le autorizzazioni
+   pertinenti impediscono la creazione della directory.
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>is_dir</function></member>    
+    <member><function>rmdir</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

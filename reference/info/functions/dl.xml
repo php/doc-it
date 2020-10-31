@@ -1,130 +1,166 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/info.xml, last change in rev 1.29 -->
-  <refentry xml:id="function.dl" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>dl</refname>
-    <refpurpose>Carica i moduli del PHP a runtime</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-    <methodsynopsis>
-     <type>int</type><methodname>dl</methodname>
-     <methodparam><type>string</type><parameter>library</parameter></methodparam>
-    </methodsynopsis>
-    <para>
-     La funzione carica il modulo di PHP passato nel parametro
-     <parameter>library</parameter>. Il parametro <parameter>library</parameter>
-     indica <emphasis>soltanto</emphasis> il nome del file del modulo da caricare
-     il quale può dipendere dal piattaforma utilizzata. Ad esempio il modulo 
-     <link linkend="ref.sockets">sockets</link> (se compilato come modulo
-     condiviso, non è il default!) sulle piattaforme Unix si chiama
-     <filename>sockets.so</filename>, mentre in Windows 
-     si chiama <filename>php_sockets.dll</filename>.
-    </para>
-    <para>
-     &return.success; Se la funzionalità di carico dei moduli non è disponibile
-     (vedi note), oppure è stata disabilitata (sia disabilitando
-     <literal>enable_dl</literal> oppure attivando &safemode;
-     nel &php.ini;), sarà generato un <constant>E_ERROR</constant>
-     e sarà bloccata l'esecuzione dello script. Se <function>dl</function>
-     fallisce perché non riesce a caricare la libreria indicata, oltre a restituire &false;
-     verrà generato un messaggio di tipo <constant>E_WARNING</constant>.
-    </para>
-    <para>
-     Si può utilizzare <function>extension_loaded</function> per testare se un modulo
-     è veramente affidabile o meno. Questa funzione si applica sia a moduli built-in
-     sia ai moduli caricati (tramite &php.ini; oppure
-     <function>dl</function>).
-    </para>
-    <para>
-     La funzione <function>dl</function> è deprecata dal PHP 5.
-     Piuttosto utilizzare
-     <link linkend="ini.extension">Parametri per il carico dei moduli</link>.
-    </para>
-    <example>
-     <title>Esempio di uso di <function>dl</function></title>
-     <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 74d39a807a65a666831ac0efd02107af0964e1ae Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.dl" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>dl</refname>
+  <refpurpose>Carica un estensione PHP a runtime</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>dl</methodname>
+   <methodparam><type>string</type><parameter>library</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Carica l'estensione PHP fornita dal parametro
+   <parameter>library</parameter>.
+  </para>
+  <para>
+   Si può utilizzare <function>extension_loaded</function> per testare se un dato modulo
+   è già disponibile oppure no. Questo funziona sia sulle estensioni
+   integrate sia su quelle caricate dinamicamente (tramite &php.ini; oppure
+   <function>dl</function>).
+  </para>
+  <warning>
+   <simpara>
+    Questa funzione è stata rimossa dalla maggior parte dei SAPI in PHP 5.3.0, ed è stata rimossa
+    da PHP-FPM in PHP 7.0.0.
+   </simpara>
+  </warning>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>library</parameter></term>
+     <listitem>
+      <para>
+       Il parametro indica <emphasis>soltanto</emphasis> il nome del file dell'
+       estensione da caricare che può dipendere dalla piattaforma utilizzata. Ad esempio,
+       l'estensione <link linkend="ref.sockets">sockets</link> (se compilata
+       come modulo condiviso, non il default!) sulle piattaforme Unix
+       si chiamerebbe <filename>sockets.so</filename>, mentre su quelle Windows 
+       si chiamerebbe <filename>php_sockets.dll</filename>.
+      </para>
+      <para>
+       La directory da cui viene caricata l'estensione dipende dalla
+       piattaforma:
+      </para>
+      <para>
+       Windows - Se non viene impostato esplicitamente nel &php.ini;, di default
+       l'estensione viene caricata da <filename>C:\php5\</filename>.
+      </para>
+      <para>
+       Unix - Se non viene impostato esplicitamente nel &php.ini;, di default
+       la directory dell'estensione dipende da
+       <itemizedlist>
+        <listitem>
+         <simpara>
+          se PHP è stato compilato con <literal>--enable-debug</literal>
+          o meno
+         </simpara>
+        </listitem>
+        <listitem>
+         <simpara>
+          se PHP è stato compilato con il supporto (sperimentale) a ZTS
+          (Zend Thread Safety) o meno
+         </simpara>
+        </listitem>
+        <listitem>
+         <simpara>
+          la costante interna <literal>ZEND_MODULE_API_NO</literal> (numero
+          API del modulo interno Zend, che è fondamentalmente la data in cui è
+          avvenuta un'importante modifica all'API del modulo, ad esempio <literal>20010901</literal>)        
+         </simpara>
+        </listitem>
+       </itemizedlist>
+       Tenendo conto di quanto sopra, la directory viene quindi impostata di default a
+       <literal>&lt;install-dir&gt;/lib/php/extensions/ &lt;debug-or-not&gt;-&lt;zts-or-not&gt;-ZEND_MODULE_API_NO</literal>,
+       per esempio
+       <filename>/usr/local/php/lib/php/extensions/debug-non-zts-20010901</filename>
+       oppure
+       <filename>/usr/local/php/lib/php/extensions/no-debug-zts-20010901</filename>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success; Se la funzionalità di carico dei moduli non è disponibile
+   oppure è stata disabilitata (disattivando
+   <link linkend="ini.enable-dl">enable_dl</link>
+   nel &php.ini;), viene generato un <constant>E_ERROR</constant>
+   e viene bloccata l'esecuzione. Se <function>dl</function> fallisce perché non
+   riesce a caricare la libreria indicata, oltre a restituire &false;,
+   viene emesso un messaggio <constant>E_WARNING</constant>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempi di <function>dl</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-// Caricare un modulo in base al sistema operativo
+// Esempio di caricamento di un'estensione in base al sistema operativo
 if (!extension_loaded('sqlite')) {
-    if (strtoupper(substr(PHP_OS, 0, 3) == 'WIN')) {
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
         dl('php_sqlite.dll');
     } else {
         dl('sqlite.so');
     }
 }
 
-// Oppure la costante PHP_SHLIB_SUFFIX disponibile da 4.3.0
+// O usando la costante PHP_SHLIB_SUFFIX
 if (!extension_loaded('sqlite')) {
-    $prefix = (PHP_SHLIB_SUFFIX == 'dll') ? 'php_' : '';
+    $prefix = (PHP_SHLIB_SUFFIX === 'dll') ? 'php_' : '';
     dl($prefix . 'sqlite.' . PHP_SHLIB_SUFFIX);
 }
 ?>
 ]]>
-     </programlisting>
-    </example>
-    <para>
-     La directory da cui vengono caricate le estensioni dipende dal sistema 
-     operativo della macchina:
-    </para>
-    <para>
-     Windows - Se non viene impostato esplicitamente nel &php.ini;, i moduli sono caricati
-     da <filename>c:\php4\extensions\</filename> .
-    </para>
-    <para>
-     Unix - Se non viene impostato esplicitamente nel &php.ini;, la directory di default
-     dipenda da
-     <itemizedlist>
-      <listitem>
-       <simpara>
-        se il PHP è stato compilato con <literal>--enable-debug</literal> o
-        meno
-       </simpara>
-      </listitem>
-      <listitem>
-       <simpara>
-        se il PHP è stato compilato con (versione sperimentale) ZTS (Zend Thread Safety)
-        o meno
-       </simpara>
-      </listitem>
-      <listitem>
-       <simpara>
-        il valore attuale di <literal>ZEND_MODULE_API_NO</literal> (numero interno
-        del modulo API Zend, il quale indica la data in cui
-        si sono apportate le maggiori modifiche al modulo, ad esempio <literal>20010901</literal>)        
-       </simpara>
-      </listitem>
-     </itemizedlist>
-     Quindi considerando quanto detto, la directory di default può essere
-     <literal>&lt;install-dir&gt;/lib/php/extensions/ &lt;debug-or-not&gt;-&lt;zts-or-not&gt;-ZEND_MODULE_API_NO</literal>,
-     <filename>/usr/local/php/lib/php/extensions/debug-non-zts-20010901</filename>
-     oppure
-     <filename>/usr/local/php/lib/php/extensions/no-debug-zts-20010901</filename>.
-    </para>
-    <note>
-     <para>
-      La funzione <function>dl</function> <emphasis>non è</emphasis> supportata
-      dai web server multithread. Utilizzare il parametro del &php.ini;
-      <literal>extensions</literal> quando si debba utilizzare tali server. Mentre
-      le versioni <literal>CGI</literal> e <literal>CLI</literal> 
-      <emphasis role="strong">non hanno</emphasis> questa limitazione.
-     </para>
-    </note>
-    <note>
-     <para>
-      La <function>dl</function> è sensibile alla maiuscole sulle piattaforme Unix.
-     </para>
-    </note>
-    &note.sm.disabled;
-    <para>
-     Vedere anche
-     <link linkend="ini.extension">Direttive per il carimaneto dei moduli</link>
-     e <function>extension_loaded</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    <function>dl</function> <emphasis>non</emphasis> è supportata quando
+    PHP è compilato con il supporto ZTS. Utilizzare
+    invece le <link linkend="ini.extension">Direttive sul Caricamento
+    delle Estensioni</link>.
+   </para>
+  </note>
+  <note>
+   <para>
+    <function>dl</function> è sensibile alle maiuscole sulle piattaforme Unix.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><link linkend="ini.extension">Direttive sul Caricamento delle Estensioni</link></member>
+    <member><function>extension_loaded</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

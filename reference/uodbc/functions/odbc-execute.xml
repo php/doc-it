@@ -1,72 +1,111 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/uodbc.xml, last change in rev 1.10 -->
-<!-- last change to 'odbc-execute' in en/ tree in rev 1.5 -->
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- OLD-Revision: 1.39/EN.1.5 -->
-  <refentry xml:id="function.odbc-execute" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>odbc_execute</refname>
-    <refpurpose>Esecuzione di un'espressione memorizzata</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>odbc_execute</methodname>
-      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
-      <methodparam choice="opt"><type>array</type><parameter>array_parametri</parameter></methodparam>
-     </methodsynopsis>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 38c38330244df2cef54a6a3dfb51795c5cef5906 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.odbc-execute" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>odbc_execute</refname>
+  <refpurpose>Esecuzione di una prepared statement</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>odbc_execute</methodname>
+   <methodparam><type>resource</type><parameter>result_id</parameter></methodparam>
+   <methodparam choice="opt"><type>array</type><parameter>parameters_array</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Esegue una statement preparata con <function>odbc_prepare</function>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>result_id</parameter></term>
+     <listitem>
+      <para>
+       L'id del risultato <type>resource</type>, da <function>odbc_prepare</function>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>parameters_array</parameter></term>
+     <listitem>
+      <para>
+       I parametri in <parameter>parameter_array</parameter> verranno
+       sostituiti dai segnaposto nella prepared statement in ordine.
+       Gli elementi di questo array saranno convertiti in stringhe chiamando questa
+       funzione.
+      </para>
+      <para>
+       Qualsiasi parametro in <parameter>parameter_array</parameter> che
+       inizia e finisce con apici singoli verrà considerato come nome di un
+       file da leggere ed inviare al database server come dati per il
+       segnaposto appropriato.
+      </para>
+      <simpara>
+       Se si desidera archiviare una stringa che effettivamente inizia e termina con
+       l'apice singolo, occorre aggiungere uno spazio o un altro carattere diverso da virgolette singole
+       all'inizio o alla fine del parametro, per prevenire che il
+       parametro sia considerato come nome di un file. Se questo non è possibile,
+       occorre utilizzare un altro meccanismo per archiviare la stringa, ad esempio,
+       eseguire direttamente la query con <function>odbc_exec</function>). 
+      </simpara>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempi di <function>odbc_execute</function> e <function>odbc_prepare</function></title>
     <para>
-     Esegue una espressione SQL memorizzata tramite la funzione 
-     <function>odbc_prepare</function>. &return.success;
-     L'array 
-     <parameter>array_parametri</parameter> occorre soltanto
-     se è necessario fornire parametri all'espressione.
+     Nel seguente codice, <varname>$success</varname> sarà
+     &true; se tutti e tre i parametri di myproc sono parametri IN:
     </para>
-    <para> 
-     I parametri in <parameter>array_parametri</parameter> saranno sostituiti
-     dai segnaposto nell'ordine dell'espressione predisposta.
-    </para> 
-    <para> 
-     Qualsiasi parametro in <parameter>array_parametri</parameter> che inizia
-     e finisce con gli apici singoli sarà considerato come il nome di un file
-     da leggere e inviare al database server come dati per gli appropriati
-     segnaposto.
-    </para> 
-    <note> 
-     <para> 
-      Dalla versione 4.1.1 la funzionalità di lettura del file ha
-      le seguenti restrizioni:
-      <itemizedlist> 
-       <listitem> 
-        <simpara> 
-         La lettura del file <emphasis>non</emphasis> è soggetta alle 
-         restrizioni di &safemode; o 
-         <link linkend="ini.open-basedir">open-basedir</link>. 
-         Questo sarà risolto nella versione 4.2.0 di PHP. 
-        </simpara> 
-       </listitem> 
-       <listitem> 
-        <simpara> 
-         <link linkend="features.remote-files">File remoti</link> 
-         non sono supportati. 
-        </simpara> 
-       </listitem> 
-       <listitem> 
-        <simpara> 
-         Se si desidera archiviare una stringa che inizia e termina
-         con l'apice singolo, occorre farla precedere dal carattere di escape, 
-         oppure da un'altro carattere all'inizio o alla fine del
-         parametro, per prevenire che il parametro sia considerato
-         come nome di un file. Se questo non è possibile occorre
-         utilizzare altri meccanismi per archiviare la stringa, quali,
-         ad esempio, eseguire direttamente la query con <function>odbc_exec</function>. 
-        </simpara> 
-       </listitem> 
-      </itemizedlist> 
-     </para> 
-    </note> 
-   </refsect1>
-  </refentry>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$a = 1;
+$b = 2;
+$c = 3;
+$stmt    = odbc_prepare($conn, 'CALL myproc(?,?,?)');
+$success = odbc_execute($stmt, array($a, $b, $c));
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   Se è necessario chiamare una stored procedure utilizzando i parametri INOUT o OUT,
+   la soluzione consigliata è di usare un'estensione nativa per il database
+   (ad esempio, <link linkend="ref.oci8">oci8</link> per Oracle).
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>odbc_prepare</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

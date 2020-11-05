@@ -1,73 +1,123 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- En-Revision: 1.1 Maintainer: cucinato Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 8b5940cadeb4f1c8492f4a7f70743a2be807cf39 Maintainer: pastore Status: ready -->
 <!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.pg-fetch-assoc" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_fetch_assoc</refname>
-    <refpurpose>Fetch a row as an array</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Description</title>
-     <methodsynopsis>
-      <type>array</type><methodname>pg_fetch_assoc</methodname>
-      <methodparam><type>resource</type><parameter>result</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>row</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_fetch_assoc</function> returns an associative array that
-     corresponds to the fetched row (tuples/records). It returns
-     &false;, if there are no more rows.
-    </para>
-    <para>
-     <function>pg_fetch_assoc</function> is an extended version of
-     <function>pg_fetch_row</function>.  In addition to storing the
-     data in the numeric indices (field index) to the result array, it
-     also stores the data in associative indices (field name) by
-     default.
-    </para>
-    <para>
-     <parameter>row</parameter> is row (record) number to be
-     retrieved. First row is 0.
-    </para>
-    <para>
-     <function>pg_fetch_assoc</function> is NOT significantly
-     slower than using <function>pg_fetch_row</function>, while it
-     provides a significant ease of use.
-    </para>
-    <para>
-     See also <function>pg_fetch_row</function>,
-    <function>pg_fetch_array</function>,
-    <function>pg_fetch_assoc</function>,
-    <function>pg_fetch_object</function> and
-    <function>pg_fetch_result</function>.
-    </para>
-    <para>
-     <example>
-      <title>PostgreSQL fetch array</title>
-      <programlisting role="php">
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.pg-fetch-assoc">
+ <refnamediv>
+  <refname>pg_fetch_assoc</refname>
+  <refpurpose>Recupera una riga come array associativo</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>array</type><methodname>pg_fetch_assoc</methodname>
+   <methodparam><type>resource</type><parameter>result</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>row</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_fetch_assoc</function> restituisce un array associativo che
+   corrisponde alla riga (record) recuperata.
+  </para>
+  <para>
+   <function>pg_fetch_assoc</function> è equivalente a chiamare
+   <function>pg_fetch_array</function> con <constant>PGSQL_ASSOC</constant> come
+   terzo parametro opzionale. Restituisce solo un array associativo.
+   Se si ha bisogno degli indici numerici, utilizzare
+   <function>pg_fetch_row</function>.  
+  </para>
+  &database.fetch-null;
+  <para>
+   <function>pg_fetch_assoc</function> NON è significativamente
+   più lenta di <function>pg_fetch_row</function> ed
+   è significativamente più facile da usare.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>result</parameter></term>
+     <listitem>
+      <para>
+       Risorsa dei risultati della query PostgreSQL, restituita da <function>pg_query</function>,
+       <function>pg_query_params</function> o <function>pg_execute</function>
+       (tra le altre).
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>row</parameter></term>
+     <listitem>
+      <para>
+       Numero di riga nel risultato da recuperare. Le righe sono numerate da 0 in su. Se
+       viene omesso o &null;, viene recuperata la riga successiva.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Un <type>array</type> indicizzato in modo associativo (per nome di campo).
+   Ogni valore nell'<type>array</type> è rappresentato come
+   <type>string</type>.  I valori <literal>NULL</literal>
+   del database vengono restituiti come &null;.
+  </para>
+  <para>
+   &false; viene restituito se <parameter>row</parameter> supera il numero
+   di righe nel set, non ci sono più righe o per qualsiasi altro errore.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>pg_fetch_assoc</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php 
-$conn = pg_pconnect ("dbname=publisher");
+$conn = pg_connect("dbname=publisher");
 if (!$conn) {
-    echo "An error occured.\n";
-    exit;
+  echo "Si è verificato un errore.\n";
+  exit;
 }
 
-$result = pg_query ($conn, "SELECT * FROM authors");
+$result = pg_query($conn, "SELECT id, author, email FROM authors");
 if (!$result) {
-    echo "An error occured.\n";
-    exit;
+  echo "Si è verificato un errore.\n";
+  exit;
 }
 
-$arr = pg_fetch_assoc ($result, 1, PGSQL_ASSOC);
-echo $arr["author"] . " <- array\n";
+while ($row = pg_fetch_assoc($result)) {
+  echo $row['id'];
+  echo $row['author'];
+  echo $row['email'];
+}
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_fetch_row</function></member>
+    <member><function>pg_fetch_array</function></member>
+    <member><function>pg_fetch_object</function></member>
+    <member><function>pg_fetch_result</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

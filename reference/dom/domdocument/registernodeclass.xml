@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<!-- EN-Revision: 9af43469f46843451955b8926fe470a9f3d45034 Maintainer: pastore Status: ready -->
 <refentry xml:id="domdocument.registernodeclass" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>DOMDocument::registerNodeClass</refname>
-  <refpurpose>Register extended class used to create base node type</refpurpose>
+  <refpurpose>Registra la classe estesa utilizzata per creare il tipo di nodo di base</refpurpose>
  </refnamediv>
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type>bool</type><methodname>DOMDocument::registerNodeClass</methodname>
+   <modifier>public</modifier> <type>bool</type><methodname>DOMDocument::registerNodeClass</methodname>
    <methodparam><type>string</type><parameter>baseclass</parameter></methodparam>
    <methodparam><type>string</type><parameter>extendedclass</parameter></methodparam>
   </methodsynopsis>
 
   <para>
-   This method allows you to register your own extended DOM class to be used
-   afterward by the PHP DOM extension.
+   Questo metodo consente di registrare la propria classe DOM estesa da utilizzare
+   in seguito dall'estensione DOM di PHP.
   </para>
   <para>
-   This method is not part of the DOM standard.
+   Questo metodo non fa parte dello standard DOM.
   </para>
  </refsect1>
 
@@ -30,8 +30,8 @@
      <term><parameter>baseclass</parameter></term>
      <listitem>
       <para>
-       The DOM class that you want to extend. You can find a list of these 
-       classes in the <link linkend="book.dom">chapter introduction</link>.
+       La classe DOM che si desidera estendere. Si può trovare un elenco di queste
+       classi nell'<link linkend="book.dom">introduzione al capitolo</link>.
       </para>
      </listitem>
     </varlistentry>
@@ -39,9 +39,9 @@
      <term><parameter>extendedclass</parameter></term>
      <listitem>
       <para>
-       Your extended class name. If &null; is provided, any previously 
-       registered class extending <parameter>baseclass</parameter> will
-       be removed.
+       Il nome della propria classe estesa. Se viene fornito &null;, qualsiasi classe
+       registrata in precedenza che estende <parameter>baseclass</parameter>
+       verrà rimossa.
       </para>
      </listitem>
     </varlistentry>
@@ -56,45 +56,11 @@
   </para>
  </refsect1>
 
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>PHP 5.2.2</entry>
-       <entry>
-        Prior to 5.2.2, a previously registered <parameter>extendedclass</parameter>
-        had to be unregistered before being able to register a new class extending
-        the same <parameter>baseclass</parameter>.
-       </entry>
-      </row>
-<!--
-      <row>
-       <entry>...</entry>
-       <entry>
-        ...
-       </entry>
-      </row>
--->
-     </tbody>
-    </tgroup>
-   </informaltable>
-  </para>
- </refsect1>
-
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title>Adding a new method to DOMElement to ease our code</title>
+    <title>Aggiunta di un nuovo metodo a DOMElement per semplificare il codice</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -114,7 +80,7 @@ class myDocument extends DOMDocument {
 $doc = new myDocument();
 $doc->registerNodeClass('DOMElement', 'myElement');
 
-// From now on, adding an element to another costs only one method call ! 
+// D'ora in poi, aggiungere un elemento ad un altro costa solo una chiamata al metodo !
 $root = $doc->setRoot('root');
 $child = $root->appendElement('child');
 $child->setAttribute('foo', 'bar');
@@ -135,7 +101,7 @@ echo $doc->saveXML();
   </para>
   <para>
    <example>
-    <title>Retrieving elements as custom class</title>
+    <title>Recupero di elementi come classe personalizzata</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -152,7 +118,7 @@ $doc->registerNodeClass("DOMElement", "myElement");
 $element = $doc->getElementsByTagName("child")->item(0);
 var_dump(get_class($element));
 
-// And take advantage of the __toString method..
+// E approfitta del metodo __toString..
 echo $element;
 ?>
 ]]>
@@ -168,12 +134,12 @@ text in child
   </para>
   <para>
    <example>
-    <title>Retrieving owner document</title>
+    <title>Recupero del proprietario del documento</title>
     <para>
-     When instantiating a custom <classname>DOMDocument</classname> the
-     <varname>ownerDocument</varname> property will refer to the instantiated
-     class, meaning there is no need (and in fact not possible) to use
-     <function>DOMDocument::registerNodeClass</function> with
+     Quando si crea un'istanza di un <classname>DOMDocument</classname> personalizzato, la
+     proprietà <varname>ownerDocument</varname> farà riferimento alla classe
+     istanziata, il che significa che non è necessario (e in realtà non è possibile) utilizzare
+     <function>DOMDocument::registerNodeClass</function> con
      <classname>DOMDocument</classname>
     </para>
     <programlisting role="php">
@@ -185,20 +151,20 @@ class myDOMDocument extends DOMDocument {
 class myOtherDOMDocument extends DOMDocument {
 }
 
-// Create myDOMDocument with some XML
+// Crea myDOMDocument con un po' di XML
 $doc = new myDOMDocument;
 $doc->loadXML("<root><element><child>text in child</child></element></root>");
 
 $child = $doc->getElementsByTagName("child")->item(0);
 
-// The current owner of the node is myDOMDocument
+// L'attuale proprietario del nodo è myDOMDocument
 var_dump(get_class($child->ownerDocument));
 
-// Import a node from myDOMDocument
+// Importa un nodo da myDOMDocument
 $newdoc = new myOtherDOMDocument;
 $child = $newdoc->importNode($child);
 
-// The new owner of the node has changed to myOtherDOMDocument
+// Il nuovo proprietario del nodo è cambiato in myOtherDOMDocument
 var_dump(get_class($child->ownerDocument));
 ?>
 ]]>

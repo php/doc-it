@@ -1,54 +1,106 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- En-Revision: 1.1 Maintainer: cucinato Status: ready -->
-  <refentry xml:id="function.pg-get-notify" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_get_notify</refname>
-    <refpurpose>Ping database connection</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Description</title>
-     <methodsynopsis>
-      <type>array</type><methodname>pg_get_notify</methodname>
-      <methodparam><type>resource</type><parameter>connection</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>result_type</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_get_notify</function> gets notify message sent by
-     <literal>NOTIFY</literal> SQL command. To recieve nofigy
-     messages, <literal>LISTEN</literal> SQL command must be
-     issued. If there is notify message on the connection, array
-     contains message name and backend PID is returned. If there is no
-     message, &false; is returned.
-    </para>
-    <para>
-     See also <function>pg_get_pid</function>
-    </para>
-    <para>
-     <example>
-      <title>PostgreSQL NOTIFY message</title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 19fddb5d650da89755fffc96fa9132eba45d4ad5 Maintainer: pastore Status: ready -->
+<refentry xml:id="function.pg-get-notify" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_get_notify</refname>
+  <refpurpose>Ottiene il messaggio SQL NOTIFY</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>array</type><methodname>pg_get_notify</methodname>
+   <methodparam><type>resource</type><parameter>connection</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>result_type</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_get_notify</function> riceve notifiche generate da un
+   comando SQL <literal>NOTIFY</literal>. Per ricevere le notifiche,
+   è necessario eseguire il comando SQL
+   <literal>LISTEN</literal>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>connection</parameter></term>
+     <listitem>
+      <para>
+       Risorsa di connessione al database PostgreSQL.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>result_type</parameter></term>
+     <listitem>
+      <para>
+       Un parametro facoltativo che controlla
+       come viene indicizzato l'<type>array</type> restituito.
+       <parameter>result_type</parameter> è una costante e può assumere i
+       seguenti valori: <constant>PGSQL_ASSOC</constant>,
+       <constant>PGSQL_NUM</constant> e <constant>PGSQL_BOTH</constant>.
+       Usando <constant>PGSQL_NUM</constant>, <function>pg_get_notify</function>
+       restituirà un array con indici numerici, usando
+       <constant>PGSQL_ASSOC</constant> restituirà solo indici associativi
+       mentre <constant>PGSQL_BOTH</constant>, l'impostazione predefinita, restituirà indici
+       sia numerici che associativi.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Un <type>array</type> contenente il nome del messaggio <literal>NOTIFY</literal> e il PID di backend.
+   A partire da PHP 5.4.0 e se supportato dal server, l'array contiene anche la versione del server e il payload.
+   Altrimenti se non è in attesa alcuna <literal>NOTIFY</literal>, allora viene restituito &false;.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Messaggio NOTIFY di PostgreSQL</title>
+    <programlisting role="php">
 <![CDATA[
 <?php 
-$conn = pg_pconnect ("dbname=publisher");
+$conn = pg_pconnect("dbname=publisher");
 if (!$conn) {
-    echo "An error occured.\n";
-    exit;
+  echo "Si è verificato un errore.\n";
+  exit;
 }
 
-// Listen 'author_updated' message from other processes
-pq_query($conn, 'LISTEN author_updated;');
+// Ascolta il messaggio 'author_updated' da altri processi
+pg_query($conn, 'LISTEN author_updated;');
 $notify = pg_get_notify($conn);
-if (!$notify)
-    print("No messages\n");
-else
-    print_r($notify);
+if (!$notify) {
+  echo "Nessun messaggio\n";
+} else {
+  print_r($notify);
+}
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_get_pid</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

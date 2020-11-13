@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 12b92ba1e3f5f241da447fdeb741594d139b020a Maintainer: pastore Status: ready -->
+<!-- EN-Revision: a9a6224ca97531df0a4e4b9b16b59c3f2baf1b09 Maintainer: pastore Status: ready -->
 
 <sect1 xml:id="migration70.new-features" xmlns:xlink="http://www.w3.org/1999/xlink">
  <title>Nuove funzionalità</title>
@@ -9,7 +9,7 @@
 
   <para>
    Le
-   <link linkend="functions.arguments.type-declaration">dichiarazioni di tipi</link> scalari
+   <link linkend="language.types.declarations">dichiarazioni di tipi</link> scalari
    sono disponibili in due versioni: coercitivo (predefinito) e rigoroso. I seguenti tipi
    per i parametri possono ora essere forzati (o coercitivo o rigoroso): stringhe
     (<type>string</type>), interi (<literal>int</literal>), numeri con virgola
@@ -44,7 +44,7 @@ int(9)
    nella parte superiore del file. Questo significa che la severità della tipizzazione per i valori scalari è
    configurata su una base per-file. Questa direttiva interessa non solo le dichiarazioni
    di tipi di parametri, ma anche il tipo di ritorno di una funzione (vedere
-   <link linkend="functions.returning-values.type-declaration">dichiarazioni dei tipi di ritorno</link>,
+   <link linkend="language.types.declarations">dichiarazioni dei tipi di ritorno</link>,
    le funzioni interne di PHP, e le funzioni delle estensioni
    caricate.
   </para>
@@ -52,7 +52,7 @@ int(9)
   <para>
    La documentazione completa e gli esempi sulle dichiarazioni dei tipi scalari si possono trovare
    nel riferimento 
-   <link linkend="functions.arguments.type-declaration">dichiarazione del
+   <link linkend="language.types.declarations">dichiarazione del
    tipo</link>.
   </para>
  </sect2>
@@ -62,12 +62,12 @@ int(9)
 
   <para>
    PHP 7 aggiunge il supporto per le 
-   <link linkend="functions.returning-values.type-declaration">dichiarazioni del tipo di ritorno</link>.
+   <link linkend="language.types.declarations">dichiarazioni del tipo di ritorno</link>.
    Analogamente alle
-   <link linkend="functions.arguments.type-declaration">dichiarazioni dei tipi degli argomenti</link>,
+   <link linkend="language.types.declarations">dichiarazioni dei tipi degli argomenti</link>,
    le dichiarazioni del tipo di ritorno specificano il tipo del valore che sarà
    restituito da una funzione. Per le dichiarazioni del tipo di ritorno
-   sono disponibili gli stessi <link linkend="functions.arguments.type-declaration.types">tipi</link>
+   sono disponibili gli stessi <link linkend="language.types.declarations">tipi</link>
    che sono disponibili per le dichiarazioni
    del tipo degli argomenti.
   </para>
@@ -103,7 +103,7 @@ Array
   <para>
    La documentazione completa e gli esempi sulle dichiarazioni del tipo di ritorno si possono trovare
    nel riferimento
-   <link linkend="functions.returning-values.type-declaration">le dichiarazioni
+   <link linkend="language.types.declarations">le dichiarazioni
    del tipo di ritorno</link>.
   </para>
  </sect2>
@@ -144,10 +144,9 @@ $username = $_GET['user'] ?? $_POST['user'] ?? 'nobody';
  <sect2 xml:id="migration70.new-features.spaceship-op">
   <title>L'operatore spaceship</title>
   <para>
-   L'operatore spaceship è usato per confrontare due espressioni. Restituisce un
-   <type>integer</type> minore, uguale, o maggiore di zero quando
-   <varname>$a</varname> è rispettivamente minore, uguale, o maggiore di
-   <varname>$b</varname>. I confronti sono eseguiti secondo le consuete 
+   L'operatore spaceship è usato per confrontare due espressioni. Restituisce -1, 0
+   o 1 quando <varname>$a</varname> è rispettivamente minore, uguale, o maggiore
+   di <varname>$b</varname>. I confronti sono eseguiti secondo le consuete 
    <link linkend="types.comparisons">regole di confronto dei tipi</link> di PHP.
   </para>
   <informalexample>
@@ -301,9 +300,9 @@ echo "\u{9999}";
 class A {private $x = 1;}
 
 // Codice prima di PHP 7
-$getXCB = function() {return $this->x;};
-$getX = $getXCB->bindTo(new A, 'A'); // closure intermedia
-echo $getX();
+$getX = function() {return $this->x;};
+$getXCB = $getX->bindTo(new A, 'A'); // closure intermedia
+echo $getXCB();
 
 // Codice PHP 7+
 $getX = function() {return $this->x;};
@@ -337,7 +336,7 @@ echo $getX->call(new A);
 $data = unserialize($foo, ["allowed_classes" => false]);
 
 // converte tutti gli oggetti in oggetti __PHP_Incomplete_Class eccetto quelli di MyClass e MyClass2
-$data = unserialize($foo, ["allowed_classes" => ["MyClass", "MyClass2"]);
+$data = unserialize($foo, ["allowed_classes" => ["MyClass", "MyClass2"]]);
 
 // comportamento predefinito (lo stesso che si ha omettendo il secondo argomento) che accetta tutte le classi
 $data = unserialize($foo, ["allowed_classes" => true]);
@@ -394,7 +393,7 @@ bool(true)
    Mentre la vecchia API continua ad essere mantenuta per compatibilità,
    <function>assert</function> è ora un costrutto del linguaggio, consentendo al primo
    parametro di essere un'espressione piuttosto che solo una <type>string</type> da essere
-   valutata o un valore <type>boolean</type> da essere testato.
+   valutata o un valore <type>bool</type> da essere testato.
   </para>
 
   <informalexample>
@@ -661,6 +660,18 @@ session_start([
    correttamente con gli oggetti che implementavano <classname>ArrayAccess</classname>.
    Questo è stato risolto.
   </para>
+ </sect2>
+ 
+ <sect2 xml:id="migration70.new-features.others">
+  <title>Altre Caratteristiche</title>
+  <itemizedlist>
+   <listitem>
+    <simpara>
+     È stato aggiunto l'accesso ai membri della classe in fase di clonazione,
+     per esempio <literal>(clone $foo)-&gt;bar()</literal>.
+    </simpara>
+   </listitem>
+  </itemizedlist>
  </sect2>
 </sect1>
 

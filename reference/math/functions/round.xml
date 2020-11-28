@@ -1,86 +1,301 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/math.xml, last change in rev 1.1 -->
-<!-- last change to 'round' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: cortesi Status: ready -->
-<!-- OLD-Revision: 1.78/EN.1.2 -->
-  <refentry xml:id="function.round" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>round</refname>
-    <refpurpose>Arrotonda un numero non intero</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>double</type><methodname>round</methodname>
-      <methodparam><type>double</type><parameter>val</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>precisione</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Restituisce il valore arrotondato di <parameter>val</parameter> con
-     la <parameter>precisione</parameter> specificata
-     (numero di cifre dopo il punto decimale).
-     <parameter>precisione</parameter> può anche essere negativa o zero (predefinito).
-    </para>
-    <para>
-      <example>
-      <title><function>round</function> examples</title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: d494ffa4d9f83b60fe66972ec2c0cf0301513b4a Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi -->
+<refentry xml:id="function.round" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>round</refname>
+  <refpurpose>Arrotonda un float</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+   <methodsynopsis>
+    <type>float</type><methodname>round</methodname>
+    <methodparam><type>float</type><parameter>val</parameter></methodparam>
+    <methodparam choice="opt"><type>int</type><parameter>precision</parameter><initializer>0</initializer></methodparam>
+    <methodparam choice="opt"><type>int</type><parameter>mode</parameter><initializer>PHP_ROUND_HALF_UP</initializer></methodparam>
+   </methodsynopsis>
+  <para>
+   Restituisce il valore arrotondato di <parameter>val</parameter> con
+   la <parameter>precision</parameter> specificata
+   (numero di cifre dopo il punto decimale).
+   <parameter>precision</parameter> può anche essere negativa o zero (valore predefinito).
+  </para>
+  <!-- Non è vero
+  <para>
+   <caution>
+    <simpara>
+     Quando si arrotondano le metà esatte, <function>round</function> arrotonda per difetto sui
+     pari e per eccesso sui dispari. Se si vuole forzare sempre in una direzione
+     su un .5 (o .05 nel proprio caso) aggiungere o sottrarre un piccolo fattore fuzz. Il
+     motivo per arrotondare metà dei valori per difetto e l'altra metà per eccesso è
+     evitare il classico problema bancario in cui, se si arrotondasse sempre per difetto,
+     si ruberebbe denaro ai propri clienti, o se si arrotondasse
+     sempre per eccesso si finirebbe per perdere denaro col tempo. Calcolando la media
+     tra pari e dispari, statisticamente si raggiunge il pareggio.
+    </simpara>
+   </caution>
+  </para>
+  -->
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>val</parameter></term>
+     <listitem>
+      <para>
+       Il valore da arrotondare.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>precision</parameter></term>
+     <listitem>
+      <para>
+       Il numero facoltativo di cifre decimali a cui arrotondare.
+      </para>
+      <para>
+       Se la <parameter>precision</parameter> è positiva, <parameter>val</parameter> viene
+       arrotondato a <parameter>precision</parameter> cifre significative dopo il punto decimale.
+      </para>
+      <para>
+       Se la <parameter>precision</parameter> è negativa, <parameter>val</parameter> viene
+       arrotondato a <parameter>precision</parameter> cifre significative prima del punto decimale,
+       cioè al multiplo più vicino di <literal>pow(10, -precision)</literal>, ad esempio per una
+       <parameter>precision</parameter> di -1 <parameter>val</parameter> viene arrotondato a decine,
+       per una <parameter>precision</parameter> di -2 a centinaia, ecc.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>mode</parameter></term>
+     <listitem>
+      <para>
+       Utilizzare una delle seguenti costanti per specificare la modalità in cui si verifica l'arrotondamento.
+       <informaltable>
+        <tgroup cols="2">
+         <thead>
+          <row>
+           <entry>&Constants;</entry>
+           <entry>&Description;</entry>
+          </row>
+         </thead>
+         <tbody>
+          <row>
+           <entry><constant>PHP_ROUND_HALF_UP</constant></entry>
+           <entry>
+            Arrotonda <parameter>val</parameter> lontano dallo zero quando è a metà strada,
+            convertendo 1,5 in 2 e -1,5 in -2.
+           </entry>
+          </row>
+          <row>
+           <entry><constant>PHP_ROUND_HALF_DOWN</constant></entry>
+           <entry>
+            Arrotonda <parameter>val</parameter> verso lo zero quando è a metà strada,
+            convertendo 1.5 in 1 e -1.5 in -1.
+           </entry>
+          </row>
+          <row>
+           <entry><constant>PHP_ROUND_HALF_EVEN</constant></entry>
+           <entry>
+            Arrotonda <parameter>val</parameter> verso il valore pari più vicino quando è a metà strada,
+            convertendo 1,5 e 2,5 in 2.
+           </entry>
+          </row>
+          <row>
+           <entry><constant>PHP_ROUND_HALF_ODD</constant></entry>
+           <entry>
+            Arrotonda <parameter>val</parameter> verso il valore dispari più vicino quando è a metà strada,
+            convertendo 1,5 in 1 e e 2,5 in 3.
+           </entry>
+          </row>
+         </tbody>
+        </tgroup>
+       </informaltable>
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Il valore arrotondato alla <parameter>precision</parameter> data come &float;.
+  </para>
+ </refsect1>
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempi di <function>round</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-echo round(3.4);         // 3
-echo round(3.5);         // 4
-echo round(3.6);         // 4
-echo round(3.6, 0);      // 4
-echo round(1.95583, 2);  // 1.96
-echo round(1241757, -3); // 1242000
-echo round(5.045, 2);    // 5.05
-echo round(5.055, 2);    // 5.06
+var_dump(round(3.4));
+var_dump(round(3.5));
+var_dump(round(3.6));
+var_dump(round(3.6, 0));
+var_dump(round(5.045, 2));
+var_dump(round(5.055, 2));
+var_dump(round(345, -2));
+var_dump(round(345, -3));
+var_dump(round(678, -2));
+var_dump(round(678, -3));
 ?>
 ]]>
-       </programlisting>
-      </example>
-    </para>
-    <!-- It's not true
-    <para>
-     <caution>
-      <simpara>
-       When rounding on exact halves <function>round</function> rounds down on
-       evens and up on odds.  If you want to always force it in one direction
-       on a .5 (or .05 in your case) add or substract a tiny fuzz factor.  The
-       reason behind rounding half the values down and the other half up is to
-       avoid the classical banking problem where if you always rounded down
-       you would be stealing money from your customers, or if you always
-       rounded up you would end up over time losing money.  By averaging it
-       out through evens and odds you statistically break even.
-      </simpara>
-     </caution>
-    </para>
-    -->
-    <para>
-     <note>
-      <simpara>
-       Il PHP non maneggia correttamente stringhe quali <literal>"12,300.2"</literal>
-       in maniera predefinita. Fare riferimento a <link linkend="language.types.string.conversion">
-       conversione da stringhe</link>.
-      </simpara>
-     </note>
-    </para>
-    <para>
-     <note>
-      <simpara> 
-       Il parametro <parameter>precisione</parameter> è disponibile
-       dal PHP 4. 
-      </simpara>
-     </note>
-    </para>
-    <simpara>
-     Vedere anche:
-     <function>ceil</function>,
-     <function>floor</function> e
-     <function>number_format</function>.
-    </simpara>
-   </refsect1>
-  </refentry>
+    </programlisting>
+    &example.outputs;
+    <screen role="php">
+<![CDATA[
+float(3)
+float(4)
+float(4)
+float(4)
+float(5.05)
+float(5.06)
+float(300)
+float(0)
+float(700)
+float(1000)
+]]>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>In che modo <parameter>precision</parameter> influenza un float</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$number = 135.79;
+
+var_dump(round($number, 3));
+var_dump(round($number, 2));
+var_dump(round($number, 1));
+var_dump(round($number, 0));
+var_dump(round($number, -1));
+var_dump(round($number, -2));
+var_dump(round($number, -3));
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen role="php">
+<![CDATA[
+float(135.79)
+float(135.79)
+float(135.8)
+float(136)
+float(140)
+float(100)
+float(0)
+]]>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Esempi di <parameter>mode</parameter></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+echo 'Modalità di arrotondamento con 9.5' . PHP_EOL;
+var_dump(round(9.5, 0, PHP_ROUND_HALF_UP));
+var_dump(round(9.5, 0, PHP_ROUND_HALF_DOWN));
+var_dump(round(9.5, 0, PHP_ROUND_HALF_EVEN));
+var_dump(round(9.5, 0, PHP_ROUND_HALF_ODD));
+
+echo PHP_EOL;
+echo 'Modalità di arrotondamento con 8.5' . PHP_EOL;
+var_dump(round(8.5, 0, PHP_ROUND_HALF_UP));
+var_dump(round(8.5, 0, PHP_ROUND_HALF_DOWN));
+var_dump(round(8.5, 0, PHP_ROUND_HALF_EVEN));
+var_dump(round(8.5, 0, PHP_ROUND_HALF_ODD));
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen role="php">
+<![CDATA[
+Modalità di arrotondamento con 9.5
+float(10)
+float(9)
+float(10)
+float(9)
+
+Modalità di arrotondamento con 8.5
+float(9)
+float(8)
+float(8)
+float(9)
+]]>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Esempi di <parameter>mode</parameter> con <parameter>precision</parameter></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+echo 'Utilizzo di PHP_ROUND_HALF_UP con 1 cifra decimale di precisione' . PHP_EOL;
+var_dump(round( 1.55, 1, PHP_ROUND_HALF_UP));
+var_dump(round(-1.55, 1, PHP_ROUND_HALF_UP));
+
+echo PHP_EOL;
+echo 'Utilizzo di PHP_ROUND_HALF_DOWN con 1 cifra decimale di precisione' . PHP_EOL;
+var_dump(round( 1.55, 1, PHP_ROUND_HALF_DOWN));
+var_dump(round(-1.55, 1, PHP_ROUND_HALF_DOWN));
+
+echo PHP_EOL;
+echo 'Utilizzo di PHP_ROUND_HALF_EVEN con 1 cifra decimale di precisione' . PHP_EOL;
+var_dump(round( 1.55, 1, PHP_ROUND_HALF_EVEN));
+var_dump(round(-1.55, 1, PHP_ROUND_HALF_EVEN));
+
+echo PHP_EOL;
+echo 'Utilizzo di PHP_ROUND_HALF_ODD con 1 cifra decimale di precisione' . PHP_EOL;
+var_dump(round( 1.55, 1, PHP_ROUND_HALF_ODD));
+var_dump(round(-1.55, 1, PHP_ROUND_HALF_ODD));
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen role="php">
+<![CDATA[
+Utilizzo di PHP_ROUND_HALF_UP con 1 cifra decimale di precisione
+float(1.6)
+float(-1.6)
+
+Utilizzo di PHP_ROUND_HALF_DOWN con 1 cifra decimale di precisione
+float(1.5)
+float(-1.5)
+
+Utilizzo di PHP_ROUND_HALF_EVEN con 1 cifra decimale di precisione
+float(1.6)
+float(-1.6)
+
+Utilizzo di PHP_ROUND_HALF_ODD con 1 cifra decimale di precisione
+float(1.5)
+float(-1.5)
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>ceil</function></member>
+    <member><function>floor</function></member>
+    <member><function>number_format</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

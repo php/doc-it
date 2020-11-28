@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: ea5ef878791d0182c69e3fb69e05a7ddd97aad15 Maintainer: SvenHolmgren Status: ready -->
+<!-- EN-Revision: d494ffa4d9f83b60fe66972ec2c0cf0301513b4a Maintainer: pastore Status: ready -->
+<!-- CREDITS: SvenHolmgren -->
 <sect1 xml:id="language.types.float" xmlns:xlink="http://www.w3.org/1999/xlink">
  <title>Numeri floating point</title>
 
@@ -15,28 +16,29 @@
 $a = 1.234; 
 $b = 1.2e3; 
 $c = 7E-10;
+$d = 1_234.567; // a partire da PHP 7.4.0
 ?>
 ]]>
   </programlisting>
  </informalexample>
 
  <para>
-  Formalmente:
+  Formalmente a partire da PHP 7.4.0 (in precedenza, i trattini bassi non erano consentiti):
  </para>
 
  <informalexample>
   <programlisting>
 <![CDATA[
-LNUM          [0-9]+
-DNUM          ([0-9]*[\.]{LNUM}) | ({LNUM}[\.][0-9]*)
-EXPONENT_DNUM [+-]?(({LNUM} | {DNUM}) [eE][+-]? {LNUM})
+LNUM          [0-9]+(_[0-9]+)*
+DNUM          ([0-9]*(_[0-9]+)*[\.]{LNUM}) | ({LNUM}[\.][0-9]*(_[0-9]+)*)
+EXPONENT_DNUM (({LNUM} | {DNUM}) [eE][+-]? {LNUM})
 ]]>
   </programlisting>
  </informalexample>
 
  <para>
-  La dimensione di una variabile float dipende dalla piattaforma in uso, sebbene un massimo di ~1.8e308 con
-  una precisione di circa 14 cifre decimali sia il valore comune (il formato a 64 bit
+  La dimensione di una variabile float dipende dalla piattaforma in uso, sebbene un massimo di circa 1.8e308
+  con una precisione di circa 14 cifre decimali sia il valore comune (il formato a 64 bit
   IEEE).
  </para>
 
@@ -80,18 +82,37 @@ EXPONENT_DNUM [+-]?(({LNUM} | {DNUM}) [eE][+-]? {LNUM})
 
  <sect2 xml:id="language.types.float.casting">
   <title>Conversione a float</title>
-  
-  <para>
-   Per informazioni sulla conversione di <type>string</type> a <type>float</type>, vedere
-   <link linkend="language.types.string.conversion">Conversione di stringhe in
-   numeri</link>. Per valori di altro tipo il procedimento viene effettuato
-   convertendo inizialmente il valore a <type>integer</type> e, successivamente, a
-   <type>float</type>. Vedere
-   <link linkend="language.types.integer.casting">Convertire in interi</link>
-   per maggiori informazioni. A partire da PHP 5 comparirà un avviso se un
-   <type>object</type> viene convertito a <type>float</type>.
-  </para>
 
+  <sect3 xml:id="language.types.float.casting.from-string">
+   <title>Da stringhe</title>
+
+   <simpara>
+    Se la stringa è
+    <link linkend="language.types.numeric-strings">numerica</link>
+    o inizia con un numero, verrà risolta nel
+    valore float corrispondente, altrimenti verrà convertita in zero
+    (<literal>0</literal>).
+   </simpara>
+  </sect3>
+
+  <sect3 xml:id="language.types.float.casting.from-other">
+   <title>Da altri tipi</title>
+
+   <para>
+    Per i valori di altri tipi, la conversione viene eseguita convertendo il
+    valore prima in <type>int</type> e poi in <type>float</type>. Vedere
+    <link linkend="language.types.integer.casting">Conversione in numero intero</link>
+    per ulteriori informazioni.
+   </para>
+
+   <note>
+    <para>
+     Poiché alcuni tipi hanno un comportamento indefinito durante la conversione in
+     <type>int</type>, lo stesso vale durante la conversione in
+     <type>float</type>.
+    </para>
+   </note>
+  </sect3>
  </sect2>
 
  <sect2 xml:id="language.types.float.comparison">
@@ -137,7 +158,7 @@ if(abs($a-$b) < $epsilon) {
    Alcune operazioni possono ritornare un valore rappresentato dalla costante
    <constant>NAN</constant>. Questo risultato rappresenta un valore indefinito o
    non presentabile nei calcoli di numeri floating point. Qualsiasi comparazione
-   per uguaglianza o per identicità di questo valore con qualsiasi altro, incluso se stesso (ma non &true;),
+   per uguaglianza o per identicità di questo valore con qualsiasi altro, incluso sé stesso,
    risulterà &false;.
   </para>
   <para>

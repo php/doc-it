@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: a9a6224ca97531df0a4e4b9b16b59c3f2baf1b09 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: e296d2443b197fce63a9752dc6d58c0fdcf0c5cc Maintainer: pastore Status: ready -->
 <!-- CREDITS: spisto -->
  <chapter xml:id="language.functions" xmlns="http://docbook.org/ns/docbook">
   <title>Funzioni</title>
@@ -202,6 +202,53 @@ function prende_array($input)
      </programlisting>
     </example>
    </para>
+   <para>
+    A partire da PHP 8.0.0, l'elenco degli argomenti della funzione può includere una virgola finale, che
+    verrà ignorata.  Ciò è particolarmente utile nei casi in cui l'elenco di argomenti è
+    lungo o contiene nomi di variabili lunghi, rendendo conveniente elencare gli argomenti verticalmente.
+   </para>
+   <example>
+    <title>Elenco degli Argomenti della Funzione con Virgola finale</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+function takes_many_args(
+    $first_arg,
+    $second_arg,
+    $a_very_long_argument_name,
+    $arg_with_default = 5,
+    $again = 'a default string', // Questa virgola finale non era consentita prima della 8.0.0.
+)
+{
+    // ...
+}
+?>
+]]>
+    </programlisting>
+   </example>
+   <para>
+    A partire da PHP 8.0.0, passare argomenti obbligatori dopo argomenti opzionali
+    è deprecato. Questo può essere generalmente risolto eliminando il valore predefinito.
+    Un'eccezione a questa regola sono gli argomenti nella forma
+    <code>Type $param = null</code>, dove il default &null; rende il tipo implicitamente
+    annullabile. Questo utilizzo rimane consentito, sebbene si consiglia di utilizzare invece
+    un tipo nullable esplicito.
+   </para>
+   <example>
+    <title>Passaggio di argomenti facoltativi dopo argomenti obbligatori</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+function foo($a = [], $b) {} // Prima
+function foo($a, $b) {}      // Dopo
+
+function bar(A $a = null, $b) {} // Ancora consentito
+function bar(?A $a, $b) {}       // Consigliato
+?>
+]]>
+    </programlisting>
+   </example>
+
    <sect2 xml:id="functions.arguments.by-reference">
     <title>Passare argomenti per riferimento</title>
  
@@ -531,6 +578,111 @@ echo sum(1, 2, 3, 4);
       </example>
      </para>
     </sect3>
+
+   </sect2>
+
+   <sect2 xml:id="functions.named-arguments">
+    <title>Argomenti Nominali</title>
+
+    <para>
+     PHP 8.0.0 ha introdotto argomenti nominali come estensione dei parametri
+     posizionali esistenti. Gli argomenti nominali consentono di passare argomenti ad una
+     funzione in base al nome del parametro, piuttosto che alla posizione del parametro.
+     Ciò rende il significato dell'argomento auto-documentante, rende gli
+     argomenti indipendenti dall'ordine e consente di saltare arbitrariamente i valori predefiniti.
+    </para>
+
+    <para>
+     Gli argomenti nominali vengono passati anteponendo al valore il nome del parametro
+     seguito da due punti. È consentito l'utilizzo di parole chiave riservate come nomi di parametri.
+     Il nome del parametro deve essere un identificatore, non è consentito
+     specificarlo dinamicamente.
+    </para>
+
+    <example>
+     <title>Sintassi dell'argomento denominato</title>
+     <programlisting role="php">
+      <![CDATA[
+<?php
+myFunction(paramName: $value);
+array_foobar(array: $value);
+
+// NON supportato.
+function_name($variableStoringParamName: $value);
+?>
+]]>
+     </programlisting>
+    </example>
+
+    <example>
+     <title>Argomenti posizionali contro argomenti nominali</title>
+     <programlisting role="php">
+      <![CDATA[
+<?php
+// Utilizzo di argomenti posizionali:
+array_fill(0, 100, 50);
+
+// Utilizzo di argomenti nominali:
+array_fill(start_index: 0, num: 100, value: 50);
+?>
+]]>
+     </programlisting>
+    </example>
+
+    <para>
+     L'ordine in cui vengono passati gli argomenti nominali non ha importanza.
+    </para>
+
+    <example>
+     <title>Stesso esempio di sopra con un diverso ordine dei parametri</title>
+     <programlisting role="php">
+      <![CDATA[
+<?php
+array_fill(value: 50, num: 100, start_index: 0);
+?>
+]]>
+     </programlisting>
+    </example>
+
+    <para>
+     Gli argomenti nominali possono essere combinati con argomenti posizionali. In questo caso,
+     gli argomenti nominali devono venire dopo gli argomenti posizionali.
+     È anche possibile specificare solo alcuni degli argomenti opzionali di una
+     funzione, indipendentemente dal loro ordine.
+    </para>
+
+    <example>
+     <title>Combinazione di argomenti nominali con argomenti posizionali</title>
+     <programlisting role="php">
+      <![CDATA[
+<?php
+htmlspecialchars($string, double_encode: false);
+// Uguale a
+htmlspecialchars($string, ENT_COMPAT | ENT_HTML401, 'UTF-8', false);
+?>
+]]>
+     </programlisting>
+    </example>
+
+    <para>
+     Il passaggio multiplo dello stesso parametro genera un'eccezione Error.
+    </para>
+
+    <example>
+     <title>Eccezione Error durante il passaggio multiplo dello stesso parametro</title>
+     <programlisting role="php">
+      <![CDATA[
+<?php
+function foo($param) { ... }
+
+foo(param: 1, param: 2);
+// Error: Named parameter $param overwrites previous argument
+foo(1, param: 2);
+// Error: Named parameter $param overwrites previous argument
+?>
+]]>
+     </programlisting>
+    </example>
 
    </sect2>
   </sect1>
@@ -886,7 +1038,7 @@ $greet('PHP');
    <simpara>
     Le chiusure possono anche ereditare le variabili dal contesto del genitore. Ognuna di queste
     variabili deve essere passata al costrutto del linguaggio <literal>use</literal>.
-    Da PHP 7.1, queste variabili non devono includere &link.superglobals;,
+    A partire da PHP 7.1, queste variabili non devono includere &link.superglobals;,
     <varname>$this</varname>, o variabili con lo stesso nome di un parametro.
     </simpara>
 
@@ -950,6 +1102,10 @@ string(11) "hello world"
     </screen>
    </example>
 
+   <para>
+    A partire da PHP 8.0.0, l'elenco delle variabili ereditate dallo scope può includere una virgola
+    finale, che verrà ignorata.
+   </para>
    <simpara>
     Ereditare le variabili dall'ambito genitore <emphasis>non</emphasis>
     è la stessa cosa che usare variabili globali.

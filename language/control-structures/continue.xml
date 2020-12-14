@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 142e1a0eb7e1ece31b225808f21369cc7c36fb10 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 7104ee97ced1768a3231588dfc0bc0d7eb1117ad Maintainer: pastore Status: ready -->
 <!-- CREDITS: butera -->
 <sect1 xml:id="control-structures.continue" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
- <title><literal>continue</literal></title>
+ <title>continue</title>
  <?phpdoc print-version-for="continue"?>
  <simpara>
   <literal>continue</literal> è impiegato all'interno delle strutture di iterazione
@@ -15,7 +15,8 @@
    <link linkend="control-structures.switch">switch</link> è
    considerata una struttura di iterazione ai fini del comando
    <literal>continue</literal>. <literal>continue</literal> si comporta come
-   <literal>break</literal> (quando nessun argomento viene passato). Se uno
+   <literal>break</literal> (quando nessun argomento viene passato) ma
+   solleverà un avvertimento poiché è probabile che si tratti di un errore. Se uno
    <literal>switch</literal> è dentro un loop,
    <literal>continue 2</literal> continuerà con la prossima iterazione
    del loop esterno.
@@ -32,7 +33,7 @@
    <programlisting role="php">
 <![CDATA[
 <?php
-while (list($key, $value) = each($arr)) {
+foreach ($arr as $key => $value) {
     if (!($key % 2)) { // salta i numeri pari
         continue;
     }
@@ -85,27 +86,6 @@ for ($i = 0; $i < 5; ++$i) {
 4
 ]]>
    </screen>
-   <para>
-    ma, nelle versioni di PHP inferiori a 5.4.0, questo script produrrà in output:
-   </para>
-   <screen>
-<![CDATA[
-2
-]]>
-   </screen>
-   <para>
-    poiché le istruzioni <literal>continue print "$i\n";</literal> sono valutate
-    una singola espressione, e quindi <function>print</function> viene chiamata solo
-    quando <literal>$i == 2</literal> è vero. (Il valore restituito da
-    <literal>print</literal> è passato a <literal>continue</literal> come 
-    argomento numerico).
-   </para>
-   <note>
-    <para>
-     In PHP 5.4.0, l'esempio di sopra solleverà un
-     errore <constant>E_COMPILE_ERROR</constant>.
-    </para>
-   </note>
   </informalexample>
  </para>
  <para>
@@ -120,17 +100,10 @@ for ($i = 0; $i < 5; ++$i) {
     </thead>
     <tbody>
      <row>
-      <entry>5.4.0</entry>
+      <entry>7.3.0</entry>
       <entry>
-       <literal>continue 0;</literal> non è più valido. Nelle versioni precedenti questo veniva interpretato
-       come <literal>continue 1;</literal>.
-      </entry>
-     </row>
-     <row>
-      <entry>5.4.0</entry>
-      <entry>
-       Rimossa la possibilità di passare le variabili (per esempio, <literal>$num = 2; continue $num;</literal>)
-       come argomento numerico.
+       <literal>continue</literal> all'interno di uno <literal>switch</literal> che sta tentando di agire come un'istruzione <literal>break</literal> per lo
+       <literal>switch</literal> innescherà un <constant>E_WARNING</constant>.
       </entry>
      </row>
     </tbody>

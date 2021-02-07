@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 4528db2d91279a8f120bacfd84e48f7e2281d923 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 02f3bf57175c48abff767ad2c0961c6cfe58a39e Maintainer: pastore Status: ready -->
 <!-- Reviewed: yes Maintainer: cucinato -->
 <!-- CREDITS: montefoschi,cucinato -->
  <sect1 xml:id="language.oop5.basic" xmlns="http://docbook.org/ns/docbook">
@@ -48,26 +48,17 @@ class SimpleClass
    <para>
     La pseudo-variabile <varname>$this</varname> è disponibile quando un 
     metodo è invocato dall'interno del contesto di un oggetto. 
-    <varname>$this</varname> è il riferimento all'oggetto stesso
-    (solitamente l'oggetto cui il metodo appartiene, ma eventualmente può riferirsi all'oggetto
-    chiamante se il metodo è invocato 
-    <link linkend="language.oop5.static">staticamente</link> dal contesto
-    di un oggetto secondario).
-    A partire da PHP 7.0.0, la chiamata statica di un metodo non statico da un contesto
-    incompatibile fa sì che $this non sia definito all'interno del metodo. La chiamata
-    statica di un metodo non statico da un contesto incompatibile è stata
-    deprecata a partire da PHP 5.6.0. A partire da PHP 7.0.0, la chiamata statica di un metodo
-    non statico è stata generalmente deprecata (anche se chiamata da un contesto
-    compatibile). Prima di PHP 5.6.0 tali chiamate attivavano già un avviso rigoroso.
+    <varname>$this</varname> è il valore dell'oggetto chiamante.
    </para>
-   <para>
+   <warning>
+    <para>
+     La chiamata in modo statico di un metodo non statico genera un
+     <classname>Error</classname>.
+     Prima di PHP 8.0.0, questo generava un avviso di deprecazione
+     e <varname>$this</varname> non sarebbe stato definito.
+    </para>
     <example xml:id="language.oop5.basic.class.this">
      <title>Esempi della pseudo-variabile <varname>$this</varname></title>
-     <simpara>
-      Supponiamo che error_reporting sia disabilitato per questo esempio;
-      altrimenti il codice seguente attiverebbe rispettivamente avvisi deprecati e
-      rigorosi, a seconda della versione PHP.
-     </simpara>
      <programlisting role="php">
 <![CDATA[
 <?php
@@ -105,26 +96,36 @@ B::bar();
 ?>
 ]]>
      </programlisting>
-     &example.outputs.5;
-     <screen>
-<![CDATA[
-$this è definito (A)
-$this non è definito.
-$this è definito (B)
-$this non è definito.
-]]>
-     </screen>
      &example.outputs.7;
      <screen>
 <![CDATA[
 $this è definito (A)
+
+Deprecated: Non-static method A::foo() should not be called statically in %s  on line 27
 $this non è definito.
+
+Deprecated: Non-static method A::foo() should not be called statically in %s  on line 20
 $this non è definito.
+
+Deprecated: Non-static method B::bar() should not be called statically in %s  on line 32
+
+Deprecated: Non-static method A::foo() should not be called statically in %s  on line 20
 $this non è definito.
 ]]>
      </screen>
+     &example.outputs.8;
+     <screen>
+<![CDATA[
+$this è definito (A)
+
+Fatal error: Uncaught Error: Non-static method A::foo() cannot be called statically in %s :27
+Stack trace:
+#0 {main}
+  thrown in %s  on line 27
+]]>
+     </screen>
     </example>
-   </para>
+   </warning>
   </sect2>
 
   <sect2 xml:id="language.oop5.basic.new">
@@ -210,8 +211,7 @@ object(SimpleClass)#1 (1) {
     </screen>
    </example>
    <para>
-    PHP 5.3.0 ha introdotto due nuovi modi per creare istanze di un
-    oggetto:
+    È possibile creare istanze di un oggetto in due modi:
    </para>
    <example>
     <title>Creazione di nuovi oggetti</title>
@@ -252,8 +252,8 @@ bool(true)
    </example>
 
    <para>
-    PHP 5.4.0 ha introdotto la possibilità di accedere ad un membro di un oggetto appena
-    creato in una singola espressione:
+    È possibile accedere ad un membro di un oggetto appena creato
+    in una singola espressione:
    </para>
    <example>
     <title>Accesso al membro dell'oggetto appena creato</title>
@@ -319,7 +319,7 @@ method
     Ciò significa che chiamare una <link linkend="functions.anonymous">funzione
     anonima</link> che è stata assegnata ad una proprietà non è direttamente
     possibile. Per esempio, la proprietà deve essere assegnata prima ad una
-    variabile. A partire da PHP 7.0.0 è possibile chiamare questo tipo di proprietà direttamente
+    variabile. È possibile chiamare questo tipo di proprietà direttamente
     racchiudendola tra parentesi.
    </para>
    <example>
@@ -340,11 +340,6 @@ class Foo
 
 $obj = new Foo();
 
-// as of PHP 5.3.0:
-$func = $obj->bar;
-echo $func(), PHP_EOL;
-
-// in alternativa, a partire da PHP 7.0.0:
 echo ($obj->bar)(), PHP_EOL;
 ]]>
     </programlisting>
@@ -358,27 +353,23 @@ echo ($obj->bar)(), PHP_EOL;
   </sect2>
   
   <sect2 xml:id="language.oop5.basic.extends">
+   <!-- TODO Example about class constant redefinition -->
+   <!-- TODO Split into it's own page? -->
    <title>extends</title>
    <para>
-    Una classe può ereditare i metodi e le proprietà di un'altra classe 
+    Una classe può ereditare le costanti, i metodi e le proprietà di un'altra classe 
     utilizzando la parola chiave <literal>extends</literal> nella dichiarazione
     della classe. Non è possibile estendere più di una classe per volta; ogni classe può
     ereditare da una sola altra classe.
    </para>
    <para>
-    I metodi e le proprietà ereditate possono essere sovrascritte ridichiarandole nella nuova classe
-    con lo stesso nome definito nella classe padre.
+    Le costanti, i metodi e le proprietà ereditate possono essere sovrascritte
+    ridichiarandole nella nuova classe con lo stesso nome definito nella classe padre.
     Questo non sarà comunque possibile se il metodo che si intende ridefinire è stato dichiarato
     nella classe padre come <link linkend="language.oop5.final">final</link>.  
     Si può accedere alle proprietà statiche e ai metodi 
     ridefiniti riferendosi ad essi 
     con <link linkend="language.oop5.paamayim-nekudotayim">parent::</link>.
-   </para>
-   <para>
-    Nel sovrascrivere i metodi, la lista dei parametri dovrebbe rimanere invariata o
-    PHP genererà un errore di livello <constant>E_STRICT</constant>. Ciò non si applica al
-    costruttore, che consente di sovrascrivere i 
-    parametri.
    </para>
    <example>
     <title>Ereditarietà semplice</title>
@@ -408,6 +399,169 @@ un valore di default
 ]]>
     </screen>
    </example>
+
+   <sect3 xml:id="language.oop.lsp">
+    <title>Regole di compatibilità della firma</title>
+    <para>
+     Quando si sovrascrive un metodo, la sua firma deve essere compatibile con il metodo
+     padre. Altrimenti, viene emesso un errore fatale o, prima di PHP 8.0.0, viene
+     generato un errore di livello <constant>E_WARNING</constant>.
+     Una firma è compatibile se rispetta le
+     regole di <link linkend="language.oop5.variance">varianza</link>, rende
+     facoltativo un parametro obbligatorio e se i nuovi parametri sono opzionali.
+     Questo è noto come Principio di Sostituzione di Liskov, o LSP in breve.
+     I metodi <link linkend="language.oop5.decon.constructor">costruttore</link>
+     e <literal>privati</literal> sono esenti da queste regole di
+     compatibilità della firma e quindi non genereranno un errore fatale nel caso di una
+     mancata corrispondenza della firma.
+    </para>
+    <example>
+     <title>Metodi figli compatibili</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+class Base
+{
+    public function foo(int $a) {
+        echo "Valido\n";
+    }
+}
+
+class Extend1 extends Base
+{
+    function foo(int $a = 5)
+    {
+        parent::foo($a);
+    }
+}
+
+class Extend2 extends Base
+{
+    function foo(int $a, $b = 5)
+    {
+        parent::foo($a);
+    }
+}
+
+$extended1 = new Extend1();
+$extended1->foo();
+$extended2 = new Extend2();
+$extended2->foo(1);
+]]>
+     </programlisting>
+     &example.outputs;
+     <screen>
+<![CDATA[
+Valido
+Valido
+]]>
+     </screen>
+    </example>
+
+    <para>
+     I seguenti esempi dimostrano che un metodo figlio che rimuove un parametro o rende obbligatorio un
+     parametro facoltativo non è compatibile con il metodo padre.
+    </para>
+    <example>
+     <title>Errore fatale quando un metodo figlio rimuove un parametro</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+class Base
+{
+    public function foo(int $a = 5) {
+        echo "Valido\n";
+    }
+}
+
+class Extend extends Base
+{
+    function foo()
+    {
+        parent::foo(1);
+    }
+}
+]]>
+     </programlisting>
+     &example.outputs.8.similar;
+     <screen>
+<![CDATA[
+Fatal error: Declaration of Extend::foo() must be compatible with Base::foo(int $a = 5) in /in/evtlq on line 13
+]]>
+     </screen>
+    </example>
+    <example>
+     <title>Errore fatale quando un metodo figlio rende obbligatorio un parametro facoltativo</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+class Base
+{
+    public function foo(int $a = 5) {
+        echo "Valido\n";
+    }
+}
+
+class Extend extends Base
+{
+    function foo(int $a)
+    {
+        parent::foo($a);
+    }
+}
+]]>
+     </programlisting>
+     &example.outputs.8.similar;
+     <screen>
+<![CDATA[
+Fatal error: Declaration of Extend::foo(int $a) must be compatible with Base::foo(int $a = 5) in /in/qJXVC on line 13
+]]>
+     </screen>
+    </example>
+
+    <warning>
+     <para>
+      Rinominare il parametro di un metodo in una classe figlia non è un'incompatibilità
+      di firma. Tuttavia, questo è sconsigliato poiché risulterà in un
+      <classname>Errore</classname> di runtime se
+      vengono utilizzati gli
+      <link linkend="functions.named-arguments">argomenti con nome</link>.
+     </para>
+     <example>
+      <title>Errore durante l'utilizzo di argomenti e parametri con nome rinominati in una classe figlia</title>
+      <programlisting role="php">
+<![CDATA[
+<?php
+
+class A {
+    public function test($foo, $bar) {}
+}
+
+class B extends A {
+    public function test($a, $b) {}
+}
+
+$obj = new B;
+
+// Passa i parametri in base al contratto A::test()
+$obj->test(foo: "foo", bar: "bar"); // ERRORE!
+]]>
+      </programlisting>
+      &example.outputs.similar;
+      <screen>
+<![CDATA[
+Fatal error: Uncaught Error: Unknown named parameter $foo in /in/XaaeN:14
+Stack trace:
+#0 {main}
+  thrown in /in/XaaeN on line 14
+]]>
+      </screen>
+     </example>
+    </warning>
+   </sect3>
   </sect2>
   
   <sect2 xml:id="language.oop5.basic.class.class">

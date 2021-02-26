@@ -1,226 +1,244 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/array.xml, last change in rev 1.1 -->
-<!-- last change to 'extract' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.173/EN.1.2 -->
-  <refentry xml:id="function.extract" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>extract</refname>
-    <refpurpose>
-     Importa le variabili nella tabella dei simboli
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>extract</methodname>
-      <methodparam><type>array</type><parameter>var_array</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>extract_type</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>prefix</parameter></methodparam>
-     </methodsynopsis>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 4a7ddddc27271967b616ad3400cfbe2a9b48212b Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
+<refentry xml:id="function.extract" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>extract</refname>
+  <refpurpose>Importa le variabili nella tabella dei simboli corrente da un array</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>int</type><methodname>extract</methodname>
+   <methodparam><type>array</type><parameter role="reference">array</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>flags</parameter><initializer><constant>EXTR_OVERWRITE</constant></initializer></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>prefix</parameter><initializer>""</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Importa le variabili nella tabella dei simboli corrente da un array.
+  </para>
+  <para>
+   Controlla ogni chiave per vedere se ha un nome di variabile valido.
+   Controlla anche le collisioni con le variabili esistenti nella
+   tabella dei simboli.
+  </para>
+  <warning>
+   <para>
+    Non usare <function>extract</function> su dati non attendibili, come l'input dell'utente
+    (per esempio <varname>$_GET</varname>, <varname>$_FILES</varname>).
+   </para>
+  </warning>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>array</parameter></term>
+     <listitem>
+      <para>
+       Un array associativo. Questa funzione tratta le chiavi come nomi di variabili e
+       i valori come valori di variabili.  Per ogni coppia chiave/valore verrà creata una
+       variabile nella tabella dei simboli corrente, soggetta ai
+       parametri <parameter>flags</parameter> e <parameter>prefix</parameter>.
+      </para>
+      <para>
+       È necessario utilizzare un array associativo; un array indicizzato numericamente
+       non produrrà risultati a meno che non si utilizzi <constant>EXTR_PREFIX_ALL</constant> o
+       <constant>EXTR_PREFIX_INVALID</constant>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>flags</parameter></term>
+     <listitem>
+      <para>
+       Il modo in cui vengono trattate le chiavi non valide/numeriche e le collisioni è determinato
+       dai <parameter>flag</parameter> di estrazione. Può essere uno dei
+       seguenti valori:
+       <variablelist>
+        <varlistentry>
+         <term><constant>EXTR_OVERWRITE</constant></term>
+         <listitem>
+          <simpara>
+           In caso di collisione, sovrascrivi la variabile esistente.
+          </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term><constant>EXTR_SKIP</constant></term>
+         <listitem>
+          <simpara>
+           In caso di collisione, non sovrascrivere la variabile
+           esistente.
+          </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term><constant>EXTR_PREFIX_SAME</constant></term>
+         <listitem>
+          <simpara>In caso di collisione, anteporre al nome della variabile il prefisso
+           <parameter>prefix</parameter>.
+          </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term><constant>EXTR_PREFIX_ALL</constant></term>
+         <listitem>
+          <simpara>
+           Prefissa tutti i nomi delle variabili con
+           <parameter>prefix</parameter>.
+          </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term><constant>EXTR_PREFIX_INVALID</constant></term>
+         <listitem>
+          <simpara>
+           Aggiunge il prefisso <parameter>prefix</parameter> solo ai nomi di variabili
+           non valide/numeriche.
+          </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term><constant>EXTR_IF_EXISTS</constant></term>
+         <listitem>
+          <simpara>
+           Sovrascrive la variabile solo se esiste già nella
+           tabella dei simboli corrente, altrimenti non fa nulla.  Questo è utile
+           per definire un elenco di variabili valide e quindi estrarre
+           solo quelle variabili che sono state definite in
+           <varname>$_REQUEST</varname>, per esempio.
+          </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term><constant>EXTR_PREFIX_IF_EXISTS</constant></term>
+         <listitem>
+          <simpara>
+           Crea nomi di variabili con prefisso solo se la versione senza prefisso
+           della stessa variabile esiste nella tabella dei simboli corrente.
+          </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term><constant>EXTR_REFS</constant></term>
+         <listitem>
+          <simpara>
+           Estrae le variabili come riferimenti. Ciò significa effettivamente che i
+           valori delle variabili importate fanno ancora riferimento ai valori del
+           parametro <parameter>array</parameter>. Si può usare questo flag
+           da solo o combinarlo con qualsiasi altro flag utilizzando l'OR dei
+           <parameter>flags</parameter>.
+          </simpara>
+         </listitem>
+        </varlistentry>
+       </variablelist>
+      </para>
+      <para>
+       Se <parameter>flags</parameter> non è specificato, si
+       presume che sia <constant>EXTR_OVERWRITE</constant>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>prefix</parameter></term>
+     <listitem>
+      <para>
+       Notare che <parameter>prefix</parameter> è richiesto solo se
+       <parameter>flags</parameter> è <constant>EXTR_PREFIX_SAME</constant>,
+       <constant>EXTR_PREFIX_ALL</constant>, <constant>EXTR_PREFIX_INVALID</constant>
+       o <constant>EXTR_PREFIX_IF_EXISTS</constant>. Se
+       il risultato con prefisso non è un nome di variabile valido, non viene
+       importato nella tabella dei simboli. I prefissi vengono separati automaticamente dalla
+       chiave dell'array da un carattere underscore.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce il numero di variabili importate con successo nella tabella dei
+   simboli.
+  </para>
+ </refsect1>
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>extract</function></title>
     <para>
-     Questa funzione viene usata per importare delle variabili da un array nella
-     tabella dei simbloi corrente. Riceve un array associativo
-     <parameter>var_array</parameter> e interpreta le chiavi come nomi di
-     variabile e i valori come valori di variabile. Per ogni coppia chiave/valore
-     verrà creata una variabile nella tabella dei simboli corrente, coerentemente con
-     i parametri <parameter>extract_type</parameter> e
-     <parameter>prefix</parameter>.
-    </para>
-    <note>
-     <para>
-      Dalla versione 4.0.5 questa funzione restituisce il numero di
-      variabili estratte.
-     </para>
-    </note>
-    <note>
-     <para>
-      <constant>EXTR_IF_EXISTS</constant> e <constant>EXTR_PREFIX_IF_EXISTS</constant> sono stati introdotti nella versione 4.2.0.
-     </para>
-    </note>
-    <note>
-     <para>
-      <constant>EXTR_REFS</constant> è stata introdotta nella versione 4.3.0.
-     </para>
-    </note>
-    <para>
-     <function>extract</function> controlla ogni chiave per stabilire se 
-     costituisce un nome valido di variabile e se ci sono collisioni con
-     variabili già esistenti nella tabella dei simboli. Il modo in cui vengono trattate le
-     chiavi invalide/numeriche e le collisioni è determinato da
-     <parameter>extract_type</parameter>. Può essere uno dei
-     seguenti valori:
-     <variablelist>
-      <varlistentry>
-       <term><constant>EXTR_OVERWRITE</constant></term>
-       <listitem>
-        <simpara>
-         Se avviene una collisione, sovrascrive la variabile esistente.
-        </simpara>
-       </listitem>
-      </varlistentry>
-      <varlistentry>
-       <term><constant>EXTR_SKIP</constant></term>
-       <listitem>
-        <simpara>
-         Se avviene una collisione, non sovrascrive la variabile
-         esistente.
-        </simpara>
-       </listitem>
-      </varlistentry>
-      <varlistentry>
-       <term><constant>EXTR_PREFIX_SAME</constant></term>
-       <listitem>
-        <simpara>Se avviene una collisione, mette come prefisso al nome della variabile il
-        parametro <parameter>prefix</parameter>.
-        </simpara>
-       </listitem>
-      </varlistentry>
-      <varlistentry>
-       <term><constant>EXTR_PREFIX_ALL</constant></term>
-       <listitem>
-        <simpara>
-         Mette come prefisso di tutte le variabili il parametro 
-         <parameter>prefix</parameter>. Dal PHP 4.0.5 questo avviene
-         anche per i valori numerici.
-        </simpara>
-       </listitem>
-      </varlistentry>
-      <varlistentry>
-       <term><constant>EXTR_PREFIX_INVALID</constant></term>
-       <listitem>
-        <simpara>
-         Mette come prefisso, solo per i nomi di variabili invalidi/numerici, 
-         il parametro <parameter>prefix</parameter>. Questa opzione è stata aggiunta in 
-         PHP 4.0.5.
-        </simpara>
-       </listitem>
-      </varlistentry>
-      <varlistentry>
-       <term><constant>EXTR_IF_EXISTS</constant></term>
-       <listitem>
-        <simpara>
-         Sovrascrive la variabile solo se già esiste nella
-         tabella dei simboli, altrimenti non fa nulla. Questo è utile
-         per definire una lista di variabili valide e quindi estrarre
-         solo quelle variabili definite in $_REQUEST, per
-         esempio. Questa opzione è stata aggiunta in PHP 4.2.0.
-        </simpara>
-       </listitem>
-      </varlistentry>
-      <varlistentry>
-       <term><constant>EXTR_PREFIX_IF_EXISTS</constant></term>
-       <listitem>
-        <simpara>
-         Crea nomi di variabili con il prefisso solo se la versione senza prefisso
-         della stessa variable esiste nella tabella dei simboli. Questa
-         opzione è stata aggiunta in PHP 4.2.0.
-        </simpara>
-       </listitem>
-      </varlistentry>
-      <varlistentry>
-       <term><constant>EXTR_REFS</constant></term>
-       <listitem>
-        <simpara>
-         Estrae le variabili come riferimenti. Questo in effetti significa che i
-         valori delle variabili importate referenziano i valori del
-         parametro <parameter>var_array</parameter>. Si può usare questo flag
-         da solo o combinarlo con gli altri mediante un OR nel parametro
-         <parameter>extract_type</parameter>. Questo flag è stato aggiunto nel PHP
-         4.3.0.
-        </simpara>
-       </listitem>
-      </varlistentry>
-     </variablelist>
-    </para>
-    <para>
-     Se <parameter>extract_type</parameter> non è specificato, si
-     assume che sia <constant>EXTR_OVERWRITE</constant>.
-    </para>
-    <para>
-     Si noti che <parameter>prefix</parameter> è richiesto solo se
-     <parameter>extract_type</parameter> è <constant>EXTR_PREFIX_SAME</constant>,
-     <constant>EXTR_PREFIX_ALL</constant>, <constant>EXTR_PREFIX_INVALID</constant> 
-     o <constant>EXTR_PREFIX_IF_EXISTS</constant>. Se
-     il risultato non è un nome di variabile valido, non
-     viene importato nella tabella dei simboli.
-    </para>
-    <para>
-     <function>extract</function> restituisce il numero di variabili importate
-     con successo nella tabella dei simboli.
-    </para>
-    <warning>
-     <para>
-      Non utilizzare <function>extract</function> su dati non convalidati, come
-      gli input degli utenti ($_GET, ...). Se lo si deve fare, ad esempio per eseguire temporaneamente
-      vecchio codice basato su
-      <link linkend="security.globals">register_globals</link>,
-      sincerarsi di utilizzare uno dei valori di
-      <parameter>extract_type</parameter> come
-      <constant>EXTR_SKIP</constant> e ricordarsi che occorre estrarre
-      <varname>$_SERVER</varname>, <varname>$_SESSION</varname>,
-      <varname>$_COOKIE</varname>, <varname>$_POST</varname> e
-      <varname>$_GET</varname> in questo ordine.
-     </para>
-    </warning>
-    <para>
-     Un possibile uso di <function>extract</function> è quello di importare nella tabella dei simboli
-     variabili contenute in un array associativo restituito da
+     Un possibile utilizzo di <function>extract</function> è importare nella
+     tabella dei simboli le variabili contenute in un array associativo restituito da
      <function>wddx_deserialize</function>.
     </para>
-    <para>
-     <example>
-      <title>esempio di<function>extract</function></title>
-      <programlisting role="php">
+    <programlisting role="php">
 <![CDATA[
 <?php
 
-/* Si supponga che $array_variabili sia un array restituito da
+/* Si supponga che $var_array sia un array restituito da
    wddx_deserialize */
 
-$dimensione = "grande";
-$array_variabili = array("colore" => "blu",
-                         "dimensione"  => "media",
-                         "forma" => "sfera");
+$size = "grande";
+$array_variabili = array("color" => "blu",
+                         "size"  => "media",
+                         "shape" => "sfera");
 extract($array_variabili, EXTR_PREFIX_SAME, "wddx");
 
-echo "$colore, $dimensione, $forma, $wddx_dimensione\n";
+echo "$color, $size, $shape, $wddx_size\n";
 
 ?>
 ]]>
-      </programlisting>
-      <para>
-       L'esempio mostrerà:
-      </para>
-      <screen>
+    </programlisting>
+    &example.outputs;
+    <screen>
 <![CDATA[
 blu, grande, sfera, media
 ]]>
-      </screen>
-     </example>
-    </para>
+    </screen>
     <para>
-     La variabile <varname>$dimensione</varname> non è stata sovrascritta, in quanto è
-     specificato <constant>EXTR_PREFIX_SAME</constant>, che ha portato alla
-     creazione di <varname>$wddx_dimensione</varname>.  Se fosse stato specificato <constant>EXTR_SKIP</constant>,
-     $wddx_dimensione non sarebbe stata creata.
-     <constant>EXTR_OVERWRITE</constant> avrebbe portato <varname>$dimensione</varname> ad assumere
-     il valore "medio", e <constant>EXTR_PREFIX_ALL</constant> avrebbe fatto creare nuove variabili
-     chiamate <varname>$wddx_colore</varname>,
-     <varname>$wddx_dimensione</varname> e
-     <varname>$wddx_forma</varname>.
+     <varname>$size</varname> non è stato sovrascritto perché abbiamo specificato
+     <constant>EXTR_PREFIX_SAME</constant>, che ha portato alla
+     creazione di <varname>$wddx_size</varname>. Se fosse stato specificato
+     <constant>EXTR_SKIP</constant>, allora <varname>$wddx_size</varname> non sarebbe nemmeno stato creato.
+     <constant>EXTR_OVERWRITE</constant> avrebbe fatto sì che <varname>$size</varname> avesse
+     il valore "medio" e <constant>EXTR_PREFIX_ALL</constant> avrebbe comportato nuove variabili
+     con nomi <varname>$wddx_color</varname>,
+     <varname>$wddx_size</varname> e
+     <varname>$wddx_shape</varname>.
     </para>
-    <para>
-     Si deve usare un array associativo, un array indicizzato numericamente
-     non produce risultati a meno di non usare
-     <constant>EXTR_PREFIX_ALL</constant> o <constant>EXTR_PREFIX_INVALID</constant>.
-    </para>
-    <para>
-     Vedere anche <function>compact</function>.
-    </para>
-   </refsect1>
-  </refentry>
-
+   </example>
+  </para>
+ </refsect1>
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <warning>
+   <para>
+    Non utilizzare <function>extract</function> su dati non attendibili, come
+    l'input dell'utente
+    (per esempio <varname>$_GET</varname>, <varname>$_FILES</varname>, ecc.).
+    In tal caso, assicurarsi di utilizzare uno dei valori di <parameter>flags</parameter>
+    che non sovrascrivono come
+    <constant>EXTR_SKIP</constant> e tenere presente che si dovrebbe estrarre
+    nello stesso ordine definito in
+    <link linkend="ini.variables-order">variables_order</link> all'interno del
+    <link linkend="ini">&php.ini;</link>.
+   </para>
+  </warning>
+ </refsect1>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>compact</function></member>
+    <member><function>list</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 96c9d88bad9a7d7d44bfb7f26c226df7ee9ddf26 Maintainer: hfish Status: ready -->
+<!-- EN-Revision: 3e08a8aae657492bdcdc7c550099ddf072042fa9 Maintainer: pastore Status: ready -->
+<!-- CREDITS: hfish -->
  <chapter xml:id="faq.misc" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
   <title>Domande varie</title>
   <titleabbrev>Domande varie</titleabbrev>
@@ -72,125 +73,6 @@
       differenza è che hai scaricato un file *.tar. Il formato *.tar è famoso perché
       viene riconosciuto dalla maggior parte dei software di archiviazione per 
       Windows, per esempio <link xlink:href="&url.winzip;">WinZip</link>.
-     </para>
-    </answer>
-   </qandaentry>
-   
-   <qandaentry xml:id="faq.misc.arguments.references">
-    <question>
-     <para>
-      Cosa significa il simbolo &amp; davanti agli argomenti nelle dichiarazione di funzioni come, ad esempio, 
-      <function>asort</function>?
-     </para>
-    </question>
-    <answer>
-     <para>
-      Significa che l'argomento è
-      <link linkend="language.references.pass">passato per riferimento</link> e
-      la funzione può modificarlo, come specificato nella documentazione. In
-      questo modo si possono solo passare variabili e non occorre scrivere 
-      &amp; nella chiamata (è persino
-      <link linkend="ini.allow-call-time-pass-reference">deprecato</link>).
-     </para>
-    </answer>
-   </qandaentry>
-   
-   <qandaentry xml:id="faq.misc.registerglobals">
-    <question>
-     <para>
-      Come gestisco i <literal>register_globals</literal>?
-     </para>
-    </question>
-    <answer>
-     <para>
-      Per informazione sulle implicazioni di sicurezza dei
-      <literal>register_globals</literal>, leggere il capitolo sulla sicurezza sull'
-      <link linkend="security.globals">Uso dei register_globals</link>.
-     </para>
-     <para>
-      Si preferisce utilizzare i
-      <link linkend="language.variables.superglobals">superglobals</link>,
-      piuttosto che basarsi sui <literal>register_globals</literal>.
-     </para>
-     <para>
-      Se si è su un host condiviso con <literal>register_globals</literal> spenti
-      e si ha bisogno di usare delle applicazioni particolari che li richiedono
-      attivi, o se si è su un server in hosting con questa opzione
-      attiva, ma ma si vogliono eliminare rischi di sicurezza, si può
-      emulare l'impostazione corretta con PHP. Ovviamente è sempre un'ottima idea
-      chiedere se è possibile cambiare l'opzione nella configurazione di PHP,
-      ma se ciò non è possibile, si possono usare queste
-      snippet di compatibilità.
-     </para>
-     <para>
-      <example>
-       <title>Emulazione dei Register Globals</title>
-        <para>
-        Questo emula register_globals On. Se è stata modificata la direttiva
-        <link linkend="ini.variables-order">variables_order</link>,
-        si valuti di cambiare la <varname>$superglobals</varname> di conseguenza.
-       </para>
-       <programlisting role="php">
-<![CDATA[
-<?php
-// Emulazione di register_globals on
-if (!ini_get('register_globals')) {
-    $superglobals = array($_SERVER, $_ENV,
-        $_FILES, $_COOKIE, $_POST, $_GET);
-    if (isset($_SESSION)) {
-        array_unshift($superglobals, $_SESSION);
-    }
-    foreach ($superglobals as $superglobal) {
-        extract($superglobal, EXTR_SKIP);
-    }
-}
-?>
-]]>
-       </programlisting>
-       <para>
-        Questo codice emula register_globals Off. Si ricordi che questo codice 
-        deve essere chiamato all'inizio dello script, oppure dopo
-        <function>session_start</function> se lo si usa per iniziare la sessione.
-       </para>
-       <programlisting role="php">
-<![CDATA[
-<?php
-// Emulazione di register_globals off
-function unregister_GLOBALS()
-{
-    if (!ini_get('register_globals')) {
-        return;
-    }
-
-    // Might want to change this perhaps to a nicer error
-    if (isset($_REQUEST['GLOBALS']) || isset($_FILES['GLOBALS'])) {
-        die('GLOBALS overwrite attempt detected');
-    }
-
-    // Variables that shouldn't be unset
-    $noUnset = array('GLOBALS',  '_GET',
-                     '_POST',    '_COOKIE',
-                     '_REQUEST', '_SERVER',
-                     '_ENV',     '_FILES');
-
-    $input = array_merge($_GET,    $_POST,
-                         $_COOKIE, $_SERVER,
-                         $_ENV,    $_FILES,
-                         isset($_SESSION) && is_array($_SESSION) ? $_SESSION : array());
-    
-    foreach ($input as $k => $v) {
-        if (!in_array($k, $noUnset) && isset($GLOBALS[$k])) {
-            unset($GLOBALS[$k]);
-        }
-    }
-}
-
-unregister_GLOBALS();
-
-?>
-]]>
-       </programlisting>
-      </example>
      </para>
     </answer>
    </qandaentry>

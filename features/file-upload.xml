@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 3472f3120dfefafa5f59d45ceb54da220f16c209 Maintainer: cucinato Status: ready -->
+<!-- EN-Revision: 3e08a8aae657492bdcdc7c550099ddf072042fa9 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
  <chapter xml:id="features.file-upload" xmlns="http://docbook.org/ns/docbook">
   <title>Gestire i caricamenti di file</title>
 
@@ -81,17 +82,10 @@
    </note>
 
    <para>
-    A partire dal PHP 4.1.0 esiste la variabile globale
-    <varname>$_FILES</varname>. (Utilizzare <varname>$HTTP_POST_FILES</varname>
-    nelle versioni precedenti).
-    Queste matrici contengono tutte le informazioni sui file inviati.
-   </para>
-
-   <para>
-    Di seguito verrà illustrato il contenuto di
-    <varname>$_FILES</varname> nel caso dell'esempio precedente. Si
-    noti che si assume come nome del file inviato <emphasis>userfile</emphasis>, come nell'esempio
-    precedente. Nella realtà questo può assurmere nome.
+    La variabile globale <varname>$ _FILES</varname> conterrà tutte le informazioni sul file caricato.
+    Il suo contenuto dal form di esempio è il seguente. Notare che ciò presuppone l'uso del
+    nome del file caricato <emphasis>userfile</emphasis>, come usato nello script
+    di esempio di sopra. Esso può usare qualsiasi nome.
     <variablelist>
      <varlistentry>
       <term><varname>$_FILES['userfile']['name']</varname></term>
@@ -135,7 +129,7 @@
       <listitem>
        <para>
         Il <link linkend="features.file-upload.errors">codice di errore</link>
-        associato all'upload di questo file. Questo elemento è stato aggiunto nella versione 4.2.0 di PHP.
+        associato all'upload di questo file.
        </para>
       </listitem>
      </varlistentry>
@@ -163,9 +157,6 @@
      <programlisting role="php">
 <![CDATA[
 <?php
-// Nelle versioni di PHP precedenti alla 4.1.0 si deve utilizzare  $HTTP_POST_FILES anzichè
-// $_FILES.
-
 $uploaddir = '/var/www/uploads/';
 $uploadfile = $uploaddir . basename($_FILES['userfile']['name']);
 
@@ -198,7 +189,7 @@ print "</pre>";
     si utilizzi questo metodo solo come il primo di una serie di controlli, poiché il valore
     è completamente sotto il controllo del client e non è controllato dal lato
     PHP.
-    A partire da PHP 4.2.0, si può utilizzare <varname>$_FILES['userfile']['error']</varname>
+    Inoltre, si può utilizzare <varname>$_FILES['userfile']['error']</varname>
     ed organizzare la logica in base ai <link
     linkend="features.file-upload.errors">codici di errore</link>.
     Quale che sia la logica, bisognerebbe comunque sempre
@@ -237,7 +228,9 @@ print "</pre>";
 foreach ($_FILES["pictures"]["error"] as $key => $error) {
     if ($error == UPLOAD_ERR_OK) {
         $tmp_name = $_FILES["pictures"]["tmp_name"][$key];
-        $name = $_FILES["pictures"]["name"][$key];
+        // basename() può impedire attacchi di attraversamento del filesystem;
+        // un'ulteriore convalida/sanificazione del nome del file può essere appropriata
+        $name = basename($_FILES["pictures"]["name"][$key]);
         move_uploaded_file($tmp_name, "data/$name");
     }
 }
@@ -254,7 +247,7 @@ foreach ($_FILES["pictures"]["error"] as $key => $error) {
   <sect1 xml:id="features.file-upload.errors">
    <title>Spiegazione dei messaggi di errore</title>
    <simpara>
-    Dalla versione 4.2.0, il PHP restituisce un codice di errore nella matrice del file.
+    PHP restituisce un codice di errore nella matrice del file.
     Il codice di errore si trova nell'indice <literal>error</literal>
     e viene valorizzato durante
     l'upload del file da parte del PHP. In altre parole l'errore può essere
@@ -309,8 +302,7 @@ foreach ($_FILES["pictures"]["error"] as $key => $error) {
       <term><constant>UPLOAD_ERR_NO_TMP_DIR</constant></term>
       <listitem>
        <para>
-        Valore: 6; Mancanza della cartella temporanea. Inserito in PHP 4.3.10 e
-        PHP 5.0.3.
+        Valore: 6; Mancanza della cartella temporanea. Introdotto in PHP 5.0.3.
        </para>
       </listitem>
      </varlistentry>
@@ -335,15 +327,10 @@ foreach ($_FILES["pictures"]["error"] as $key => $error) {
      </varlistentry>
     </variablelist>
    </para>
-   <note>
-    <para>
-     Questi valori sono diventati costanti PHP dalla versione 4.3.0.
-    </para>
-   </note>
   </sect1>
 
   <sect1 xml:id="features.file-upload.common-pitfalls">
-   <title>Common Pitfalls</title>
+   <title>Insidie Comuni</title>
    <simpara>
     La voce <literal>MAX_FILE_SIZE</literal> non può specificare una dimensione del
      file maggiore di quella impostata dal parametro <link
@@ -448,12 +435,7 @@ foreach ($_FILES["pictures"]["error"] as $key => $error) {
     <varname>$_FILES['userfile']</varname>,
     <varname>$_FILES['userfile']['name']</varname>, e
     <varname>$_FILES['userfile']['size']</varname> saranno
-    inizializzati (come sarà valorizzato <varname>$HTTP_POST_FILES</varname>
-    per le versioni di PHP precedenti la 4.1.0).
-    Quando il parametro
-    <link linkend="ini.register-globals">register_globals</link> è impostato a on
-    saranno presenti anche le variabili globali. Ognuno di questi è un array indicizzato numericamente
-    con i valori relativi ai diversi file caricati.
+    inizializzati.
    </simpara>
    <simpara>
     Per esempio, si supponga che i nomi di file
@@ -559,6 +541,15 @@ fclose($putdata);
     </example>
    </para>
   </sect1>
+
+  <sect1 xml:id="features.file-upload.errors.seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><link linkend="security.filesystem">Sicurezza del Filesystem</link></member>
+   </simplelist>
+  </para>
+ </sect1>
 
  </chapter>
 

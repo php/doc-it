@@ -3,10 +3,11 @@
 <!-- $Revision$ -->
 
 <sect1 xml:id="migration56.openssl" xmlns:xlink="http://www.w3.org/1999/xlink">
- <title>OpenSSL changes in PHP 5.6.x</title>
+ <title>OpenSSL cambiamenti in PHP 5.6.x</title>
 
  <sect2 xml:id="migration56.openssl.peer-verification">
-  <title>Stream wrappers now verify peer certificates and host names by default when using SSL/TLS</title>
+  <title>Stream wrappers ora verificano i certificati peer e i nomi 
+   di host di default quando si usanno SSL/TLS</title>
 
   &migration56.openssl.peer-verification;
  </sect2>
@@ -15,66 +16,75 @@
   <title>Certificate fingerprints</title>
 
   <para>
-   Support has been added for extracting and verifying certificate
-   fingerprints. <function>openssl_x509_fingerprint</function> has been added
-   to extract a fingerprint from an X.509 certificate, and two
-   <link linkend="context.ssl">SSL stream context</link> options have been
-   added: <literal>capture_peer_cert</literal> to capture the peer's X.509
-   certificate, and <literal>peer_fingerprint</literal> to assert that the
-   peer's certificate should match the given fingerprint.
+   E' stato aggiunto il supporto per estrarre e verificare
+   i certificati fingerprints. 
+   <function>openssl_x509_fingerprint</function> è stata
+   aggiunta per estrarre un fingerprint da un
+   certificato X.509, e due opzioni 
+   <link linkend="context.ssl">SSL stream context</link> 
+   sono state aggiunte: 
+   <literal>capture_peer_cert</literal> per catturare i 
+   certificati peer's X.509, e 
+   <literal>peer_fingerprint</literal> per le asserzioni
+   che i certificati peer's possono confrontare con i fingerprint.
   </para>
  </sect2>
 
  <sect2 xml:id="migration56.openssl.ciphers">
-  <title>Default ciphers updated</title>
+  <title>Default ciphers aggiornati</title>
 
   <para>
-   The default ciphers used by PHP have been updated to a more secure list
-   based on the
+   Gli algoritmi di cifratura usati da PHP sono stati aggiornati
+   ad un elenco più sicuro basato sulle 
    <link xlink:href="&url.openssl.ciphers.mozilla;">Mozilla cipher recommendations</link>,
-   with two additional exclusions: anonymous Diffie-Hellman ciphers, and RC4.
+   con due ulteriori esclusioni: algoritmi di cifratura anonymous Diffie-Hellman, e RC4.
   </para>
 
   <para>
-   This list can be accessed via the new
-   <constant>OPENSSL_DEFAULT_STREAM_CIPHERS</constant> constant, and can be
-   overridden (as in previous PHP versions) by setting the
-   <link linkend="context.ssl.ciphers"><parameter>ciphers</parameter></link>
-   context option.
+   La lista è accessibile attraverso la nuova costante
+   <constant>OPENSSL_DEFAULT_STREAM_CIPHERS</constant> e 
+   può essere sovrascritta (come nelle precedenti vesioni
+   di PHP) impostando le opzioni contestuali 
+   <link linkend="context.ssl.ciphers"><parameter>ciphers</parameter></link>.
   </para>
  </sect2>
 
  <sect2 xml:id="migration56.openssl.tls-compression">
-  <title>Compression disabled by default</title>
+  <title>Compressione disabilitata di default</title>
 
   <para>
-   SSL/TLS compression has been disabled by default to mitigate the CRIME
-   attack. PHP 5.4.13 added a
+   La compressione SSL/TLS è stata disabilitata di default 
+   per mitigare il CRIME attack. PHP 5.4.13 ha aggiunto
+   l'opzione contestuale 
    <link linkend="context.ssl.disable-compression"><parameter>disable_compression</parameter></link>
-   context option to allow compression to be disabled: this is now set to
-   &true; (that is, compression is disabled) by default.
+   per permettere la disabilitazione della compressione: 
+   questo valore ora è impostato a &true; (che significa
+   compressione disabilitata) di default.
   </para>
  </sect2>
 
  <sect2 xml:id="migration56.openssl.honor-cipher-order">
-  <title>Allow servers to prefer their cipher order</title>
+  <title>Permesso ai servers di preferire il loro ordine
+   di cifratura</title>
 
   <para>
-   The <parameter>honor_cipher_order</parameter> SSL context option has been
-   added to allow encrypted stream servers to mitigate BEAST vulnerabilities
-   by preferring the server's ciphers to the client's.
+   L'opzione contestuale SSL <parameter>honor_cipher_order</parameter> 
+   è stata aggiunta per consentire ai server di cifrare gli stream 
+   per mitigare le vulnerabilità BEAST preferendo i servers cifrare
+   verso i client.
   </para>
  </sect2>
 
  <sect2 xml:id="migration56.openssl.metadata">
-  <title>Access the negotiated protocol and cipher</title>
+  <title>Accesso ai protocolli negoziati e cifrati</title>
 
   <para>
-   The protocol and cipher that were negotiated for an encrypted stream can
-   now be accessed via <function>stream_get_meta_data</function> or
-   <function>stream_context_get_options</function> when the
-   <parameter>capture_session_meta</parameter> SSL context option is set to
-   &true;.
+   Protocolli e cifrature che sono negoziati per uno stream 
+   criptato possono ora venire ispezionati con 
+   <function>stream_get_meta_data</function> o 
+   <function>stream_context_get_options</function> quando 
+   l'opzione SSL <parameter>capture_session_meta</parameter> 
+   è impostata su &true;.
   </para>
 
   <informalexample>
@@ -110,15 +120,18 @@ array(4) {
  </sect2>
 
  <sect2 xml:id="migration56.openssl.forward-secrecy">
-  <title>New options for perfect forward secrecy in encrypted stream servers</title>
+  <title>Nuove opzioni per un inoltro in perfetta 
+   sicurezza degli stream criptati dai server</title>
 
   <para>
-   Encrypted client streams already support perfect forward secrecy, as it is
-   generally controlled by the server. PHP encrypted server streams using
-   certificates capable of perfect forward secrecy do not need to take any
-   additional action to enable PFS; however a number of new SSL context options
-   have been added to allow more control over PFS and deal with any
-   compatibility issues that may arise. 
+   Gli stream criptati dai client supportano gia perfettamente
+   l'inotro in segretezza, così come è generalmente controllato
+   dai server. I PHP encrypted server streams usano certificati 
+   in grado di inoltrare in perfetta segretezza senza bisogno
+   di intrapprendere nessuna ulteriore azione per abilitare
+   PFS; comunque un certo numero di opzioni SSL sono state
+   aggiunte per permettere un maggior controllo su PFS e trattare
+   con compatibilità i problemi che potrebbero insorgere. 
   </para>
 
   <variablelist>
@@ -126,8 +139,10 @@ array(4) {
     <term><parameter>ecdh_curve</parameter></term>
     <listitem>
      <para>
-      This option allows the selection of a specific curve for use with ECDH
-      ciphers. If not specified, <literal>prime256v1</literal> will be used.
+      questa opzione permette la selezione di una specifica
+      curva da usare con gli algoritmi di cifratura ECDH.
+      Se non è specificato altrimenti verrà usato
+      <literal>prime256v1</literal>.
      </para>
     </listitem>
    </varlistentry>
@@ -135,8 +150,9 @@ array(4) {
     <term><parameter>dh_param</parameter></term>
     <listitem>
      <para>
-      A path to a file containing parametrs for Diffie-Hellman key exchange,
-      such as that created by the following command:
+      Il percorso di un file contiene i parametri per lo
+      scambio di chiavi Diffie-Hellman, così come viene
+      creato dal seguente comando:
      </para>
      <programlisting role="shell">
 <![CDATA[
@@ -149,8 +165,9 @@ openssl dhparam -out /path/to/my/certs/dh-2048.pem 2048
     <term><parameter>single_dh_use</parameter></term>
     <listitem>
      <para>
-      If set to &true;, a new key pair will be created when using
-      Diffie-Hellman parameters, thereby improving forward secrecy.
+      Se impostato a &true;, un nuovo paio di chiavi verrà creato
+      quando si usano parametri del tipo Diffie-Hellman, 
+      forzando in tal modo l'inoltro in segretezza.
      </para>
     </listitem>
    </varlistentry>

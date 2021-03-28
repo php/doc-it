@@ -3,16 +3,17 @@
 <!-- $Revision$ -->
 
 <sect1 xml:id="migration72.incompatible">
- <title>Backward incompatible changes</title>
+ <title>Cambiamenti incompatibili con le versioni precedenti</title>
 
  <sect2 xml:id="migration72.incompatible.number_format-no-neg-zero">
-  <title>Prevent <function>number_format</function> from returning negative zero</title>
+  <title>Prevenzione per <function>number_format</function> di restituire zero negativo</title>
 
   <para>
-   Previously, it was possible for the <function>number_format</function>
-   function to return <literal>-0</literal>. Whilst this is perfectly valid
-   according to the IEEE 754 floating point specification, this oddity was not
-   desirable for displaying formatted numbers in a human-readable form.
+   Precedentemente era possibile che <function>number_format</function>
+   ritornasse <literal>-0</literal>. Nonostante questo sia perfettamente
+   valido in accordo con la specifica IEEE 754 per i numeri in virgola
+   mobile, è terribile e non desiderabile per la visualizzazione di numeri
+   in forma leggibile per gli umani.
   </para>
 
   <informalexample>
@@ -20,24 +21,24 @@
 <![CDATA[
 <?php
 
-var_dump(number_format(-0.01)); // now outputs string(1) "0" instead of string(2) "-0"
+var_dump(number_format(-0.01)); // Ora emette string(1) "0" anzichè string(2) "-0"
 ]]>
    </programlisting>
   </informalexample>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.object-array-casts">
-  <title>Convert numeric keys in object and array casts</title>
+  <title>Conversione di chiavi numeriche in  forma di array</title>
 
   <para>
-   Numeric keys are now better handled when casting arrays to objects and
-   objects to arrays (either from explicit casting or by
-   <function>settype</function>).
+   Le chiavi numeriche ora sono elaborate meglio nel passaggio da
+   array ad Object e vice versa (entrambe con casting espliciti
+   o attraverso <function>settype</function>).
   </para>
 
   <para>
-   This means that integer (or stringy integer) keys from arrays being casted
-   to objects are now accessible:
+   Questo significa che le chiavi integer (o stringhe come integer)
+   da array ora possono essere trasformate in Objects:
   </para>
 
   <informalexample>
@@ -50,8 +51,8 @@ $arr = [0 => 1];
 $obj = (object)$arr;
 var_dump(
     $obj,
-    $obj->{'0'}, // now accessible
-    $obj->{0} // now accessible
+    $obj->{'0'}, // ora accessibile
+    $obj->{0} // ora accessibile
 );
 ]]>
    </programlisting>
@@ -59,7 +60,7 @@ var_dump(
    <screen>
 <![CDATA[
 object(stdClass)#1 (1) {
-  ["0"]=>    // string key now, rather than integer key
+  ["0"]=>    // una stringa come chiave ora è equivalente a un integer key
   int(1)
 }
 int(1)
@@ -69,8 +70,8 @@ int(1)
   </informalexample>
 
   <para>
-   And integer (or stringy integer) keys from objects being casted to arrays
-   are now accessible:
+   E che gli integer (o le stringhe come integer) che derivano
+   da objects possono essere trasformate in arrays:
   </para>
 
   <informalexample>
@@ -88,8 +89,8 @@ $obj = new class {
 $arr = (array)$obj;
 var_dump(
     $arr,
-    $arr[0], // now accessible
-    $arr['0'] // now accessible
+    $arr[0], // ora accessibile
+    $arr['0'] // ora accessibile
 );
 ]]>
    </programlisting>
@@ -97,7 +98,7 @@ var_dump(
    <screen>
 <![CDATA[
 array(1) {
-  [0]=>    // integer key now, rather than string key
+  [0]=>    // un valore integer ora è come una stringa che rappresenta un integer
   int(1)
 }
 int(1)
@@ -108,23 +109,28 @@ int(1)
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.no-null-to-get_class">
-  <title>Disallow passing &null; to <function>get_class</function></title>
+  <title>Disabilitato il passaggio di &null; alla funzione <function>get_class</function></title>
 
   <para>
-   Previously, passing &null; to the <function>get_class</function> function
-   would output the name of the enclosing class. This behaviour has now been
-   removed, where an <constant>E_WARNING</constant> will be output instead. To
-   achieve the same behaviour as before, the argument should simply be omitted.
+   Precedentemente il passaggio di un valore  &null; 
+   alla funzione <function>get_class</function> 
+   avrebbe prodotto come output il nome della classe 
+   nidificata. Questo comportamento ora è stato 
+   rimosso, al suo posto viene emesso un 
+   <constant>E_WARNING</constant>. Per ottenere il
+   risultato di prima l'argomento può essere semplicemente
+   omesso.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.warn-on-non-countable-types">
-  <title>Warn when counting non-countable types</title>
+  <title>Avviso nel conteggio di tipi non conteggiabili</title>
 
   <para>
-   An <constant>E_WARNING</constant> will now be emitted when attempting to
-   <function>count</function> non-countable types (this includes the
-   <function>sizeof</function> alias function).
+   Un <constant>E_WARNING</constant> verrà emesso al tentativo 
+   di applicare <function>count</function> a tipi non
+   conteggiabili, (questo include anche la funzione alias
+   <function>sizeof</function>).
   </para>
 
   <informalexample>
@@ -133,11 +139,11 @@ int(1)
 <?php
 
 var_dump(
-    count(null), // NULL is not countable
-    count(1), // integers are not countable
-    count('abc'), // strings are not countable
-    count(new stdclass), // objects not implementing the Countable interface are not countable
-    count([1,2]) // arrays are countable
+    count(null), // NULL non è conteggiabile
+    count(1), // integers non sono conteggiabili
+    count('abc'), // strings non sono conteggiabili
+    count(new stdclass), // objects non implementano l'interfaccia Countable non sono conteggiabili
+    count([1,2]) // arrays sono conteggiabili
 );
 ]]>
    </programlisting>
@@ -162,22 +168,24 @@ int(2)
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.hash-ext-to-objects">
-  <title>Move ext/hash from resources to objects</title>
+  <title>Spostato ext/hash da resources a objects</title>
 
   <para>
-   As part of the long-term migration away from resources, the <link linkend="book.hash">Hash</link>
-   extension has been updated to use objects instead of resources. The change should be
-   seamless for PHP developers, except for where
-   <function>is_resource</function> checks have been made (which will need
-   updating to <function>is_object</function> instead).
+   Come parte della migrazione di lungo termine da 
+   resources, l'estensione <link linkend="book.hash">Hash</link>
+   è stata aggiornata per usare objects anziché resources.
+   Il cambiamento non dovrebbe creare problemi agli 
+   sviluppatori, tranne dove è stato effettuato il 
+   controllo <function>is_resource</function> che dovrà
+   essere aggiornato con <function>is_object</function>.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.ssl-tls-defaults">
-  <title>Improve SSL/TLS defaults</title>
+  <title>Migliorati idefault di SSL/TLS</title>
 
   <para>
-   The following changes to the defaults have been made:
+   I seguenti cambiamenti ai valori predefiniti sono stati effettuati:
   </para>
 
   <itemizedlist>
@@ -193,161 +201,184 @@ int(2)
    </listitem>
    <listitem>
     <simpara>
-     <literal>STREAM_CRYPTO_METHOD_TLS_*</literal> constants default to TLSv1.0
-     or TLSv1.1 + TLSv1.2, instead of TLSv1.0 only
+     <literal>STREAM_CRYPTO_METHOD_TLS_*</literal> costante 
+     predefinita per TLSv1.0 o TLSv1.1 + TLSv1.2, anzichè
+     solo per TLSv1.0.
     </simpara>
    </listitem>
   </itemizedlist>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.gettype-on-closed-resource">
-  <title><function>gettype</function> return value on closed resources</title>
+  <title><function>gettype</function> ritorna un valore anche
+  da una risorsa chiusa</title>
 
   <para>
-   Previously, using <function>gettype</function> on a closed resource would
-   return a string of <literal>"unknown type"</literal>. Now, a string of
-   <literal>"resource (closed)"</literal> will be returned.
+   Precedentemente l'uso di <function>gettype</function>
+   su una risorsa chiusa ritornava una stringa
+   <literal>"unknown type"</literal>. Ora viene ritornata
+   la stringa <literal>"resource (closed)"</literal>.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.is_object-on-incomplete_class">
-  <title><function>is_object</function> and <classname>__PHP_Incomplete_Class</classname></title>
+  <title><function>is_object</function> e <classname>__PHP_Incomplete_Class</classname></title>
 
   <para>
-   Previously, using <function>is_object</function> on the
-   <classname>__PHP_Incomplete_Class</classname> class would return &false;.
-   Now, &true; will be returned.
+   Precedentemente l'uso di <function>is_object</function>
+   sulla classe <classname>__PHP_Incomplete_Class</classname>
+   avrebbe ritornato &false;.
+   Ora ritorna &true;.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.undefined-constants">
-  <title>Promote the error level of undefined constants</title>
+  <title>Promosso il livello dell'errore di undefined constants</title>
 
   <para>
-   Unqualified references to undefined constants will now generate an
-   <constant>E_WARNING</constant> (instead of an <constant>E_NOTICE</constant>).
-   In the next major version of PHP, they will generate
-   <classname>Error</classname> exceptions.
+   Riferimenti non qualificati a costanti indefinite 
+   genereranno un <constant>E_WARNING</constant> 
+   anziché un <constant>E_NOTICE</constant>.
+   Nella prossima major version di PHP genereranno 
+   eccezioni di tipo <classname>Error</classname>.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.windows-support">
-  <title>Windows support</title>
+  <title>Supporto per Windows</title>
 
   <para>
-   The officially supported, minimum Windows versions are now Windows 7/Server
-   2008 R2.
+   La versione minima di Windows supportata ora è Windows7/Server  R2.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.trait-properties">
-  <title>Checks on default property values of traits</title>
+  <title>Controlli sui valori delle proprietà predefiniti dei traits</title>
 
   <para>
-   Compatibility checks upon default trait property values will no longer
-   perform casting.
+   Controlli di compatibilità sui valori delle 
+   proprietà predefiniti dei traits non verranno
+   più assegnati.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.object-reserved-word">
-  <title><literal>object</literal> for class names</title>
+  <title><literal>object</literal> come nomi di classe</title>
 
   <para>
-   The <literal>object</literal> name was previously soft-reserved in PHP 7.0.
-   This is now hard-reserved, prohibiting it from being used as a class, trait,
-   or interface name.
+   Il nome <literal>object</literal> era riservato
+   debolmente in PHP 7.0. Ora è fortemente riservato:
+   il suo uso è proibito nella denominazione di classi,
+   trait e interfacce.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.netware-support">
-  <title>NetWare support</title>
+  <title>Supporto NetWare</title>
 
   <para>
-   Support for NetWare has now been removed.
+   Il supporto per NetWare è stato rimosso.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.array-unique">
-  <title><function>array_unique</function> with <constant>SORT_STRING</constant></title>
+  <title><function>array_unique</function> con <constant>SORT_STRING</constant></title>
 
   <para>
-   While <function>array_unique</function> with <constant>SORT_STRING</constant>
-   formerly copied the array and removed non-unique elements (without packing
-   the array afterwards), now a new array is built by adding the
-   unique elements. This can result in different numeric indexes.
+   Mentre <function>array_unique</function> 
+   con <constant>SORT_STRING</constant> copiava formalmente
+   l'array rimuovendo gli elementi duplicati (senza
+   comprimere l'array dopo l'operazione), ora viene
+   costruito un nuovo array aggiungendo gli elementi 
+   non duplicati. Questo può dare origine a indici
+   numerici differenti dall'originale.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.bcmod-and-floats">
-  <title><function>bcmod</function> changes with floats</title>
+  <title><function>bcmod</function> modificato con floats</title>
 
   <para>
-   The <function>bcmod</function> function no longer truncates fractional
-   numbers to integers. As such, its behavior now follows
-   <function>fmod</function>, rather than the <literal>%</literal> operator.
-   For example <literal>bcmod('4', '3.5')</literal> now returns
-   <literal>0.5</literal> instead of <literal>1</literal>.
+   La funzione <function>bcmod</function> 
+   non tronca più i numeri relativi ad
+   interi. Così il suo comportamento ora segue
+   quello della funzione <function>fmod</function>,
+   piuttosto che quello dell'operatore 
+   <literal>%</literal>. Per esempio 
+   <literal>bcmod('4', '3.5')</literal> ora ritorna
+   <literal>0.5</literal> anziché <literal>1</literal>.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.hash-functions">
-  <title>Hashing functions and non-cryptographic hashes</title>
+  <title>Funzioni di Hashing e hashes non crittografati</title>
 
   <para>
-   The <function>hash_hmac</function>, <function>hash_hmac_file</function>,
-   <function>hash_pbkdf2</function>, and <function>hash_init</function> (with
-   <constant>HASH_HMAC</constant>) functions no longer accept non-cryptographic
-   hashes.
+   Le funzioni <function>hash_hmac</function>, 
+   <function>hash_hmac_file</function>,
+   <function>hash_pbkdf2</function> 
+   e <function>hash_init</function> (con
+   la costante <constant>HASH_HMAC</constant>) non accettano più
+   hashes non crittografati.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.json_decode-changes">
-  <title><function>json_decode</function> function options</title>
+  <title>Opzioni per la funzione <function>json_decode</function></title>
 
   <para>
-   The <function>json_decode</function> function option,
-   <constant>JSON_OBJECT_AS_ARRAY</constant>, is now used if the second
-   parameter (assoc) is &null;. Previously,
-   <constant>JSON_OBJECT_AS_ARRAY</constant> was always ignored.
+   Le opzioni per la funzione <function>json_decode</function>,
+   <constant>JSON_OBJECT_AS_ARRAY</constant>,
+   ora vengono usate se il secondo parametro
+   è &null;. Precedentemente 
+   <constant>JSON_OBJECT_AS_ARRAY</constant> era sempre
+   ignorato.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.rand-mt_rand-output">
-  <title><function>rand</function> and <function>mt_rand</function> output</title>
+  <title>Output di <function>rand</function> e <function>mt_rand</function></title>
 
   <para>
-   Sequences generated by <function>rand</function> and
-   <function>mt_rand</function> for a specific seed may differ from PHP 7.1 on
-   64-bit machines (due to the fixing of a modulo bias bug in the
-   implementation).
+   Le sequenze generate dalle funzioni
+   <function>rand</function> e 
+   <function>mt_rand</function> per un seme 
+   specifico possono essere diverse da PHP7.1
+   su macchine a 64-bit (per il miglioramento
+   del modulo bias bug dell'implementazione).
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.sqlsafe_mode-ini-setting">
-  <title>Removal of <link linkend="ini.sql.safe-mode"><parameter>sql.safe_mode</parameter></link> ini setting</title>
+  <title>Rimozione di <link linkend="ini.sql.safe-mode"><parameter>sql.safe_mode</parameter></link> dalle impostazioni ini</title>
 
   <para>
-   The <parameter>sql.safe_mode</parameter> ini setting has now been removed.
+   Le impostazioni ini <parameter>sql.safe_mode</parameter> sono
+   state rimosse.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.date_parse_from_format">
-  <title>Changes to <function>date_parse</function> and <function>date_parse_from_format</function></title>
+  <title>Modifiche a <function>date_parse</function> e <function>date_parse_from_format</function></title>
 
   <para>
-   The <literal>zone</literal> element of the array returned by <function>date_parse</function> and
-   <function>date_parse_from_format</function> represents seconds instead of
-   minutes now, and its sign is inverted. For instance <literal>-120</literal>
-   is now <literal>7200</literal>.
+   L'elemento <literal>zone</literal> dell'array restituito
+   da <function>date_parse</function> e 
+   <function>date_parse_from_format</function> 
+   rappresenta i secondi anzichè i minuti
+   e il suo segno è stato invertito. Per istanza
+   predefinita <literal>-120</literal>
+   ora è <literal>7200</literal>.
   </para>
  </sect2>
 
  <sect2 xml:id="migration72.incompatible.cookie-decode">
-  <title>Incoming Cookies</title>
+  <title>Cookies in entrata</title>
 
   <para>
-   As of PHP 7.2.34, the <emphasis>names</emphasis> of incoming cookies are no
-   longer url-decoded for security reasons.
+   Come per PHP 7.2.34, i <emphasis>nomi</emphasis> 
+   dei cookies entranti non saranno più url-decoded
+   per ragioni di sicurezza.
   </para>
  </sect2>
 

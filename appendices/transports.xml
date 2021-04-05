@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: a6ecf96032f497b7c2f32240320a58e1b5d738c2 Maintainer: lucalzetta Status: ready -->
+<!-- $Revision$ -->
+<appendix xml:id="transports" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>Elenco dei Socket Transports supportati</title>
+ <para>
+  Quella che segue è una lista dei vari stili di URL 
+  socket transports che PHP ha nel suo codice nativo 
+  per essere ustati con gli streams basati sui socket.
+  Funzioni come <function>fsockopen</function>, e
+  <function>stream_socket_client</function>.
+  Questi transports <emphasis>non</emphasis> si applicano
+  alle <link linkend="ref.sockets">Sockets Extension</link>.
+ </para>
+
+ <para>
+  Per un elenco dei transports installati nella
+  tua versione di PHP è possibile usare 
+  <function>stream_get_transports</function>.
+ </para>
+
+ <section xml:id="transports.inet">
+  <title>Internet Domain: TCP, UDP, SSL, e TLS</title>
+  <simpara>
+   <literal>ssl://</literal>, <literal>tls://</literal>,
+   <literal>sslv2://</literal> &amp; <literal>sslv3://</literal>.
+  </simpara>
+
+  <note>
+   <simpara>
+    Se non è specificato alcun transport verrà assunto
+    <literal>tcp://</literal>.
+   </simpara>
+  </note>
+
+  <itemizedlist>
+   <listitem><simpara><literal>127.0.0.1</literal></simpara></listitem>
+   <listitem><simpara><literal>fe80::1</literal></simpara></listitem>
+   <listitem><simpara><literal>www.example.com</literal></simpara></listitem>
+   <listitem><simpara><literal>tcp://127.0.0.1</literal></simpara></listitem>
+   <listitem><simpara><literal>tcp://fe80::1</literal></simpara></listitem>
+   <listitem><simpara><literal>tcp://www.example.com</literal></simpara></listitem>
+   <listitem><simpara><literal>udp://www.example.com</literal></simpara></listitem>
+   <listitem><simpara><literal>ssl://www.example.com</literal></simpara></listitem>
+   <listitem><simpara><literal>sslv2://www.example.com</literal></simpara></listitem>
+   <listitem><simpara><literal>sslv3://www.example.com</literal></simpara></listitem>
+   <listitem><simpara><literal>tls://www.example.com</literal></simpara></listitem>
+  </itemizedlist>
+
+  <simpara>
+   Gli Internet Domain sockets si aspettano un numero
+   di porta in aggiunta ad un indirizzo di riferimento.
+   Nel caso di <function>fsockopen</function>
+   questo è specificato in un secondo parametro e quindi
+   non condiziona la formattazione dell' URL. Con
+   <function>stream_socket_client</function> e le funzioni correlate
+   come con gli URLs tradizionali, il numero di porta è specificato
+   come un suffisso del transport URL delimitato da due-punti.
+  </simpara>
+
+  <itemizedlist>
+   <listitem><simpara><literal>tcp://127.0.0.1:80</literal></simpara></listitem>
+   <listitem><simpara><literal>tcp://[fe80::1]:80</literal></simpara></listitem>
+   <listitem><simpara><literal>tcp://www.example.com:80</literal></simpara></listitem>
+  </itemizedlist>
+
+  <note>
+   <title>Indirizzi numerici IPv6 con numeri di porta</title>
+   <simpara>
+    Nel secondo esempio che segue, mentre gli esempi con
+    IPv4 e l'hostname sono rimasti invariati a parte per
+    per l'aggiunta della doppia punteggiatura e del numero di porta.
+    Gli indirizzi IPv6 vengono racchiusi tra parentesi quadre:
+    <literal>[fe80::1]</literal>. Questo per distinguere il segno
+    di doppia punteggiatura usato nella costruzione dell'indirizzo
+    IPv6 e quello usato per delimitare il numero della porta.
+   </simpara>
+  </note>
+
+  <simpara>
+   L'<literal>ssl://</literal> e <literal>tls://</literal> transports 
+   (disponibili solo quando il supporto per openssl è compilato in PHP)
+   sono estensioni del <literal>tcp://</literal> transport 
+   che include la crptazione SSL.
+  </simpara>
+
+  <simpara>
+   <literal>ssl://</literal> cercherà di negoziare una connessione SSL V2,
+   o SSL V3 in funzione delle possibilità e delle
+   impostazioni dell' host remoto.  <literal>sslv2://</literal> e 
+   <literal>sslv3://</literal> selezioneranno esplicitamente i 
+   protocolli SSL V2 o SSL V3.
+  </simpara>
+ </section>
+
+ <section xml:id="transports.unix">
+  <title>Domini Unix: Unix e UDG</title>
+  <simpara>
+   <literal>unix://</literal> e
+   <literal>udg://</literal> (udg:// a partire da PHP 5).
+  </simpara>
+
+  <itemizedlist>
+   <listitem><simpara><literal>unix:///tmp/mysock</literal></simpara></listitem>
+   <listitem><simpara><literal>udg:///tmp/mysock</literal></simpara></listitem>
+  </itemizedlist>
+
+  <simpara>
+   <literal>unix://</literal> garantisce un accesso a connessioni
+   socket stream nel dominio Unix. <literal>udg://</literal> provvede
+   un trasporto alternativo ai socket di dominio Unix usando
+   il protocollo datagram dell'utente.
+  </simpara>
+
+  <simpara>
+   I sockets dei domini Unix, diversamente dai socket dei domini Internet,
+   non necessitano di un numero di porta. Nel caso di <function>fsockopen</function>
+   il parametro <parameter>portno</parameter> può essere impostato a 0.
+  </simpara>
+
+  <note>
+   <simpara>
+    Gli Unix domain sockets non sono supportati da Windows.
+   </simpara>
+  </note>
+ </section>
+
+</appendix>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 593fed9c6f01b3ea317c719c545e5686a170c68e Maintainer: lucalzetta Status: ready -->
+<!-- $Revision$ -->
+
+<sect1 xml:id="migration73.other-changes" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>Altri cambiamenti</title>
+
+ <sect2 xml:id="migration73.other-changes.core">
+  <title>PHP Core</title>
+
+  <sect3 xml:id="migration73.other-changes.core.setcookie">
+   <title>L'impostazione (raw)cookie accetta l'argomento $option</title>
+
+   <para>
+    <function>setcookie</function> e 
+    <function>setrawcookie</function> 
+    ora supportano anche le seguenti 
+    signature:
+    <methodsynopsis>
+     <type>bool</type><methodname>setcookie</methodname>
+     <methodparam><type>string</type><parameter>name</parameter></methodparam>
+     <methodparam choice="opt"><type>string</type><parameter>value</parameter><initializer>""</initializer></methodparam>
+     <methodparam choice="opt"><type>array</type><parameter>options</parameter><initializer>[]</initializer></methodparam>
+    </methodsynopsis>
+    dove <literal>$options</literal> è un array associativo 
+    che può avere una delle chiavi <literal>"expires"</literal>, 
+    <literal>"path"</literal>, <literal>"domain"</literal>, 
+    <literal>"secure"</literal>,
+    <literal>"httponly"</literal> e 
+    <literal>"samesite"</literal>.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration73.other-changes.core.syslog">
+   <title>Nuovo Syslog nelle direttive ini</title>
+
+   <para>
+    Le seguenti direttive ini sono state aggiunte 
+    per personalizzare il logging se 
+    <link linkend="ini.error-log">error_log</link> 
+    è impostato su <literal>syslog</literal>:
+    <variablelist>
+     <varlistentry>
+      <term><link linkend="ini.syslog.facility">syslog.facility</link></term>
+      <listitem>
+       <simpara>
+        Specifica che tipo di programma sta 
+        generando il messaggio.
+       </simpara>
+      </listitem>
+     </varlistentry>
+     <varlistentry>
+      <term><link linkend="ini.syslog.filter">syslog.filter</link></term>
+      <listitem>
+       <simpara>
+        Specifica il tipo di filtro usato per 
+        filtrare i messaggi loggati (sottoposti a 
+        log degli errori). Ci sono tre tipi di filtri 
+        supportati: <literal>all</literal>,
+        <literal>no-ctrl</literal> e <literal>ascii</literal>.
+       </simpara>
+      </listitem>
+     </varlistentry>
+     <varlistentry>
+      <term><link linkend="ini.syslog.ident">syslog.ident</link></term>
+      <listitem>
+       <simpara>
+        Specifica la stringa di indentazione 
+        anteposta ad ogni messaggio.
+       </simpara>
+      </listitem>
+     </varlistentry>
+    </variablelist>
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration73.other-changes.core.gc">
+   <title>Garbage Collection</title>
+
+   <para>
+    La <link linkend="features.gc.collecting-cycles">cyclic GC</link> 
+    è stat migliorata, da ciò deriva un 
+    considerevole miglioramento delle 
+    performance.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration73.other-changes.core.misc">
+   <title>Miscellaneous</title>
+
+   <para>
+    <function>var_export</function> ora esporta oggetti 
+    <classname>stdClass</classname> come un array 
+    riversato in un oggetto (<code>(object) array( ... )</code>), 
+    piuttosto che usare il metodo che non esiste 
+    <methodname>stdClass::__setState</methodname>.
+   </para>
+
+   <para>
+    <function>debug_zval_dump</function> 
+    è stata modificata per visualizzare array ricorsivi 
+    e oggetti allo stesso modo di 
+    <function>var_dump</function>. Ora non li visualizza 
+    più due volte.
+   </para>
+
+   <para>
+    <function>array_push</function> e 
+    <function>array_unshift</function> ora possono 
+    essere chiamate con un singolo argomento che è 
+    particolarmente conveniente: wrt, l'operatore di 
+    propagazione.
+   </para>
+  </sect3>
+
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.phpdbg">
+  <title>Debugger PHP interattivo</title>
+
+  <para>
+   Le costanti inutilizzate <constant>PHPDBG_FILE</constant>,
+   <constant>PHPDBG_METHOD</constant>, 
+   <constant>PHPDBG_LINENO</constant> e
+   <constant>PHPDBG_FUNC</constant> sono state rimosse.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.fpm">
+  <title>FastCGI Process Manager</title>
+
+  <para>
+   La funzione <function>getallheaders</function> 
+   ora è disponibile.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.curl">
+  <title>Client URL Library</title>
+
+  <para>
+   libcurl ≥ 7.15.5 ora è richiesta.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.filter">
+  <title>Data Filtering</title>
+
+  <para>
+   <constant>FILTER_VALIDATE_FLOAT</constant> ora 
+   supporta l'opzione <literal>thousand</literal> 
+   che definisce l'insieme dei separatori delle 
+   migliaia ammessi. Il valore predefinito è <code>"',."</code> 
+   che è perfettamente compatibile con i separatori 
+   delle precedenti versioni di PHP.
+  </para>
+
+  <para>
+   Il filtro <constant>FILTER_SANITIZE_ADD_SLASHES</constant> 
+   è stato aggiunto. Come un alias delle
+   <literal>magic_quotes</literal>, è stato aggiunto il filtro 
+   <constant>FILTER_SANITIZE_MAGIC_QUOTES</constant>.
+   Il filtro <literal>magic_quotes</literal> 
+   sarà soggetto alla rimozione nelle future 
+   versioni di PHP.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.ftp">
+  <title>FTP</title>
+
+  <para>
+   Il metodo di trasferimeento predefinito 
+   è cambiato a <literal>binary</literal>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.intl">
+  <title>Internationalization Functions</title>
+
+  <para>
+   <constant>Normalizer::NONE</constant> è deprecato, 
+   quando PHP è collegato con ICU ≥ 56.
+  </para>
+
+  <para>
+   Introdotto <constant>Normalizer::FORM_KC_CF</constant> 
+   come argomento di <methodname>Normalizer::normalize</methodname> 
+   per la normalizzazione <literal>NFKC_Casefold</literal>; 
+   disponibile quando collegato a ICU ≥ 56.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.json">
+  <title>JavaScript Object Notation</title>
+
+  <para>
+   E' stata aggiunta una nuova bandierina 
+   <constant>JSON_THROW_ON_ERROR</constant>, 
+   che può essere usata con <function>json_decode</function> 
+   o <function>json_encode</function> 
+   e induce queste funzioni, in caso di errore, 
+   a passare la gestione a <classname>JsonException</classname> 
+   piuttosto che impostare un global error state 
+   che è trattato con <function>json_last_error</function> 
+   e <function>json_last_error_msg</function>.
+   <constant>JSON_PARTIAL_OUTPUT_ON_ERROR</constant> 
+   ha la precedenza su <constant>JSON_THROW_ON_ERROR</constant>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.mbstring">
+  <title>Multibyte String</title>
+
+  <para>
+   L'opzione di configurazione 
+   <option role="configure">--with-libmbfl</option> 
+   non è più disponibile.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.uodbc">
+  <title>ODBC (Unified)</title>
+
+  <para>
+   Il supporto per <literal>ODBCRouter</literal> 
+   e <literal>Birdstep</literal> che include la direttiva 
+   ini <literal>birdstep.max_links</literal> è stato rimosso.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration72.other-changes.opcache">
+  <title>OPcache</title>
+
+  <para>
+   La direttiva ini <literal>opcache.inherited_hack</literal> 
+   è stata rimossa. Il valore era già stato ignorato 
+   a partire da PHP 5.3.0.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.openssl">
+  <title>OpenSSL</title>
+
+  <para>
+   Le opzioni per gli stream ssl <literal>min_proto_version</literal> 
+   e <literal>max_proto_version</literal> così come le costanti 
+   correlate per i valori dei possibili protocolli TLS sono 
+   state aggiunte.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.pcre">
+  <title>Regular Expressions (Perl-Compatible)</title>
+
+  <para>
+   Le <link linkend="book.pcre">PCRE extension</link> 
+   sono state aggiornate a PCRE2, che può causare 
+   meno cambiamenti di comportamento (gli intervalli di caratteri 
+   nelle classi sono interprettai più restrittivamente)
+   e argpmenta la sintassi dell espressioni regolari 
+   esistenti.
+  </para>
+
+  <para>
+   <function>preg_quote</function> ora intercetta anche 
+   il carattere <literal>'#'</literal>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.pdo-dblib">
+  <title>Funzioni Microsoft SQL Server e Sybase (PDO_DBLIB)</title>
+
+  <para>
+   L'attributo <constant>PDO::DBLIB_ATTR_SKIP_EMPTY_ROWSETS</constant> 
+   per abilitare il salto automatico dei gruppi 
+   di righe vuote è stato aggiunto. 
+  </para>
+
+  <para>
+   L'attributo <constant>PDO::DBLIB_ATTR_TDS_VERSION</constant> 
+   che espone la versione di TDS è stato aggiunto.
+  </para>
+
+  <para>
+    Le colonne DATETIME2 ora sono trattate 
+    come colonne DATETIME.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.pdo-sqlite">
+  <title>Funzioni SQLite (PDO_SQLITE)</title>
+
+  <para>
+   I database SQLite3 ora possono essere aperti in 
+   modalità di sola lettura impostando il nuovo 
+   attributo <constant>PDO::SQLITE_ATTR_OPEN_FLAGS</constant> 
+   a <constant>PDO::SQLITE_OPEN_READONLY</constant>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.session">
+  <title>Gestione delle Session</title>
+
+  <para>
+   <function>session_set_cookie_params</function> 
+   ora supporta anche le seguenti signatures:
+   <methodsynopsis>
+    <type>bool</type><methodname>session_set_cookie_params</methodname>
+    <methodparam><type>array</type><parameter>options</parameter></methodparam>
+   </methodsynopsis>
+   dove <literal>$options</literal> è un array associativo 
+   che può avere una delle seguenti chiavi: 
+   <literal>"lifetime"</literal>, <literal>"path"</literal>,
+   <literal>"domain"</literal>, <literal>"secure"</literal>,
+   <literal>"httponly"</literal> e <literal>"samesite"</literal>. 
+   Di conseguenza il valore di ritorno di  
+   <function>session_get_cookie_params</function> 
+   ora ha anche un elemneto con la chiave
+   <literal>"samesite"</literal>.
+   Inoltre, la nuova opzione ini per impostare il 
+   valore predefinito della direttiva SameSite, per 
+   i cookies che sono stati aggiunti, 
+   <literal>session.cookie_samesite</literal>. 
+   Ha un valore predefinito di <literal>""</literal> 
+   (stringa vuota), inmodo che nessuna direttiva 
+   SameSite sia impostata. Può assumere valori 
+   <literal>"Lax"</literal> o <literal>"Strict"</literal>,
+   con le rispettive direttive SameSite.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.tidy">
+  <title>Tidy</title>
+
+  <para>
+   La compilazione verso <link xlink:href="&url.tidyp;">tidyp</link> 
+   è ora supportata trasparentemente. Finchè tidyp non 
+   offre API per ottenere le date di rilascio, in questo 
+   caso <function>tidy_get_release</function> 
+   e <methodname>tidy::getRelease</methodname>
+   ritornano <literal>'unknown'</literal>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.xml">
+  <title>XML Parser</title>
+
+  <para>
+   Il valore di ritorno per la chiamata di 
+   <function>xml_set_external_entity_ref_handler</function>
+   non sarà più ignorato se l'estensione è stat compilata 
+   con libxml. Formalmente, il valore di ritorno 
+   è stato ignorato e il confronto genera un ciclo 
+   infinito.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.zip">
+  <title>Zip</title>
+
+  <para>
+   La compilazione con paccetti libzip è 
+   scoraggiata, ma ancora possibile aggiungendo
+   <option role="configure">--without-libzip</option> 
+   alla configurazione.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration73.other-changes.zlib">
+  <title>Zlib Compression</title>
+
+  <para>
+   L'opzione zlib/level context per 
+   <link linkend="wrappers.compression">compress.zlib wrapper</link> 
+   per facilitare l'impostazione del livello di 
+   compressione desiderato è stata aggiunta.
+  </para>
+ </sect2>
+
+</sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

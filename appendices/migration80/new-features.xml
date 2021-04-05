@@ -1,0 +1,750 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: ca06895f1556b5a6235de8aa6c03456cabd8555c Maintainer: lucalzetta Status: ready -->
+<!-- $Revision$ -->
+
+<sect1 xml:id="migration80.new-features" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>Nuove caratteristiche</title>
+
+ <sect2 xml:id="migration80.new-features.core">
+  <title>PHP Core</title>
+
+  <sect3 xml:id="migration80.new-features.core.named-arguments">
+   <title>Argomenti nominati</title>
+
+   <para>
+    <!-- RFC: https://wiki.php.net/rfc/named_params -->
+    Il supporto per 
+    <link linkend="functions.named-arguments">Named Arguments</link> 
+    è stato aggiunto. 
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration80.new-features.core.attributes">
+   <title>Attributi</title>
+
+   <para>
+    Il supporto per 
+    <link linkend="language.attributes">Attributes</link> 
+    è stato aggiunto. 
+    <!-- RFC: https://wiki.php.net/rfc/attributes_v2 -->
+    <!-- RFC: https://wiki.php.net/rfc/attribute_amendments -->
+    <!-- RFC: https://wiki.php.net/rfc/shorter_attribute_syntax -->
+    <!-- RFC: https://wiki.php.net/rfc/shorter_attribute_syntax_change -->
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration80.new-features.core.property-promotion">
+   <title>Constructor Property Promotion</title>
+
+   <para>
+    Il supporto per 
+    <link linkend="language.oop5.decon.constructor.promotion">constructor property promotion</link> 
+    (dichiarazione di proprietà nel costruttore delle signature)
+    è stato aggiunto. 
+    <!-- RFC: https://wiki.php.net/rfc/constructor_promotion -->
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration80.new-features.core.union-types">
+   <title>Union Types</title>
+
+   <para>
+    Il supporto per 
+    <link linkend="language.types.declarations.union">union types</link> 
+     è stato aggiunto. 
+    <!-- RFC: https://wiki.php.net/rfc/union_types_v2 -->
+   </para> 
+  </sect3>
+
+  <sect3 xml:id="migration80.new-features.core.match">
+   <title>Match Expression</title>
+
+   <para>
+    Il supporto per le 
+    <link linkend="control-structures.match"><literal>match</literal> expressions</link> 
+    è stato aggiunto. 
+    <!-- RFC: https://wiki.php.net/rfc/match_expression_v2 -->
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration80.new-features.core.nullsafe-operator">
+   <title>Nullsafe Operator</title>
+
+   <para>
+    Il supporto per il 
+    <link linkend="language.oop5.basic.nullsafe">nullsafe operator</link> (<literal>?-></literal>) 
+    è stato aggiunto. 
+    <!-- RFC: https://wiki.php.net/rfc/nullsafe_operator -->
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration80.new-features.core.others">
+   <title>Altre nuove caratteristiche</title>
+
+   <itemizedlist>
+    <listitem>
+     <para>
+      <!-- we cannot use <classname>WeakMap</classname> because that would link to the wrong class -->
+      La classe <literal>WeakMap</literal> è stata aggiunta. 
+      <!-- RFC: https://wiki.php.net/rfc/weak_maps -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      La classe <classname>ValueError</classname> 
+      è stata aggiunta. 
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Un certo numero di parametri di funzioni 
+      ora può essere rimpiazzato sa argomenti variadic, 
+      in funzione dei tipi che sono compatibili. Per 
+      esempio il seguente codice ora è consentito: 
+     </para>
+     <para>
+      <programlisting role="php">
+<![CDATA[
+<?php
+class A {
+     public function method(int $many, string $parameters, $here) {}
+}
+class B extends A {
+     public function method(...$everything) {}
+}
+?>
+]]>
+      </programlisting>
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      <type>static</type> (come nella vecchia costruzione statica) 
+      ora può essere usato come tipo di ritorno: 
+     </para>
+     <para>
+      <programlisting role="php">
+<![CDATA[
+<?php
+class Test {
+     public function create(): static {
+          return new static();
+     }
+}
+?>
+]]>
+      </programlisting>
+      <!-- RFC: https://wiki.php.net/rfc/static_return_type -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Ora è possibile scomporre il nome di classe 
+      di un oggetto usando <code>$object::class</code>. 
+      Il risultato è lo stesso di <code>get_class($object)</code>. 
+      <!-- RFC: https://wiki.php.net/rfc/class_name_literal_on_object -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      &new; e &instanceof; ora possono essere usati 
+      con espressioni arbitrarie usando 
+      <code>new (expression)(...$args)</code> e 
+      <code>$obj instanceof (expression)</code>. 
+      <!-- RFC: https://wiki.php.net/rfc/variable_syntax_tweaks -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Alcune correzioni consistenti alla sintassi 
+      delle variabili sono state applicate, per 
+      esempio: scrivere <code>Foo::BAR::$baz</code> 
+      ora è consentito. 
+      <!-- RFC: https://wiki.php.net/rfc/variable_syntax_tweaks -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Aggiunta l'interfaccia <interfacename>Stringable</interfacename>, 
+      che è automaticamente implementata se una classe 
+      definisce un metodo <link linkend="object.tostring">__toString()</link>. 
+      <!-- RFC: https://wiki.php.net/rfc/stringable -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      I traits ora possono definire metodi astratti 
+      privati. Alcuni metodi devono essere implementati 
+      dalla classe usando il trait. 
+      <!-- RFC: https://wiki.php.net/rfc/abstract_trait_method_validation -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      <literal>throw</literal> ora può essere usato 
+      come un espressione. Il che permette utilizzi come: 
+      <programlisting role="php">
+<![CDATA[
+<?php
+$fn = fn() => throw new Exception('Exception in arrow function');
+$user = $session->user ?? throw new Exception('Must have user');
+]]>
+      </programlisting>
+      <!-- RFC: https://wiki.php.net/rfc/throw_expression -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Un separatore opzionale aggiuntivo 
+      è ora ammesso per le liste di parametri. 
+      <programlisting role="php">
+<![CDATA[
+<?php
+function functionWithLongSignature(
+    Type1 $parameter1,
+    Type2 $parameter2, // <-- Questo ora è ammesso. 
+) {
+}
+]]>
+      </programlisting>
+      <!-- RFC: https://wiki.php.net/rfc/trailing_comma_in_parameter_list -->
+     </para>
+    </listitem>
+    <listitem>
+     <para> 
+      Ora è possibile scrivere <code>catch (Exception)</code> 
+      per catturare un'eccezione senza memorizzarla in 
+      una variabile. 
+      <!-- RFC: https://wiki.php.net/rfc/non-capturing_catches -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Il supporto per i <type>mixed</type> type 
+      è stato aggiunto. 
+      <!-- RFC: https://wiki.php.net/rfc/mixed_type_v2 -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      I metodi privati dichiarati in una classe 
+      parent non rinforzano più i ruoli dell'ereditarietà 
+      sui metodi di una classe figlio. (con l'eccezione 
+      dei costruttori final o private). Il seguente 
+      esempio mostra quali restrizioni sono state rimosse. 
+      <programlisting role="php">
+<![CDATA[
+<?php
+class ParentClass {
+    private function method1() {}
+    private function method2() {}
+    private static function method3() {}
+    // Genera un allarme come "final" no longer has an effect:
+    private final function method4() {}
+}
+class ChildClass extends ParentClass {
+    // Tutti i seguenti non sono ammessi 
+    // finché i modificatori non saranno 
+    // gli stessi di quelli dei metodi 
+    // privati nella classe parent. 
+    public abstract function method1() {}
+    public static function method2() {}
+    public function method3() {}
+    public function method4() {}
+}
+?>
+]]>
+      </programlisting>
+      <!-- RFC: https://wiki.php.net/rfc/inheritance_private_methods -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      La funzione <function>get_resource_id</function> 
+      è stata aggiunta e ritorna lo stesso valore di 
+      <code>(int) $resource</code>. Procura anche le 
+      stesse funzionalità con un API più pulita. 
+     </para>
+    </listitem>
+   </itemizedlist>
+  </sect3>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.date">
+  <title>Date e Time</title>
+  
+  <itemizedlist>
+   <listitem>
+    <para>
+     <methodname>DateTime::createFromInterface</methodname> e 
+     <methodname>DateTimeImmutable::createFromInterface</methodname> 
+     sono state aggiunte. 
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Lo specificatore di formato di DateTime 
+     <literal>p</literal> è stato aggiunto ed 
+     è lo stesso di <literal>P</literal> ma ritorna 
+     <literal>Z</literal> anziché 
+     <literal>+00:00</literal> per UTC.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.dom">
+  <title>DOM</title>
+
+  <para>
+   Le interfacce <interfacename>DOMParentNode</interfacename> 
+   e <interfacename>DOMChildNode</interfacename> con 
+   nuove API di manipolazione condivise, sono state aggiunte. 
+   <!-- RFC: https://wiki.php.net/rfc/dom_living_standard_api-->
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.filter">
+  <title>Filter</title>
+
+  <para>
+   <constant>FILTER_VALIDATE_BOOL</constant> 
+   è stato aggiunto come alias per 
+   <constant>FILTER_VALIDATE_BOOLEAN</constant>. 
+   Il nuovo nome è preferibile perchè usa i nuovi 
+   nomi canonizzati per i tipi. 
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.enchant">
+  <title>Enchant</title>
+
+  <para>
+   <function>enchant_dict_add</function>, 
+   <function>enchant_dict_is_added</function>, e 
+   <constant>LIBENCHANT_VERSION</constant> 
+   sono state aggiunte. 
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.fpm">
+  <title>FPM</title>
+
+  <para>
+   Aggiunta una nuova opzione 
+   <literal>pm.status_listen</literal> che 
+   permette di ottenere lo stato da differenti 
+   endpoint (es. port o UDS file), questo è 
+   utile per ottenerne lo stato quando tutti i 
+   figli sono rallentati per servire richieste 
+   molto impegnative. 
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.hash">
+  <title>Hash</title>
+
+  <para>
+   Gli oggetti <classname>HashContext</classname> 
+   ora possono essere serializzati. 
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.intl">
+  <title>Internationalization Functions</title>
+
+  <para>
+   Le costanti <constant>IntlDateFormatter::RELATIVE_FULL</constant>,
+   <constant>IntlDateFormatter::RELATIVE_LONG</constant>,
+   <constant>IntlDateFormatter::RELATIVE_MEDIUM</constant> e 
+   <constant>IntlDateFormatter::RELATIVE_SHORT</constant>
+   sono state aggiunte. 
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.ldap">
+  <title>LDAP</title>
+
+  <para>
+   <function>ldap_count_references</function> è stata aggiunta, 
+   essa restituisce il numero di messaggi di 
+   reference nel risultato di una ricerca. 
+  </para>
+ </sect2>
+ <sect2 xml:id="migration80.new-features.opcache">
+  <title>OPcache</title>
+
+  <para>
+   Se l'impostazione ini 
+   <!--<link linkend="ini.opcache.record-warnings">-->opcache.record_warnings<!--</link>--> 
+   è abilitata, OPcache registrerà a compile time gli allarmi 
+   e li replicherà nella prossima include, anche se è servita 
+   dalla memoria cache. 
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.openssl">
+  <title>OpenSSL</title>
+
+  <para>
+   Aggiunta la sintassi per la critografia dei messaggi 
+   (CMS <link xlink:href="&url.rfc;5652">RFC 5652</link>). 
+   Supporta una composizione di funzioni per la cifratura 
+   e la decifratura, segnatura, verifica e lettura. L'API  
+   è simile all'API per le funzioni PKCS #7 con nuove 
+   costanti di codifica: 
+   <constant>OPENSSL_ENCODING_DER</constant>, 
+   <constant>OPENSSL_ENCODING_SMIME</constant>
+   e <constant>OPENSSL_ENCODING_PEM</constant>: 
+   <simplelist>
+    <member>
+     <function>openssl_cms_encrypt</function> cripta i messaggi in 
+     un file con i certificati e emette il risultato 
+     nel file fornito. 
+    </member>
+    <member>
+     <function>openssl_cms_decrypt</function> decripta i messaggi 
+     S/MIME nel file e emette il risultato nel file fornito. 
+    </member>
+    <member>
+     <function>openssl_cms_read</function> esporta i file 
+     CMS in un array di certificati PEM. 
+    </member>
+    <member>
+     <function>openssl_cms_sign</function> firma i messaggi 
+     MIME nel file con un certificato e una chiave 
+     e emette il risultato nel file fornito. 
+    </member>
+    <member>
+     <function>openssl_cms_verify</function> che verifica 
+     che il blocco di dati sia intatto e che il firmatario 
+     sia chi dice di essere, ritorna i certificati del 
+     firmatario. 
+    </member>
+   </simplelist>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.pcre">
+  <title>Regular Expressions (Perl-Compatible)</title>
+
+  <para>
+   <function>preg_last_error_msg</function> 
+   è stata aggiunta, ritorna un messaggio leggibile 
+   per l'ultimo errore PCRE. E' complementare a 
+   <function>preg_last_error</function>, che ritorna 
+   un'enumerazione di valori interi anziché un 
+   messaggio. 
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.reflection">
+  <title>Reflection</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     I seguenti metodi ora possono ritornare 
+     informazioni circa i valori predefiniti 
+     dei parametri di funzioni interne: 
+    </para>
+    <para>
+     <simplelist>
+      <member><methodname>ReflectionParameter::isDefaultValueAvailable</methodname></member>
+      <member><methodname>ReflectionParameter::getDefaultValue</methodname></member>
+      <member><methodname>ReflectionParameter::isDefaultValueConstant</methodname></member>
+      <member><methodname>ReflectionParameter::getDefaultValueConstantName</methodname></member>
+     </simplelist>
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.sqlite3">
+  <title>SQLite3</title>
+
+  <para>
+   <methodname>SQLite3::setAuthorizer</methodname> 
+   e le rispettive costanti di classe son state aggiunte 
+   per impostare un area di callback da utilizzare per 
+   autorizzare o meno azioni sul database. 
+   <!-- PR: https://github.com/php/php-src/pull/4797 -->
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.standard">
+  <title>Standard Library</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     <function>str_contains</function>, 
+     <function>str_starts_with</function> e 
+     <function>str_ends_with</function> sono state aggiunte 
+     per controllare se <parameter>haystack</parameter> 
+     contiene, inizia con o finisce con il parametro 
+     <parameter>needle</parameter>, rispettivamente. 
+     <!-- RFC: https://wiki.php.net/rfc/str_contains -->
+     <!-- RFC: https://wiki.php.net/rfc/add_str_starts_with_and_ends_with_functions -->
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>fdiv</function> è stata aggiunta 
+     gestisce le divisioni fra numeri in virgola 
+     mobile rispettando la semantica IEEE 754. 
+     La divisione per zero è considerata ben 
+     definita e ritornerà uno di <literal>Inf</literal>, 
+     <literal>-Inf</literal> o <literal>NaN</literal>. 
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>get_debug_type</function> è stata aggiunta 
+     ritorna un valore di tipo usuale per i messaggi di 
+     errore. Diversamente da <function>gettype</function>, 
+     usa nomi di tipo canonico, ritorna nomi di classe per 
+     gli oggetti e indica il tipo di risorsa per le resources. 
+     <!-- RFC: https://wiki.php.net/rfc/get_debug_type -->
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>printf</function> and friends 
+     ora supportano gli specificatori di formato 
+     <literal>%h</literal> e 
+     <literal>%H</literal>. Che sono gli stessi di 
+     <literal>%g</literal> e 
+     <literal>%G</literal>, ma usano sempre 
+     <literal>"."</literal> come separatore decimale
+     anziché lasciarlo determinare attraverso la 
+     costante locale <constant>LC_NUMERIC</constant>. 
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>printf</function> e compagni ora 
+     supportano l'uso di <literal>"*"</literal> 
+     come dimensione della precisione di un numero, 
+     in questo caso la larghezza della precisione 
+     è passata come un argomento a printf. Questo 
+     permette anche di usare precisioni come 
+     <literal>-1</literal> con <literal>%g</literal>, 
+     <literal>%G</literal>, <literal>%h</literal> 
+     e <literal>%H</literal>. Per esempio il seguente 
+     codice può essere usato per riprodurre il 
+     valore predefinito per la formattazione dei 
+     numeri in virgola mobile di PHP. 
+    </para>
+    <para>
+     <programlisting role="php">
+<![CDATA[
+<?php
+printf("%.*H", (int) ini_get("precision"), $float);
+printf("%.*H", (int) ini_get("serialize_precision"), $float);
+?>
+]]>
+     </programlisting>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>proc_open</function> ora supporta 
+     descrittori pseudo-terminal (PTY). Li elenchiamo 
+     qui <literal>stdin</literal>, 
+     <literal>stdout</literal> e 
+     <literal>stderr</literal> per lo stesso PTY: 
+    </para>
+    <para>
+     <programlisting role="php">
+<![CDATA[
+<?php
+$proc = proc_open($command, [['pty'], ['pty'], ['pty']], $pipes);
+?>
+]]>
+     </programlisting>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>proc_open</function> 
+     ora supporta i descriptors per i socket pair. 
+     I seguenti allegati distinguono un accoppiamento 
+     socket in <literal>stdin</literal>, 
+     <literal>stdout</literal> e 
+     <literal>stderr</literal>: 
+    </para>
+    <para>
+     <programlisting role="php">
+<![CDATA[
+<?php
+$proc = proc_open($command, [['socket'], ['socket'], ['socket']], $pipes);
+?>
+]]>
+     </programlisting>
+    </para>
+    <para>
+     Diversamente dai pipes, i socket non soffrono 
+     dei problemi di bloccaggio da I/O sotto Windows. 
+     Comunque non tutti i programmi lavorano correttmente 
+     con gli stdio sockets. 
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Le funzioni di ordinamento ora sono stabilizzate. 
+     Questo significa che la comparazione di elementi 
+     uguali mantiene l'ordine originale in cui si sono 
+     presentati. 
+     <!-- RFC: https://wiki.php.net/rfc/stable_sorting -->
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>array_diff</function>, 
+     <function>array_intersect</function> e le loro 
+     varianti, ora possono essere usate con un singolo 
+     array come argomento. Questo significa che utilizzi 
+     come il seguente ora sono ammessi: 
+    </para>
+    <para>
+     <programlisting role="php">
+<![CDATA[
+<?php
+// OK anche se $excludes è vuoto:
+array_diff($array, ...$excludes);
+// OK anche se $arrays contiene solo un singolo array: 
+array_intersect(...$arrays);
+?>
+]]>
+     </programlisting>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Il parametro <parameter>flag</parameter> della 
+     funzione <function>ob_implicit_flush</function> è 
+     cambiato per accettare <type>bool</type> invece 
+     che un <type>int</type>. 
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.tokenizer">
+  <title>Tokenizer</title>
+
+  <para>
+   <classname>PhpToken</classname> aggiunge un interfaccia 
+   basata sugli oggetti al Tokenizer, procura una 
+   rappresentazione più uniforme ed 'ergonomica' 
+   essendo allo stesso tempo più veloce ed efficiente 
+   nell'uso della memoria. 
+   <!--  RFC: https://wiki.php.net/rfc/token_as_object -->
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.new-features.zip">
+  <title>Zip</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     L'estensione Zip è stata aggiornata alla 
+     versione 1.19.1. 
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Nuovi metodi <methodname>ZipArchive::setMtimeName</methodname> e 
+     <methodname>ZipArchive::setMtimeIndex</methodname> 
+     per impostare il tempo di modifica di un input 
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Nuovo metodo <methodname>ZipArchive::registerProgressCallback</methodname> 
+     per procurare aggiornamenti durante la chiusura di un archivio. 
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Nuovo metodo <methodname>ZipArchive::registerCancelCallback</methodname> 
+     per consentire cancellazioni durante la chiusura di un archivio. 
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Nuovo metodo <methodname>ZipArchive::replaceFile</methodname> 
+     per rimpiazzare il contenuto di un entrata. 
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Nuovo metodo <methodname>ZipArchive::isCompressionMethodSupported</methodname> 
+     per controllare caratteristiche di compressione opzionali. 
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Nuovo metodo <methodname>ZipArchive::isEncryptionMethodSupported</methodname> 
+     per controllare caratteristiche di cifratura opzionali. 
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     La proprietà <varname>ZipArchive::lastId</varname> 
+     per ottenere il valore dell'indice dell'ultima 
+     entrata aggiunta è stata resa disponibile. 
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Ora gli errori possono essere controllati 
+     dopo che un archivio è stato chiuso usando 
+     le proprietà <varname>ZipArchive::status</varname> e 
+     <varname>ZipArchive::statusSys</varname> o il metodo 
+     <methodname>ZipArchive::getStatusString</methodname>. 
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     L'opzione <literal>'remove_path'</literal> dei metodi 
+     <methodname>ZipArchive::addGlob</methodname> e 
+     <methodname>ZipArchive::addPattern</methodname> è ora 
+     trattata come una stringa arbitraria (per coerenza 
+     con l'opzione <literal>'add_path'</literal>), prima 
+     era trattata come un nome di directory. 
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Le caratteristiche opzionali di compressione e 
+     cifratura ora sono elencate in phpinfo. 
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+</sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

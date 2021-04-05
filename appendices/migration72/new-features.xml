@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 33bf64d00def3d9ffb6e619227e53536aa6f41ae Maintainer: lucalzetta Status: ready -->
+<!-- $Revision$ -->
+
+<sect1 xml:id="migration72.new-features" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>Nuove caratteristiche</title>
+
+ <sect2 xml:id="migration72.new-features.object-type">
+  <title>Nuovi tipi oggetto</title>
+
+  <para>
+   Sono stati introdotti nuovi tipi, <type>object</type>, 
+   che possono essere usati per parametri
+   controvarianti e varianti di digitazione
+   e ritornano il tipo dell'oggetto.
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+function test(object $obj) : object
+{
+    return new SplQueue();
+}
+
+test(new StdClass());
+]]>
+   </programlisting>
+  </informalexample>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.ext-loading-by-name">
+  <title>Estensioi caricate per nome</title>
+
+  <para>
+   Le estensioni condivise non richiederanno
+   l'estensione del file come
+   (<literal>.so</literal> per Unix o 
+   <literal>.dll</literal> per Windows) 
+   pewr essere specificate. Questo comportamento
+   è abilitato nel file php.ini così come
+   nella funzione   <function>dl</function>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.abstract-method-overriding">
+  <title>Sovrascrittura dei metodi astratti</title>
+
+  <para>
+   I metodi astratti possono essere sovraccaricati
+   quando una classe astratta estende un'altra
+   classe astratta
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+abstract class A
+{
+    abstract function test(string $s);
+}
+abstract class B extends A
+{
+    // overridden - manitene ancora la controvarianza
+    //dei parametri e la covarianza del ritorno
+    abstract function test($s) : int;
+}
+]]>
+   </programlisting>
+  </informalexample>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.sodium">
+  <title><link linkend="book.sodium">Sodium</link> ora è una core extension</title>
+
+  <para>
+   La moderna libreria di crittografia Sodium 
+   ora è diventata un'estensione del nucleo di PHP.
+  </para>
+  <para>
+   Per un riferimento completo alle funzioni
+   consultare il capitolo 
+   <link linkend="book.sodium">Sodium</link>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.pws-hashing-with-argon2">
+  <title>Password hashing con Argon2</title>
+
+  <para>
+   Argon2 è stato aggiunto alle
+   <link linkend="book.password">password hashing API</link>, 
+   dove vengono esposte le seguenti costanti:
+  </para>
+
+  <itemizedlist>
+   <listitem>
+    <simpara>
+     <constant>PASSWORD_ARGON2I</constant>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <constant>PASSWORD_ARGON2_DEFAULT_MEMORY_COST</constant>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <constant>PASSWORD_ARGON2_DEFAULT_TIME_COST</constant>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <constant>PASSWORD_ARGON2_DEFAULT_THREADS</constant>
+    </simpara>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.pdo-extended-str-types">
+  <title>Estensione dei tipi stringa di 
+  <link linkend="book.pdo">PDO</link></title>
+
+  <para>
+   I tipi string di PDO sono stati estesi 
+   per supportare i caratteri dell'alfabeto
+   del proprio paese nell'emulazione delle
+   preparazioni. Questo è stato ottenuto con 
+   le seguenti costanti:
+  </para>
+
+  <itemizedlist>
+   <listitem>
+    <simpara>
+     <constant>PDO::PARAM_STR_NATL</constant>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <constant>PDO::PARAM_STR_CHAR</constant>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <constant>PDO::ATTR_DEFAULT_STR_PARAM</constant>
+    </simpara>
+   </listitem>
+  </itemizedlist>
+
+  <para>
+   Queste costanti sono utilizzate 
+   in un confronto bitwise <literal>OR</literal>
+   tra esse e 
+   <constant>PDO::PARAM_STR</constant>:
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+$db->quote('über', PDO::PARAM_STR | PDO::PARAM_STR_NATL);
+]]>
+   </programlisting>
+  </informalexample>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.additional-emulated-prepares-debugging-info">
+  <title>Informazioni di debug preparate addizionalmente 
+  per <link linkend="book.pdo">PDO</link></title>
+
+  <para>
+   Il metodo <function>PDOStatement::debugDumpParams</function> 
+   è stato modificato per includere lo statement SQL 
+   inviato al data base dove l'intera query grezza, 
+   incluse le sostituzioni dei placeholders con i 
+   loro valori effettivi, sarà mostrata. Questo è stato 
+   aggiunto per venire in aiuto dei programmi di 
+   debugging emulati, perciò è reso disponibile solo
+   se i programmi di emulazione sono attivati.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.extended-ops-in-ldap">
+  <title>Supporto per operazioni estese in
+  <link linkend="book.ldap">LDAP</link></title>
+
+  <para>
+   Il supporto per EXOP è stato aggiunto alle 
+   estensioni LDAP. Questo è stato fatto esponendo
+   le seguenti funzioni e costanti:
+  </para>
+
+  <itemizedlist>
+   <listitem>
+    <simpara>
+     <function>ldap_parse_exop</function>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <function>ldap_exop</function>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <function>ldap_exop_passwd</function>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <function>ldap_exop_whoami</function>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <constant>LDAP_EXOP_START_TLS</constant>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <constant>LDAP_EXOP_MODIFY_PASSWD</constant>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <constant>LDAP_EXOP_REFRESH</constant>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <constant>LDAP_EXOP_WHO_AM_I</constant>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <constant>LDAP_EXOP_TURN</constant>
+    </simpara>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.addr-info-in-sockets">
+  <title>Informazioni aggiuntive sull'indirizzo
+  per le estensioni <link linkend="book.sockets">Sockets</link></title>
+
+  <para>
+   L'estensione sockets ora ha la capacità di 
+   guardare all'interno delle informazioni 
+   dell'indirizzo come se fosse connessa ad esso,
+   legata ad esso o esposta ad esso. Le 
+   seguenti quattro funzioi sono state aggiunte 
+   per questo:
+   </para>
+
+  <itemizedlist>
+   <listitem>
+    <simpara>
+     <function>socket_addrinfo_lookup</function>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <function>socket_addrinfo_connect</function>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <function>socket_addrinfo_bind</function>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <function>socket_addrinfo_explain</function>
+    </simpara>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.param-type-widening">
+  <title>Allargamento dei tipi dei parametri</title>
+
+  <para>
+   I tipi dei parametri da metodi sovraccaricati 
+   (overriden) e da implementazione di interfacce
+   ora possonoi essere omessi. Questo ancora in 
+   complicità con LSP, finché i tipi dei parametri
+   sono controvarianti.
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+interface A
+{
+    public function Test(array $input);
+}
+
+class B implements A
+{
+    public function Test($input){} // type omitted for $input
+}
+]]>
+   </programlisting>
+  </informalexample>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.trailing-comma-in-grouped-namespaces">
+  <title>Permesso il collegamento tramite virgole dei namespaces raggruppati</title>
+
+  <para>
+   Il collegamento tramite virgole ora può
+   essere aggiunto alla sintassi group-use
+   a partire da PHP 7.0.
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+use Foo\Bar\{
+    Foo,
+    Bar,
+    Baz,
+};
+]]>
+   </programlisting>
+  </informalexample>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.proc_nice-windows-support">
+  <title><function>proc_nice</function> supportato su Windows</title>
+
+  <para>
+   La funzione <function>proc_nice</function> 
+   ora è supportata da Windows.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.pack-unpack-endian-support">
+  <title><function>pack</function> e <function>unpack</function> endian support</title>
+
+  <para>
+   Le funzioni <function>pack</function> e 
+   <function>unpack</function> ora supportano
+   i tipi float e double sia in little endian 
+   che in big endian.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.exif-features">
+  <title>Miglioramenti alle estensioni 
+  <link linkend="book.exif">EXIF</link></title>
+
+  <para>
+   Le estensioni EXIF sono state modificate per 
+   supportare un più gran numero di formati.
+   Questo significa che il loro specifico formato 
+   di tags ora è tradotto appropriatamente quando 
+   confrontano immagini con la funzione 
+   <function>exif_read_data</function>. 
+   I seguenti nuovi formati ora sono supportati:
+  </para>
+
+  <itemizedlist>
+   <listitem>
+    <simpara>
+     Samsung
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     DJI
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     Panasonic
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     Sony
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     Pentax
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     Minolta
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     Sigma/Foveon
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     AGFA
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     Kyocera
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     Ricoh
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     Epson
+    </simpara>
+   </listitem>
+  </itemizedlist>
+
+  <para>
+   Le funzioi EXIF <function>exif_read_data</function> e 
+   <function>exif_thumbnail</function> 
+   ora supportano il passaggio di stream come
+   loro primo argomento.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.pcre">
+  <title>Nuove caratteristiche in <link linkend="book.pcre">PCRE</link></title>
+
+  <itemizedlist>
+   <listitem>
+    <simpara>
+     Il modificatore <literal>J</literal> 
+     per impostare PCRE_DUPNAMES è stato aggiunto.
+    </simpara>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.sqlite3">
+  <title><link linkend="book.sqlite3">SQLite3</link> ammette 
+  la scrittura di BLOBs</title>
+
+  <para>
+   <methodname>SQLite3::openBlob</methodname> 
+   ora permette l'apertura di campi BLOB 
+   in odalità scrittura; precedentemente era
+   supportata solo la modalità lettura.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.oci8">
+  <title><link linkend="book.oci8">Oracle OCI8</link> 
+  Transparent Application Failover Callbacks</title>
+
+  <para>
+   Il supporto per 
+   <link linkend="oci8.taf">Oracle Database Transparent Application Failover (TAF) callbacks</link>
+   è stato aggiunto. TAF permette alle applicazioni 
+   PHP OCI8 di riconnettersi automaticamente al database
+   quando la connessione è stata compromessa. Il nuovo
+   callback di TAF permette alle aplicazioni PHP di 
+   monitorare e controllare la riconnessione durante
+   il ripristino.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration72.new-features.zip">
+  <title>Miglioramenti all'estensione <link linkend="book.zip">ZIP</link></title>
+
+  <para>
+   Il supporto per lettura e scrittura di 
+   archivi criptati è stato aggiunto (richiede 
+   libzip 1.2.0).
+  </para>
+  <para>
+   La classe <classname>ZipArchive</classname> ora 
+   implementa l'interfaccia 
+   <interfacename>Countable</interfacename>. 
+  </para>
+  <para>
+   Lo stream <literal>zip://</literal> ora 
+   accetta <literal>'password'</literal> context option.
+  </para>
+ </sect2>
+
+</sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

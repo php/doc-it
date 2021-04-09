@@ -1,76 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 9cc4767b2ddf65c4ed592c9deb818cbb2c9def7b Maintainer: lucalzetta Status: ready -->
 <!-- $Revision$ -->
 <chapter xml:id="features.dtrace" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <title>DTrace Dynamic Tracing</title>
 
  <sect1 xml:id="features.dtrace.introduction">
-  <title>Introduction to PHP and DTrace</title>
+  <title>Introduzione a PHP e DTrace</title>
 
   <para>
-   DTrace is an always-available, low overhead, tracing framework
-   available on a number of platforms including Solaris, macOS,
-   Oracle Linux and BSD.  DTrace can trace operating system behavior
-   and user program execution. It can display argument values and be
-   used to infer performance statistics.  Probes are monitored by user
-   created scripts written in the DTrace D scripting language. This
-   allows efficient analysis of data points.
+   DTrace è un framework di basso livello sempre disponibile 
+   per una vasta tipologia di piattaforme tra cui Solaris, 
+   macOs, Oracle, Linux, BSD. DTarce può tracciare i comportamenti 
+   del sistema operativo e l'esecuzione dei programmi a 
+   livello utente. Può mostrare valori di argomenti ed essere usato 
+   per generare statistiche sulle performance del sistema. I valori 
+   vengono monitorati attraverso gli script creati dall'utente nel 
+   linguaggio nativo di DTrace, 'D'. Questo consente di effettuare 
+   analisi molto efficienti dei dati del punto della situazione. 
   </para>
 
   <para>
-   PHP probes that are not being actively monitored by a user's DTrace
-   D script do not contain instrumented code so there is no
-   performance degradation during normal application execution.
-   Probes that are being monitored incur an overhead low enough to
-   generally allow DTrace monitoring on live production systems.
+   PHP dimostra che non ci sono attività monitorate da script 
+   dell'utente in D script e non c'è codice strumentale che 
+   possa degradare le performance del sistema durante la 
+   normale esecuzione delle sue applicazioni. Le prove sono 
+   monitorate incorrendo in un'esecuzione profonda abbastanza 
+   da permettere a DTrace l'esecuzione su anche su sistemi 
+   e programmi non residenti fisicamente sulla macchina monitorata. 
   </para>
 
   <para>
-   PHP incorporates "User-level Statically Defined Tracing" (USDT)
-   probes that are triggered at runtime. For example, when a D script
-   is monitoring PHP's <literal>function-entry</literal> probe, then,
-   every time a PHP script function is called, this probe is fired and
-   the associated D script action code is executed.  This action code
-   could, for example, print probe arguments such as the source file
-   location of the PHP function. Or the action could aggregate data
-   such as the number of times each function is called.
+   PHP incorpora un livello utente di DTrace chiamato  "User-level 
+   Statically Defined Tracing" (USDT) con sondaggi generati a 
+   runtime. Per esempio, quando un D script sta monitorando la 
+   funzione <literal>function-entry</literal> di PHP, allora, 
+   ogni volta che viene chiamata una funzione di PHP il sondaggio 
+   (probe), viene attivato e il D script associato viene eseguito. 
+   Questo codice può, per esempio, stampare degli argomenti del 
+   sondaggio come la posizione dei file di PHP che vengono eseguiti 
+   o aggregare dei dati di esecuzione come il numero di volte che 
+   viene chiamata ogni funzione. 
   </para>
 
   <para>
-   Only the PHP USDT probes are described here.  Refer to external
-   general and operating system-specific DTrace literature to see how
-   DTrace can be used to trace arbitrary functions, and how it can be
-   used to trace operating system behavior.  Note not all DTrace
-   features are available in all DTrace implementations.
+   Qui vengono descritte solo i sondaggi USDT, I riferimenti 
+   alla letteratura esterna di DTrace e alle specifiche di DTrace 
+   per ogni sistema operativo, per vedere come DTrace può essere 
+   usato per tracciare funzioni arbitrariamente e come può essere 
+   ustao per tracciare il comportamento del sistema operativo. 
+   Attenzione perché non tutte le carateristiche di DTrace sono 
+   disponibili in tutte le implementazioni di DTrace. 
   </para>
 
   <para>
-   DTrace static probes are included in PHP 5.4.  Prior to this they
-   were available via a <link xmlns="http://docbook.org/ns/docbook"
+   Sondaggi statici di DTrace inclusi in PHP 5.4. Prima di questa 
+   versione sono disponibili attraverso 
+   <link xmlns="http://docbook.org/ns/docbook"
    xmlns:xlink="http://www.w3.org/1999/xlink"
-   xlink:href="&url.pecl;">PECL</link> extension, which is now
-   obsolete.
+   xlink:href="&url.pecl;">PECL</link> estensioni che ora sono 
+   diventate obsolete. 
   </para>
 
   <para>
-   The static DTrace probes in PHP can alternatively be used with the
-   SystemTap facility on some Linux distributions.
+   I sondaggi statici di DTrace in PHP possono anche essere usati, 
+   in alcune distribuzioni di Linux, con delle SystemTap facility. 
   </para>
  </sect1>
 
  <sect1 xml:id="features.dtrace.dtrace">
-  <title>Using PHP and DTrace</title>
+  <title>Usare PHP e DTrace</title>
   <para>
-   PHP can be configured with DTrace static probes on platforms that
-   support DTrace Dynamic Tracing.
+   PHP può essere configurato con i sondaggi statici di DTrace 
+   sulle piattaforme che supportano il tracing dinamico di DTrace. 
   </para>
 
   <sect2 xml:id="features.dtrace.install">
-   <title>Configuring PHP for DTrace Static Probes</title>
+   <title>Configurare PHP per i DTrace Static Probes (sondaggi statici)</title>
 
    <para>
-    Refer to external platform specific documentation for enabling
-    operating system DTrace support.  For example, on Oracle Linux
-    boot a UEK3 kernel and do:
+    Riferimento alla documentazione specifica di una piattaforma 
+    esterna per abilitar eil supporto del sistema operativo a 
+    DTrace. Per esmpio, su Oracle o Linux caricare un kernel UEK3
+    es eseguire: 
 
     <informalexample>
      <programlisting role="php">
@@ -82,12 +93,14 @@
     </informalexample>
    </para>
    <para>
-    Instead of using <literal>chmod</literal>, you could instead use an
-    ACL package rule to limit device access to a specific user.
+    Anziché usare <literal>chmod</literal>, è possibile usare al 
+    suo posto le regole di un ACL package per limitare l'accesso 
+    da parte di apparecchiature di uno  specifico utente. 
    </para>
 
    <para>
-    Build PHP with the <literal>--enable-dtrace</literal> configuration parameter:
+    Compilare PHP configurando il parametro 
+    <literal>--enable-dtrace</literal>: 
     <informalexample>
      <programlisting role="php">
 <![CDATA[
@@ -99,16 +112,16 @@
     </informalexample>
    </para>
    <para>
-    This enables the static probes in core PHP.  Any PHP extensions
-    that provide their own probes should be built separately as shared
-    extensions.
+    Questo abilita i sondaggi statici nel nucleo di PHP. Alcune 
+    estensioni di PHP che generano i propri sondaggi possono essere 
+    compilate separatamente come estensioni condivise. 
    </para>
   </sect2>
 
   <sect2 xml:id="features.dtrace.static-probes">
-  <title>DTrace Static Probes in Core PHP</title>
+  <title>DTrace Static Probes nel nucleo di PHP</title>
   <table>
-   <title>The following static probes are available in PHP</title>
+   <title>I seguenti sondaggi statici(static probes) sono disponibili in PHP</title>
    <tgroup cols="2">
     <thead>
      <row>
@@ -120,73 +133,88 @@
     <tbody>
      <row>
       <entry><literal>request-startup</literal></entry>
-      <entry>Fires when a request starts.</entry>
+      <entry>Si attiva quando inizia una request</entry>
       <entry>char *<varname>file</varname>, char *<varname>request_uri</varname>, char *<varname>request_method</varname></entry>
      </row>
      <row>
       <entry><literal>request-shutdown</literal></entry>
-      <entry>Fires when a request shutdown.</entry>
+      <entry>Si attiva quando una request termina</entry>
       <entry>char *<varname>file</varname>, char *<varname>request_uri</varname>, char *<varname>request_method</varname></entry>
      </row>
      <row>
       <entry><literal>compile-file-entry</literal></entry>
-      <entry>Fires when the compilation of a script starts.</entry>
+      <entry>Si attiva quando parte la compilazione di uno script</entry>
       <entry>char *<varname>compile_file</varname>, char *<varname>compile_file_translated</varname></entry>
      </row>
      <row>
       <entry><literal>compile-file-return</literal></entry>
-      <entry>Fires when the compilation of a script finishes.</entry>
+      <entry>Si attiva quando termina la compilazione di uno script</entry>
       <entry>char *<varname>compile_file</varname>, char *<varname>compile_file_translated</varname></entry>
      </row>
      <row>
       <entry><literal>execute-entry</literal></entry>
-      <entry>Fires when an opcode array is to be executed.  For
-      example, it fires on function calls, includes, and generator
-      resumes.</entry>
+      <entry>Si attiva quando un opecode array sta per essere eseguito,
+      ad esmpio alla chiamata di una funzione, alla chiamata di un 
+      includes e di un generator resumes.</entry>
       <entry>char *<varname>request_file</varname>, int <varname>lineno</varname></entry>
      </row>
      <row>
       <entry><literal>execute-return</literal></entry>
-      <entry>Fires after execution of an opcode array.</entry>
+      <entry>Si attiva dopo l'esecuzione di un opecode array.</entry>
       <entry>char *<varname>request_file</varname>, int <varname>lineno</varname></entry>
      </row>
      <row>
       <entry><literal>function-entry</literal></entry>
-      <entry>Fires when the PHP engine enters a PHP function or method call.</entry>
-      <entry>char *<varname>function_name</varname>, char *<varname>request_file</varname>, int <varname>lineno</varname>, char *<varname>classname</varname>, char *<varname>scope</varname></entry>
+      <entry>Si attiva quando il motore PHP entra in una funzione o in un 
+      metodo call.</entry>
+      <entry>char *<varname>function_name</varname>, char *<varname>
+      request_file</varname>, int <varname>lineno</varname>, char *
+      <varname>classname</varname>, char *<varname>scope</varname>
+      </entry>
      </row>
      <row>
       <entry><literal>function-return</literal></entry>
-      <entry>Fires when the PHP engine returns from a PHP function or method call.</entry>
-      <entry>char *<varname>function_name</varname>, char *<varname>request_file</varname>, int <varname>lineno</varname>, char *<varname>classname</varname>, char *<varname>scope</varname></entry>
+      <entry>Si attiva quando il motore PHP esce da una funzione o da un 
+      metodo call.</entry>
+      <entry>char *<varname>function_name</varname>, char *
+      <varname>request_file</varname>, int <varname>lineno</varname>, 
+      char *<varname>classname</varname>, char *<varname>scope</varname>
+      </entry>
      </row>
      <row>
       <entry><literal>exception-thrown</literal></entry>
-      <entry>Fires when an exception is thrown.</entry>
+      <entry>Si attiva quando si genera un eccezione.</entry>
       <entry>char *<varname>classname</varname></entry>
      </row>
      <row>
       <entry><literal>exception-caught</literal></entry>
-      <entry>Fires when an exception is caught.</entry>
+      <entry>Si attiva quando viene catturata un eccezione.</entry>
       <entry>char *<varname>classname</varname></entry>
      </row>
      <row>
       <entry><literal>error</literal></entry>
-      <entry>Fires when an error occurs, regardless of the <link linkend="ini.error-reporting">error_reporting</link> level.</entry>
-      <entry>char *<varname>errormsg</varname>, char *<varname>request_file</varname>, int <varname>lineno</varname></entry>
+      <entry>Si attiva quando si verifica un errore 
+      che riguarda il livello 
+      <link linkend="ini.error-reporting">error_reporting</link>. 
+      </entry>
+      <entry>char *<varname>errormsg</varname>, char *
+      <varname>request_file</varname>, int <varname>
+      lineno</varname>
+      </entry>
      </row>
     </tbody>
    </tgroup>
   </table>
   <para>
-   PHP extensions may also have additional static probes.
+   Estensioni PHP che possono avere ulteriori sondaggi static. 
   </para>
   </sect2>
 
   <sect2 xml:id="features.dtrace.list-probes">
-   <title>Listing DTrace Static Probes in PHP</title>
+   <title>Elencare i sondaggi static DTrace in PHP</title>
    <para>
-    To list available probes, start a PHP process and then run:
+    Per elencare i sondaggi disponibili avviare PHP 
+    ed eseguire: 
     <informalexample>
      <programlisting>
 <![CDATA[
@@ -197,7 +225,7 @@
    </para>
 
    <para>
-    The output will be similar to:
+    L'output sarà simile al seguente: 
     <informalexample>
      <programlisting>
 <![CDATA[
@@ -222,32 +250,38 @@
    </para>
 
    <para>
-    The Provider column values consist of <literal>php</literal> and
-    the process id of the currently running PHP process.
+    La colonna di valori Provider contiene l'id del 
+    processo <literal>php</literal> attualmente in corso 
+    di esecuzione. 
    </para>
 
    <para>
-    If the Apache web server is running, the module name might be, for
-    example, <filename>libphp5.so</filename>, and there would be
-    multiple blocks of listings, one per running Apache process.
+    Se il server Apache è im esecuzione il nome del modulo 
+    potrebbe essere, per esempio, <filename>libphp5.so</filename>, 
+    e potrebbero esserci più blocchi elencati, uno per ogni 
+    istanza di Apache in esecuzione. 
    </para>
 
    <para>
-    The Function column refers to PHP's internal C implementation
-    function names where each provider is located.
+    La colonna function name, si riferisce ai nomi delle funzioni 
+    della libreria 'C' interna a PHP in cui ogni processo è 
+    localizzato. 
    </para>
 
    <para>
-    If a PHP process is not running, then no PHP probes will be shown.
+    Se un processo PHP non è in esecuzione non verranno mostrati 
+    sondaggi al riguardo. 
    </para>
   </sect2>
 
   <sect2 xml:id="features.dtrace.examples">
-   <title>DTrace with PHP Example</title>
+   <title>DTrace con esempi PHP</title>
    <para>
-    This example shows the basics of the DTrace D scripting language.
+    Questo esempio mostra le basi di uno script nel linguaggio 'D' 
+    di DTrace. 
     <example>
-     <title><filename>all_probes.d</filename> for tracing all PHP Static Probes with DTrace</title>
+     <title><filename>all_probes.d</filename> 
+     per tracciare tuuti i sondaggi static di PHP con DTrace</title>
      <programlisting>
 <![CDATA[
 #!/usr/sbin/dtrace -Zs
@@ -343,16 +377,18 @@ php*:::request-startup
    </para>
 
    <para>
-    This script uses the <literal>-Z</literal> option to
-    <filename>dtrace</filename>, allowing it to be run when there is no
-    PHP process executing.  If this option were omitted the script
-    would immediately terminate because it knows none of the probes to
-    be monitored are in existence.
+    Questo script usa l'opzione <literal>-Z</literal> per 
+    <filename>dtrace</filename>, per permettergli di  essere 
+    eseguito quando non ci sono processi di PHP in esecuzione. 
+    Se questa opzione fosse stata omessa lo script avrebbe 
+    immediatamente terminato la propria esecuzione perché 
+    non ci sarbbero stati sondaggi da monitorare in corso. 
    </para>
 
    <para>
-    The script traces all core PHP static probe points throughout the
-    duration of a running PHP script. Run the D script:
+    Lo script traccia tutti i punti di sondaggio static 
+    del nucleo di PHP attraverso la durata dell'esecuzione 
+    di uno script di PHP. eseguire lo D script: 
     <informalexample>
      <programlisting>
 <![CDATA[
@@ -363,20 +399,22 @@ php*:::request-startup
    </para>
 
    <para>
-    Run a PHP script or application.  The monitoring D script will
-    output each probe's arguments as it fires.
+    Eseguire uno script PHP o un'intera applicazione. Il monitoraggio 
+    dello D script emette tutti gli argomenti dei sondaggi alla sua 
+    attivazione. 
    </para>
 
    <para>
-    When monitoring is complete, the D script can be terminated with a
-    <literal>^C</literal>.
+    Quando il monitoraggio è completato lo D script può essere 
+    terminato con <literal>^C</literal>. 
    </para>
 
    <para>
-    On multi-CPU machines the probe ordering might not appear to be
-    sequential. This depends on which CPU was processing the probes,
-    and how threads migrate across CPUs.  Displaying probe time stamps
-    will help reduce confusion, for example:
+    Su sistemi multi CPU il sondaggio potrebbe non apparire in 
+    modo sequenziale. Questo dipende da quale CPU stava processando 
+    il sondaggio, e da come i vari threads si spostano attraverso 
+    le varie CPU. La visualizzazione dell'istante dei sondaggi ci 
+    aiuta a ridurre la confusione. Ad esempio: 
     <informalexample>
      <programlisting>
 <![CDATA[
@@ -392,9 +430,9 @@ php*:::function-entry
   </sect2>
 
   <sect2 xml:id="features.dtrace.references">
-   <title>See Also</title>
+   <title>Vedere anche</title>
    <simplelist>
-    <member><link linkend="oci8.dtrace">OCI8 and DTrace Dynamic Tracing</link></member>
+    <member><link linkend="oci8.dtrace">OCI8 e DTrace Dynamic Tracing</link></member>
    </simplelist>
   </sect2>
  </sect1>
@@ -402,16 +440,16 @@ php*:::function-entry
  <sect1 xml:id="features.dtrace.systemtap">
   <title>Using SystemTap with PHP DTrace Static Probes</title>
   <para>
-   On some Linux distributions, the SystemTap tracing utility can be
-   used to trace PHP's static DTrace probes.  This is available with
-   PHP 5.4.20 and PHP 5.5.
+   Su alcune distribuzioni Linux l'utility SystemTap tracing può 
+   essere usata per tracciare i sondaggi static DTrace di PHP. 
+   QUesta funzionalità è disponibile con PHP 5.4.20 e PHP 5.5. 
   </para>
 
   <sect2 xml:id="features.dtrace.systemtap-install">
-   <title>Installing PHP with SystemTap</title>
+   <title>Installare PHP con SystemTap</title>
 
    <para>
-    Install the SystemTap SDT development package:
+    Intallare il package SystemTap SDT development: 
     <informalexample>
      <programlisting role="shell">
 <![CDATA[
@@ -422,7 +460,7 @@ php*:::function-entry
    </para>
 
    <para>
-    Install PHP with the DTrace probes enabled:
+    Installare PHP con i sondaggi DTrace abilitati: 
     <informalexample>
      <programlisting role="shell">
 <![CDATA[
@@ -435,10 +473,10 @@ php*:::function-entry
   </sect2>
 
   <sect2 xml:id="features.dtrace.systemtap-list-probes">
-   <title>Listing Static Probes with SystemTap</title>
+   <title>Elencare sondaggi static con SystemTap</title>
 
    <para>
-    The static probes in PHP can be listed using <filename>stap</filename>:
+    I sondaggi static in PHP possono essere elencati usando: <filename>stap</filename>:
     <informalexample>
      <programlisting>
 <![CDATA[
@@ -449,7 +487,7 @@ php*:::function-entry
    </para>
 
    <para>
-    This outputs:
+    Questo emette: 
     <informalexample>
      <programlisting>
 <![CDATA[
@@ -471,11 +509,12 @@ process("sapi/cli/php").provider("php").mark("request__startup")
   </sect2>
 
   <sect2 xml:id="features.dtrace.systemtap-examples">
-   <title>SystemTap with PHP Example</title>
+   <title>SystemTap con PHP Example</title>
 
    <para>
     <example>
-     <title><filename>all_probes.stp</filename> for tracing all PHP Static Probes with SystemTap</title>
+     <title><filename>all_probes.stp</filename> per tracciare tutti 
+     i sondaggi static di PHP con SystemTap</title>
      <programlisting role="shell">
 <![CDATA[
 probe process("sapi/cli/php").provider("php").mark("compile__file__entry") {
@@ -545,8 +584,9 @@ probe process("sapi/cli/php").provider("php").mark("request__startup") {
     </example>
    </para>
    <para>
-    The above script will trace all core PHP static probe points
-    throughout the duration of a running PHP script:
+    Il seguente script traccerà tutti i punti dei sondaggi static 
+    del nucleo di PHP per tutta la durata di esecuzione di uno 
+    script di PHP: 
     <informalexample>
      <programlisting>
 <![CDATA[

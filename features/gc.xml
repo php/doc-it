@@ -1,35 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 04f4545c02b4643283da216e6b62e39a307a9a9a Maintainer: lucalzetta Status: ready -->
 <!-- $Revision$ -->
  <chapter xml:id="features.gc" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
   <title>Garbage Collection</title>
 
   <para>
-   This section explains the merits of the new Garbage Collection (also known
-   as GC) mechanism that is part of PHP 5.3.
+   Questa sezione spiega i meriti del nuovo Garbage Collection (altrimenti 
+   conosciuto come GC), meccanismo che è parte di PHP 5.3. 
   </para>
 
   <sect1 xml:id="features.gc.refcounting-basics">
-   <title>Reference Counting Basics</title>
+   <title>Racconti delle referenze di base</title>
    <para>
-    A PHP variable is stored in a container called a "zval". A zval container
-    contains, besides the variable's type and value, two additional bits of
-    information. The first is called "is_ref" and is a boolean value
-    indicating whether or not the variable is part of a "reference set". With
-    this bit, PHP's engine knows how to differentiate between normal variables
-    and references. Since PHP allows user-land references, as created by the
-    &amp; operator, a zval container also has an internal reference counting
-    mechanism to optimize memory usage. This second piece of additional
-    information, called "refcount", contains how many variable names (also
-    called symbols) point to this one zval container. All symbols are stored in
-    a symbol table, of which there is one per scope. There is a scope for the
-    main script (i.e., the one requested through the browser), as well as one
-    for every function or method.
+    Una variabile PHP è un'entità archiviata in un container chiamato "zval". 
+    Un container zval oltre al nome e al tipo della variabile, contiene 
+    altri due bit di informazione: il primo è chiamato "is ref" ed è un 
+    valore booleano che indica se una variabile è o meno parte di un gruppo 
+    di referenze. Con questo bit il motore di PHP capisce come differenziare 
+    le variabili tra quelle normali e le references variabili. Finché PHP 
+    permette l'area utente delle referenze, così come viene creata dall'operatore 
+    &amp;, un contenitore zval ha un contatore interno delle referenze 
+    utilizzato in un meccanismo per ottimizzare l'uso della memoria. Questa 
+    seconda parte di informazione aggiuntiva, chiamata "refcount", contiene 
+    la quantità di nomi di variabili (chiamati anche simboli) che puntano 
+    a questo contenitore zval. Tutti i nomi sono archiviati in una tabella 
+    di simboli in cui ce n'è uno per ogni processo. C'è un processo (scope) 
+    per lo script main (cioè quello richiesto dal browser), così come ce 
+    n'è uno per ogni metodo o funzione. 
    </para>
    <para>
-    A zval container is created when a new variable is created with a constant
-    value, such as:
+    Un zval viene creato quando viene creata una nuova variabile con un 
+    valore costante, in questo modo: 
     <example>
-     <title>Creating a new zval container</title>
+     <title>Creazione di un nuovo contenitore zval</title>
      <programlisting role="php">
 <![CDATA[
 <?php
@@ -40,18 +43,20 @@ $a = "new string";
     </example>
    </para>
    <para>
-    In this case, the new symbol name, <literal>a</literal>, is created in the current scope,
-    and a new variable container is created with the type <type>string</type> and the value
-    <literal>new string</literal>. The "is_ref" bit is by default set to &false; because no
-    user-land reference has been created. The "refcount" is set to <literal>1</literal> as
-    there is only one symbol that makes use of this variable container. Note
-    that if "refcount" is <literal>1</literal>, "is_ref" is always &false;. If you have <link
-    xlink:href="&url.xdebug;">Xdebug</link> installed, you can display this
-    information by calling <function>xdebug_debug_zval</function>.
+    In questo caso il nuovo nome di simbolo, <literal>a</literal>, è creato 
+    nel processo corrente, e un uovo contenitore di variabili è creato con 
+    il tipo <type>string</type> e il valore <literal>new string</literal>. 
+    Il bit "is_ref" è impostato per impostazione predefinita a &false; perché
+    non sono state create aree di referenze utente. Il "refcount" è impostato 
+    a <literal>1</literal> perchè c'è un solo simbolo (nome di variabile) che 
+    fa uso di questo contenitore di variabili. Si osservi che se "refcount" 
+    è <literal>1</literal>, "is_ref" è sempre &false;. Se abbiamo installato 
+    <link xlink:href="&url.xdebug;">Xdebug</link>, è possibile visualizzare 
+    queste informazioni chiamando la funzione <function>xdebug_debug_zval</function>. 
    </para>
    <para>
     <example>
-     <title>Displaying zval information</title>
+     <title>VIsualizzare le informazioni su zval</title>
      <programlisting role="php">
 <![CDATA[
 <?php
@@ -69,11 +74,11 @@ a: (refcount=1, is_ref=0)='new string'
     </example>
    </para>
    <para>
-    Assigning this variable to another variable name will increase the refcount.
+    L'assegnazione di questa variabile ad un'altra incrementa il valore di refcont. 
    </para>
    <para>
     <example>
-     <title>Increasing refcount of a zval</title>
+     <title>Incremento di refcount in un contenitore zval</title>
      <programlisting role="php">
 <![CDATA[
 <?php
@@ -92,18 +97,20 @@ a: (refcount=2, is_ref=0)='new string'
     </example>
    </para>
    <para>
-    The refcount is <literal>2</literal> here, because the same variable container is linked
-    with both <varname>a</varname> and <varname>b</varname>.
-    PHP is smart enough not to copy the actual variable
-    container when it is not necessary. Variable containers get destroyed when
-    the "refcount" reaches zero. The "refcount" gets decreased by one when any
-    symbol linked to the variable container leaves the scope (e.g. when the
-    function ends) or when a symbol is unassigned (e.g. by calling <function>unset</function>).
-    The following example shows this:
+    Refcont ora è <literal>2</literal> perchè lo stesso contenitore della 
+    variabile è stato collegato sia con <varname>a</varname> che con 
+    <varname>b</varname>. PHP è 'furbo' abbastanza da non copiare l'intero 
+    container della variabile se non è necessario. Questo andrà distrutto 
+    quando refcount raggiunge lo zero. Refcount viene decrementato di uno 
+    quando ogni simbolo collegato al contenitore delle variabili esce dal 
+    suo scopo (cioè quando la funzione finisce la sua esecuzione) oppure 
+    quando un simbolo (nome di variabile) non è più assegnato (magari 
+    chiamando la funzione <function>unset</function>). Il seguente esempio 
+    da una dimostrazione di questo comportamento: 
    </para>
    <para>
     <example>
-     <title>Decreasing zval refcount</title>
+     <title>Decremento di zval refcount</title>
      <programlisting role="php">
 <![CDATA[
 <?php
@@ -128,23 +135,24 @@ a: (refcount=1, is_ref=0)='new string'
     </example>
    </para>
    <para>
-    If we now call <literal>unset($a);</literal>, the variable container, including the type
-    and value, will be removed from memory.
+    Se a questo punto chiamiamo <literal>unset($a);</literal>, il contenitore 
+    delle variabili, incluso il tipo e il valore della variabile, verrà 
+    rimoso dalla memoria. 
    </para>
 
    <sect2 xml:id="features.gc.compound-types">
-    <title>Compound Types</title>
+    <title>Tipi composti</title>
 
     <para>
-     Things get a tad more complex with compound types such as <type>array</type>s and
-     <type>object</type>s. As opposed to <type>scalar</type> values, <type>array</type>s
-     and <type>object</type>s store their
-     properties in a symbol table of their own. This means that the following
-     example creates three zval containers:
+     Le cose poi si complicano con i tipi composti come gli <type>array</type>
+     e gli<type>object</type>. In contrapposizione ai valori <type>scalari</type>, 
+     gli <type>array</type> e gli <type>object</type> archiviano le loro 
+     proprietà in una tabella di simboli tutta loro. Ciò significa, ad 
+     esempio, che il seguente script creerà tre contenitori zval: 
     </para>
     <para>
      <example>
-      <title>Creating a <type>array</type> zval</title>
+      <title>Creare un <type>array</type> zval</title>
       <programlisting role="php">
 <![CDATA[
 <?php
@@ -162,9 +170,9 @@ a: (refcount=1, is_ref=0)=array (
 )
 ]]>
       </screen>
-      <para>Or graphically</para>
+      <para>O graficamente</para>
       <mediaobject>
-       <alt>Zvals for a simple array</alt>
+       <alt>Zvals per un semplice array</alt>
        <imageobject>
         <imagedata fileref="en/features/figures/simple-array.png" format="PNG"/>
        </imageobject>
@@ -172,14 +180,15 @@ a: (refcount=1, is_ref=0)=array (
      </example>
     </para>
     <para>
-     The three zval containers are: <varname>a</varname>, <varname>meaning</varname>, and <varname>number</varname>.
-     Similar rules apply for increasing and decreasing "refcounts". Below, we add another
-     element to the array, and set its value to the contents of an already
-     existing element:
+     I tre contenitori zval sono: <varname>a</varname>, <
+     varname>meaning</varname>, e <varname>number</varname>.
+     Regole simili si applicano per incrementare e decrementare i refcounts. 
+     Sotto aggiungiamo un altro elemento all'array e impostiamo il suo valore 
+     al contenuto di quello di un altro elemento preesistente. 
     </para>
     <para>
      <example>
-      <title>Adding already existing element to an array</title>
+      <title>Aggiunta di un elemento ad un array</title>
       <programlisting role="php">
 <![CDATA[
 <?php
@@ -199,9 +208,9 @@ a: (refcount=1, is_ref=0)=array (
 )
 ]]>
       </screen>
-      <para>Or graphically</para>
+      <para>O graficamente</para>
       <mediaobject>
-       <alt>Zvals for a simple array with a reference</alt>
+       <alt>Zval per un array semplice con una referenza</alt>
        <imageobject>
         <imagedata fileref="en/features/figures/simple-array2.png" format="PNG"/>
        </imageobject>
@@ -209,22 +218,25 @@ a: (refcount=1, is_ref=0)=array (
      </example>
     </para>
     <para>
-     From the above Xdebug output, we see that both the old and new array
-     elements now point to a zval container whose "refcount" is
-     <literal>2</literal>. Although Xdebug's output shows two zval containers
-     with value <literal>'life'</literal>, they are the same one. The
-     <function>xdebug_debug_zval</function> function does not show this, but
-     you could see it by also displaying the memory pointer.
+     Dal precedente output di Xdebug noi vediamo che entrambi, il vecchio 
+     e il nuovo elemento dell'array ora puntano allo stesso contenitore 
+     zval il cui refcount è <literal>2</literal>. Nonostante l'output di 
+     Xdebug mostri due contenitori zval con il valore <literal>'life'</literal>, 
+     essi sono la stessa cosa. La funzione <function>xdebug_debug_zval</function> 
+     questo non lo mostra ma è possibile vederlo mostrando il puntatore 
+     della memoria. 
     </para>
     <para>
-     Removing an element from the array is like removing a symbol from a scope.
-     By doing so, the "refcount" of a container that an array element points to
-     is decreased. Again, when the "refcount" reaches zero, the variable
-     container is removed from memory.  Again, an example to show this:
+     Rimuovendo un elemento dall'array è come se rimuovessimo un simbolo 
+     da uno scopo. Facendo questo il refcount di un container a cui punta 
+     quell'elemento viene decrementato. Ancora una volta, qundo "refcount" 
+     raggiunge il valore di zero, il contenitore delle variabili viene 
+     rimosso dalla memoria. Ancora un esempio per mostrare questo 
+     comportamento: 
     </para>
     <para>
      <example>
-      <title>Removing an element from an array</title>
+      <title>Rimuovere un elemento da un array</title>
       <programlisting role="php">
 <![CDATA[
 <?php
@@ -246,13 +258,14 @@ a: (refcount=1, is_ref=0)=array (
      </example>
     </para>
     <para>
-     Now, things get interesting if we add the array itself as an element of
-     the array, which we do in the next example, in which we also sneak in a
-     reference operator, since otherwise PHP would create a copy:
+    Ora le cose diventano interessanti: se aggiugngiamo l'array stesso 
+     come un elemento dell'array, lo facciamo nel prossimo esempio in cui 
+     anche lo inseriamo in un operatore di referenze, vediamo che PHP ne 
+     creerà una copia: 
     </para>
     <para>
      <example>
-      <title>Adding the array itself as an element of it self</title>
+      <title>Aggiungere un array come elemento di se stesso</title>
       <programlisting role="php">
 <![CDATA[
 <?php
@@ -271,9 +284,9 @@ a: (refcount=2, is_ref=1)=array (
 )
 ]]>
       </screen>
-      <para>Or graphically</para>
+      <para>O graficamente</para>
       <mediaobject>
-       <alt>Zvals for an array with a circular reference</alt>
+       <alt>Zvals per un array con una referenza circolare</alt>
        <imageobject>
         <imagedata fileref="en/features/figures/loop-array.png" format="PNG"/>
        </imageobject>
@@ -281,18 +294,19 @@ a: (refcount=2, is_ref=1)=array (
      </example>
     </para>
     <para>
-     You can see that the array variable (<varname>a</varname>) as well as the second element
-     (<varname>1</varname>) now point to a variable container that has a "refcount" of <literal>2</literal>. The
-     "..." in the display above shows that there is recursion involved, which,
-     of course, in this case means that the "..." points back to the original
-     array.
+     Si può vedere che la variabile array (<varname>a</varname>) come il secondo elemento 
+     (<varname>1</varname>) ora punta a un contenitore di variabili che ha un refcount di <literal>2</literal>. 
+     I tre puntini "..." nella visualizzazione precedente mostrano che c'è una ricorsione in corso, che, 
+     naturalmente, in questo caso significa che i "..." puntano indietro all'array originale. 
     </para>
     <para>
-     Just like before, unsetting a variable removes the symbol, and the
-     reference count of the variable container it points to is decreased by
-     one. So, if we unset variable <varname>$a</varname> after running the above code, the
-     reference count of the variable container that <varname>$a</varname> and element "1" point to
-     gets decreased by one, from "2" to "1". This can be represented as:
+     Proprio come prima dereferenziare una variabile rimuove il suo nome 
+     e il reference count del contenitore delle variabili a cui la variabile 
+     puntava viene decrementato di uno. Così, se noi dereferenziamo la variabile 
+     <varname>$a</varname> dopo aver eseguito il codice precedente il reference 
+     count del contenitore delle variabili a cui puntano la variabile 
+     <varname>$a</varname> e l'elemento "1", viene decrementato di uno, 
+     da "2" a "1". Questo può essere rappresentato così: 
     </para>
     <para>
      <example>
@@ -305,9 +319,9 @@ a: (refcount=2, is_ref=1)=array (
 )
 ]]>
       </screen>
-      <para>Or graphically</para>
+      <para>O graficamente</para>
       <mediaobject>
-       <alt>Zvals after removal of array with a circular reference demonstrating the memory leak</alt>
+       <alt>Zval dopo la rimozione di array con una referenza circolare dimostrano la perdita in memoria</alt>
        <imageobject>
         <imagedata fileref="en/features/figures/leak-array.png" format="PNG"/>
        </imageobject>
@@ -317,173 +331,188 @@ a: (refcount=2, is_ref=1)=array (
    </sect2>
 
    <sect2 xml:id="features.gc.cleanup-problems">
-    <title>Cleanup Problems</title>
+    <title>Problemi di pulizia</title>
     <para>
-     Although there is no longer a symbol in any scope pointing to this
-     structure, it cannot be cleaned up because the array element "1" still
-     points to this same array. Because there is no external symbol pointing to
-     it, there is no way for a user to clean up this structure; thus you get a
-     memory leak. Fortunately, PHP will clean up this data structure at the end
-     of the request, but before then, this is taking up valuable space in
-     memory. This situation happens often if you're implementing parsing
-     algorithms or other things where you have a child point back at a "parent"
-     element. The same situation can also happen with objects of course, where
-     it actually is more likely to occur, as objects are always implicitly used
-     by reference.
+     Sebbene no ci sia più alcun simbolo in alcuno scopo che punti a 
+     questa struttura, non può comunque essere distrutta perché l'array 
+     elemento "1" ancora punta a questo stesso array. benché non ci siano 
+     simboli esterni che puntano ad esso, non c'è modo per un utente di 
+     ripulire questa struttura; così si involve in una perdita di memoria 
+     disponibile. Fortunatamente PHP pulirà queste strutture di dati alla 
+     fine della richiesta, ma prima di allora, questo porterà via dello 
+     spazio di memoria utilizzabile altrimenti. Questa situazione potrebbe 
+     verificarsi abbastanza spesso se si implementano algoritmi di confronto 
+     o altre cose dove un elemento figlio punta indietro verso un elemento padre. 
+     La stessa situazione può anche verificarsi, ovviamente, con gli oggetti, 
+     dove questo è anche più frequente che si verifichi siccome gli oggetti 
+     sono implicitamente usati per referenza. 
     </para>
     <para>
-     This might not be a problem if this only happens once or twice, but if
-     there are thousands, or even millions, of these memory losses, this
-     obviously starts being a problem. This is especially problematic in long
-     running scripts, such as daemons where the request basically never ends,
-     or in large sets of unit tests. The latter caused problems while
-     running the unit tests for the Template component of the eZ Components
-     library. In some cases, it would require over 2 GB of memory, which the
-     test server didn't quite have.
+     Questo potrebbe anche non essere un problema se succede solo un paio di 
+     volte, ma se si verificano migliaia o milioni di queste perdite di memoria, 
+     questo ovviamente diventa un problema. Specialmente in script di lunga 
+     durata, come i daemon, dove le richieste di base sono di tipo infinito, 
+     oppure in grossi ambiti di unità di prova. L'ultimo problema si è 
+     verificato nellesecuzione di un test su un unità per i componenti temporanei 
+     dei componenti della libreria eZ. In alcuni casi potevano venir richiesti 
+     oltre 2 GB di memoria, che il server del test non poteva assolutamente 
+     avere. 
     </para>
    </sect2>
   </sect1>
 
   <sect1 xml:id="features.gc.collecting-cycles">
-   <title>Collecting Cycles</title>
+   <title>Raccolta di cicli</title>
    <para>
-    Traditionally, reference counting memory mechanisms, such as that used
-    previously by PHP, fail to address circular reference memory leaks;
-    however, as of 5.3.0, PHP implements the synchronous algorithm from the 
+    Tradizionalemnte i meccanismi di conteggio delle referenze, così 
+    come usati prima da PHP, fallivano nell'indirizzamento di referenze 
+    circolari in perdite della memoria; comunque, a partire da PHP 5.3.0, 
+    viene implementato l'algoritmo sincrono della 
     <link xlink:href="&url.gc-paper;">Concurrent Cycle Collection in Reference Counted Systems</link>
-    paper which addresses that issue.
+    che reindirizza a questo problema. 
    </para>
    <para>
-    A full explanation of how the algorithm works would be slightly beyond the
-    scope of this section, but the basics are explained here. First of all,
-    we have to establish a few ground rules. If a refcount is increased, it's
-    still in use and therefore, not garbage. If the refcount is decreased and
-    hits zero, the zval can be freed. This means that garbage cycles can only
-    be created when a refcount argument is decreased to a non-zero value.
-    Secondly, in a garbage cycle, it is possible to discover which parts are
-    garbage by checking whether it is possible to decrease their refcount by
-    one, and then checking which of the zvals have a refcount of zero. 
+    Una spiegazione completa di come lavora l'algoritmo va oltre gli scopi 
+    di questa sezione, ma le basi sono spiegate qui: prima di tutto, dobbiamo 
+    stabilire alcune regole fondamentali. Se un refcount è incrementato, esso 
+    è ancora in uso e quindi non garbage (distruttibile). Se il refcount è 
+    decrementato e raggiunge lo zero, lo zval può essere liberato. Questo 
+    significa che i cicli di garbage possono essere creati solo quando un 
+    argomento refcount è decrementato ad un valore che non sia zero. Secondo, 
+    in un ciclo di garbage, è possibile scoprire quali parti sono distruttibili 
+    controllando quando è possibile decrementare il loro refcount di una unità 
+    e quindi, controllare quali contenitori zval hanno un refcount pari a zero. 
    </para>
    <para>
      <mediaobject>
-      <alt>Garbage collection algorithm</alt>
+      <alt>Algoritmo di Garbage collection(raccolta della spazzatura)</alt>
       <imageobject>
        <imagedata fileref="en/features/figures/gc-algorithm.png" format="PNG"/>
       </imageobject>
      </mediaobject>
    </para>
    <para>
-    To avoid having to call the checking of garbage cycles with every possible
-    decrease of a refcount, the algorithm instead puts all possible roots
-    (zvals) in the "root buffer" (marking them "purple"). It also makes sure
-    that each possible garbage root ends up in the buffer only once. Only when
-    the root buffer is full does the collection mechanism start for all the
-    different zvals inside. See step A in the figure above.
+    Per evitare di dover chiamare il controllo dei cicli di garbage ogni 
+    volta che si decrementa un refcount, l'algoritmo anziché mettere tutte 
+    le possibili radici (zval) nel buffer delle radici (marcandole come viola 
+    "purple"). Questo comunque rende certi che ogni possibile garbage root 
+    finisca nel buffer una sola volta. Solo quando il buffer delle radici è 
+    pieno il meccanismo di garbage collection si avvia per tutti i contenitori 
+    zval che ci sono all'interno. Vedi il passaggio A nella figura sotto. 
    </para>
    <para>
-    In step B, the algorithm runs a depth-first search on all possible roots
-    to decrease by one the refcounts of each zval it finds, making sure not to
-    decrease a refcount on the same zval twice (by marking them as "grey"). In
-    step C, the algorithm again runs a depth-first search from each root node,
-    to check the refcount of each zval again. If it finds that the refcount is
-    zero, the zval is marked "white" (blue in the figure). If it's larger than
-    zero, it reverts the decreasing of the refcount by one with a depth-first
-    search from that point on, and they are marked "black" again. In the last
-    step (D), the algorithm walks over the root buffer removing the zval roots
-    from there, and meanwhile, checks which zvals have been marked "white" in
-    the previous step. Every zval marked as "white" will be freed.
+    Nel passaggio B, l'algoritmo esegue una prima ricerca in profondità su 
+    tutte le possibili radici per decrementare di uno il refcount di ogni zval 
+    che trova, per assicurarsi di non decrementare lo stesso refcount di uno 
+    zval due volte di seguito, li marca come "grey" (grigi). Nel passaggio 
+    C, l'algoritmo rifà una prima ricerca profonda per ogni nodo di radice, 
+    per verificare di nuovo il refcount di ogni zval. Se trova che un refcount 
+    è zero, il contenitore zval è marcato "whitw"(bianco, blu nella figura). 
+    Se è maggiore di zero, annulla il decremento del refcount di uno  con una 
+    prima ricerca profonda da quel punto in avanti e vengono marcati nuovamente 
+    in nero. Nell'ultimo passaggio: (D), l'algoritmo attraversa il buffer delle 
+    radici rimuovendo le radici zval da esso, e nel frattempo, controlla quali 
+    zval ha marcato in bianco nel passaggio precedente. Ogni zval marcato in 
+    bianco viene eliminato. 
    </para>
    <para>
-    Now that you have a basic understanding of how the algorithm works, we
-    will look back at how this integrates with PHP. By default, PHP's garbage
-    collector is turned on. There is, however, a &php.ini;
-    setting that allows you to change this:
+    Ora che abbiamo una comprensione di base di come lavora l'algoritmo, vediamo 
+    come esso si integra in PHP. Per impostazione predefinita, il garbage 
+    collector di PHP è attivato. C'è comunque un impostazione &php.ini; che 
+    ci permette di cambiare questa impostazione: 
     <link linkend="ini.zend.enable-gc">zend.enable_gc</link>.
    </para>
    <para>
-    When the garbage collector is turned on, the cycle-finding algorithm as
-    described above is executed whenever the root buffer runs full. The root
-    buffer has a fixed size of 10,000 possible roots (although you can alter
-    this by changing the <literal>GC_ROOT_BUFFER_MAX_ENTRIES</literal> constant in
-    <literal>Zend/zend_gc.c</literal> in the PHP source code, and re-compiling
-    PHP). When the garbage collector is turned off, the cycle-finding
-    algorithm will never run. However, possible roots will always be recorded
-    in the root buffer, no matter whether the garbage collection mechanism has
-    been activated with this configuration setting.
+    Quando il garbage collector è attivato, il ciclo di ricerca dell'algoritmo, 
+    come descritto in precedenza, viene eseguito ogni volta che il buffer 
+    principale si riempie. Questo buffer ha una dimensione impostatta di 
+    10.000 radici possibli (comunque è possibile modificare questo valore cambiando 
+    la costante <literal>GC_ROOT_BUFFER_MAX_ENTRIES</literal> in 
+    <literal>Zend/zend_gc.c</literal> nel codice di PHP, e ricompilandolo). 
+    Quando il garbage collector è disattivato, il ciclo di ricerca dell'algoritmo 
+    non viene mai eseguito. Comunque le possibili radici verranno registrate 
+    nel buffer delle radici in qualunque modo sia configurato il comportamento 
+    del garbage collector. 
    </para>
    <para>
-    If the root buffer becomes full with possible roots while the garbage
-    collection mechanism is turned off, further possible roots will simply not
-    be recorded. Those possible roots that are not recorded will never be
-    analyzed by the algorithm. If they were part of a circular reference
-    cycle, they would never be cleaned up and would create a memory leak. 
+    Se il buffer principale si riempie di eventuali radici mentre il meccanismo 
+    di pulizia (garbage collectrion) è spento, ulteriori radici non verrebbero 
+    semplicemente aggiunte. Queste possibili radici che non sono registrate 
+    non saranno mai analizzate dall'algoritmo. Se sono parte di un ciclo di 
+    referenze circoare, non sarebbero mai ripulite e potrebbero generare un 
+    collasso della memoria. 
    </para>
    <para>
-    The reason why possible roots are recorded even if the mechanism has been
-    disabled is because it's faster to record possible roots than to have to
-    check whether the mechanism is turned on every time a possible root could
-    be found. The garbage collection and analysis mechanism itself, however,
-    can take a considerable amount of time.
+    La ragione per cui possibili radici vengono registrate anche se il meccanismo 
+    del garbage collector è stato disabilitato è perché è più veloce registrare 
+    le radici eventuali che doverle controllare tutte accendendo il meccanismo 
+    ogni volta che un eventuale radice può essere trovata. l'avvio del meccanismo 
+    di pulizia della memoria (garbage collection), l'analisi che esso compie, 
+    comunque possono richiedere un dispendio ti tempo non trascurabile. 
    </para>
    <para>
-    Besides changing the <link linkend="ini.zend.enable-gc">zend.enable_gc</link> configuration
-    setting, it is also possible to turn the garbage collecting mechanism on
-    and off by calling <function>gc_enable</function> or
-    <function>gc_disable</function> respectively.  Calling those functions has
-    the same effect as turning on or off the mechanism with the configuration
-    setting. It is also possible to force the collection of cycles even if the
-    possible root buffer is not full yet. For this, you can use the
-    <function>gc_collect_cycles</function> function. This function will return
-    how many cycles were collected by the algorithm. 
+    Oltre a modificare la configurazione delle impostazioni con 
+    <link linkend="ini.zend.enable-gc">zend.enable_gc</link>, è possibile 
+    accendere e spegnere il meccanismo di garbage collection (pulizia della 
+    memoria chiamando <function>gc_enable</function> o<function>gc_disable</function> 
+    rispettivamente. Chimare queste funzioni ha lo stesso effetto di accendere 
+    e spegnere il meccanismo con la configurazione delle impostazioni. E' anche 
+    possibile forzare la esecuzione dei cicli quando il buffer delle radici 
+    possibili non è ancora pieno. Per questo è possibile usare la funzione 
+    <function>gc_collect_cycles</function>, la quale restituisce il numero di 
+    cicli che l'algoritmo ha trovato. 
    </para>
    <para>
-    The rationale behind the ability to turn the mechanism on and off, and to
-    initiate cycle collection yourself, is that some parts of your application
-    could be highly time-sensitive. In those cases, you might not want the
-    garbage collection mechanism to kick in. Of course, by turning off the
-    garbage collection for certain parts of your application, you do risk
-    creating memory leaks because some possible roots might not fit into the
-    limited root buffer. Therefore, it is probably wise to call
-    <function>gc_collect_cycles</function> just before you call
-    <function>gc_disable</function> to free up the memory that could be lost
-    through possible roots that are already recorded in the root buffer. This
-    then leaves an empty buffer so that there is more space for storing
-    possible roots while the cycle collecting mechanism is turned off.
+    Il raziocinio che sta dietro la possibilità di spegnere, interrompendolo, 
+    il meccanismo e avviare un ciclo di pulizia da parte dell'utente, è quello 
+    per cui, alcune parti di un'applicazione potrebbero essere fortemente 
+    condizionate dal tempo di esecuzione. In questi casi, si potrebbe non 
+    desiderare che il meccanismo di garbage collection subentri nell'esecuzione 
+    del codice. Naturalmente disattivando il meccanismo di garbage in alcune 
+    parti delle proprie applicazioni si corre il rischio di generare collassi 
+    della memoria perchè alcune possibili radici potrebbero non trovare spazio 
+    entro il limite del buffer delle radici. Ad ogni modo potrebbe essere saggio 
+    chiamare <function>gc_collect_cycles</function> appena prima di chiamare 
+    <function>gc_disable</function> per liberare la memoria che potrebbe essere 
+    persa attraverso eventuali radici già registrate nel buffer delle radici. 
+    Questa copia di chiamate lascia libero il buffer in modo che ci sia più 
+    spazio per archiviare possibili radici mentre il meccanismo di pulizia dei 
+    cicli è spento. 
    </para>
   </sect1>
 
   <sect1 xml:id="features.gc.performance-considerations">
-   <title>Performance Considerations</title>
+   <title>Considerazioni sulle performance</title>
    <para>
-    We have already mentioned in the previous section that simply collecting the
-    possible roots had a very tiny performance impact, but this is when you
-    compare PHP 5.2 against PHP 5.3. Although the recording of possible roots
-    compared to not recording them at all, like in PHP 5.2, is slower, other
-    changes to the PHP runtime in PHP 5.3 prevented this particular performance
-    loss from even showing.
+    Abbiamo già menzionato nella sezione precedente che la semplice collezione 
+    di eventuali radici ha un impatto veramente basso sulle performance del 
+    sistema, ma questa è la constatazione che si può fare confrontando PHP 5.2 
+    con PHP 5.3. Sebbene la registrazione di possibili radici confrontata con 
+    l'assenza totale di registrazioni, come accade in PHP 5.2, è più lenta. Altri 
+    accorgimenti presi sul tempo di esecuzione di PHP in PHP 5.3 prevengono 
+    questa particolare perdita di prestazioni da ogni contesto. 
    </para>
    <para>
-    There are two major areas in which performance is affected. The first
-    area is reduced memory usage, and the second area is run-time delay when
-    the garbage collection mechanism performs its memory cleanups. We will
-    look at both of those issues.
+    Ci sono due aree, in particolare, affette da questo calo. La prima area  
+    interessa la riduzione dell'uso della memoria e la seconda è il ritardo del 
+    tempo di esecuzione quando il meccanismo di garbage collection esegue la 
+    pulizia della memoria. Osserveremo entrambi questi problemi. 
    </para>
 
    <sect2 xml:id="features.gc.performance-considerations.reduced-mem">
-    <title>Reduced Memory Usage</title>
+    <title>Riduzione dell'uso di Memoria</title>
     <para>
-     First of all, the whole reason for implementing the garbage collection
-     mechanism is to reduce memory usage by cleaning up circular-referenced
-     variables as soon as the prerequisites are fulfilled. In PHP's
-     implementation, this happens as soon as the root-buffer is full, or when
-     the function <function>gc_collect_cycles</function> is called. In
-     the graph below, we display the memory usage of the script below,
-     in both PHP 5.2 and PHP 5.3, excluding the base memory that PHP
-     itself uses when starting up.
+     Prima di tutto, la ragione profonda che ha fatto implementare il meccanismo 
+     di garbage collection è stata la necessità di ridurre l'uso di memoria 
+     ripulendo le referenze circolari delle variabili appena vengono riempiti 
+     i buffer delle radici, oppure quando viene chaiamata la funzione 
+     <function>gc_collect_cycles</function>. Nel grafico sotto, mostriamo l'uso 
+     di memoria dello script sottostante, in entrambi PHP 5.2 and PHP 5.3, 
+     escludendo la memoria di base usata da PHP per avviarsi. 
     </para>
     <para>
      <example>
-      <title>Memory usage example</title>
+      <title>Esempi di uso della memoria</title>
       <programlisting role="php">
 <![CDATA[
 <?php
@@ -507,7 +536,7 @@ for ( $i = 0; $i <= 100000; $i++ )
 ]]>
       </programlisting>
       <mediaobject>
-       <alt>Comparison of memory usage between PHP 5.2 and PHP 5.3</alt>
+       <alt>Confronto di uso della memoria tra PHP 5.2 e PHP 5.3</alt>
        <imageobject>
         <imagedata fileref="en/features/figures/gc-benchmark.png" format="PNG"/>
        </imageobject>
@@ -515,37 +544,38 @@ for ( $i = 0; $i <= 100000; $i++ )
      </example>
     </para>
     <para>
-     In this very academic example, we are creating an object in which a
-     property is set to point back to the object itself. When the <varname>$a</varname> variable
-     in the script is re-assigned in the next iteration of the loop, a memory
-     leak would typically occur. In this case, two zval-containers are leaked
-     (the object zval, and the property zval), but only one possible root is
-     found: the variable that was unset. When the root-buffer is full after
-     10,000 iterations (with a total of 10,000 possible roots), the garbage
-     collection mechanism kicks in and frees the memory associated with those
-     possible roots. This can very clearly be seen in the jagged memory-usage
-     graph for PHP 5.3. After each 10,000 iterations, the mechanism kicks in
-     and frees the memory associated with the circular referenced variables.
-     The mechanism itself does not have to do a whole lot of work in this
-     example, because the structure that is leaked is extremely simple. From
-     the diagram, you see that the maximum memory usage in PHP 5.3 is about 9
-     Mb, whereas in PHP 5.2 the memory usage keeps increasing.
+     in questo esempio accademico abbiamo creato un oggetto in cui una sua 
+     proprietà è impostata per puntare verso l'oggetto stesso. Quando la variabile 
+     <varname>$a</varname>, nello script, viene riassegnata nella successiva 
+     iterazione del ciclo, tipicamente si verifica una perdita di memoria. In 
+     questo caso, due contenitori zval vanno persi (l'oggetto zval, e la proprietà
+     zval), ma viene trovata solo un ardice possibile: la variabile che non era 
+     ancora staata impostata. Quando il buffer delle radici è pieno, dopo 10.000 
+     iterazioni (con un totale di 10.000 radici possibili) il meccanismo di 
+     garbage collection inserisce e libera la memoria associata a queste possibilil 
+     radici Questo è evidente osservando il grafico dell'uso della memoria per 
+     PHP 5.3. Dopo ogni 10.000 iterazioni il meccanismo inserisce e libera la 
+     memoria associata alle variabili con una referenza circolare. Il meccanismo 
+     per se stesso, in questo esempio, non deve fare un grosso lavoro in profondità, 
+     perchè la struttura che va persa, cancellata, è estremamente semplice. Dal 
+     diagramma è possibile osservare che l'uso di memoria massimo in PHP 5.3 
+     è di circa 9 Mb, mentre in PHP 5.2 l'uso della memoria aumenta in continuazione. 
     </para>
    </sect2>
 
    <sect2 xml:id="features.gc.performance-considerations.slowdowns">
-    <title>Run-Time Slowdowns</title>
+    <title>Rallentamenti dell'esecuzione</title>
     <para>
-     The second area where the garbage collection mechanism influences
-     performance is the time taken when the garbage collection mechanism
-     kicks in to free the "leaked" memory. In order to see how much this is,
-     we slightly modify the previous script to allow for a larger number of
-     iterations and the removal of the intermediate memory usage figures. The
-     second script is here:
+     La seconda area in cui il meccanismo di garbage collection influenza 
+     maggiormante le prestazioni è il tempo preso dal meccanismo per inserire, 
+     per liberare la memoria persa. Per poter osservare a quanto ammonta questo 
+     tempo, abbiamo leggermente modificato lo script precedente per consentire 
+     l'esecuzione di un più ampio numero di iterazioni e la rimozione delle 
+     figure intermedie di uso della memoria. Il secondo script è il seguente: 
     </para>
     <para>
      <example>
-      <title>GC performance influences</title>
+      <title>Influenza del GC sulle prestazioni</title>
       <programlisting role="php">
 <![CDATA[
 <?php
@@ -567,13 +597,13 @@ echo memory_get_peak_usage(), "\n";
      </example>
     </para>
     <para>
-     We will run this script two times, once with the
-     <link linkend="ini.zend.enable-gc">zend.enable_gc</link> setting turned
-     on, and once with it turned off:
+     Abbiamo eseguito lo script due volte, una con l'impostazione 
+     <link linkend="ini.zend.enable-gc">zend.enable_gc</link> accesa, e una 
+     con la stessa impostazione spenta. 
     </para>
     <para>
      <example>
-      <title>Running the above script</title>
+      <title>Esecuzione dello script precedente</title>
       <programlisting role="shell">
 <![CDATA[
 time php -dzend.enable_gc=0 -dmemory_limit=-1 -n example2.php
@@ -584,33 +614,33 @@ time php -dzend.enable_gc=1 -dmemory_limit=-1 -n example2.php
      </example>
     </para>
     <para>
-     On my machine, the first command seems to take consistently about 10.7
-     seconds, whereas the second command takes about 11.4 seconds. This is a
-     slowdown of about 7%. However, the maximum amount of memory used by the
-     script is reduced by 98% from 931Mb to 10Mb. This benchmark is not very
-     scientific, or even representative of real-life applications, but it
-     does demonstrate the memory usage benefits that this garbage collection
-     mechanism provides. The good thing is that the slowdown is always the
-     same 7%, for this particular script, while the memory saving
-     capabilities save more and more memory as more circular references are
-     found during script execution.
+     Sulla mia macchina, il primo comando sembra decisamnete prendere circa 10,7
+     secondi, mentre l'esecuzione del secondo comando prende circa 11,4 secondi. 
+     Questo significa un rallentamento di circa il 7%. Tuttavia, l'ammontare 
+     massimo della memoria utilizzata dallo script si è ridotto del 98%, da 913Mb 
+     a 10Mb. Questo test non è proprio scientifico, ne rappresentativo per applicazioni 
+     realizzate per la produzione, ma dimostra i benefici che produce il 
+     meccanismo di garbage collection. La cosa buona è che il rallentamento è 
+     sempre lo stesso, 7%, per questo script in particolare, mentre il potenziale 
+     di preservazione della memoria aumenta all'aumentare delle referenze 
+     circolari trovate durante l'esecuzione dello script. 
     </para>
    </sect2>
 
    <sect2 xml:id="features.gc.performance-considerations.internal-stats">
-    <title>PHP's Internal GC Statistics</title>
+    <title>Statistiche interne a PHP per il GC</title>
     <para>
-     It is possible to coax a little bit more information about how the
-     garbage collection mechanism is run from within PHP. But in order to do
-     so, you will have to re-compile PHP to enable the benchmark and
-     data-collecting code. You will have to set the <literal>CFLAGS</literal>
-     environment variable to <literal>-DGC_BENCH=1</literal> prior to running
-     <literal>./configure</literal> with your desired options. The following
-     sequence should do the trick:
+     E' possibile ottenere alcune ulteriori informazioni su come il meccanismo 
+     di garbage collection viene eseguito all'interno di PHP. Ma prima di fare 
+     questo, è necessario ricompilare PHP per consentire la prova e l'esecuzione 
+     del codice pe la raccolta dei dati. E' necessario impostare la variabile 
+     d'ambiente <literal>CFLAGS</literal> a <literal>-DGC_BENCH=1</literal> prima di 
+     eseguire <literal>./configure</literal> con le opzioni desiderate. La sequenza 
+     che segue fa questo: 
     </para>
     <para>
      <example>
-      <title>Recompiling PHP to enable GC benchmarking</title>
+      <title>Ricompilare PHP abilitando i test su GC</title>
       <programlisting role="shell">
 <![CDATA[
 export CFLAGS=-DGC_BENCH=1
@@ -622,13 +652,12 @@ make
      </example>
     </para>
     <para>
-     When you run the above example code again with the newly built PHP
-     binary, you will see the following being shown after PHP has finished
-     execution:
+     Eseguendo di nuovo il codice dell'esempio precedente con la nuova compilazione 
+     di PHP, vedremo le seguenti informazioni alla fine dell'esecuzione del codice: 
     </para>
     <para>
      <example>
-      <title>GC statistics</title>
+      <title>Statistiche GC</title>
       <programlisting role="shell">
 <![CDATA[
 GC Statistics
@@ -648,33 +677,36 @@ ZOBJ  28506264   1527980     677581   1025731
      </example>
     </para>
     <para>
-     The most informative statistics are displayed in the first block. You
-     can see here that the garbage collection mechanism ran 110 times, and in
-     total, more than 2 million memory allocations were freed during those
-     110 runs. As soon as the garbage collection mechanism has run at least
-     one time, the "Root buffer peak" is always 10000.
+     Le statìstiche più significative sono mostrate nel primo blocco. Si può 
+     osservare che il meccanismo di garbage collection viene eseguito 110 volte, 
+     inoltre, in totale vengono liberate oltre 2 milioni di allocazioni di memoria 
+     nel corso di queste 110 esecuzioni. Così come il meccanismo di garbage 
+     collection che viene eseguito almeno una volta mantiene il picco di riempimento 
+     del buffer delle radici sempre a 10.000. 
     </para>
    </sect2>
 
    <sect2 xml:id="features.gc.performance-considerations.conclusion">
-    <title>Conclusion</title>
+    <title>Conclusioni</title>
     <para>
-     In general the garbage collector in PHP will only cause a slowdown when the
-     cycle collecting algorithm actually runs, whereas in normal (smaller)
-     scripts there should be no performance hit at all.
+     In generale, il garbage collector in PHP causa rallenyamenti solo durante 
+     l'esecuzione dell'algoritmo del ciclo di raccolta in atto, normalmente, negli 
+     script di piccole dimensioni non ci sono assolutamente riduzioni delle 
+     prestazioni deovute all'esecuzione del garbage collector. 
     </para>
     <para>
-     However, in the cases where the cycle collection mechanism does run for
-     normal scripts, the memory reduction it will provide allows more of
-     those scripts to run concurrently on your server, since not so much
-     memory is used in total.
+     Comunque nel caso in cui il meccanismo di raccolta dei cicli venga eseguito 
+     per script di dimensioni normali, la riduzione dell'uso della memoria 
+     renderà possibile l'esecuzione concorrente di molti di questi script su un 
+     server, finchè verrà utilizzata così poca memoria in totale. 
     </para>
     <para>
-     The benefits are most apparent for longer-running scripts, such as
-     lengthy test suites or daemon scripts. Also, for <link xlink:href="&url.php.gtk;">PHP-GTK</link> applications
-     that generally tend to run longer than scripts for the Web, the new
-     mechanism should make quite a bit of a difference regarding memory leaks
-     creeping in over time.
+     I benefici sono molto più evidenti negli script di lunga durata, come 
+     nei programmi di verifica molto lunghi o per gli script daemon. Anche per 
+     le applicazioni <link xlink:href="&url.php.gtk;">PHP-GTK</link> che tendono 
+     ad avere tempi di esecuzione molto lunghi, perché scritte per il web, il 
+     meccanismo permette di avere una certa differenza riguardo alle dispersioni 
+     di memoria striscianti che si verificano nel corso del tempo. 
     </para>
    </sect2>
   </sect1>

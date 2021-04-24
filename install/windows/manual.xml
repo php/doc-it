@@ -1,41 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: cd118fcbd8ac516b4f2bbe20a2eec7bcf7573b08 Maintainer: lucalzetta Status: ready -->
 <!-- $Revision$ -->
 <sect1 xml:id="install.windows.manual" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
- <title>Manual PHP Installation on Windows</title>
+ <title>Installazione manuale di PHP su Windows</title>
  <sect2>
-  <title>Choose Web Server</title>
+  <title>Scelta del Web Server</title>
   <sect3>
    <title>IIS</title>
    <para>
-    IIS is built in to Windows.
-    On Windows Server, the IIS role can be added via the Server Manager. The CGI Role Feature needs to be included.
-    On Windows Desktop, IIS has to be added via the Control Panel's Add/Remove Programs.
-    The Microsoft documentation has <link xlink:href="https://docs.microsoft.com/en-us/previous-versions/ms181052(v=vs.80)">detailed instructions</link>.
-    For desktop web apps and web-development, IIS/Express or PHP Desktop can also be used.
+    IIS è costruito internamente a Windows. Sui server Windows le regole di IIS 
+    possono essere aggiunte attraverso il server manager. Le regole caratteristiche 
+    di CGI devono essere incluse. Sui desktop windows, IIS deve essere aggiunto 
+    dal pannello di controllo aggiunta/rimozione programmi. La documentazione 
+    Microsoft ha <link xlink:href="https://docs.microsoft.com/en-us/previous-versions/ms181052(v=vs.80)">istruzioni dettagliate</link> 
+    al riguardo. Per lo sviluppo di applicazioni web per il desktop e lo sviluppo 
+    di applicazioni web per internet. Possono essere usati anche IIS/Express o PHP Desktop. 
     <example>
-     <title>Command line to configure IIS and PHP</title>
+     <title>La riga di comando per configurare IIS e PHP</title> 
      <programlisting>
 <![CDATA[
 
 @echo off
 
-REM download .ZIP file of PHP build from http://windows.php.net/downloads/
+REM scaricare file .ZIP delle build di PHP da http://windows.php.net/downloads/
 
-REM path to directory you decompressed PHP .ZIP file into (no trailing \)
+REM portarsi sulla directory in cui si desidera decomprimere i file PHP .ZIP 
 set phppath=c:\php
 
 
-REM Clear current PHP handlers
+REM Ripulire gestori di PHP preimpostati
 %windir%\system32\inetsrv\appcmd clear config /section:system.webServer/fastCGI
-REM The following command will generate an error message if PHP is not installed. This can be ignored.
+REM Il seguente comando genererà un errore se PHP non è già installato. Può essere ignorato. 
 %windir%\system32\inetsrv\appcmd set config /section:system.webServer/handlers /-[name='PHP_via_FastCGI']
 
-REM Set up the PHP handler
+REM Impostare il gestore di PHP 
 %windir%\system32\inetsrv\appcmd set config /section:system.webServer/fastCGI /+[fullPath='%phppath%\php-cgi.exe']
-%windir%\system32\inetsrv\appcmd set config /section:system.webServer/handlers /+[name='PHP_via_FastCGI',path='*.php',verb='*',modules='FastCgiModule',scriptProcessor='%phppath%\php-cgi.exe',resourceType='Unspecified']
+%windir%\system32\inetsrv\appcmd set config /section:system.webServer/handlers /+[name='PHP_via_FastCGI',
+path='*.php',verb='*',modules='FastCgiModule',scriptProcessor='%phppath%\php-cgi.exe',resourceType='Unspecified']
 %windir%\system32\inetsrv\appcmd set config /section:system.webServer/handlers /accessPolicy:Read,Script
 
-REM Configure FastCGI Variables
+REM Configurare le variabili fastCGI 
 %windir%\system32\inetsrv\appcmd set config -section:system.webServer/fastCgi /[fullPath='%phppath%\php-cgi.exe'].instanceMaxRequests:10000
 %windir%\system32\inetsrv\appcmd.exe set config -section:system.webServer/fastCgi /+"[fullPath='%phppath%\php-cgi.exe'].environmentVariables.[name='PHP_FCGI_MAX_REQUESTS',value='10000']"
 %windir%\system32\inetsrv\appcmd.exe set config -section:system.webServer/fastCgi /+"[fullPath='%phppath%\php-cgi.exe'].environmentVariables.[name='PHPRC',value='%phppath%\php.ini']"
@@ -43,42 +47,45 @@ REM Configure FastCGI Variables
      </programlisting>
     </example>
 
-    See also the <link linkend="install.windows.legacy.iis7">old IIS installation instructions</link>.
+    Vedere anche <link linkend="install.windows.legacy.iis7">Vecchie istruzioni di installazione di IIS</link>.
    </para>
   </sect3>
 
   <sect3>
    <title>Apache</title>
    <para>
-    There are several builds of Apache2 for Windows.
-    The Apache builds of ApacheLounge are recommended, but other options include XAMPP, WampServer and BitNami, which provide automatic installer tools.
-    PHP can be used on Apache through mod_php or mod_fastcgi.
-    mod_php requires a TS build of Apache built with same version of Visual C and same CPU (x86 or x64).
-    See also the <link linkend="install.windows.legacy.apache2">old Apache installation instructions</link>.
+    Ci sono diverse distribuzioni di Apache2 per Windows. Le distribuzioni di 
+    ApacheLounge sono raccomandate, ma ci sono altre opzioni, inclusi XAMPP, WampServer 
+    e BitNami, che prevedono strumenti di installazione automatici. PHP può essere 
+    usato su APache attraverso mod_php o mod_fastcgi. mod_php richiede una distribuzione 
+    TS di Apache con la stessa versione di Visual C e la stessa configurazone di CPU (x86 or x64). 
+    Vedere anche <link linkend="install.windows.legacy.apache2">Vecchie istruzioni di intallazione di Apache</link>. 
    </para>
   </sect3>
  </sect2>
 
  <sect2>
-  <title>Choose Build</title>
+  <title>Scegliere la distribuzione</title>
   <para>
-   Windows builds can be downloaded from <link xlink:href="http://windows.php.net/download/">http://windows.php.net/download/</link>.
-   All builds are optimized (<abbrev>PGO</abbrev>), and QA and GA releases are thoroughly tested.
+   Le distribuzioni per Windows possono essere scaricate da 
+   <link xlink:href="http://windows.php.net/download/">http://windows.php.net/download/</link>.
+   TUtte le distribuzioni sono ottimizzate (<abbrev>PGO</abbrev>), E i rilasci QA e GA 
+   sono stati testati a fondo. 
   </para>
   <para>
-   There are 4 types of PHP builds:
+   Ci sono 4 tipi di distribuzioni di PHP: 
    <itemizedlist spacing="compact">
     <listitem>
-     <para>Thread-Safe(TS) - for single process web servers, like Apache with mod_php</para>
+     <para>Thread-Safe(TS) - per i processi singoli su web servers, come Apache con mod_php</para> 
     </listitem>
     <listitem>
-     <para>Non-Thread-Safe(NTS) - for IIS and other FastCGI web servers (Apache with mod_fastcgi) and recommended for command-line scripts</para>
+     <para>Non-Thread-Safe(NTS) - per IIS e altri web servers FastCGI (Apache con mod_fastcgi) e raccomandate per script da riga di comando</para>
     </listitem>
     <listitem>
-     <para>x86 - production use of PHP 5.5 and up.</para>
+     <para>x86 - per uso in produzione di PHP 5.5 e versioni superiori</para>
     </listitem>
     <listitem>
-     <para>x64 - production use of PHP 7 (unless its a 32-bit only version of Windows). PHP 5.5 and 5.6 x64 builds are experimental.</para>
+     <para>x64 - Per uso in produzione di PHP 7 (senza its a 32-bit solo versione per Windows). PHP 5.5 e 5.6 x64 sono sperimentali.</para>
     </listitem>
    </itemizedlist>
   </para>

@@ -82,9 +82,7 @@ Ciò è manifestato dal seguente commento nella parte superiore di ogni file XML
 Quando si aggiorna un file per replicare le modifiche apportate alla versione inglese, è essenziale aggiornare il commit inglese indicato sopra come `git-hash`.
 
 Lo stato del rev-check può essere attualmente visualizzato su
-http://doc.php.gpb.moe/tools/revcheck/it/outdated.html
-
-> Normalmente il rev-check si trova sul sito https://doc.php.net, ma a causa della recente migrazione della documentazione da SVN a git non è attualmente presente.
+http://doc.php.net/revcheck.php?p=files&lang=it
 
 
 ## 4: Coding Standard

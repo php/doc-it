@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: d395ade5f79d7844b87923d0bcb9b7d765ab51b6 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 9dd74f527dc164165dee7f19058bec75a901e770 Maintainer: pastore Status: ready -->
 <sect1 xml:id="language.types.declarations">
  <title>Dichiarazioni di tipo</title>
 
@@ -37,23 +37,32 @@
       <entry>
        Il valore deve essere un'&instanceof; della classe o dell'interfaccia data.
       </entry>
-      <entry></entry>
+      <entry/>
      </row>
      <row>
       <entry><type>self</type></entry>
       <entry>
        Il valore deve essere un'&instanceof; della stessa classe di quella
-       su cui è definito il metodo.
+       in cui viene utilizzata la dichiarazione del tipo.
        Può essere utilizzato solo nelle classi.
       </entry>
       <entry></entry>
+     </row>
+     <row>
+      <entry><type>parent</type></entry>
+      <entry>
+       Il valore deve essere un'&instanceof; del genitore della classe
+       in cui viene utilizzata la dichiarazione del tipo.
+       Può essere utilizzato solo nelle classi.
+      </entry>
+      <entry/>
      </row>
      <row>
       <entry><type>array</type></entry>
       <entry>
        Il valore deve essere un <type>array</type>.
       </entry>
-      <entry></entry>
+      <entry/>
      </row>
      <row>
       <entry><type>callable</type></entry>
@@ -61,35 +70,35 @@
        Il valore deve essere una <type>callable</type> valida.
        Non può essere utilizzato come dichiarazione del tipo di proprietà della classe.
       </entry>
-      <entry></entry>
+      <entry/>
      </row>
      <row>
       <entry><type>bool</type></entry>
       <entry>
        Il valore deve essere un valore booleano.
       </entry>
-      <entry></entry>
+      <entry/>
      </row>
      <row>
       <entry><type>float</type></entry>
       <entry>
        Il valore deve essere un numero in virgola mobile.
       </entry>
-      <entry></entry>
+      <entry/>
      </row>
      <row>
       <entry><type>int</type></entry>
       <entry>
        Il valore deve essere un numero intero.
       </entry>
-      <entry></entry>
+      <entry/>
      </row>
      <row>
       <entry><type>string</type></entry>
       <entry>
        Il valore deve essere una <type>string</type>.
       </entry>
-      <entry></entry>
+      <entry/>
      </row>
      <row>
       <entry><type>iterable</type></entry>
@@ -121,9 +130,8 @@
     Gli alias per i tipi scalari di sopra non sono supportati.
     Vengono invece trattati come nomi di classi o interfacce.
     Ad esempio, usando <literal>boolean</literal> come dichiarazione di tipo
-    richiederà che il valore sia un &instanceof; della classe o
-    dell'interfaccia <literal>boolean</literal>, invece che di tipo
-    <type>bool</type>:
+    richiederà che il valore sia un &instanceof; della classe o dell'interfaccia
+    <literal>boolean</literal>, invece che di tipo <type>bool</type>:
    </para>
    <para>
     <example>
@@ -150,6 +158,19 @@ Stack trace:
     </example>
    </para>
   </warning>
+
+ <sect3 xml:id="language.types.declarations.mixed">
+  <title>mixed</title>
+
+  <para>
+   <type>mixed</type> è equivalente al <link linkend="language.types.declarations.union">tipo union</link>
+   <type class="union">
+    <type>object</type><type>resource</type><type>array</type><type>string</type>
+    <type>int</type><type>float</type><type>bool</type><type>null</type>
+   </type>.
+   Disponibile a partire da PHP 8.0.0.
+  </para>
+ </sect3>
 
   <sect3 xml:id="language.types.declarations.examples">
    &reftitle.examples;
@@ -327,7 +348,7 @@ function get_item(): ?string {
 
   <note>
    <para>
-    Prima di PHP 7.1.0, era possibile ottenere argomenti nullable rendendo
+    È possibile ottenere argomenti nullable rendendo
     <literal>null</literal> il valore predefinito.
     Questo non è raccomandato in quanto si interrompe durante l'eredità.
    </para>
@@ -489,6 +510,41 @@ function foo(): X|Y {} // Consentito (la ridondanza è nota solo in fase di esec
     restituisce un valore.
     Pertanto non può essere parte di una dichiarazione di tipo union.
     Disponibile da PHP 7.1.0.
+   </para>
+   <note>
+    <para>
+     Il ritorno per riferimento da una funzione <type>void</type> è deprecato a partire da PHP 8.1.0,
+     perché tale funzione è contraddittoria.
+     In precedenza, emetteva già il seguente
+     <constant>E_NOTICE</constant> quando chiamata:
+     <literal>Only variable references should be returned by reference</literal>.
+
+     <informalexample>
+      <programlisting role="php">
+<![CDATA[
+<?php
+function &test(): void {}
+?>
+]]>
+      </programlisting>
+     </informalexample>
+    </para>
+   </note>
+  </sect3>
+
+  <sect3 xml:id="language.types.declarations.never">
+   <title>never</title>
+   <para>
+    <literal>never</literal> è un tipo di ritorno che indica che la funzione non
+    ha un ritorno. Ciò significa che chiama <function>exit</function>, genera
+    un'eccezione o è un ciclo infinito.
+    Pertanto non può essere parte di una dichiarazione di tipo union.
+    Disponibile a partire da PHP 8.1.0.
+   </para>
+   <para>
+    <type>never</type> è, nel gergo della teoria dei tipi, il tipo inferiore.
+    Significa che è il sottotipo di ogni altro tipo e può sostituire qualsiasi altro
+    tipo di ritorno durante l'ereditarietà.
    </para>
   </sect3>
 

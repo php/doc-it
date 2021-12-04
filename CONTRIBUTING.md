@@ -20,7 +20,7 @@ La traduzione italiana seguirà la modifica apportata alla documentazione ingles
 Per creare la documentazione, devi avere almeno i tre repository seguenti:
  - ``php/doc-base``: contiene gli strumenti per costruire la documentazione,
    disponibile su ``github.com``: https://github.com/php/doc-base
- - ``phpdoc-en``: la versione inglese della documentazione su cui fare affidamento quando
+ - ``php/doc-en``: la versione inglese della documentazione su cui fare affidamento quando
    la versione italiana è inesistente per una pagina: https://github.com/php/doc-en
  - ``php/doc-it``: la versione italiana della documentazione: https://github.com/php/doc-it
 

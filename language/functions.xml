@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: e296d2443b197fce63a9752dc6d58c0fdcf0c5cc Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 5c2678e02f0eb135946799eed02d884de1bcf4ad Maintainer: pastore Status: ready -->
 <!-- CREDITS: spisto -->
  <chapter xml:id="language.functions" xmlns="http://docbook.org/ns/docbook">
   <title>Funzioni</title>
@@ -176,7 +176,8 @@ function recursion($a)
    <simpara>
     L'informazione può essere passata alle funzioni tramite la lista degli argomenti,
     che sono liste di espressioni delimitati dalla virgola. Gli argomenti sono
-    valutati da sinistra a destra.
+    valutati da sinistra a destra, prima che la funzione venga effettivamente chiamata
+    (valutazione <emphasis>eager</emphasis>).
    </simpara> 
 
    <para>
@@ -185,7 +186,8 @@ function recursion($a)
     per riferimento</link>, e <link
     linkend="functions.arguments.default">i valori di default
     degli argomenti</link>. Le <link linkend="functions.variable-arg-list">liste di argomenti
-    di lunghezza varabile</link> sono ugualmente supportate.
+    di lunghezza varabile</link> e i <link linkend="functions.named-arguments">Named Arguments</link>
+    sono ugualmente supportati.
    </para>
    <para>
     <example>
@@ -227,7 +229,7 @@ function takes_many_args(
     </programlisting>
    </example>
    <para>
-    A partire da PHP 8.0.0, passare argomenti obbligatori dopo argomenti opzionali
+    A partire da PHP 8.0.0, dichiarare argomenti obbligatori dopo argomenti opzionali
     è deprecato. Questo può essere generalmente risolto eliminando il valore predefinito.
     Un'eccezione a questa regola sono gli argomenti nella forma
     <code>Type $param = null</code>, dove il default &null; rende il tipo implicitamente
@@ -235,7 +237,7 @@ function takes_many_args(
     un tipo nullable esplicito.
    </para>
    <example>
-    <title>Passaggio di argomenti facoltativi dopo argomenti obbligatori</title>
+    <title>Dichiarazione di argomenti facoltativi dopo argomenti obbligatori</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -279,6 +281,9 @@ echo $str;    // l'output sarà 'Questa è una stringa, e qualche altra cosa.'
 ]]>
       </programlisting>
      </example>
+    </para>
+    <para>
+     È un errore passare un valore come argomento che dovrebbe essere passato per riferimento.
     </para>
    </sect2>
    <sect2 xml:id="functions.arguments.default">
@@ -498,7 +503,7 @@ echo add(...$a);
      È anche possibile aggiungere una
      <link linkend="language.types.declarations">dichiarazione di tipo</link> prima del
      token <literal>...</literal>. Se questa è presente, allora tutti i parametri
-     catturati da <literal>...</literal> devono essere oggetti della classe suggerita.
+     catturati da <literal>...</literal> devono corrispondere a quel tipo di parametro.
 
      <example>
       <title>Parametri variabili con tipo dichiarato</title>
@@ -623,7 +628,7 @@ function_name($variableStoringParamName: $value);
 array_fill(0, 100, 50);
 
 // Utilizzo di argomenti nominali:
-array_fill(start_index: 0, num: 100, value: 50);
+array_fill(start_index: 0, count: 100, value: 50);
 ?>
 ]]>
      </programlisting>
@@ -638,7 +643,7 @@ array_fill(start_index: 0, num: 100, value: 50);
      <programlisting role="php">
       <![CDATA[
 <?php
-array_fill(value: 50, num: 100, start_index: 0);
+array_fill(value: 50, count: 100, start_index: 0);
 ?>
 ]]>
      </programlisting>
@@ -658,7 +663,7 @@ array_fill(value: 50, num: 100, start_index: 0);
 <?php
 htmlspecialchars($string, double_encode: false);
 // Uguale a
-htmlspecialchars($string, ENT_COMPAT | ENT_HTML401, 'UTF-8', false);
+htmlspecialchars($string, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, 'UTF-8', false);
 ?>
 ]]>
      </programlisting>
@@ -736,9 +741,14 @@ echo quadrato(4);   // L'output è '16'.
 <?php
 function numeri_piccoli()
 {
-    return array (0, 1, 2);
+    return [0, 1, 2];
 }
-list ($zero, $uno, $due) = numeri_piccoli();
+// La destrutturazione dell'array raccoglierà ogni membro dell'array individualmente
+[$zero, $one, $two] = small_numbers();
+
+// Prima della 7.1.0, l'unica alternativa equivalente è usare il costrutto list()
+list($zero, $one, $two) = small_numbers();
+
 ?>
 ]]>
       </programlisting>
@@ -966,6 +976,8 @@ $func(); // stampa "bar"
      il valore di ritorno della funziona è indefinito. In questo caso restituirà
      probabilmente &null; ma questa è solo una convenzione, e non ci si può fare
      affidamento.
+     A partire da PHP 8.0.0, in questo caso dovrebbe essere generata un'eccezione
+     <classname>TypeError</classname>.
     </simpara>
    </note>
 
@@ -1040,6 +1052,8 @@ $greet('PHP');
     variabili deve essere passata al costrutto del linguaggio <literal>use</literal>.
     A partire da PHP 7.1, queste variabili non devono includere &link.superglobals;,
     <varname>$this</varname>, o variabili con lo stesso nome di un parametro.
+    Una dichiarazione del tipo di ritorno della funzione deve essere posta
+    <emphasis>dopo</emphasis> la clausola <literal>use</literal>.
     </simpara>
 
    <example>
@@ -1085,6 +1099,12 @@ $example = function ($arg) use ($message) {
     var_dump($arg . ' ' . $message);
 };
 $example("hello");
+
+// La dichiarazione del tipo di ritorno viene dopo la clausola use
+$example = function () use ($message): string {
+    return "hello $message";
+};
+var_dump($example());
 ?>
 ]]>
     </programlisting>
@@ -1097,6 +1117,7 @@ string(5) "hello"
 string(5) "hello"
 string(5) "hello"
 string(5) "world"
+string(11) "hello world"
 string(11) "hello world"
 ]]>
     </screen>
@@ -1482,6 +1503,127 @@ var_export($x);  // Produce 1
      </simpara>
     </note>
    </sect2>
+  </sect1>
+
+  <sect1 xml:id="functions.first_class_callable_syntax">
+   <title>Sintassi delle callable di prima classe</title>
+
+   <para>
+    La sintassi delle callable di prima classe è stata introdotta a partire da PHP 8.1.0, come un modo per creare <link linkend="functions.anonymous">funzioni anonime</link> da <link linkend="language.types.callable">callable</link>.
+    Sostituisce la sintassi delle callable esistente utilizzando stringhe ed array.
+    Il vantaggio di questa sintassi è che è accessibile dall'analisi statica e utilizza lo scope nel punto in cui viene acquisita la callable.
+   </para>
+
+   <para>
+    La sintassi <code>CallableExpr(...)</code> viene utilizzata per creare un oggetto <classname>Closure</classname> dalla callable. <code>CallableExpr</code> accetta qualsiasi espressione che puó essere richiamata direttamente nella grammatica PHP:
+    <example>
+     <title>Sintassi della callable di prima classe semplice</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+class Foo {
+   public function method() {}
+   public static function staticmethod() {}
+   public function __invoke() {}
+}
+
+$obj = new Foo();
+$classStr = 'Foo';
+$methodStr = 'method';
+$staticmethodStr = 'staticmethod';
+
+
+$f1 = strlen(...);
+$f2 = $obj(...);  // oggetto invocabile
+$f3 = $obj->method(...);
+$f4 = $obj->$methodStr(...);
+$f5 = Foo::staticmethod(...);
+$f6 = $classStr::$staticmethodStr(...);
+
+// callable tradizionale usando string, array
+$f7 = 'strlen'(...);
+$f8 = [$obj, 'method'](...);
+$f9 = [Foo::class, 'staticmethod'](...);
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+
+   <note>
+    <para>
+      I <code>...</code> fanno parte della sintassi e non sono un'omissione.
+    </para>
+   </note>
+
+   <para>
+    <code>CallableExpr(...)</code> ha la stessa semantica di <methodname>Closure::fromCallable</methodname>.
+    Ovvero, a differenza di callable che utilizzano stringhe e array, <code>CallableExpr(...)</code> rispetta lo scope nel punto in cui viene creato:
+    <example>
+     <title>Confronto dello scope tra <code>CallableExpr(...)</code> e callable tradizionale</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+class Foo {
+    public function getPrivateMethod() {
+        return [$this, 'privateMethod'];
+    }
+
+    private function privateMethod() {
+        echo __METHOD__, "\n";
+    }
+}
+
+$foo = new Foo;
+$privateMethod = $foo->getPrivateMethod();
+$privateMethod();
+// Fatal error: Call to private method Foo::privateMethod() from global scope
+// Questo perché la chiamata viene eseguita all'esterno di Foo e la visibilità verrà controllata da questo punto.
+
+class Foo1 {
+    public function getPrivateMethod() {
+        // Utilizza lo scope in cui viene acquisita la callable.
+        return $this->privateMethod(...); // uguale a Closure::fromCallable([$this, 'privateMethod']);
+    }
+
+    private function privateMethod() {
+        echo __METHOD__, "\n";
+    }
+}
+
+$foo1 = new Foo1;
+$privateMethod = $foo1->getPrivateMethod();
+$privateMethod();  // Foo1::privateMethod
+?>
+]]>
+     </programlisting>
+    </example>
+
+   </para>
+
+   <note>
+    <para>
+     La creazione di oggetti con questa sintassi (ad esempio <code>new Foo(...)</code>) non è supportata, perché la sintassi <code>new Foo()</code> non è considerata una chiamata.
+    </para>
+   </note>
+
+   <note>
+    <para>
+     La sintassi della callable di prima classe non può essere combinata con l'<link linkend="language.oop5.basic.nullsafe">operatore nullsafe</link>. Entrambi i seguenti porteranno ad un errore in fase di compilazione:
+     <example>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$obj?->method(...);
+$obj?->prop->method(...);
+?>
+]]>
+      </programlisting>
+     </example>
+    </para>
+   </note>
   </sect1>
 
  </chapter>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 9dd74f527dc164165dee7f19058bec75a901e770 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: b57f8f256a4773fc09d19733c70ef8816074d12d Maintainer: pastore Status: ready -->
 <sect1 xml:id="language.types.declarations">
  <title>Dichiarazioni di tipo</title>
 
@@ -163,7 +163,7 @@ Stack trace:
   <title>mixed</title>
 
   <para>
-   <type>mixed</type> è equivalente al <link linkend="language.types.declarations.union">tipo union</link>
+   <type>mixed</type> è equivalente al <link linkend="language.types.declarations.composite.union">tipo union</link>
    <type class="union">
     <type>object</type><type>resource</type><type>array</type><type>string</type>
     <type>int</type><type>float</type><type>bool</type><type>null</type>
@@ -379,61 +379,98 @@ NULL
    </example>
   </note>
  </sect2>
-
- <sect2 xml:id="language.types.declarations.union">
-  <title>Tipi union</title>
+ 
+ <sect2 xml:id="language.types.declarations.composite">
+  <title>Tipi compositi</title>
   <para>
-   Una dichiarazione di tipo union accetta valori di più tipi diversi,
-   anziché uno solo.
-   I tipi union vengono specificati utilizzando la sintassi <literal>T1|T2|...</literal>.
-   I tipi union sono disponibili a partire da PHP 8.0.0.
+   È possibile combinare tipi semplici in tipi compositi.
+   PHP consente di combinare i tipi nei seguenti modi:
   </para>
 
-  <sect3 xml:id="language.types.declarations.union.nullable">
-   <title>Tipi union nullable</title>
+  <itemizedlist>
+   <listitem>
+    <simpara>
+     Union di tipi semplici. A partire da PHP 8.0.0.
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     Intersezione di tipi di classi (interfacce e nomi di classi). A partire da PHP 8.1.0.
+    </simpara>
+   </listitem>
+  </itemizedlist>
+
+  <caution>
+   <simpara>
+    Non è possibile combinare i tipi di intersezione con i tipi union.
+   </simpara>
+  </caution>
+
+  <sect3 xml:id="language.types.declarations.composite.union">
+   <title>Tipi union</title>
    <para>
-    Il tipo <literal>null</literal> è supportato come parte delle union,
-    in modo tale che <literal>T1|T2|null</literal> possa essere utilizzato per creare una union nullable.
-    La notazione <literal>?T</literal> esistente è considerata una scorciatoia
-    per il caso comune di <literal>T|null</literal>.
+    Una dichiarazione di tipo union accetta valori di più tipi semplici diversi,
+    anziché uno solo.
+    I tipi union vengono specificati utilizzando la sintassi <literal>T1|T2|...</literal>.
+    I tipi union sono disponibili a partire da PHP 8.0.0.
    </para>
 
-   <caution>
-    <simpara>
-     <literal>null</literal> non può essere utilizzato come tipo autonomo.
-    </simpara>
-   </caution>
+   <sect4 xml:id="language.types.declarations.composite.union.nullable">
+    <title>Tipi union nullable</title>
+    <para>
+     Il tipo <literal>null</literal> è supportato come parte delle union,
+     in modo tale che <literal>T1|T2|null</literal> possa essere utilizzato per creare una union nullable.
+     La notazione <literal>?T</literal> esistente è considerata una scorciatoia
+     per il caso comune di <literal>T|null</literal>.
+    </para>
+
+    <caution>
+     <simpara>
+      <literal>null</literal> non può essere utilizzato come tipo autonomo.
+     </simpara>
+    </caution>
+   </sect4>
+
+   <sect4 xml:id="language.types.declarations.composite.union.false">
+    <title>Lo pseudotipo false</title>
+    <para>
+     Il tipo letterale <literal>false</literal> è supportato come parte delle union
+     ed è incluso poiché per ragioni storiche molte funzioni interne restituiscono
+     <literal>false</literal> invece di <literal>null</literal> per gli errori.
+     Un classico esempio di tale funzione è <function>strpos</function>.
+    </para>
+
+    <caution>
+     <simpara>
+      <literal>false</literal> non può essere utilizzato come tipo autonomo (incluso
+      il tipo autonomo nullable).
+      Pertanto, <literal>false</literal>, <literal>false|null</literal>
+      e <literal>?false</literal> non sono consentiti.
+     </simpara>
+    </caution>
+    <caution>
+     <simpara>
+      Il tipo letterale <literal>true</literal> <emphasis>non</emphasis>
+      esiste.
+     </simpara>
+    </caution>
+   </sect4>
   </sect3>
 
-  <sect3 xml:id="language.types.declarations.union.false">
-   <title>pseudo-tipo false</title>
+  <sect3 xml:id="language.types.declarations.composite.intersection">
+   <title>Tipi intersezione</title>
    <para>
-    Il tipo letterale <literal>false</literal> è supportato come parte delle union
-    ed è incluso dato che per ragioni storiche molte funzioni interne restituiscono
-    <literal>false</literal> invece di <literal>null</literal> per gli errori.
-    Un classico esempio di tale funzione è <function>strpos</function>.
+    Una dichiarazione di tipo intersezione accetta valori che soddisfano più
+    dichiarazioni di tipo classe, anziché una singola.
+    I tipi intersezione sono specificati utilizzando la sintassi <literal>T1&amp;T2&amp;...</literal>.
+    I tipi intersezione sono disponibili a partire da PHP 8.1.0.
    </para>
-
-   <caution>
-    <simpara>
-     <literal>false</literal> non può essere utilizzato come tipo autonomo (incluso
-     il tipo autonomo nullable).
-     Pertanto, non sono consentiti tutti i valori <literal>false</literal>,
-     <literal>false|null</literal> e <literal>false</literal>.
-    </simpara>
-   </caution>
-   <caution>
-    <simpara>
-     Il tipo letterale <literal>true</literal> <emphasis>non</emphasis>
-     esiste.
-    </simpara>
-   </caution>
   </sect3>
 
-  <sect3 xml:id="language.types.declarations.union.redundant">
+  <sect3 xml:id="language.types.declarations.composite.redundant">
    <title>Tipi duplicati e ridondanti</title>
    <para>
-    Per rilevare semplici bug nelle dichiarazioni di tipo union, i tipi ridondanti che
+    Per rilevare semplici bug nelle dichiarazioni di tipo composito, i tipi ridondanti che
     possono essere rilevati senza eseguire il caricamento della classe risulteranno in un
     errore in fase di compilazione. Ciò comprende:
 
@@ -441,24 +478,52 @@ NULL
      <listitem>
       <simpara>
        Ogni tipo risolto dal nome può verificarsi solo una volta. Tipi come
-       <literal>int|string|INT</literal> generano un errore.
+       <literal>int|string|INT</literal> o
+       <literal>Countable&amp;Traversable&amp;COUNTABLE</literal>
+       generano un errore.
       </simpara>
      </listitem>
      <listitem>
       <simpara>
-       Se viene utilizzato <type>bool</type>, <type>false</type> non può essere utilizzato in aggiunta.
+       L'utilizzo di <type>mixed</type> genera un errore.
       </simpara>
      </listitem>
      <listitem>
-      <simpara>
-       Se viene utilizzato <type>object</type>, i tipi di classe non possono essere utilizzati in aggiunta.
-      </simpara>
+      <simpara>Per i tipi union:</simpara>
+      <itemizedlist>
+       <listitem>
+        <simpara>
+         Se viene usato <type>bool</type>, <type>false</type> non può essere utilizzato in aggiunta.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         Se viene usato <type>object</type>, i tipi di classe non possono essere utilizzati in aggiunta.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         Se viene usato <type>iterable</type>, <type>array</type>
+         e <classname>Traversable</classname>  non possono essere utilizzati in aggiunta.
+        </simpara>
+       </listitem>
+      </itemizedlist>
      </listitem>
      <listitem>
-      <simpara>
-       Se viene utilizzato <type>iterabile</type>, <type>array</type>
-       e <classname>Traversable</classname> non possono essere utilizzati in aggiunta.
-      </simpara>
+      <simpara>Per i tipi intersezione:</simpara>
+      <itemizedlist>
+       <listitem>
+        <simpara>
+         L'utilizzo di un tipo che non è un tipo di classe genera un errore.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         L'utilizzo di <type>self</type>, <type>parent</type> o
+         <type>static</type> genera un errore.
+        </simpara>
+       </listitem>
+      </itemizedlist>
      </listitem>
     </itemizedlist>
    </para>
@@ -485,19 +550,22 @@ NULL
 <?php
 function foo(): int|INT {} // Non consentito
 function foo(): bool|false {} // Non consentito
+function foo(): int&Traversable {} // Non consentito
+function foo(): self&Traversable {} // Non consentito
 
 use A as B;
 function foo(): A|B {} // Non consentito ("use" fa parte della risoluzione dei nomi)
+function foo(): A&B {} // Non consentito ("use" fa parte della risoluzione dei nomi)
 
 class_alias('X', 'Y');
 function foo(): X|Y {} // Consentito (la ridondanza è nota solo in fase di esecuzione)
+function foo(): X&Y {} // Consentito (la ridondanza è nota solo in fase di esecuzione)
 ?>
 ]]>
      </programlisting>
     </informalexample>
    </para>
   </sect3>
-
  </sect2>
 
  <sect2 xml:id="language.types.declarations.return-only">

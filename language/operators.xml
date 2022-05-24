@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 9c098f1e964f310c423844fafb1f8fb4399e4064 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 3d9dad29c75a70e7985ed595dfa2a836e61418da Maintainer: pastore Status: ready -->
 <!-- CREDITS: cucinato -->
  <chapter xml:id="language.operators" xmlns="http://docbook.org/ns/docbook">
   <title>Operatori</title>
@@ -55,8 +55,13 @@
     Operatori di uguale precedenza che non sono associativi non possono essere usati
     vicini l'uno all'altro, per esempio <literal>1 &lt; 2 &gt; 1</literal> è
     illegale in PHP. D'altra parte l'espressione <literal>1 &lt;= 1 == 1</literal>
-    è legale, perchè l'operatore <literal>==</literal> ha meno
+    è legale, perchè l'operatore <literal>==</literal> ha una minore
     precedenza dell'operatore <literal>&lt;=</literal>.
+   </para>
+   <para>
+    L'associatività è significativa solo per gli operatori binari (e ternari).
+    Gli operatori unari sono prefisso o suffisso, quindi questa nozione non è applicabile.
+    Ad esempio <literal>!!$a</literal> può essere raggruppato solo come <literal>!(!$a)</literal>.
    </para>
    <para>
     L'uso delle parentesi, anche quando non strettamente necessario, può spesso aumentare
@@ -94,6 +99,8 @@
        <row>
         <entry>(n/a)</entry>
         <entry>
+         <literal>+</literal> 
+         <literal>-</literal> 
          <literal>++</literal> 
          <literal>--</literal> 
          <literal>~</literal> 
@@ -106,21 +113,25 @@
          <literal>@</literal>
         </entry>
         <entry>
-         <link linkend="language.types">types</link> and <link linkend="language.operators.increment">increment/decrement</link>
+         <link linkend="language.operators.arithmetic">aritmetici</link> (unari <literal>+</literal> e <literal>-</literal>),
+         <link linkend="language.operators.increment">incremento/decremento</link>,
+         <link linkend="language.operators.bitwise">bitwise</link>,
+         <link linkend="language.types.typecasting">casting del tipo</link>&listendand;
+         <link linkend="language.operators.errorcontrol">controllo dell'errore</link>
         </entry>
        </row>
        <row>
         <entry>sinistra</entry>
         <entry><literal>instanceof</literal></entry>
         <entry>
-         <link linkend="language.types">tipi</link>
+         <link linkend="language.operators.type">tipo</link>
         </entry>
        </row>
        <row>
         <entry>(n/a)</entry>
         <entry><literal>!</literal></entry>
         <entry>
-         <link linkend="language.operators.logical">operatori logici</link>
+         <link linkend="language.operators.logical">logici</link>
         </entry>
        </row>
        <row>
@@ -131,7 +142,7 @@
          <literal>%</literal>
         </entry>
         <entry>
-         <link linkend="language.operators.arithmetic">operatori aritmetici</link>
+         <link linkend="language.operators.arithmetic">aritmetici</link>
         </entry>
        </row>
        <row>
@@ -142,8 +153,10 @@
          <literal>.</literal>
         </entry>
         <entry>
-         <link linkend="language.operators.arithmetic">operatori aritmetici</link>&listendand;
-         <link linkend="language.operators.string">operatori su stringhe</link></entry>
+         <link linkend="language.operators.arithmetic">aritmetici</link> (binari <literal>+</literal> e <literal>-</literal>),
+         <link linkend="language.operators.array">array</link>&listendand;
+         <link linkend="language.operators.string">stringhe</link> (<literal>.</literal> prima di PHP 8.0.0)
+        </entry>
        </row>
        <row>
         <entry>sinistra</entry>
@@ -152,7 +165,14 @@
          <literal>&gt;&gt;</literal>
         </entry>
         <entry>
-         <link linkend="language.operators.bitwise">operatori sui bit</link>
+         <link linkend="language.operators.bitwise">bit</link>
+        </entry>
+       </row>
+       <row>
+        <entry>sinistra</entry>
+        <entry><literal>.</literal></entry>
+        <entry>
+         <link linkend="language.operators.string">stringhe</link> (a partire da PHP 8.0.0)
         </entry>
        </row>
        <row>
@@ -164,7 +184,7 @@
          <literal>&gt;=</literal>
         </entry>
         <entry>
-         <link linkend="language.operators.comparison">operatori di confronto</link>
+         <link linkend="language.operators.comparison">confronto</link>
         </entry>
        </row>
        <row>
@@ -224,10 +244,11 @@
         </entry>
        </row>
        <row>
-        <entry>sinistra</entry>
+        <entry>non associativi</entry>
         <entry><literal>? :</literal></entry>
         <entry>
-         <link linkend="language.operators.comparison.ternary">Operatore ternario</link>
+         <link linkend="language.operators.comparison.ternary">ternari</link>
+         (associativi a sinistra prima di PHP 8.0.0)
         </entry>
        </row>
        <row>
@@ -304,7 +325,7 @@
 <?php
 $a = 3 * 3 % 5; // (3 * 3) % 5 = 4
 // l'associatività dell'operatore ternario differisce da quella di C/C++
-$a = true ? 0 : true ? 1 : 2; // (true ? 0 : true) ? 1 : 2 = 2
+$a = true ? 0 : true ? 1 : 2; // (true ? 0 : true) ? 1 : 2 = 2 (prima di PHP 8.0.0)
 
 $a = 1;
 $b = 2;
@@ -336,14 +357,14 @@ $array[$i] = $i++; // può impostare l'indice 1 o 2
      </programlisting>
     </example>
     <example>
-     <title><literal>+</literal>, <literal>-</literal> e <literal>.</literal> hanno la stessa precedenza</title>
+     <title><literal>+</literal>, <literal>-</literal> e <literal>.</literal> hanno la stessa precedenza (prima di PHP 8.0.0)</title>
      <programlisting role="php">
 <![CDATA[
 <?php
 $x = 4;
 // questa linea potrebbe causare un risultato inaspettato:
 echo "x minus one equals " . $x-1 . ", or so I hope\n";
-// perché è valutata come questa linea:
+// perché è valutata come questa linea (prima di PHP 8.0.0):
 echo (("x minus one equals " . $x) - 1) . ", or so I hope\n";
 // la precedenza desiderata può essere forzata usando le parentesi:
 echo "x minus one equals " . ($x-1) . ", or so I hope\n";
@@ -369,6 +390,54 @@ x minus one equals 3, or so I hope
      inserito in <varname>$a</varname>.
     </para>
    </note>
+   <sect2 role="changelog">
+    &reftitle.changelog;
+    <informaltable>
+     <tgroup cols="2">
+      <thead>
+       <row>
+        <entry>&Version;</entry>
+        <entry>&Description;</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry>8.0.0</entry>
+        <entry>
+         La concatenazione delle stringhe (<literal>.</literal>) ora ha una precedenza inferiore rispetto
+         all'addizione/sottrazione aritmetica (<literal>+</literal> e <literal>-</literal>) e
+         lo spostamento bit a bit a sinistra/destra (<literal>&lt;&lt;</literal> e <literal>&gt;&gt;</literal>);
+         precedentemente aveva la stessa precedenza di <literal>+</literal> e <literal>-</literal>
+         e una precedenza superiore a <literal>&lt;&lt;</literal> e <literal>&gt;&gt;</literal>.
+        </entry>
+       </row>
+       <row>
+        <entry>8.0.0</entry>
+        <entry>
+         L'operatore ternario (<literal>? :</literal>) ora è non-associativo;
+         precedentemente era associativo a sinistra.
+        </entry>
+       </row>
+       <row>
+        <entry>7.4.0</entry>
+        <entry>
+         Fare affidamento sulla precedenza della concatenazione di stringhe (<literal>.</literal>) rispetto all'
+         addizione/sottrazione aritmetica (<literal>+</literal> o <literal>-</literal>) o
+         lo spostamento bit a bit a sinistra/destra (<literal>&lt;&lt;</literal> o <literal>&gt;&gt;</literal>),
+         ovvero utilizzarli insieme in un'espressione senza parentesi, è deprecato.
+        </entry>
+       </row>
+       <row>
+        <entry>7.4.0</entry>
+        <entry>
+         Fare affidamento sull'associatività a sinistra dell'operatore ternario (<literal>? :</literal>),
+         ovvero annidare più operatori ternari senza parentesi, è deprecato.
+        </entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+   </sect2>
   </sect1>
 
   <sect1 xml:id="language.operators.arithmetic">
@@ -441,7 +510,7 @@ x minus one equals 3, or so I hope
     divisioni di interi, vedere <function>intdiv</function>.
    </simpara>
    <simpara>
-    Gli operandi del modulo sono convertiti a interi (rimuovendo la parte decimale)
+    Gli operandi del modulo sono convertiti in <type>int</type>
     prima dell'operazione. Per il modulo di numeri a virgola mobile, vedere
     <function>fmod</function>.
    </simpara>
@@ -607,7 +676,7 @@ Parse error: syntax error, unexpected 'new' (T_NEW) in …
       <tbody>
        <row>
         <entry>$a += $b</entry>
-        <entry>$a = $a + b</entry>
+        <entry>$a = $a + $b</entry>
         <entry>Addizione</entry>
        </row>
        <row>
@@ -629,6 +698,11 @@ Parse error: syntax error, unexpected 'new' (T_NEW) in …
         <entry>$a %= $b</entry>
         <entry>$a = $a % $b</entry>
         <entry>Modulo</entry>
+       </row>
+       <row>
+        <entry>$a **= $b</entry>
+        <entry>$a = $a ** $b</entry>
+        <entry>Esponenziale</entry>
        </row>
       </tbody>
      </tgroup>
@@ -1488,22 +1562,42 @@ Espressione: 0 = -4 << 62
       <programlisting role="php">
 <![CDATA[
 <?php
-var_dump(0 == "a"); // 0 == 0 -> true
-var_dump("1" == "01"); // 1 == 1 -> true
-var_dump("10" == "1e1"); // 10 == 10 -> true
-var_dump(100 == "1e2"); // 100 == 100 -> true
+var_dump(0 == "a");
+var_dump("1" == "01");
+var_dump("10" == "1e1");
+var_dump(100 == "1e2");
 
 switch ("a") {
 case 0:
     echo "0";
     break;
-case "a": // mai raggiunta perché "a" è già riconosciuta come 0
+case "a":
     echo "a";
     break;
 }
 ?>
 ]]>
       </programlisting>
+      &example.outputs.7;
+      <screen>
+<![CDATA[
+bool(true)
+bool(true)
+bool(true)
+bool(true)
+0
+]]>
+      </screen>
+      &example.outputs.8;
+      <screen>
+<![CDATA[
+bool(false)
+bool(true)
+bool(true)
+bool(true)
+a
+]]>
+      </screen>      
      </informalexample>
     </para>
    </warning>
@@ -1640,14 +1734,13 @@ var_dump(min(-100, -10, NULL, 10, 100)); // NULL - (bool)NULL < (bool)-100 è FA
     </example>
    </para>
 
-
    <para>
     <example>
      <title>Trascrizione del confronto standard tra matrici</title>
      <programlisting role="php">
 <![CDATA[
 <?php
-// Le matrici vengono confrontate come illustrato in questa funzione
+// Gli array vengono confrontati in questo modo con gli operatori di confronto standard e con l'operatore spaceship.
 function standard_array_compare($op1, $op2)
 {
     if (count($op1) < count($op2)) {
@@ -1657,7 +1750,7 @@ function standard_array_compare($op1, $op2)
     }
     foreach ($op1 as $key => $val) {
         if (!array_key_exists($key, $op2)) {
-            return null; // uncomparable
+            return 1;
         } elseif ($val < $op2[$key]) {
             return -1;
         } elseif ($val > $op2[$key]) {
@@ -1684,6 +1777,25 @@ function standard_array_compare($op1, $op2)
      Per maggior informazioni, fare riferimento alla documentazione del tipo <type>float</type>.
     </para>
    </warning>
+
+   <note>
+    <simpara>
+     Tenere presente che la manipolazione dei tipi di PHP non è sempre ovvia quando si confrontano valori di tipi diversi,
+     in particolare confrontando &integer; con &boolean; o &integer; con &string;. È quindi generalmente
+     consigliabile utilizzare confronti <literal>===</literal> e <literal>!==</literal> piuttosto che
+     <literal>==</literal> e <literal>!=</literal> nella maggior parte dei casi.
+    </simpara>
+   </note>
+
+   <sect2 xml:id="language.operators.comparison.incomparable">
+    <title>Incomparable Values</title>
+    <simpara>
+     Mentre il confronto di identità (<literal>===</literal> e <literal>!==</literal>)
+     può essere applicato a valori arbitrari, gli altri operatori di confronto dovrebbero essere applicati
+     solo a valori comparabili. Il risultato del confronto di valori incomparabili non
+     è definito e non dovrebbe essere considerato attendibile.
+    </simpara>
+   </sect2>
 
    <sect2 role="seealso">
     &reftitle.seealso;
@@ -1715,7 +1827,6 @@ if (empty($_POST['action'])) {
 } else {
     $action = $_POST['action'];
 }
-
 ?>
 ]]>
       </programlisting>
@@ -1728,9 +1839,10 @@ if (empty($_POST['action'])) {
     </para>
     <para>
      È possibile tralasciare l'elemento centrale dell'operatore ternario.
-     L'espressione <literal>espressione1 ?: espressione3</literal> restituisce
-     <replaceable>espressione1</replaceable> se <replaceable>espressione1</replaceable>
-     è &true;, e <replaceable>espressione3</replaceable> in caso contrario.
+     L'espressione <literal>espressione1 ?: espressione3</literal> viene valutata
+     al risultato di <replaceable>espressione1</replaceable> se <replaceable>espressione1</replaceable>
+     viene valutata &true;, e <replaceable>espressione3</replaceable> in caso contrario.
+     <replaceable>espressione1</replaceable> viene valutata solo una volta.
     </para>
     <note>
      <simpara>
@@ -1745,20 +1857,22 @@ if (empty($_POST['action'])) {
     <note>
      <para>
       Si raccomanda di evitare di "sovrapporre" espressioni ternarie.
-      Il comportamento di PHP quando si utilizza più di un operatore ternario all'interno di una singola
-      istruzione non è ovvio rispetto ad altri linguaggi.
-      Infatti prima di PHP 8.0.0, le espressioni ternarie venivano valutate da sinistra a
-      destra, invece che da destra a sinistra come la maggior parte degli altri linguaggi di programmazione.
+      Il comportamento di PHP quando si utilizza più di un operatore ternario senza parentesi all'interno di una singola
+      espressione non è ovvio rispetto ad altri linguaggi.
+      In effetti, prima di PHP 8.0.0, le espressioni ternarie venivano valutate associative a sinistra,
+      anziché associative a destra come la maggior parte degli altri linguaggi di programmazione.
+      Fare affidamento sull'associatività di sinistra è deprecato a partire da PHP 7.4.0.
+      A partire da PHP 8.0.0, l'operatore ternario non è associativo.
       <example>
        <title>Comportamento ternario non ovvio</title>
        <programlisting role="php">
 <![CDATA[
 <?php
 // a prima vista, questa istruzione dovrebbe restituire 'true'
-echo (true?'true':false?'t':'f');
+echo (true ? 'true' : false ? 't' : 'f');
 
 // invece, l'output effettivo di quanto sopra è 't' prima di PHP 8.0.0
-// perché le espressioni ternarie sono valutate da sinistra a destra
+// questo perché le espressioni ternarie sono associative a sinistra
 
 // quanti segue è una versione più chiara dello stesso codice
 echo ((true ? 'true' : false) ? 't' : 'f');
@@ -1772,12 +1886,31 @@ echo ((true ? 'true' : false) ? 't' : 'f');
       </example>
      </para>
     </note>
+    <note>
+     <para>
+      Il concatenamento di ternari brevi (<literal>?:</literal>), tuttavia, è stabile e si comporta in modo ragionevole.
+      Verrà valutato al primo argomento valutato come valore non falso. Si noti che i valori non
+      definiti genereranno comunque un avviso.
+      <example>
+       <title>Concatenamento ternario breve</title>
+       <programlisting role="php">
+<![CDATA[
+<?php
+echo 0 ?: 1 ?: 2 ?: 3, PHP_EOL; //1
+echo 0 ?: 0 ?: 2 ?: 3, PHP_EOL; //2
+echo 0 ?: 0 ?: 0 ?: 3, PHP_EOL; //3
+?>
+]]>
+       </programlisting>
+      </example>
+     </para>
+    </note>
    </sect2>
    
    <sect2 xml:id="language.operators.comparison.coalesce">
     <title>L'operatore Null Coalescing</title>
     <para>
-     Inoltre esiste l'operatore "??" (o null coalescing).
+     Un altro utile operatore abbreviato è il "??" (o null coalescing).
      <example>
       <title>Assegnazione di un valore predefinito</title>
       <programlisting role="php">
@@ -1792,7 +1925,6 @@ if (isset($_POST['action'])) {
 } else {
     $action = 'default';
 }
-
 ?>
 ]]>
       </programlisting>
@@ -1815,6 +1947,24 @@ if (isset($_POST['action'])) {
       che restituisce un riferimento quindi non funzionerà e verrà emesso un
       avviso.
      </simpara>
+    </note>
+    <note>
+     <para>
+      L'operatore null coalescing ha una precedenza bassa. Ciò significa che se lo si mescola
+      con altri operatori (come la concatenazione di stringhe o gli operatori aritmetici)
+      saranno probabilmente necessarie parentesi.
+     </para>
+     <programlisting role="php">
+<![CDATA[
+<?php
+// Genera un avviso che $name non è definito.
+print 'Mr. ' . $name ?? 'Anonymous';
+
+// Stampa "Mr. Anonymous"
+print 'Mr. ' . ($name ?? 'Anonymous');
+?>
+]]>
+     </programlisting>
     </note>
     <note>
      <para>
@@ -1844,16 +1994,24 @@ echo $foo ?? $bar ?? $baz ?? $qux; // stampa 1
   <sect1 xml:id="language.operators.errorcontrol">
    <title>Operatori di controllo errori</title>
    <simpara>
-    PHP supporta un operatore di controllo dell'errore: il carattere at (@). Quando
-    prefisso ad una espressione in PHP, qualunque messaggio di errore che possa
-    essere generato da quella espressione sarà ignorato.
+    PHP supporta un operatore di controllo dell'errore: il carattere at (<literal>@</literal>).
+    Quando viene anteposto ad una espressione in PHP, qualunque messaggio di errore che possa
+    essere generato da quella espressione sarà soppresso.
    </simpara>
-   <simpara>
+   <para>
     Se è stata assegnata una funzione personalizzata di gestione degli errori con
-    <function>set_error_handler</function> questa verrà comunque
-    chiamata, ma questa funzione può (e dovrebbe) chiamare <function>error_reporting</function>
-    che restituirà 0 quando la chiamata che ha attivato l'errore era preceduta da un @.
-   </simpara>
+    <function>set_error_handler</function> questa verrà comunque chiamata, anche se
+    la diagnostica è stata soppressa.
+   </para>
+
+   <warning>
+    <para>
+     Prima di PHP 8.0.0, la funzione <function>error_reporting</function> chiamata all'interno del gestore di errori personalizzato
+     restituiva sempre <literal>0</literal> se l'errore veniva soppresso dall'operatore <literal>@</literal>.
+     A partire da PHP 8.0.0, restituisce il valore <literal>E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_PARSE</letterale>.
+    </para>
+   </warning>
+   
    <simpara>
     Qualsiasi messaggio di errore generato dall'espressione è disponibile nell'elemento
     <literal>"message"</literal> dell'array restituito da <function>error_get_last</function>.
@@ -1879,24 +2037,25 @@ $value = @$cache[$key];
    </para>
    <note>
     <simpara>
-     L'operatore @ funziona solo sulle 
-     <link linkend="language.expressions">espressioni</link>. Una semplice regola
-     è: se si può ottenere il valore di qualcosa, allora si può anteporre ad esso
-     l'operatore @. Per esempio, si può anteporre a variabili,
-     funzioni e chiamate ad <function>include</function>, costanti, e
-     così via. non si può anteporre a definizioni di funzioni o classi,
+     L'operatore <literal>@</literal> funziona solo sulle 
+     <link linkend="language.expressions">espressioni</link>.
+     Una semplice regola è: se si può ottenere il valore di qualcosa,
+     allora si può anteporre ad esso l'operatore <literal>@</literal>.
+     Per esempio, si può anteporre a variabili, chiamate di funzioni,
+     determinate chiamate di costrutti di linguaggio (per esempio <function>include</function>),
+     e così via.
+     Non si può anteporre a definizioni di funzioni o classi,
      o strutture condizionali come <literal>if</literal> e
      <literal>foreach</literal>, e così via.
     </simpara>
    </note>
    <warning>
     <para>
-     In effetti, il prefisso operatore di controllo dell'errore "@" disabiliterà
-     la restituzione di errori per errori critici che interrompono l'esecuzione
-     dello script. Tra le altre cose, questo significa che se si usa "@"
-     per sopprimere errori da una certa funzione ed essa non è disponibile
-     oppure è stata scritta male, lo script terminerà
-     senza dare indicazioni sul motivo.
+     Prima di PHP 8.0.0, era possibile per l'operatore <literal>@</literal>
+     disabilitare gli errori critici che interrompevano l'esecuzione dello script.
+     Ad esempio, anteporre <literal>@</literal> ad una chiamata di una funzione
+     che non esiste, non essendo disponibile o digitata in modo errato, causerebbe
+     il termine dello script senza alcuna indicazione sul perché.
     </para>
    </warning>
 
@@ -2596,6 +2755,44 @@ var_dump(FALSE instanceof stdClass);
     <screen>
 <![CDATA[
 bool(false)
+]]>
+     </screen>
+    </example>
+   </para>
+   <para>
+    A partire da PHP 8.0.0, <literal>instanceof</literal> ora può essere utilizzato con espressioni arbitrarie.
+    L'espressione deve essere racchiusa tra parentesi e produrre una <type>string</type>.
+    <!-- RFC: https://wiki.php.net/rfc/variable_syntax_tweaks -->
+    <example>
+     <title>Utilizzo di <literal>instanceof</literal> con un'espressione arbitraria</title>
+     <programlisting role="php">
+      <![CDATA[
+<?php
+
+class ClassA extends \stdClass {}
+class ClassB extends \stdClass {}
+class ClassC extends ClassB {}
+class ClassD extends ClassA {}
+
+function getSomeClass(): string
+{
+    return ClassA::class;
+}
+
+var_dump(new ClassA instanceof ('std' . 'Class'));
+var_dump(new ClassB instanceof ('Class' . 'B'));
+var_dump(new ClassC instanceof ('Class' . 'A'));
+var_dump(new ClassD instanceof (getSomeClass()));
+?>
+]]>
+     </programlisting>
+     &example.outputs.8;
+     <screen>
+      <![CDATA[
+bool(true)
+bool(true)
+bool(false)
+bool(true)
 ]]>
      </screen>
     </example>

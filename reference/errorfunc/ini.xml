@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: aceea02784025ae4c461c889d2c891920bf9a5ed Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 65716f4761484e314ee86fa23493f00f7823ace1 Maintainer: pastore Status: ready -->
 <!-- CREDITS: darvina -->
 <section xml:id="errorfunc.configuration" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  &reftitle.runtime;
@@ -31,9 +31,11 @@
     </row>
     <row>
      <entry><link linkend="ini.display-startup-errors">display_startup_errors</link></entry>
-     <entry>"0"</entry>
+     <entry>"1"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry></entry>
+     <entry>
+       Prima di PHP 8.0.0, il valore di default era <literal>"0"</literal>.
+     </entry>
     </row>
     <row>
      <entry><link linkend="ini.log-errors">log_errors</link></entry>
@@ -45,61 +47,61 @@
      <entry><link linkend="ini.log-errors-max-len">log_errors_max_len</link></entry>
      <entry>"1024"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>Disponibile da PHP 4.3.0.</entry>
+     <entry></entry>
     </row>
     <row>
      <entry><link linkend="ini.ignore-repeated-errors">ignore_repeated_errors</link></entry>
      <entry>"0"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>Disponibile da PHP 4.3.0.</entry>
+     <entry></entry>
     </row>
     <row>
      <entry><link linkend="ini.ignore-repeated-source">ignore_repeated_source</link></entry>
      <entry>"0"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>Disponibile da PHP 4.3.0.</entry>
+     <entry></entry>
     </row>
     <row>
      <entry><link linkend="ini.report-memleaks">report_memleaks</link></entry>
      <entry>"1"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>Disponibile da PHP 4.3.0.</entry>
+     <entry></entry>
     </row>
     <row>
      <entry><link linkend="ini.track-errors">track_errors</link></entry>
      <entry>"0"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry></entry>
+     <entry>Deprecato a partire da PHP 7.2.0, rimosso a partire da PHP 8.0.0.</entry>
     </row>
     <row>
      <entry><link linkend="ini.html-errors">html_errors</link></entry>
      <entry>"1"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>PHP_INI_SYSTEM in PHP &lt;= 4.2.3.</entry>
+     <entry></entry>
     </row>
     <row>
      <entry><link linkend="ini.xmlrpc-errors">xmlrpc_errors</link></entry>
      <entry>"0"</entry>
      <entry>PHP_INI_SYSTEM</entry>
-     <entry>Available since PHP 4.1.0.</entry>
+     <entry></entry>
     </row>
     <row>
      <entry><link linkend="ini.xmlrpc-error-number">xmlrpc_error_number</link></entry>
      <entry>"0"</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>Disponibile da PHP 4.1.0.</entry>
+     <entry></entry>
     </row>
     <row>
      <entry><link linkend="ini.docref-root">docref_root</link></entry>
      <entry>""</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>Disponibile da PHP 4.3.0.</entry>
+     <entry></entry>
     </row>
     <row>
      <entry><link linkend="ini.docref-ext">docref_ext</link></entry>
      <entry>""</entry>
      <entry>PHP_INI_ALL</entry>
-     <entry>disponibile da PHP 4.3.2.</entry>
+     <entry></entry>
     </row>
     <row>
      <entry><link linkend="ini.error-prepend-string">error_prepend_string</link></entry>
@@ -118,6 +120,12 @@
      <entry>NULL</entry>
      <entry>PHP_INI_ALL</entry>
      <entry></entry>
+    </row>
+    <row>
+     <entry><link linkend="ini.error-log-mode">error_log_mode</link></entry>
+     <entry>0o644</entry>
+     <entry>PHP_INI_ALL</entry>
+     <entry>Disponibile a partire da PHP 8.2.0</entry>
     </row>
     <row>
      <entry><link linkend="ini.syslog.facility">syslog.facility</link></entry>
@@ -150,7 +158,7 @@
    <varlistentry xml:id="ini.error-reporting">
     <term>
      <parameter>error_reporting</parameter>
-     <type>integer</type>
+     <type>int</type>
     </term>
     <listitem>
      <para>
@@ -163,53 +171,23 @@
       <link linkend="ini.display-errors">display_errors</link>.
      </para>
      <para>
-      In PHP 5.3 o successivi, il valore di default
-      è <constant>E_ALL</constant> &amp;
-      ~<constant>E_NOTICE</constant> &amp;
-      ~<constant>E_STRICT</constant> &amp;
-      ~<constant>E_DEPRECATED</constant>. Questa impostazione non
-      visualizza gli errori di livello <constant>E_NOTICE</constant>,
-      <constant>E_STRICT</constant> e <constant>E_DEPRECATED</constant>. Tuttavia
-      può essere comodo visualizzare questi messaggi in fase di sviluppo.
-      Prima di PHP 5.3.0, il valore di default
-      è <constant>E_ALL</constant> &amp;
-      ~<constant>E_NOTICE</constant> &amp;
-      ~<constant>E_STRICT</constant>. 
-      In PHP 4 il valore di default è <constant>E_ALL</constant>
-      &amp; ~<constant>E_NOTICE</constant>.
+      Il valore di default è <constant>E_ALL</constant>.
      </para>
-     <note>
-      <para>Abilitare <constant>E_NOTICE</constant> durante la fase di sviluppo ha
-      dei benefici. Ad esempio per scopi di debug: i messaggi di tipo NOTICE avvisano su
-      possibili bug nel codice. L'uso di variabili non assegnate, ad esempio, 
-      viene rilevato con questo livello di errore. Particolare che è molto utile per trovare 
-      errori di battitura e risparmiare tempo in fase di debug. I messaggi di tipo NOTICE segnalano il codice scritto con un cattivo stile.
-      Ad esempio, <literal>$arr[item]</literal> è meglio che sia scritto come 
-      <literal>$arr['item']</literal> poiché il PHP tenta di trattare
-      <literal>"item"</literal> come costante. Se non esiste una simile costante, il PHP presume
-      che si tratti dell'indice di una matrice.
-      </para>
-     </note>
-     <note>
-      <para>
-       Nel PHP 5 è stato introdotto un nuovo livello di errore <constant>E_STRICT</constant>.
-       Prima di PHP 5.4.0 <constant>E_STRICT</constant> non era incluso all'interno di
-       <constant>E_ALL</constant>, così si doveva attivare in modo esplicito questo tipo di
-       livello d'errore in PHP &lt; 5.4.0. Abilitare <constant>E_STRICT</constant> durante lo sviluppo
-       ha alcuni vantaggi. I messaggi STRICT forniscono suggerimenti che possono aiutare
-       a garantire la migliore interoperabilità e la compabilità in avanti del codice.
-       Questi messaggi possono includere cose come la chiamata di metodi non statici in modo
-       statico, la definizione di proprietà in una definizione di classe compatibile mentre
-       sono definite in un trait utilizzato, e prima di PHP 5.3 alcune funzioni obsolete
-       emettono errori <constant>E_STRICT</constant> come ad esempio l'assegnamento
-       di oggetti con riferimento alla creazione di un'istanza.
-      </para>
-     </note>
+     <para>
+      Prima di PHP 8.0.0, il valore di default era:
+      <userinput><constant>E_ALL</constant> &amp;
+       ~<constant>E_NOTICE</constant> &amp;
+       ~<constant>E_STRICT</constant> &amp;
+       ~<constant>E_DEPRECATED</constant></userinput>.
+      Questo significa che le diagnostiche di livello <constant>E_NOTICE</constant>,
+      <constant>E_STRICT</constant> e <constant>E_DEPRECATED</constant>
+      non venivano mostrate.
+     </para>
      <note>
       <title>Costanti PHP fuori da PHP</title>
       <para>
        L'utilizzo di constanti PHP fuori da PHP, come ad esempio in <filename>httpd.conf</filename>,
-       non ha senso tranne nei casi in cui siano richiesti valori di tipo <type>integer</type>. 
+       non ha senso tranne nei casi in cui siano richiesti valori di tipo <type>int</type>. 
        Inoltre, poiché i livelli di error sono aggiunti nel tempo, il valore massimo
        (per <constant>E_ALL</constant>) molto probabilmente cambierà. Quindi, al posto di
        <constant>E_ALL</constant>, si consideri di usare un valore più grande per coprire tutti i bit
@@ -233,8 +211,7 @@
      </para>
      <para>
       Il valore <literal>"stderr"</literal> invia gli errori a <literal>stderr</literal>
-      invece che a <literal>stdout</literal>. Il valore è disponibile da PHP
-      5.2.4. Nelle versioni precedenti, questa direttiva era di tipo <type>boolean</type>.
+      invece che a <literal>stdout</literal>.
      </para>
      <note>
       <para>
@@ -255,7 +232,7 @@
    <varlistentry xml:id="ini.display-startup-errors">
     <term>
      <parameter>display_startup_errors</parameter>
-     <type>boolean</type>
+     <type>bool</type>
     </term>
     <listitem>
      <para>
@@ -269,7 +246,7 @@
    <varlistentry xml:id="ini.log-errors">
     <term>
      <parameter>log_errors</parameter>
-     <type>boolean</type>
+     <type>bool</type>
     </term>
     <listitem>
      <para>
@@ -289,7 +266,7 @@
    <varlistentry xml:id="ini.log-errors-max-len">
     <term>
      <parameter>log_errors_max_len</parameter>
-     <type>integer</type>
+     <type>int</type>
     </term>
     <listitem>
      <para>
@@ -310,7 +287,7 @@
    <varlistentry xml:id="ini.ignore-repeated-errors">
     <term>
      <parameter>ignore_repeated_errors</parameter>
-     <type>boolean</type>
+     <type>bool</type>
     </term>
     <listitem>
      <para>
@@ -325,7 +302,7 @@
    <varlistentry xml:id="ini.ignore-repeated-source">
     <term>
      <parameter>ignore_repeated_source</parameter>
-     <type>boolean</type>
+     <type>bool</type>
     </term>
     <listitem>
      <para>
@@ -339,16 +316,16 @@
    <varlistentry xml:id="ini.report-memleaks">
     <term>
      <parameter>report_memleaks</parameter>
-     <type>boolean</type>
+     <type>bool</type>
     </term>
     <listitem>
      <para>
       Se questo parametro è impostato a On (il valore predefinito), verrà mostrato un
       rapporto delle fughe di memoria identificate dal gestore di memoria di Zend. Questo rapporto
       verrà inviato a stderr sulle piattaforme Posix. Su Windows, verrà inviato
-      al debugger usando OutputDebugString(), e può essere visualizzato con strumenti
+      al debugger usando OutputDebugString() e può essere visualizzato con strumenti
       come <link xlink:href="&url.dbgview;">DbgView</link>.
-      Questa impostazione ha effetto solo in un build di debug, e se
+      Questa impostazione ha effetto solo in un build di debug e se
       error_reporting include <constant>iE_WARNING</constant>
       nell'elenco degli errori abilitati.
      </para>
@@ -358,7 +335,7 @@
    <varlistentry xml:id="ini.track-errors">
     <term>
      <parameter>track_errors</parameter>
-     <type>boolean</type>
+     <type>bool</type>
     </term>
     <listitem>
      <para>
@@ -391,7 +368,7 @@
    <varlistentry xml:id="ini.xmlrpc-errors">
     <term>
      <parameter>xmlrpc_errors</parameter>
-     <type>boolean</type>
+     <type>bool</type>
     </term>
     <listitem>
      <para>
@@ -404,7 +381,7 @@
    <varlistentry xml:id="ini.xmlrpc-error-number">
     <term>
      <parameter>xmlrpc_error_number</parameter>
-     <type>integer</type>
+     <type>int</type>
     </term>
     <listitem>
      <para>
@@ -470,7 +447,9 @@
     </term>
     <listitem>
      <para>
-      Testo da visualizzare prima del messaggio di errore.
+      Stringa da visualizzare prima del messaggio di errore.
+      Utilizzato solo quando il messaggio di errore viene visualizzato sullo schermo. Lo scopo principale
+      è quello di poter anteporre un markup HTML aggiuntivo al messaggio di errore.
      </para>
     </listitem>
    </varlistentry>
@@ -482,7 +461,9 @@
     </term>
     <listitem>
      <para>
-      Testo da visualizzare dopo il messaggio di errore.
+      Stringa da visualizzare dopo il messaggio di errore.
+      Utilizzato solo quando il messaggio di errore viene visualizzato sullo schermo. Lo scopo principale
+      è quello di poter apporre un markup HTML aggiuntivo al messaggio di errore.
      </para>
     </listitem>
    </varlistentry>
@@ -504,6 +485,19 @@
       Per esempio, è un log di errore in Apache o <literal>stderr</literal>
       in CLI.
       Vedi anche <function>error_log</function>.
+     </para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry xml:id="ini.error-log-mode">
+    <term>
+     <parameter>error_log_mode</parameter>
+     <type>int</type>
+    </term>
+    <listitem>
+     <para>
+      Modalità del file per il file descritto in
+      <link linkend="ini.error-log">error_log</link>.
      </para>
     </listitem>
    </varlistentry>
@@ -530,21 +524,39 @@
      <para>
       Specifica il tipo di filtro per filtrare i messaggi di log. I caratteri
       permessi vengono passati senza modifiche; tutti gli altri sono scritti nella loro
-      rappresentazione esadecimale prefissata con <literal>\x</literal>. Ci sono
-      tre tipi di filtro supportati:
+      rappresentazione esadecimale prefissata con <literal>\x</literal>.
       <itemizedlist>
        <listitem>
-        <simpara><literal>all</literal> – tutti i caratteri</simpara>
+        <simpara><literal>all</literal> – la stringa di log verrà divisa
+          in caratteri di nuova riga e tutti i caratteri verranno passati inalterati
+        </simpara>
        </listitem>
        <listitem>
-        <simpara><literal>no-ctrl</literal> – tutti i caratteri eccetto i caratteri di controllo</simpara>
+        <simpara><literal>ascii</literal> – la stringa di log verrà divisa
+          in caratteri di nuova riga e tutti i caratteri ASCII a 7 bit non stampabili verranno sottoposti a escape
+        </simpara>
        </listitem>
        <listitem>
-        <simpara><literal>ascii</literal> – tutti i caratteri ASCII stampabili e <literal>NL</literal></simpara>
+        <simpara><literal>no-ctrl</literal> – la stringa di log verrà divisa
+          in caratteri di nuova riga e tutti i caratteri non stampabili verranno sottoposti a escape
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara><literal>raw</literal> – tutti i caratteri vengono passati al logger di
+          sistema inalterati, senza dividersi in newline (identico a PHP prima della versione 7.3)
+        </simpara>
        </listitem>
       </itemizedlist>
-      Efficace solo se <link linkend="ini.error-log">error_log</link> è impostato a "syslog".
+      Questa impostazione influenzerà i logging tramite <link linkend="ini.error-log">error_log</link> impostato su "syslog" e le chiamate a <function>syslog</function>.
      </para>
+     <note>
+      <para>
+       Il tipo di filtro <literal>raw</literal> è disponibile a partire da PHP 7.3.8 e PHP 7.4.0.
+      </para>
+     </note>
+     <simpara>
+      Questa direttiva non è supportata su Windows.
+     </simpara>
     </listitem>
    </varlistentry>
 

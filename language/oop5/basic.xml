@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 02f3bf57175c48abff767ad2c0961c6cfe58a39e Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 512670405c88acf7f0c9124f98c249e530ecd3cb Maintainer: pastore Status: ready -->
 <!-- Reviewed: yes Maintainer: cucinato -->
 <!-- CREDITS: montefoschi,cucinato -->
  <sect1 xml:id="language.oop5.basic" xmlns="http://docbook.org/ns/docbook">
@@ -126,6 +126,72 @@ Stack trace:
      </screen>
     </example>
    </warning>
+
+   <sect3 xml:id="language.oop5.basic.class.readonly">
+    <title>Classi readonly</title>
+    <para>
+     A partire da PHP 8.2.0, una classe può essere marcata con il
+     modificatore <modifier>readonly</modifier>.
+     Marcando una classe come <modifier>readonly</modifier> si aggiungerà il
+     <link linkend="language.oop5.properties.readonly-properties">modificatore <modifier>readonly</modifier></link>
+     ad ogni proprietà dichiarata, e preverrà la creazione di
+     <link linkend="language.oop5.properties.dynamic-properties">proprietà dinamiche</link>.
+     Inoltre, è impossibile aggiungere il loro supporto utilizzando
+     l'attributo <classname>AllowDynamicProperties</classname>. Provando ad utilizzarlo
+     si innescherà un errore in fase di compilazione.
+    </para>
+    <example>
+     <programlisting role="php">
+<![CDATA[
+<?php
+#[AllowDynamicProperties]
+readonly class Foo {
+}
+
+// Fatal error: Cannot apply #[AllowDynamicProperties] to readonly class Foo
+?>
+]]>
+     </programlisting>
+    </example>
+
+    <para>
+     Poiché né le proprietà non tipizzate né quelle statiche possono essere contrassegnate con il
+     modificatore <literal>readonly</literal>, le classi readonly non possono dichiarare
+     nemmeno loro:
+    </para>
+    <example>
+     <programlisting role="php">
+<![CDATA[
+<?php
+readonly class Foo
+{
+    public $bar;
+}
+
+// Fatal error: Readonly property Foo::$bar must have type
+?>
+]]>
+     </programlisting>
+     <programlisting role="php">
+<![CDATA[
+<?php
+readonly class Foo
+{
+    public static int $bar;
+}
+
+// Fatal error: Readonly class Foo cannot declare static properties
+?>
+]]>
+     </programlisting>
+    </example>
+    <para>
+     Una classe <modifier>readonly</modifier> può essere
+     <link linkend="language.oop5.basic.extends">estesa</link>
+     se, e solo se, la classe figlia è anche una
+     classe <modifier>readonly</modifier>.
+    </para>
+   </sect3>
   </sect2>
 
   <sect2 xml:id="language.oop5.basic.new">
@@ -165,6 +231,53 @@ $instance = new $className(); // new SimpleClass()
 ?>
 ]]>
     </programlisting>
+   </example>
+   <para>
+    Da PHP 8.0.0, l'utilizzo di <literal>new</literal> con espressioni arbitrarie
+    è supportato. Ciò consente istanziazioni più complesse se l'espressione
+    produce una <type>stringa</type>. Le espressioni devono essere racchiuse tra parentesi.
+   </para>
+   <example>
+    <title>Creazione di un'istanza utilizzando un'espressione arbitraria</title>
+    <para>
+     Nell'esempio fornito mostriamo più esempi di espressioni arbitrarie valide che producono un nome di classe.
+     Questo mostra una chiamata a una funzione, la concatenazione di stringhe e la costante <constant>::class</constant>.
+    </para>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+
+class ClassA extends \stdClass {}
+class ClassB extends \stdClass {}
+class ClassC extends ClassB {}
+class ClassD extends ClassA {}
+
+function getSomeClass(): string
+{
+    return 'ClassA';
+}
+
+var_dump(new (getSomeClass()));
+var_dump(new ('Class' . 'B'));
+var_dump(new ('Class' . 'C'));
+var_dump(new (ClassD::class));
+?>
+]]>
+    </programlisting>
+    &example.outputs.8;
+    <screen>
+     <![CDATA[
+object(ClassA)#1 (0) {
+}
+object(ClassB)#1 (0) {
+}
+object(ClassC)#1 (0) {
+}
+object(ClassD)#1 (0) {
+}
+
+]]>
+    </screen>
    </example>
    <para>
     Nel contesto di una classe, è possibile creare un nuovo oggetto con le espressioni
@@ -364,13 +477,18 @@ echo ($obj->bar)(), PHP_EOL;
    </para>
    <para>
     Le costanti, i metodi e le proprietà ereditate possono essere sovrascritte
-    ridichiarandole nella nuova classe con lo stesso nome definito nella classe padre.
-    Questo non sarà comunque possibile se il metodo che si intende ridefinire è stato dichiarato
-    nella classe padre come <link linkend="language.oop5.final">final</link>.  
-    Si può accedere alle proprietà statiche e ai metodi 
-    ridefiniti riferendosi ad essi 
+    ridichiarandole nella nuova classe con lo stesso nome definito nella classe
+    padre. Questo non sarà comunque possibile se il metodo o la costante
+    che si intende ridefinire è stato dichiarato nella classe padre come
+    <link linkend="language.oop5.final">final</link>.  Si può accedere alle proprietà
+    statiche e ai metodi ridefiniti riferendosi ad essi 
     con <link linkend="language.oop5.paamayim-nekudotayim">parent::</link>.
    </para>
+   <note>
+    <simpara>
+     A partire da PHP 8.1.0, le costanti possono essere dichiarate come final.
+    </simpara>
+   </note>
    <example>
     <title>Ereditarietà semplice</title>
     <programlisting role="php">
@@ -569,9 +687,9 @@ Stack trace:
 
    <para>
     La parola chiave <literal>class</literal> è anche usata per la risoluzione
-    del nome della classe. Si può ottenere una stringa contenente il nome completo
-    della classe <literal>ClassName</literal> utilizzando
-    <literal>ClassName::class</literal>. Questo è particolarmente utile con
+    del nome della classe.
+    Per ottenere il nome completo di una classe <literal>ClassName</literal>
+    utilizzare <literal>ClassName::class</literal>. Questo è particolarmente utile con
     le classi presenti nei <link linkend="language.namespaces">namespace</link>.
    </para>
    <para>

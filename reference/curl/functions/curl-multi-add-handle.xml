@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: b653253e42693d51085cc03257f56b5d75626b02 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: b7f8c11e56ff1c57a2993e2ed7e5c5ace18637fd Maintainer: pastore Status: ready -->
 <!-- CREDITS: darvina -->
 <refentry xml:id="function.curl-multi-add-handle" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
@@ -11,12 +11,12 @@
   &reftitle.description;
   <methodsynopsis>
    <type>int</type><methodname>curl_multi_add_handle</methodname>
-   <methodparam><type>resource</type><parameter>mh</parameter></methodparam>
-   <methodparam><type>resource</type><parameter>ch</parameter></methodparam>
+   <methodparam><type>CurlMultiHandle</type><parameter>multi_handle</parameter></methodparam>
+   <methodparam><type>CurlHandle</type><parameter>handle</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Aggiunge il gestore <parameter>ch</parameter> al gestore multiplo 
-   <parameter>mh</parameter>
+   Aggiunge il gestore <parameter>handle</parameter> al gestore multiplo
+   <parameter>multi_handle</parameter>
   </para>
  </refsect1>
  
@@ -36,6 +36,24 @@
    Restituisce 0 in caso di successo, o uno dei codici di errore
    <constant>CURLM_XXX</constant>.
   </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &curl.changelog.multi-handle-param;
+     &curl.changelog.handle-param;
+    </tbody>
+   </tgroup>
+  </informaltable>
  </refsect1>
  
  <refsect1 role="examples">
@@ -67,11 +85,13 @@ $mh = curl_multi_init();
 curl_multi_add_handle($mh,$ch1);
 curl_multi_add_handle($mh,$ch2);
 
-$running=null;
-//execute the handles
+//esegue i gestori multiplo
 do {
-    curl_multi_exec($mh,$running);
-} while($running > 0);
+    $status = curl_multi_exec($mh, $active);
+    if ($active) {
+        curl_multi_select($mh);
+    }
+} while ($active && $status == CURLM_OK);
 
 //chiude tutti i gestori
 curl_multi_remove_handle($mh, $ch1);
@@ -96,7 +116,6 @@ curl_multi_close($mh);
  </refsect1>
 
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

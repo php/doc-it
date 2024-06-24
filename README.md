@@ -2,7 +2,7 @@
 
 ![Build Test](https://github.com/php/doc-it/workflows/Build%20Test/badge.svg)
 
-Attualmente la documentazione italiana non è disponibile online perché non completa e poco aggiornata.
+Attualmente la documentazione italiana è [disponibile online](https://www.php.net/manual/it/).
 
 
 ## Stato attuale

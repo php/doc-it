@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 19fddb5d650da89755fffc96fa9132eba45d4ad5 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: cfeb14a38b666f6a3fc73da70f4a90fbe115e53f Maintainer: pastore Status: ready -->
 <refentry xml:id="function.pg-get-notify" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>pg_get_notify</refname>
@@ -9,9 +9,9 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type>array</type><methodname>pg_get_notify</methodname>
-   <methodparam><type>resource</type><parameter>connection</parameter></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>result_type</parameter></methodparam>
+   <type class="union"><type>array</type><type>false</type></type><methodname>pg_get_notify</methodname>
+   <methodparam><type>PgSql\Connection</type><parameter>connection</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>mode</parameter><initializer><constant>PGSQL_ASSOC</constant></initializer></methodparam>
   </methodsynopsis>
   <para>
    <function>pg_get_notify</function> riceve notifiche generate da un
@@ -28,26 +28,13 @@
     <varlistentry>
      <term><parameter>connection</parameter></term>
      <listitem>
-      <para>
-       Risorsa di connessione al database PostgreSQL.
-      </para>
+      &pgsql.parameter.connection;
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>result_type</parameter></term>
+     <term><parameter>mode</parameter></term>
      <listitem>
-      <para>
-       Un parametro facoltativo che controlla
-       come viene indicizzato l'<type>array</type> restituito.
-       <parameter>result_type</parameter> è una costante e può assumere i
-       seguenti valori: <constant>PGSQL_ASSOC</constant>,
-       <constant>PGSQL_NUM</constant> e <constant>PGSQL_BOTH</constant>.
-       Usando <constant>PGSQL_NUM</constant>, <function>pg_get_notify</function>
-       restituirà un array con indici numerici, usando
-       <constant>PGSQL_ASSOC</constant> restituirà solo indici associativi
-       mentre <constant>PGSQL_BOTH</constant>, l'impostazione predefinita, restituirà indici
-       sia numerici che associativi.
-      </para>
+      &pgsql.parameter.mode;
      </listitem>
     </varlistentry>
    </variablelist>
@@ -58,9 +45,26 @@
   &reftitle.returnvalues;
   <para>
    Un <type>array</type> contenente il nome del messaggio <literal>NOTIFY</literal> e il PID di backend.
-   A partire da PHP 5.4.0 e se supportato dal server, l'array contiene anche la versione del server e il payload.
+   Se supportato dal server, l'array contiene anche la versione del server e il payload.
    Altrimenti se non è in attesa alcuna <literal>NOTIFY</literal>, allora viene restituito &false;.
   </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &pgsql.changelog.connection-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
  </refsect1>
 
  <refsect1 role="examples">
@@ -101,7 +105,6 @@ if (!$notify) {
   </para>
  </refsect1>
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

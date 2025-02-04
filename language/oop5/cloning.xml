@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: b9a867f215c6a902c349f40f7436348e866554d1 Maintainer: pastore Status: ready -->
-<!-- CREDITS: butera -->
+<!-- $Revision$ -->
  <sect1 xml:id="language.oop5.cloning" xmlns="http://docbook.org/ns/docbook">
-  <title>Clonazione di oggetti</title>
+  <title>Object Cloning</title>
   
   <para>
-   Creare una copia di un oggetto con tutte le proprietà replicate non è
-   sempre il comportamento desiderato. Un esempio della necessità di
-   costruttori per la copia, è che quando si ha un oggetto che rappresenta una finestra GTK e
-   l'oggetto detiene le risorse di questa finestra GTK, quando si crea un duplicato
-   si può voler creare una nuova finestra con le stesse proprietà e fare in modo che il
-   nuovo oggetto detenga le risorse della nuova finestra. Un ulteriore esempio è il caso in cui un
-   oggetto ha un riferimento ad un altro oggetto che utilizza e quando si 
-   replica il l'oggetto padre si vuole creare una nuova istanza di questo altro
-   oggetto in modo che la replica ne abbia una propria copia separata dall'originale.
+   Creating a copy of an object with fully replicated properties is not
+   always the wanted behavior. A good example of the need for copy
+   constructors, is if you have an object which represents a GTK window and the
+   object holds the resource of this GTK window, when you create a duplicate
+   you might want to create a new window with the same properties and have the
+   new object hold the resource of the new window. Another example is if your
+   object holds a reference to another object which it uses and when you
+   replicate the parent object you want to create a new instance of this other
+   object so that the replica has its own separate copy.
   </para>
 
   <para>
-   La copia di un oggetto viene creata utilizzando la parola chiave <emphasis>clone</emphasis> (che chiama se possibile
-   il metodo <link linkend="object.clone">__clone()</link> dell'oggetto).
-   Il metodo <link linkend="object.clone">__clone()</link> di un oggetto
-   non può essere invocato direttamente.
+   An object copy is created by using the <literal>clone</literal> keyword
+   (which calls the object's <link linkend="object.clone">__clone()</link>
+   method if possible).
   </para>
 
   <informalexample>
@@ -32,9 +30,9 @@ $copy_of_object = clone $object;
   </informalexample>
 
   <para>
-   Quando un oggetto viene clonato, PHP 5 esegue una copia superficiale di tutte le
-   proprietà dell'oggetto. Ogni proprietà che sia un riferimento ad altre variabili
-   rimarrà un riferimento.
+   When an object is cloned, PHP will perform a shallow copy of all of the
+   object's properties. Any properties that are references to other variables
+   will remain references.
   </para>
 
   <methodsynopsis xml:id="object.clone">
@@ -43,13 +41,13 @@ $copy_of_object = clone $object;
   </methodsynopsis>
 
   <para>
-   Completata la clonazione, se esiste un metodo <link linkend="object.clone">__clone()</link>, 
-   viene chiamato il metodo <link linkend="object.clone">__clone()</link> dell'oggetto appena creato per consentire
-   l'aggiornamento di tutte le proprietà che necessitano di essere modificate.
+   Once the cloning is complete, if a <link linkend="object.clone">__clone()</link> method is defined, then
+   the newly created object's <link linkend="object.clone">__clone()</link> method will be called, to allow any
+   necessary properties that need to be changed.
   </para>
 
   <example>
-   <title>Clonazione di un oggetto</title>
+   <title>Cloning an object</title>
    <programlisting role="php">
 <![CDATA[
 <?php
@@ -74,8 +72,8 @@ class MyCloneable
 
     function __clone()
     {
-        // forza la copia di $this->object1, che altrimenti
-        // punterebbe alla stessa istanza.
+        // Force a copy of this->object, otherwise
+        // it will point to same object.
         $this->object1 = clone $this->object1;
     }
 }
@@ -88,10 +86,10 @@ $obj->object2 = new SubObject();
 $obj2 = clone $obj;
 
 
-print("Oggetto originale:\n");
+print "Original Object:\n";
 print_r($obj);
 
-print("Oggetto clonato:\n");
+print "Cloned Object:\n";
 print_r($obj2);
 
 ?> 
@@ -100,7 +98,7 @@ print_r($obj2);
    &example.outputs;
    <screen role="php">
 <![CDATA[
-Oggetto orginale:
+Original Object:
 MyCloneable Object
 (
     [object1] => SubObject Object
@@ -114,7 +112,7 @@ MyCloneable Object
         )
 
 )
-Oggetto clonato:
+Cloned Object:
 MyCloneable Object
 (
     [object1] => SubObject Object
@@ -132,6 +130,28 @@ MyCloneable Object
 
    </screen>
 
+  </example>
+
+  <para>
+   It is possible to access a member of a freshly cloned
+   object in a single expression:
+  </para>
+  <example>
+   <title>Access member of freshly cloned object</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$dateTime = new DateTime();
+echo (clone $dateTime)->format('Y');
+?>
+]]>
+   </programlisting>
+   &example.outputs.similar;
+   <screen>
+<![CDATA[
+2016
+]]>
+   </screen>
   </example>
 
  </sect1>

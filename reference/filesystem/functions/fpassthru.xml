@@ -1,85 +1,114 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- last change to 'fpassthru' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-<!-- CREDITS: cortesi -->
-<!-- OLD-Revision: 1.134/EN.1.2 -->
-  <refentry xml:id="function.fpassthru" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>fpassthru</refname> 
-    <refpurpose>Invia tutti i dati rimanenti su un puntartore a file</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>fpassthru</methodname>
-       <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
-     </methodsynopsis>
-    <simpara>
-     Legge fino a EOF sul puntatore al file dato e scrive i risultati sul buffer di
-     output.
-    </simpara>
-    <simpara>
-     Se si verifica un errore, <function>fpassthru</function> restituisce
-     &false;. In caso positivo <function>fpassthru</function> restituisce
-     il numero di caratteri letti da <parameter>handle</parameter> scritti
-     in output.  
-    </simpara>
-    &fs.validfp.all;
-    <simpara>
-     Può essere necessario chiamare<function>rewind</function> per resettare il puntatore al file all'inizio del file stesso nel caso si abbbia già scritto dai dati nel file. Il file viene chiuso quando si sia chiamata <function>fpassthru</function> leggendolo (lasciando<parameter>handle</parameter> inutilizzato).
-    </simpara>
-    <simpara>
-     Se desideri semplicemente inviare il contenuto di un file sul buffer di output, 
-     senza doverlo modificare o posizionarti in un particolare offset,
-     potresti preferire <function>readfile</function>, che ti salva la
-     chiamata a <function>fopen</function>.
-    </simpara>
-    <note>
-     <para>
-      Quando si utilizza <function>fpassthru</function> con file binari su sistemi Windows
-      si dovrebbe essere certi di aprire il file in modalità binaria
-      aggiungendo <literal>b</literal> alla modalità utilizzata nella chiamata a
-      <function>fopen</function>.
-     </para>
-     <para>
-      Si incoraggia l'uso del flag <literal>b</literal> quando si trattano file binari,
-      anche se il sistema non lo richiede; in questo modo si rendono gli script
-      più trasportabili.
-     </para>
-    </note>
-    <para>
-    <example>
-     <title>Utilizzo di  <function>fpassthru</function> con file binari</title>
-     <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.fpassthru" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>fpassthru</refname>
+  <refpurpose>Output all remaining data on a file pointer</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>int</type><methodname>fpassthru</methodname>
+   <methodparam><type>resource</type><parameter>stream</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Reads to EOF on the given file pointer from the current position and
+   writes the results to the output buffer.
+  </para>
+  <para>
+   You may need to call <function>rewind</function> to reset the file
+   pointer to the beginning of the file if you have already written data
+   to the file.
+  </para>
+  <para>
+   If you just want to dump the contents of a file to the output buffer,
+   without first modifying it or seeking to a particular offset, you may
+   want to use the <function>readfile</function>, which saves you
+   the <function>fopen</function> call.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>stream</parameter></term>
+     <listitem>
+      &fs.validfp.all;
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Returns the number of characters read from <parameter>stream</parameter>
+   and passed through to the output.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Using <function>fpassthru</function> with binary files</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
- 
-// apre il file in modalità binaria
-$name = ".\public\dev\img\ok.png";
+
+// open the file in a binary mode
+$name = './img/ok.png';
 $fp = fopen($name, 'rb');
- 
-// invia i giusti header
+
+// send the right headers
 header("Content-Type: image/png");
 header("Content-Length: " . filesize($name));
- 
-// invia l'immagine ed esce dallo script
+
+// dump the picture and stop the script
 fpassthru($fp);
 exit;
- 
+
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <simpara>
-     Vedere anche <function>readfile</function>,
-     <function>fopen</function>, <function>popen</function> e
-     <function>fsockopen</function>
-    </simpara>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    When using <function>fpassthru</function> on a binary file on Windows
+    systems, you should make sure to open the file in binary mode by
+    appending a <literal>b</literal> to the mode used in the call to
+    <function>fopen</function>.
+   </para>
+   <para>
+    You are encouraged to use the <literal>b</literal> flag when dealing
+    with binary files, even if your system does not require it, so that
+    your scripts will be more portable.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>readfile</function></member>
+    <member><function>fopen</function></member>
+    <member><function>popen</function></member>
+    <member><function>fsockopen</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

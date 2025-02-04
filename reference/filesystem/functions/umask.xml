@@ -1,28 +1,108 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- EN-Revision: n/a Maintainer: cortesi Status: working -->
-  <refentry xml:id="function.umask" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>umask</refname>
-    <refpurpose>Cambia l'umask corrente</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>umask</methodname>
-      <methodparam choice="opt"><type>int</type><parameter>mask</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>umask</function> imposta l'umask di PHP a <parameter>mask</parameter> &amp; 0777 e
-     restituisce il vecchio umask. Quando PHP è utilizzato come  modulo server,
-     l'umask viene ripristinato quando ciascuna richiesta è finita.
-    </para>
-    <para>
-     <function>umask</function> senza argomenti restituisce semplicemente
-     l'umask corrente.
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.umask">
+ <refnamediv>
+  <refname>umask</refname>
+  <refpurpose>Changes the current umask</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>int</type><methodname>umask</methodname>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>mask</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>umask</function> sets PHP's umask to
+   <parameter>mask</parameter> &amp; 0777 and returns the old
+   umask. When PHP is being used as a server module, the umask
+   is restored when each request is finished.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>mask</parameter></term>
+     <listitem>
+      <para>
+       The new umask.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   If <parameter>mask</parameter> is &null;, <function>umask</function> 
+   simply returns the current umask otherwise the old umask is returned.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>mask</parameter> is nullable now.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>umask</function> example</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$old = umask(0);
+chmod("/path/some_dir/some_file.txt", 0755);
+umask($old);
+
+// Checking
+if ($old != umask()) {
+    die('An error occurred while changing back the umask');
+}
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    Avoid using this function in multithreaded webservers. It is better to
+    change the file permissions with <function>chmod</function> after
+    creating the file. Using <function>umask</function> can lead to
+    unexpected behavior of concurrently running scripts and the webserver
+    itself because they all use the same umask.
+   </para>
+  </note>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

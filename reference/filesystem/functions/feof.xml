@@ -1,34 +1,103 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-<!-- CREDITS: cortesi -->
-  <refentry xml:id="function.feof" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>feof</refname>
-    <refpurpose>Verifica se è stata raggiunta la fine del file su un puntatore a file</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>feof</methodname>
-      <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Restituisce &true; se il puntatore al file ha raggiunto la fine del file (EOF)
-     o si è verificato un errore (anche in caso di timeout del socket); altrimenti restituisce &false;.
-    </para>
-     <warning>
-      <simpara>
-       Se una connessione aperta da <function>fsockopen</function> non è stata chiusa 
-       dal server, <function>feof</function> attenderà finchè un timeout 
-       non sia stato raggiunto e restituisce &true;. Il valore di timeout di default è
-       60 secondi. Si può usare <function>stream_set_timeout</function> per cambiare questo
-       valore.
-      </simpara>
-     </warning>
-    &fs.validfp.all;
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.feof" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>feof</refname>
+  <refpurpose>Tests for end-of-file on a file pointer</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>feof</methodname>
+   <methodparam><type>resource</type><parameter>stream</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Tests for end-of-file on a file pointer.
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>stream</parameter></term>
+     <listitem>
+      &fs.validfp.all;
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Returns &true; if the file pointer is at EOF or an error occurs
+   (including socket timeout); otherwise returns &false;.
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <warning>
+   <para>
+    If a connection opened by <function>fsockopen</function> wasn't closed
+    by the server, <function>feof</function> will hang. To workaround this, see 
+    below example:
+    <example>
+     <title>Handling timeouts with <function>feof</function></title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function safe_feof($fp, &$start = NULL) {
+ $start = microtime(true);
 
+ return feof($fp);
+}
+
+/* Assuming $fp is previously opened by fsockopen() */
+
+$start = NULL;
+$timeout = ini_get('default_socket_timeout');
+
+while(!safe_feof($fp, $start) && (microtime(true) - $start) < $timeout)
+{
+ /* Handle */
+}
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </warning>
+  <warning>
+   <para>
+    If the passed file pointer is not valid you may get an infinite loop, because
+    <function>feof</function> fails to return &true;.
+    <example>
+     <title><function>feof</function> example with an invalid file pointer</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+// if file can not be read or doesn't exist fopen function returns FALSE
+$file = @fopen("no_such_file", "r");
+
+// FALSE from fopen will issue warning and result in infinite loop here
+while (!feof($file)) {
+}
+
+fclose($file);
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </warning>
+ </refsect1>
+ 
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

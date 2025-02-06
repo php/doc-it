@@ -1,26 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 96c9d88bad9a7d7d44bfb7f26c226df7ee9ddf26 Maintainer: reghe Status: ready -->
+<!-- $Revision$ -->
 <refentry xml:id="function.defined" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>defined</refname>
-  <refpurpose>Verifica se dato nome di una costante, essa esiste</refpurpose>
+  <refpurpose>Checks whether a constant with the given name exists</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>bool</type><methodname>defined</methodname>
-   <methodparam><type>string</type><parameter>name</parameter></methodparam>
+   <methodparam><type>string</type><parameter>constant_name</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Verifica se la data costante esiste ed è definita.
+   Checks whether a constant with the given <parameter>constant_name</parameter>
+   is defined.
+  </para>
+  <para>
+   This function works also with <link
+   linkend="language.oop5.constants">class constants</link> and <link
+   linkend="language.types.enumerations">enum cases</link>.
   </para>
   <note>
    <para>
-    Se vuoi verificare che una variabile esista, usa <function>isset</function>
-    infatti <function>defined</function> si applica solo alle <link
-    linkend="language.constants">costanti</link>. Se vuoi verificare che una
-    funzione esista usa <function>function_exists</function>.
+    If you want to see if a variable exists, use <function>isset</function>
+    as <function>defined</function> only applies to <link linkend="language.constants">constants</link>. If you want to see if a
+    function exists, use <function>function_exists</function>.
    </para>
   </note>
  </refsect1>
@@ -30,10 +35,10 @@
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>name</parameter></term>
+     <term><parameter>constant_name</parameter></term>
      <listitem>
       <para>
-       Il nome della costante.
+       The constant name.
       </para>
      </listitem>
     </varlistentry>
@@ -44,8 +49,8 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Ritorna &true; se la costante con nome specificato da <parameter>name</parameter>
-   è stata definita, &false; altrimenti.
+   Returns &true; if the named constant given by <parameter>constant_name</parameter>
+   has been defined, &false; otherwise.
   </para>
  </refsect1>
 
@@ -53,15 +58,49 @@
   &reftitle.examples;
   <para>
    <example>
-    <title>Controllo Costanti</title>
+    <title>Checking Constants</title>
     <programlisting role="php">
 <![CDATA[
 <?php
-/* Notare l'uso degli apici.  Questo esempio controlla se la stringa
- * 'TEST' è il nome di una costante esistente TEST */
+
+/* Note the use of quotes, this is important. This example is checking
+ * if the string 'TEST' is the name of a constant named TEST */
 if (defined('TEST')) {
     echo TEST;
 }
+
+
+interface bar {
+    const test = 'foobar!';
+}
+
+class foo {
+    const test = 'foobar!';
+}
+
+var_dump(defined('bar::test')); // bool(true)
+var_dump(defined('foo::test')); // bool(true)
+
+?>
+]]>
+    </programlisting>
+   </example>
+   <example>
+    <title>Checking Enum Cases (as of PHP 8.1.0)</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+enum Suit
+{
+    case Hearts;
+    case Diamonds;
+    case Clubs;
+    case Spades;
+}
+
+var_dump(defined('Suit::Hearts')); // bool(true)
+
 ?>
 ]]>
     </programlisting>
@@ -77,13 +116,12 @@ if (defined('TEST')) {
     <member><function>constant</function></member>
     <member><function>get_defined_constants</function></member>
     <member><function>function_exists</function></member>
-    <member>La sezione sulle <link linkend="language.constants">Costanti</link></member>
+    <member>The section on <link linkend="language.constants">Constants</link></member>
    </simplelist>
   </para>
  </refsect1>
 
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,33 +1,153 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/apache.xml, last change in rev 1.1 -->
-<!-- last change to 'apache-note' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.24/EN.1.2 -->
-  <refentry xml:id="function.apache-note" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>apache_note</refname>
-    <refpurpose>Ricava o imposta una variabile nella tabella notes di Apache</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>apache_note</methodname>
-      <methodparam><type>string</type><parameter>nome_nota</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>valore</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>apache_note</function> è una funzione specifica di Apache
-     che ricava o imposta un valore nella tabella 
-     <literal>notes</literal> di una richiesta HTTP. Se viene invocata con un solo argomento
-     restituisce il valore della nota
-     <literal>nome_nota</literal>. Se viene chiamata con due argomenti,
-     imposta il valore della nota <literal>nome_nota</literal> a
-     <literal>valore</literal> e restituisce il valore precedente della
-     nota <literal>nome_nota</literal>.
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.apache-note" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>apache_note</refname>
+  <refpurpose>Get and set apache request notes</refpurpose>
+ </refnamediv>
 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>false</type></type><methodname>apache_note</methodname>
+   <methodparam><type>string</type><parameter>note_name</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>note_value</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   This function is a wrapper for Apache's <literal>table_get</literal> and
+   <literal>table_set</literal>. It edits the table of notes that exists
+   during a request. The table's purpose is to allow Apache modules to
+   communicate.
+  </para>
+  <para>
+   The main use for <function>apache_note</function> is to pass information
+   from one module to another within the same request.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>note_name</parameter></term>
+     <listitem>
+      <para>
+       The name of the note.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>note_value</parameter></term>
+     <listitem>
+      <para>
+       The value of the note.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   If <parameter>note_value</parameter> is omitted or &null;, it returns the current value of note
+   <literal>note_name</literal>. Otherwise, it
+   sets the value of note <literal>note_name</literal> to
+   <literal>note_value</literal> and returns the previous value of
+   note <literal>note_name</literal>.
+   If the note cannot be retrieved, &false; is returned.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>note_value</parameter> is nullable now.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Passing information between PHP and Perl</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+apache_note('name', 'Fredrik Ekengren');
+
+// Call perl script
+virtual("/perl/some_script.pl");
+
+$result = apache_note("resultdata");
+?>
+]]>
+    </programlisting>
+    <programlisting role="perl">
+<![CDATA[
+# Get Apache request object
+my $r = Apache->request()->main();
+
+# Get passed data
+my $name = $r->notes('name');
+
+# some processing
+
+# Pass result back to PHP
+$r->notes('resultdata', $result);
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Logging values in access.log</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+apache_note('sessionID', session_id());
+
+?>
+]]>
+    </programlisting>
+    <programlisting role="apache">
+<![CDATA[
+# "%{sessionID}n" can be used in the LogFormat directive
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>virtual</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

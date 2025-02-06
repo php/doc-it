@@ -1,80 +1,147 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/ftp.xml, last change in rev 1.1 -->
-<!-- last change to 'ftp-fput' in en/ tree in rev 1.7 -->
-<!-- EN-Revision: n/a Maintainer: afparam Status: ready -->
-<!-- CREDITS: Colombo -->
-<!-- OLD-Revision: 1.43/EN.1.7 -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.ftp-fput" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>ftp_fput</refname>
+  <refpurpose>Uploads from an open file to the FTP server</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>ftp_fput</methodname>
+   <methodparam><type>FTP\Connection</type><parameter>ftp</parameter></methodparam>
+   <methodparam><type>string</type><parameter>remote_filename</parameter></methodparam>
+   <methodparam><type>resource</type><parameter>stream</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>mode</parameter><initializer><constant>FTP_BINARY</constant></initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>offset</parameter><initializer>0</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>ftp_fput</function> uploads the data from a file pointer
+   to a remote file on the FTP server.
+  </para>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>ftp</parameter></term>
+     <listitem>
+       &ftp.parameter.ftp;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>remote_filename</parameter></term>
+     <listitem>
+      <para>
+       The remote file path.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>stream</parameter></term>
+     <listitem>
+      <para>
+       An open file pointer on the local file. Reading stops at end of file.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>mode</parameter></term>
+     <listitem>
+      <para>
+       The transfer mode. Must be either <constant>FTP_ASCII</constant> or
+       <constant>FTP_BINARY</constant>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>offset</parameter></term>
+     <listitem>
+      <para>The position in the remote file to start uploading to.</para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
 
-  <refentry xml:id="function.ftp-fput" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>ftp_fput</refname>
-    <refpurpose>Carica un file aperto sul server FTP</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>ftp_fput</methodname>
-      <methodparam><type>resource</type><parameter>ftp_stream</parameter></methodparam>
-      <methodparam><type>string</type><parameter>remote_file</parameter></methodparam>
-      <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
-      <methodparam><type>int</type><parameter>mode</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>startpos</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>ftp_fput</function> carica i dati del file cui fa riferimento il puntatore
-     <parameter>handle</parameter> fino a quando viene raggiunta la fine del file. I risultati sono salvati
-     in <parameter>remote_file</parameter> sul server FTP. Il modo di trasferimento
-     <parameter>mode</parameter> specificato deve essere
-     <constant>FTP_ASCII</constant> oppure <constant>FTP_BINARY</constant>.
-    </para>
-    <para>
-     <example>
-      <title> Esempio di funzione <function>ftp_fput</function> </title>
-      <programlisting role="php">
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &ftp.changelog.ftp-param;
+     <row>
+      <entry>7.3.0</entry>
+      <entry>
+       The <parameter>mode</parameter> parameter is now optional. Formerly it
+       has been mandatory.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>ftp_fput</function> example</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 
-// apre in lettura un qualche file
+// open some file for reading
 $file = 'somefile.txt';
 $fp = fopen($file, 'r');
 
-// stabilisce la connessione
-$conn_id = ftp_connect($ftp_server);
+// set up basic connection
+$ftp = ftp_connect($ftp_server);
 
-// si collega con nome utente e password
-$login_result = ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
+// login with username and password
+$login_result = ftp_login($ftp, $ftp_user_name, $ftp_user_pass);
 
-// prova a caricare $file
-if (ftp_fput($conn_id, $file, $fp, FTP_ASCII)) {
-    echo "$file caricato con successo\n";
+// try to upload $file
+if (ftp_fput($ftp, $file, $fp, FTP_ASCII)) {
+    echo "Successfully uploaded $file\n";
 } else {
-    echo "Problemi con il caricamento di $file\n";
+    echo "There was a problem while uploading $file\n";
 }
 
-// chiude la connessione e l'handle del file
-ftp_close($conn_id);
+// close the connection and the file handler
+ftp_close($ftp);
 fclose($fp);
 
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <note>
-     <para>
-      Il parametro <parameter>startpos</parameter> e' stato aggiunto in PHP 4.3.0.
-     </para>
-    </note>
-    <para>
-     &return.success;
-    </para>
-    <para>
-     Vedere anche <function>ftp_put</function>, <function>ftp_nb_fput</function>,
-     e <function>ftp_nb_put</function>.
-    </para>
-   </refsect1>
-  </refentry>
-
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>ftp_put</function></member>
+    <member><function>ftp_nb_fput</function></member>
+    <member><function>ftp_nb_put</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

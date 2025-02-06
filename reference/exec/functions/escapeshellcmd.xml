@@ -1,54 +1,121 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/exec.xml, last change in rev 1.12 -->
-<!-- last change to 'escapeshellcmd' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-<!-- CREDITS: cortesi -->
-<!-- OLD-Revision: 1.27/EN.1.2 -->
-  <refentry xml:id="function.escapeshellcmd" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>escapeshellcmd</refname>
-    <refpurpose>Elude i metacaratteri della shell</refpurpose>
-   </refnamediv>
-   <refsect1>
-    &reftitle.description;
-     <methodsynopsis>
-      <type>string</type><methodname>escapeshellcmd</methodname>
-      <methodparam><type>string</type><parameter>command</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>escapeshellcmd</function> elude ogni carattere di una stringa che
-     potrebbe essere usata per indurre un comando shell ad eseguire comandi
-     arbitrari. Questa funzione dovrebbe essere usata per assicurarsi che ogni dato
-     che giunga dall'input dell'utente venga neutralizzato prima di essere passato
-     a funzioni come <function>exec</function> o
-     <function>system</function> o all'<link
-     linkend="language.operators.execution">operatore backtick
-     </link>. Un modello d'utilizzo potrebbe essere:</para>
-    <para>
-     <informalexample>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<!-- splitted from ./en/functions/exec.xml, last change in rev 1.2 -->
+<refentry xml:id="function.escapeshellcmd" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>escapeshellcmd</refname>
+  <refpurpose>Escape shell metacharacters</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>escapeshellcmd</methodname>
+   <methodparam><type>string</type><parameter>command</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>escapeshellcmd</function> escapes any characters in a
+   string that might be used to trick a shell command into executing
+   arbitrary commands.  This function should be used to make sure
+   that any data coming from user input is escaped before this data
+   is passed to the <function>exec</function> or
+   <function>system</function> functions, or to the <link
+   linkend="language.operators.execution">backtick
+   operator</link>.
+  </para>
+  <para>
+   Following characters are preceded by a backslash:
+   <literal>&amp;#;`|*?~&lt;&gt;^()[]{}$\</literal>, <literal>\x0A</literal>
+   and <literal>\xFF</literal>. <literal>'</literal> and <literal>"</literal>
+   are escaped only if they are not paired. On Windows, all these characters
+   plus <literal>%</literal> and <literal>!</literal> are preceded by a caret
+   (<literal>^</literal>).
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>command</parameter></term>
+     <listitem>
+      <para>
+       The command that will be escaped.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   The escaped string.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>escapeshellcmd</function> example</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$e = escapeshellcmd($userinput);
+// We allow arbitrary number of arguments intentionally here.
+$command = './configure '.$_POST['configure_options'];
 
-// qui non ci preoccupiamo se $e contiene spazi
-system("echo $e");
-$f = escapeshellcmd($filename);
-// e qui lo facciamo, usando le virgolette
-system("touch \"/tmp/$f\"; ls -l \"/tmp/$f\""); 
+$escaped_command = escapeshellcmd($command);
+ 
+system($escaped_command);
 ?>
 ]]>
-      </programlisting>
-     </informalexample>
-    </para>
-    <para>
-     Vedere anche <function>escapeshellarg</function>, <function>exec</function>, 
-     <function>popen</function>, <function>system</function> e <link
-     linkend="language.operators.execution">l'operatore backtick</link>.
-    </para>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
-   </refsect1>
-  </refentry>
+ <refsect1 role="notes">
+  &reftitle.notes;
+   <warning xmlns="http://docbook.org/ns/docbook">
+    <para>
+     <function>escapeshellcmd</function> should be used on the whole
+     command string, and it still allows the attacker to pass
+     arbitrary number of arguments. For escaping a single argument 
+     <function>escapeshellarg</function> should be used instead.
+    </para>
+   </warning>
+   <warning xmlns="http://docbook.org/ns/docbook">
+    <para>
+     Spaces will not be escaped by <function>escapeshellcmd</function>
+     which can be problematic on Windows with paths like:
+     <literal>C:\Program Files\ProgramName\program.exe</literal>.
+     This can be mitigated using the following code snippet:
+    <programlisting role="php">
+<![CDATA[
+<?php
+$cmd = preg_replace('`(?<!^) `', '^ ', escapeshellcmd($cmd));
+]]>
+    </programlisting>
+    </para>
+   </warning>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>escapeshellarg</function></member>
+    <member><function>exec</function></member>
+    <member><function>popen</function></member>
+    <member><function>system</function></member>
+    <member><link linkend="language.operators.execution">backtick operator</link></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

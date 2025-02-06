@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+
+<refentry role="variable" xml:id="reserved.variables.server" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <refnamediv>
+  <refname>$_SERVER</refname>
+  <refpurpose>Server and execution environment information</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <para>
+   <varname>$_SERVER</varname> is an &array; containing information
+   such as headers, paths, and script locations.
+   The entries in this array are created by the web server, therefore there
+   is no guarantee that every web server will provide any of these;
+   servers may omit some, or provide others not listed here.
+   However, most of these variables are accounted for in the
+   <link xlink:href="&url.rfc;3875">CGI/1.1 specification</link>,
+   and are likely to be defined.
+  </para>
+  <note>
+   <simpara>
+    When running PHP on the <link linkend="features.commandline">command line</link>
+    most of these entries will not be available or have any meaning.
+   </simpara>
+  </note>
+  <para>
+   In addition to the elements listed below, PHP will create additional
+   elements with values from request headers. These entries will be named
+   <literal>HTTP_</literal> followed by the header name,
+   capitalized and with underscores instead of hyphens.
+   For example, the <literal>Accept-Language</literal> header would be
+   available as <code>$_SERVER['HTTP_ACCEPT_LANGUAGE']</code>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="indices">
+  &reftitle.indices;
+
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term>'<varname>PHP_SELF</varname>'</term>
+     <listitem>
+      <simpara>
+       The filename of the currently executing script, relative to
+       the document root. For instance,
+       <varname>$_SERVER['PHP_SELF']</varname> in a script at the
+       address <filename>http://example.com/foo/bar.php</filename>
+       would be <filename>/foo/bar.php</filename>.
+       The <link linkend="language.constants.predefined">__FILE__</link>
+       constant contains the full path and filename of the current (i.e.
+       included) file.
+      </simpara>
+      <simpara>
+       If PHP is running as a command-line processor this variable contains
+       the script name.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<link linkend="reserved.variables.argv">argv</link>'</term>
+     <listitem>
+      <simpara>
+       Array of arguments passed to the script. When the script is
+       run on the command line, this gives C-style access to the
+       command line parameters. When called via the GET method, this
+       will contain the query string.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<link linkend="reserved.variables.argc">argc</link>'</term>
+     <listitem>
+      <simpara>
+       Contains the number of command line parameters passed to the
+       script (if run on the command line).
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>GATEWAY_INTERFACE</varname>'</term>
+     <listitem>
+      <simpara>
+       What revision of the CGI specification the server is using;
+       e.g. <literal>'CGI/1.1'</literal>.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>SERVER_ADDR</varname>'</term>
+     <listitem>
+      <simpara>
+       The IP address of the server under which the current script is
+       executing.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>SERVER_NAME</varname>'</term>
+     <listitem>
+      <simpara>
+       The name of the server host under which the current script is
+       executing. If the script is running on a virtual host, this
+       will be the value defined for that virtual host.
+      </simpara>
+      <note>
+       <simpara>
+        Under Apache 2, <literal>UseCanonicalName = On</literal> and
+        <literal>ServerName</literal> must be set. Otherwise, this value
+        reflects the hostname supplied by the client, which can be spoofed.
+        It is not safe to rely on this value in security-dependent contexts.
+       </simpara>
+      </note>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>SERVER_SOFTWARE</varname>'</term>
+     <listitem>
+      <simpara>
+       Server identification string, given in the headers when
+       responding to requests.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>SERVER_PROTOCOL</varname>'</term>
+     <listitem>
+      <simpara>
+       Name and revision of the information protocol via which the
+       page was requested; e.g. <literal>'HTTP/1.0'</literal>;
+      </simpara>
+     </listitem>
+    </varlistentry>
+    
+    <varlistentry>
+     <term>'<varname>REQUEST_METHOD</varname>'</term>
+     <listitem>
+      <simpara>
+       Which request method was used to access the page; e.g. <literal>'GET'</literal>,
+       <literal>'HEAD'</literal>, <literal>'POST'</literal>, <literal>'PUT'</literal>.
+      </simpara>
+      <note>
+       <para>
+        PHP script is terminated after sending headers (it means after
+        producing any output without output buffering) if the request method
+        was <literal>HEAD</literal>.
+       </para>
+      </note>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>REQUEST_TIME</varname>'</term>
+     <listitem>
+      <simpara>
+       The timestamp of the start of the request.
+      </simpara>
+     </listitem>
+    </varlistentry>
+    
+    <varlistentry>
+     <term>'<varname>REQUEST_TIME_FLOAT</varname>'</term>
+     <listitem>
+      <simpara>
+       The timestamp of the start of the request, with microsecond precision.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>QUERY_STRING</varname>'</term>
+     <listitem>
+      <simpara>
+       The query string, if any, via which the page was accessed.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>DOCUMENT_ROOT</varname>'</term>
+     <listitem>
+      <simpara>
+       The document root directory under which the current script is
+       executing, as defined in the server's configuration file.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>HTTPS</varname>'</term>
+     <listitem>
+      <simpara>
+       Set to a non-empty value if the script was queried through the HTTPS
+       protocol.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>REMOTE_ADDR</varname>'</term>
+     <listitem>
+      <simpara>
+       The IP address from which the user is viewing the current
+       page.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>REMOTE_HOST</varname>'</term>
+     <listitem>
+      <simpara>
+       The Host name from which the user is viewing the current
+       page.  The reverse dns lookup is based on the 
+       <varname>REMOTE_ADDR</varname> of the user.
+      </simpara>
+      <note>
+       <simpara>
+        The web server must be configured to create this variable.
+        For example in Apache <literal>HostnameLookups On</literal> must be
+        set inside &httpd.conf; for it to exist.  See also
+        <function>gethostbyaddr</function>.
+       </simpara>
+      </note>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>REMOTE_PORT</varname>'</term>
+     <listitem>
+      <simpara>
+       The port being used on the user's machine to communicate with
+       the web server.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>REMOTE_USER</varname>'</term>
+     <listitem>
+      <simpara>
+        The authenticated user.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>REDIRECT_REMOTE_USER</varname>'</term>
+     <listitem>
+      <simpara>
+        The authenticated user if the request is internally redirected.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>SCRIPT_FILENAME</varname>'</term>
+     <listitem>
+      <para>
+       The absolute pathname of the currently executing script.
+       <note>
+        <para>
+         If a script is executed with the CLI, as a relative path,
+         such as <filename>file.php</filename> or 
+         <filename>../file.php</filename>, 
+         <varname>$_SERVER['SCRIPT_FILENAME']</varname> will 
+         contain the relative path specified by the user.
+        </para>
+       </note>
+      </para>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>SERVER_ADMIN</varname>'</term>
+     <listitem>
+      <simpara>
+       The value given to the SERVER_ADMIN (for Apache) directive in
+       the web server configuration file. If the script is running
+       on a virtual host, this will be the value defined for that
+       virtual host.
+      </simpara>
+     </listitem>
+    </varlistentry>
+    
+    <varlistentry>
+     <term>'<varname>SERVER_PORT</varname>'</term>
+     <listitem>
+      <simpara>
+       The port on the server machine being used by the web server
+       for communication. For default setups, this will be <literal>'80'</literal>;
+       using SSL, for instance, will change this to whatever your
+       defined secure HTTP port is.
+      </simpara>
+      <note>
+       <simpara>
+        Under Apache 2, <literal>UseCanonicalName = On</literal>, as well
+        as <literal>UseCanonicalPhysicalPort = On</literal> must be set in
+        order to get the physical (real) port, otherwise, this value can be
+        spoofed, and it may or may not return the physical port value.
+        It is not safe to rely on this value in security-dependent contexts.
+       </simpara>
+      </note>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>SERVER_SIGNATURE</varname>'</term>
+     <listitem>
+      <simpara>
+       String containing the server version and virtual host name
+       which are added to server-generated pages, if enabled.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>PATH_TRANSLATED</varname>'</term>
+     <listitem>
+      <simpara>
+       Filesystem- (not document root-) based path to the current
+       script, after the server has done any virtual-to-real
+       mapping.
+      </simpara>
+      <note>
+       <simpara>
+        Apache 2 users may use <literal>AcceptPathInfo = On</literal> inside
+        <filename>httpd.conf</filename> to define <envar>PATH_INFO</envar>.
+       </simpara>
+      </note>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>SCRIPT_NAME</varname>'</term>
+     <listitem>
+      <simpara>
+       Contains the current script's path. This is useful for pages
+       which need to point to themselves.
+       The <link linkend="language.constants.predefined">__FILE__</link>
+       constant contains the full path and filename of the current (i.e.
+       included) file.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>REQUEST_URI</varname>'</term>
+     <listitem>
+      <simpara>
+       The URI which was given in order to access this page; for
+       instance, '<literal>/index.html</literal>'.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>PHP_AUTH_DIGEST</varname>'</term>
+     <listitem>
+      <simpara>
+       When doing Digest HTTP authentication this variable is set 
+       to the 'Authorization' header sent by the client (which you 
+       should then use to make the appropriate validation).
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>PHP_AUTH_USER</varname>'</term>
+     <listitem>
+      <simpara>
+       When doing HTTP authentication this variable is set to the 
+       username provided by the user.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>PHP_AUTH_PW</varname>'</term>
+     <listitem>
+      <simpara>
+       When doing HTTP authentication this variable is set to the 
+       password provided by the user.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>AUTH_TYPE</varname>'</term>
+     <listitem>
+      <simpara>
+       When doing HTTP authentication this variable is set to the 
+       authentication type.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>PATH_INFO</varname>'</term>
+     <listitem>
+      <simpara>
+       Contains any client-provided pathname information trailing the
+       actual script filename but preceding the query string, if available.
+       For instance, if the current script was accessed via the URI
+       <filename>http://www.example.com/php/path_info.php/some/stuff?foo=bar</filename>,
+       then <varname>$_SERVER['PATH_INFO']</varname> would
+       contain <literal>/some/stuff</literal>.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term>'<varname>ORIG_PATH_INFO</varname>'</term>
+     <listitem>
+      <simpara>
+       Original version of '<varname>PATH_INFO</varname>' before processed by
+       PHP.
+      </simpara>
+     </listitem>
+    </varlistentry>
+
+   </variablelist>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example xml:id="variable.server.basic">
+    <title><varname>$_SERVER</varname> example</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+echo $_SERVER['SERVER_NAME'];
+?>
+]]>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+www.example.com
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.is-superglobal;
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><link linkend="book.filter">The filter extension</link></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->
+

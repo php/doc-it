@@ -1,23 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: pulici Status: ready -->
-<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.error-reporting">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.error-reporting" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>error_reporting</refname>
-  <refpurpose>definisce quali errori di PHP vengono restituiti</refpurpose>
+  <refpurpose>Sets which PHP errors are reported</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>int</type><methodname>error_reporting</methodname>
-   <methodparam choice="opt"><type>int</type><parameter>livello</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>error_level</parameter><initializer>&null;</initializer></methodparam>
   </methodsynopsis>
   <para>
-   La funzione <function>error_reporting</function> imposta la direttiva
+   The <function>error_reporting</function> function sets the
    <link linkend="ini.error-reporting">error_reporting</link>
-   a runtime. PHP ha parecchi livelli d'errore, usando
-   questa funzione si imposta il livello per la durata (runtime) dello
-   script.
+   directive at runtime.  PHP has many levels of errors, using
+   this function sets that level for the duration (runtime) of
+   your script. If the optional <parameter>error_level</parameter> is
+   not set, <function>error_reporting</function> will just return
+   the current error reporting level.
   </para>
  </refsect1>
 
@@ -26,116 +28,19 @@
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>livello</parameter></term>
+     <term><parameter>error_level</parameter></term>
      <listitem>
       <para>
-       Il nuovo livello di <link linkend="ini.error-reporting">error_reporting</link>.
-       Accetta una maschera di bit o una costante named. L'utilizzo delle
-       costanti named è caldamente consigliato per assicurare la compatibilità con
-       versioni future. All'aggiungere di livelli di errore, la gamma degli interi viene incrementata,
-       perciò vecchi livelli di errore basati sull'intero non si comporteranno sempre come ci si aspetta.
+       The new <link linkend="ini.error-reporting">error_reporting</link>
+       level. It takes on either a bitmask, or named constants. Using named 
+       constants is strongly encouraged to ensure compatibility for future 
+       versions. As error levels are added, the range of integers increases, 
+       so older integer-based error levels will not always behave as expected.
       </para>
       <para>
-       Le costanti disponibili sono elencate qui sotto. Il significato
-       di questi livelli d'errore è descritto nelle
-       <link linkend="errorfunc.constants">costanti predefinite</link>.
-       <table>
-        <title><function>error_reporting</function> valori dei bit</title>
-        <tgroup cols="2">
-         <thead>
-          <row>
-           <entry>valore</entry>
-           <entry>costante</entry>
-          </row>
-         </thead>
-         <tbody>
-          <row>
-           <entry>1</entry>
-           <entry>
-            <link linkend="constant.e-error">E_ERROR</link>
-           </entry>
-          </row>
-          <row>
-           <entry>2</entry>
-           <entry>
-            <link linkend="constant.e-warning">E_WARNING</link>
-           </entry>
-          </row>
-          <row>
-           <entry>4</entry>
-           <entry>
-            <link linkend="constant.e-parse">E_PARSE</link>
-           </entry>
-          </row>
-          <row>
-           <entry>8</entry>
-           <entry>
-            <link linkend="constant.e-notice">E_NOTICE</link>
-           </entry>
-          </row>
-          <row>
-           <entry>16</entry>
-           <entry>
-            <link linkend="constant.e-core-error">E_CORE_ERROR</link>
-           </entry>
-          </row>
-          <row>
-           <entry>32</entry>
-           <entry>
-            <link linkend="constant.e-core-warning">E_CORE_WARNING</link>
-           </entry>
-          </row>
-          <row>
-           <entry>64</entry>
-           <entry>
-            <link linkend="constant.e-compile-error">E_COMPILE_ERROR</link>
-           </entry>
-          </row>
-          <row>
-           <entry>128</entry>
-           <entry>
-            <link linkend="constant.e-compile-warning">E_COMPILE_WARNING</link>
-           </entry>
-          </row>
-          <row>
-           <entry>256</entry>
-           <entry>
-            <link linkend="constant.e-user-error">E_USER_ERROR</link>
-           </entry>
-          </row>
-          <row>
-           <entry>512</entry>
-           <entry>
-            <link linkend="constant.e-user-warning">E_USER_WARNING</link>
-           </entry>
-          </row>
-          <row>
-           <entry>1024</entry>
-           <entry>
-            <link linkend="constant.e-user-error">E_USER_NOTICE</link>
-           </entry>
-          </row>
-          <row>
-           <entry>6143</entry>
-           <entry>
-           <link linkend="constant.e-all">E_ALL</link>
-           </entry>
-         </row>
-          <row>
-           <entry>2048</entry>
-           <entry>
-            <link linkend="constant.e-strict">E_STRICT</link>
-           </entry>
-          </row>
-          <row>
-           <entry>4096</entry>
-           <entry>
-            <link linkend="constant.e-recoverable-error">E_RECOVERABLE_ERROR</link>
-           </entry>
-          </row>
-         </tbody>
-        </tgroup>
-       </table>
+       The available error level constants and the actual
+       meanings of these error levels are described in the
+       <link linkend="errorfunc.constants">predefined constants</link>.
       </para>
      </listitem>
     </varlistentry>
@@ -146,68 +51,69 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce il precedente livello di <link linkend="ini.error-reporting">error_reporting</link>
-   .
+   Returns the <link linkend="ini.error-reporting">error_reporting</link>
+   level, <emphasis>before</emphasis> it is changed to
+   <parameter>error_level</parameter>.
   </para>
+  <note>
+   <simpara>
+    The <link linkend="language.operators.errorcontrol">error control</link>
+    <literal>@</literal>-operator changes the <parameter>error_level</parameter> during error handling.
+   </simpara>
+  </note>
  </refsect1>
 
  <refsect1 role="changelog">
   &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>5.0.0</entry>
-       <entry>Inserita <constant>E_STRICT</constant> (non fa parte di <constant>E_ALL</constant>).</entry>
-      </row>
-      <row>
-       <entry>5.2.0</entry>
-       <entry>Inserita <constant>E_RECOVERABLE_ERROR</constant>.</entry>
-      </row>
-      <row>
-       <entry>6</entry>
-       <entry><constant>E_STRICT</constant> è diventata parte di <constant>E_ALL</constant>.</entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </informaltable>
-  </para>
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>error_level</parameter> is nullable now.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
  </refsect1>
 
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title>esempi <function>error_reporting</function></title>
+    <title><function>error_reporting</function> examples</title>
     <programlisting role="php">
 <![CDATA[
 <?php
 
-// Spegni tutte le segnalazioni d'errore
+// Turn off all error reporting
 error_reporting(0);
 
-// Comunica gli errori semplici di esecuzione
+// Report simple running errors
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 
-// Anche la comunicazone di E_NOTICE può essere utile (per avvisare di
-// variabili non inizializzate od intercettare nomi di variabili errati...)
+// Reporting E_NOTICE can be good too (to report uninitialized
+// variables or catch variable name misspellings ...)
 error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 
-// Comunica tutti gli errori eccetto E_NOTICE
-// questo è il valore di default in php.ini
-error_reporting(E_ALL ^ E_NOTICE);
+// Report all errors except E_NOTICE
+error_reporting(E_ALL & ~E_NOTICE);
 
-// Comunica tutti gli errori PHP (il valore 63 puÃ² essere usato in PHP 3)
+// Report all PHP errors
 error_reporting(E_ALL);
 
-// Stesso effetto di error_reporting(E_ALL);
+// Report all PHP errors
+error_reporting(-1);
+
+// Same as error_reporting(E_ALL);
 ini_set('error_reporting', E_ALL);
 
 ?>
@@ -219,27 +125,28 @@ ini_set('error_reporting', E_ALL);
 
  <refsect1 role="notes">
   &reftitle.notes;
-  <warning>
+  <tip>
    <simpara>
-    La maggior parte degli errori <constant>E_STRICT</constant> sono valutati
-    al momento della compilazione, quindi questi errori non sono riportati nello script in cui
-    <link linkend="ini.error-reporting">error_reporting</link> è modificato
-    per includere gli errori <constant>E_STRICT</constant> (e viceversa).
+    Passing in the value <literal>-1</literal> will show every possible error,
+    even when new levels and constants are added in future PHP versions. The
+    behavior is equivalent to passing <constant>E_ALL</constant> constant.
    </simpara>
-  </warning>
+  </tip>
  </refsect1>
 
  <refsect1 role="seealso">
   &reftitle.seealso;
   <para>
    <simplelist>
-    <member>La direttiva <link linkend="ini.display-errors">display_errors</link></member>
+    <member>The <link linkend="ini.display-errors">display_errors</link> directive</member>
+    <member>The <link linkend="ini.html-errors">html_errors</link> directive</member>
+    <member>The <link linkend="ini.xmlrpc-errors">xmlrpc_errors</link> directive</member>
+    <member>The <link linkend="language.operators.errorcontrol">error control</link> operator</member>
     <member><function>ini_set</function></member>
    </simplelist>
   </para>
  </refsect1>
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

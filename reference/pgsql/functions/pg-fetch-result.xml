@@ -1,46 +1,145 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
 <!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.82 -->
-  <refentry xml:id="function.pg-fetch-result" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_fetch_result</refname>
-    <refpurpose>Restituisce i valori da una risorsa di risultato</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>mixed</type><methodname>pg_fetch_result</methodname>
-      <methodparam><type>resource</type><parameter>risultato</parameter></methodparam>
-      <methodparam><type>int</type><parameter>tupla</parameter></methodparam>
-      <methodparam><type>mixed</type><parameter>campo</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_fetch_result</function> restituisce i valori da una
-     risorsa <parameter>risultato</parameter> ottenuta mediante
-     <function>pg_query</function>. <parameter>tupla</parameter>
-     è un intero.  <parameter>campo</parameter> è il nome del campo (stringa)
-     o l'indice del campo (intero). I parametri <parameter>tupla</parameter>
-     e <parameter>campo</parameter> indicano quale cella nella tabella
-     risultante va restituita.  La numerazione delle tuple parte da 0. Invece di
-     indicare il nome del campo, si può usare l'indice del campo sotto forma di
-     numero senza virgolette. Gli indici dei campo partono da 0.
-    </para>
-    <para>
-     PostgreSQL ha molti tipi di dato e solo quelli più usati sono
-     supportati direttamente da questa funzione. Tutti gli <type>integer</type>,
-     <!-- FIXME: is that still true? PHP supports boolean&null now... --> 
-     <!-- Yes, supporting boolean&null breaks
-     scripts. pg_fetch_array() can be used instead. I might take of
-     this issue with additional ini directive. yohgaki@php.net -->
-     sono restituiti come valori <type>integer</type>. Tutti i 
-     float, e i tipi real sono restituiti come valori <type>float</type>.
-     Boolean è restituito come &quot;t&quot; o &quot;f&quot;. Tutti gli
-     altri tipi, compresi gli array, sono restituiti come stringhe formattate 
-     nello stesso modo di default che si puo vedere nel 
-     programma <command>psql</command>.  
-    </para>
-   </refsect1>
-  </refentry>
+<refentry xml:id="function.pg-fetch-result" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_fetch_result</refname>
+  <refpurpose>Returns values from a result instance</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>false</type><type>null</type></type><methodname>pg_fetch_result</methodname>
+   <methodparam><type>PgSql\Result</type><parameter>result</parameter></methodparam>
+   <methodparam><type class="union"><type>string</type><type>false</type><type>null</type></type><parameter>row</parameter></methodparam>
+   <methodparam><type>mixed</type><parameter>field</parameter></methodparam>
+  </methodsynopsis>
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>false</type><type>null</type></type><methodname>pg_fetch_result</methodname>
+   <methodparam><type>PgSql\Result</type><parameter>result</parameter></methodparam>
+   <methodparam><type>mixed</type><parameter>field</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_fetch_result</function> returns the value of a particular
+   row and field (column) in an <classname>PgSql\Result</classname> instance.
+  </para>
+  <note>
+   <para>
+    This function used to be called <function>pg_result</function>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>result</parameter></term>
+     <listitem>
+      &pgsql.parameter.result;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>row</parameter></term>
+     <listitem>
+      <para>
+       Row number in result to fetch.  Rows are numbered from 0 upwards.  If omitted,
+       next row is fetched.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>field</parameter></term>
+     <listitem>
+      <para>       
+       A <type>string</type> representing the name of the field (column) to fetch, otherwise
+       an <type>int</type> representing the field number to fetch.  Fields are
+       numbered from 0 upwards.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Boolean is returned as &quot;t&quot; or &quot;f&quot;.  All
+   other types, including arrays are returned as strings formatted
+   in the same default PostgreSQL manner that you would see in the
+   <command>psql</command> program.  Database <literal>NULL</literal>
+   values are returned as &null;.
+  </para>
+  <para>
+   &false; is returned if <parameter>row</parameter> exceeds the number
+   of rows in the set, or on any other error.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.3.0</entry>
+      <entry>
+       <parameter>row</parameter> is now nullable.
+      </entry>
+     </row>
+     &pgsql.changelog.result-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>pg_fetch_result</function> example</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$db = pg_connect("dbname=users user=me");
+
+$res = pg_query($db, "SELECT 1 UNION ALL SELECT 2");
+
+$val = pg_fetch_result($res, 1, 0);
+
+echo "First field in the second row is: ", $val, "\n";
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+First field in the second row is: 2
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_query</function></member>
+    <member><function>pg_fetch_array</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

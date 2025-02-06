@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
 <refentry xml:id="function.dio-open" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>dio_open</refname>
   <refpurpose>
-   Apre un nuovo file nella modalità specificata da flags e
-   i permessi indicati in mode
+   Opens a file (creating it if necessary) at a lower level than the
+   C library input/ouput stream functions allow
   </refpurpose>
  </refnamediv>
  <refsect1 role="description">
@@ -14,11 +14,11 @@
    <type>resource</type><methodname>dio_open</methodname>
    <methodparam><type>string</type><parameter>filename</parameter></methodparam>
    <methodparam><type>int</type><parameter>flags</parameter></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>mode</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>mode</parameter><initializer>0</initializer></methodparam>
    </methodsynopsis>
   <para>
-   La funzione <function>dio_open</function> apre un file e restituisce un nuovo descrittore di file
-   per questo. 
+   <function>dio_open</function> opens a file and returns a new file
+   descriptor for it.  
   </para>
  </refsect1>
  <refsect1 role="parameters">
@@ -29,7 +29,7 @@
      <term><parameter>filename</parameter></term>
      <listitem>
       <para>
-       Il file aperto.
+       The pathname of the file to open.
       </para>
      </listitem>
     </varlistentry>
@@ -37,37 +37,64 @@
      <term><parameter>flags</parameter></term>
      <listitem>
       <para>
-       Il parametro <parameter>flags</parameter> può contenere qualsiasi combinazione
-       dei seguenti valori:
+       The <parameter>flags</parameter> parameter is a bitwise-ORed
+       value comprising flags from the following list. This value
+       <emphasis>must</emphasis> include one of
+       <constant>O_RDONLY</constant>, <constant>O_WRONLY</constant>,
+       or <constant>O_RDWR</constant>. Additionally, it may include
+       any combination of the other flags from this list.
        <itemizedlist>
         <listitem>
          <para>
-          <constant>O_CREAT</constant> - crea un file, se questo 
-          non esiste già.
-         </para>
-        </listitem> 
-        <listitem>
-         <para>
-          <constant>O_EXCL</constant>  - se sono impostati sia <constant>O_CREAT</constant>
-          e sia <constant>O_EXCL</constant>,
-          la funzione <function>dio_open</function> fallisce se il file esiste.        
-         </para>
-        </listitem> 
-        <listitem>
-         <para>
-          <constant>O_TRUNC</constant> - se il file esiste, ed è aperto in scrittura,
-          il file verrà portato a lunghezza zero.
+          <constant>O_RDONLY</constant> - opens the file for read access.
          </para>
         </listitem>
         <listitem>
          <para>
-          <constant>O_APPEND</constant> - nelle operazioni di scrittura, scrive i dati
-          alla fine del file.
+          <constant>O_WRONLY</constant> - opens the file for write access.
          </para>
         </listitem>
         <listitem>
          <para>
-          <constant>O_NONBLOCK</constant> - imposta la modalità non blocking.
+          <constant>O_RDWR</constant> - opens the file for both reading and
+          writing.
+         </para>
+        </listitem>
+        <listitem>
+         <para>
+          <constant>O_CREAT</constant> - creates the file, if it doesn't
+          already exist.
+         </para>
+        </listitem> 
+        <listitem>
+         <para>
+          <constant>O_EXCL</constant> - if both <constant>O_CREAT</constant>
+          and <constant>O_EXCL</constant> are set and the file already
+          exists, <function>dio_open</function> will fail.
+         </para>
+        </listitem> 
+        <listitem>
+         <para>
+          <constant>O_TRUNC</constant> - if the file exists and is opened 
+          for write access, the file will be truncated to zero length.
+         </para>
+        </listitem>
+        <listitem>
+         <para>
+          <constant>O_APPEND</constant> - write operations write data at the
+          end of the file.
+         </para>
+        </listitem>
+        <listitem>
+         <para>
+          <constant>O_NONBLOCK</constant> - sets non blocking mode.
+         </para>
+        </listitem>
+        <listitem>
+         <para>
+          <constant>O_NOCTTY</constant> - prevent the OS from
+          assigning the opened file as the process's controlling
+          terminal when opening a TTY device file.
          </para>
         </listitem>
        </itemizedlist>
@@ -78,27 +105,18 @@
      <term><parameter>mode</parameter></term>
      <listitem>
       <para>
-       Se <parameter>flags</parameter> vale <constant>O_CREAT</constant>,
-       allora il parametro <parameter>mode</parameter> imposta la modalità del file
-       (permessi di creazione).  
-       <itemizedlist>
-        <listitem>
-         <para>
-          <constant>O_RDONLY</constant> - apre il file per accessi in lettura.
-         </para>
-        </listitem>
-        <listitem>
-         <para>
-          <constant>O_WRONLY</constant> - apre il file in scrittura.
-         </para>
-        </listitem>
-        <listitem>
-         <para>
-          <constant>O_RDWR</constant> - apre il file sia in lettura sia
-          in scrittura.
-         </para>
-        </listitem>
-       </itemizedlist>
+       If <parameter>flags</parameter> contains
+       <constant>O_CREAT</constant>, <parameter>mode</parameter> will
+       set the permissions of the file (creation
+       permissions). <parameter>mode</parameter> is required for
+       correct operation when <constant>O_CREAT</constant> is
+       specified in <parameter>flags</parameter> and is ignored
+       otherwise.
+      </para>
+      <para>
+       The actual permissions assigned to the created file will be
+       affected by the process's <emphasis>umask</emphasis> setting as
+       per usual.
       </para>
      </listitem>
     </varlistentry>
@@ -108,13 +126,13 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce un descrittore di file, oppure &false; in caso di errore.
+   A file descriptor or &false; on error.
   </para>
  </refsect1>
  <refsect1 role="examples">
   &reftitle.examples;
   <example>
-   <title>Apertura di un descrittore di file</title>
+   <title>Opening a file descriptor</title>
    <programlisting role="php">
 <![CDATA[
 <?php

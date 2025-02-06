@@ -1,25 +1,24 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: 5554e138cc713c534ba25ba9faf28cde3a648056 Maintainer: pastore Status: ready -->
-<!-- CREDITS: darvina -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
 <refentry xml:id="function.intval" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>intval</refname>
-  <refpurpose>Estrae il valore intero da una variabile</refpurpose>
+  <refpurpose>Get the integer value of a variable</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>int</type><methodname>intval</methodname>
-   <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
+   <methodparam><type>mixed</type><parameter>value</parameter></methodparam>
    <methodparam choice="opt"><type>int</type><parameter>base</parameter><initializer>10</initializer></methodparam>
   </methodsynopsis>
   <para>
-   Estrae il valore <type>intero</type> di <parameter>var</parameter>,
-   utilizzando la <parameter>base</parameter> definita a parametro per la conversione
-   (la base vale 10 di default). <function>intval</function> non dovrebbe essere usata
-   sugli oggetti, poichè facendolo emetterà un errore di livello
-   <constant>E_NOTICE</constant> e restituirà 1.
+   Returns the <type>int</type> value of <parameter>value</parameter>,
+   using the specified <parameter>base</parameter> for the conversion 
+   (the default is base 10). <function>intval</function> should not be used
+   on objects, as doing so will emit an <constant>E_WARNING</constant> level
+   error and return 1.
   </para>
  </refsect1>
 
@@ -28,10 +27,10 @@
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>var</parameter></term>
+     <term><parameter>value</parameter></term>
      <listitem>
       <para>
-       Valore scalare da convertire in intero
+       The scalar value being converted to an integer
       </para>
      </listitem>
     </varlistentry>
@@ -39,28 +38,34 @@
      <term><parameter>base</parameter></term>
      <listitem>
       <para>
-       Base per la conversione
+       The base for the conversion
       </para>
       <note>
        <para>
-        Se <parameter>base</parameter> è 0, la base usata è determinata
-        dal formato di <parameter>var</parameter>:
+        If <parameter>base</parameter> is 0, the base used is determined
+        by the format of <parameter>value</parameter>:
         <itemizedlist>
          <listitem>
           <simpara>
-           se la stringa include un prefisso "0x" (o "0X"), la base è considerata
-           16 (esadecimale); altrimenti,
+           if string includes a "0x" (or "0X") prefix, the base is taken
+           as 16 (hex); otherwise,
           </simpara>
          </listitem>
          <listitem>
           <simpara>
-           se la stringa inizia con "0", la base è considerata 8 (ottale);
-           altrimenti,
+           if string starts with a "0b" (or "0B"), the base is taken
+           as 2 (binary); otherwise,
           </simpara>
          </listitem>
          <listitem>
           <simpara>
-           la base è considerata 10 (decimale).
+           if string starts with "0", the base is taken as 8 (octal);
+           otherwise,
+          </simpara>
+         </listitem>
+         <listitem>
+          <simpara>
+           the base is taken as 10 (decimal).
           </simpara>
          </listitem>
         </itemizedlist>
@@ -75,31 +80,53 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Il valore intero di <parameter>var</parameter> se riesce, oppure 0 in caso
-   di errore. Gli array vuoti restituiscono 0, gli array non vuoti restituiscono 1.
+   The integer value of <parameter>value</parameter> on success, or 0 on
+   failure. Empty arrays return 0, non-empty arrays return 1.
   </para>
   <para>
-   Il valore massimo dipende dal sistema. Nei sistemi a 32 bit si ha come
-   valore per il caso di intero con segno il range da  -2147483648 a 2147483647. Così, ad esempio,
-   su tali sistemi, la riga <literal>intval('1000000000000')</literal> restituirà
-   2147483647. Il massimo valore per un intero con segno sui sistemi a 64 bit è
+   The maximum value depends on the system. 32 bit systems have a 
+   maximum signed integer range of -2147483648 to 2147483647. So for example 
+   on such a system, <literal>intval('1000000000000')</literal> will return 
+   2147483647. The maximum signed integer value for 64 bit systems is 
    9223372036854775807.
   </para>
   <para>
-   Le stringhe probabilmente restituiranno 0, sebbene il valore restituito dipenda
-   dal primo carattere a sinistra della stringa. Si utilizzano le 
-   comuni di
-   <link linkend="language.types.integer.casting">integer casting</link> .
+   Strings will most likely return 0 although this depends on the 
+   leftmost characters of the string. The common rules of 
+   <link linkend="language.types.integer.casting">integer casting</link> 
+   apply.
   </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       The error level when converting from object was changed from <constant>E_NOTICE</constant> to <constant>E_WARNING</constant>.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
  </refsect1>
 
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title>Esempi di uso di <function>intval</function></title>
+    <title><function>intval</function> examples</title>
     <para>
-     I seguenti esempi sono basati su un sistema a 32 bit.
+     The following examples are based on a 64 bit system.
     </para>
     <programlisting role="php">
 <![CDATA[
@@ -111,16 +138,20 @@ echo intval('+42');                   // 42
 echo intval('-42');                   // -42
 echo intval(042);                     // 34
 echo intval('042');                   // 42
-echo intval(1e10);                    // 1410065408
-echo intval('1e10');                  // 1
+echo intval(1e10);                    // 10000000000
+echo intval('1e10');                  // 10000000000
 echo intval(0x1A);                    // 26
+echo intval('0x1A');                  // 0
+echo intval('0x1A', 0);               // 26
 echo intval(42000000);                // 42000000
-echo intval(420000000000000000000);   // 0
-echo intval('420000000000000000000'); // 2147483647
+echo intval(420000000000000000000);   // -4275113695319687168
+echo intval('420000000000000000000'); // 9223372036854775807
 echo intval(42, 8);                   // 42
 echo intval('42', 8);                 // 34
 echo intval(array());                 // 0
 echo intval(array('foo', 'bar'));     // 1
+echo intval(false);                   // 0
+echo intval(true);                    // 1
 ?>
 ]]>
     </programlisting>
@@ -132,37 +163,11 @@ echo intval(array('foo', 'bar'));     // 1
   &reftitle.notes;
   <note>
    <para>
-    Il parametro <parameter>base</parameter> non ha influenza a meno che il parametro
-    <parameter>var</parameter> non sia una stringa.
+    The <parameter>base</parameter> parameter has no effect unless the
+    <parameter>value</parameter> parameter is a string.
    </para>
   </note>
  </refsect1>
-
- <refsect1 role="changelog"><!-- {{{ -->
-  &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>5.1.0</entry>
-       <entry>
-        Genera <constant>E_NOTICE</constant> e
-        restituisce 1, quando un oggetto è passato a 
-        <parameter>var</parameter>.
-       </entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </informaltable>
-  </para>
- </refsect1><!-- }}} -->
 
  <refsect1 role="seealso">
   &reftitle.seealso;
@@ -173,13 +178,12 @@ echo intval(array('foo', 'bar'));     // 1
     <member><function>strval</function></member>
     <member><function>settype</function></member>
     <member><function>is_numeric</function></member>
-    <member><link linkend="language.types.type-juggling">Manipolazione del tipo</link></member>
-    <member><link linkend="ref.bc">Funzioni Matematiche con Precisione Arbitraria BCMath</link></member>
+    <member><link linkend="language.types.type-juggling">Type juggling</link></member>
+    <member><link linkend="ref.bc">BCMath Arbitrary Precision Mathematics Functions</link></member>
    </simplelist>
   </para>
  </refsect1>
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

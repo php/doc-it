@@ -1,49 +1,147 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-<!-- CREDITS: cortesi -->  
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-  <refentry xml:id="function.realpath" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>realpath</refname>
-    <refpurpose>Restituisce un percorso assoluto regolare</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>realpath</methodname>
-      <methodparam><type>string</type><parameter>path</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>realpath</function> espande tutti i link simbolici e risolve i
-     riferimenti a '/./', '/../' ed altri caratteri '/'  nell'input
-     <parameter>path</parameter> e restituisce il percorso assoluto canonizzato.
-     Il percorso risultante non avrà link simbolici,
-     '/./' o '/../'.
-    </para>
-    <para>
-     <function>realpath</function> restituisce &false; in caso di fallimento, per esempio se
-     il file non esiste.
-    </para>
-    <para>
-     <example>
-      <title>Esempio di <function>realpath</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.realpath" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>realpath</refname>
+  <refpurpose>Returns canonicalized absolute pathname</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>false</type></type><methodname>realpath</methodname>
+   <methodparam><type>string</type><parameter>path</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>realpath</function> expands all symbolic links and
+   resolves references to <literal>/./</literal>, <literal>/../</literal> and extra <literal>/</literal> characters in
+   the input <parameter>path</parameter> and returns the canonicalized
+   absolute pathname.  
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>path</parameter></term>
+     <listitem>
+      <para>
+       The path being checked.
+       <note>
+        <para>
+         Whilst a path must be supplied, the value can be an empty string.
+         In this case, the value is interpreted as the current directory.
+        </para>
+       </note>
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Returns the canonicalized absolute pathname on success. The resulting path 
+   will have no symbolic link, <literal>/./</literal> or <literal>/../</literal> components. Trailing delimiters,
+   such as <literal>\</literal> and <literal>/</literal>, are also removed.
+  </para>
+  <para>
+   <function>realpath</function> returns &false; on failure, e.g. if
+   the file does not exist.
+  </para>
+  <note>
+   <para>
+    The running script must have executable permissions on all directories in
+    the hierarchy, otherwise <function>realpath</function> will return
+    &false;.
+   </para>
+  </note>
+  <note>
+   <para>
+    For case-insensitive filesystems <function>realpath</function> may or may
+    not normalize the character case.
+   </para>
+  </note>
+  <note>
+   <para>
+    The function <function>realpath</function> will not work for a file which
+    is inside a Phar as such path would be a virtual path, not a real one.
+   </para>
+  </note>
+  <note>
+   <para>
+    On Windows, junctions and symbolic links to directories are only expanded by
+    one level.
+   </para>
+  </note>
+  &fs.file.32bit;
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>realpath</function> example</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$real_path = realpath("../../index.php");
+chdir('/var/www/');
+echo realpath('./../../etc/passwd') . PHP_EOL;
+
+echo realpath('/tmp/') . PHP_EOL;
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+/etc/passwd
+/tmp
+]]>
+    </screen>
+   </example>
+   <example>
+    <title><function>realpath</function> on Windows</title>
     <para>
-     Vedere anche <function>basename</function>, 
-     <function>dirname</function> e
-     <function>pathinfo</function>.
+     On windows <function>realpath</function> will change unix style paths to
+     windows style.
     </para>
-   </refsect1>
-  </refentry>
+    <programlisting role="php">
+<![CDATA[
+<?php
+echo realpath('/windows/system32'), PHP_EOL;
 
+echo realpath('C:\Program Files\\'), PHP_EOL;
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+C:\WINDOWS\System32
+C:\Program Files
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>basename</function></member>
+    <member><function>dirname</function></member>
+    <member><function>pathinfo</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

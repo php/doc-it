@@ -1,23 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 96c9d88bad9a7d7d44bfb7f26c226df7ee9ddf26 Maintainer: cucinato Status: ready -->
+<!-- $Revision$ -->
 <refentry xml:id="function.unserialize" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>unserialize</refname>
   <refpurpose>
-   Crea un valore PHP a partire da una rappresentazione archiviata
+   Creates a PHP value from a stored representation
   </refpurpose>
  </refnamediv>
- 
+
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>mixed</type><methodname>unserialize</methodname>
-   <methodparam><type>string</type><parameter>str</parameter></methodparam>
+   <methodparam><type>string</type><parameter>data</parameter></methodparam>
+   <methodparam choice="opt"><type>array</type><parameter>options</parameter><initializer>[]</initializer></methodparam>
   </methodsynopsis>
   <simpara>
-   La funzione <function>unserialize</function> prende il formato serializzato di
-   una variabile (vedere <function>serialize</function>) e la riporta al valore PHP.
+   <function>unserialize</function> takes a single serialized variable and
+   converts it back into a PHP value.
   </simpara>
+  <warning>
+   <para>
+    Do not pass untrusted user input to <function>unserialize</function> regardless
+    of the <parameter>options</parameter> value of <literal>allowed_classes</literal>.
+    Unserialization can result in code being loaded and executed due to object
+    instantiation and autoloading, and a malicious user may be able to exploit
+    this. Use a safe, standard data interchange format such as JSON (via
+    <function>json_decode</function> and <function>json_encode</function>) if
+    you need to pass serialized data to the user.
+   </para>
+   <para>
+    If you need to unserialize externally-stored serialized data, consider using
+    <function>hash_hmac</function> for data validation. Make sure data is
+    not modified by anyone but you.
+   </para>
+  </warning>
  </refsect1>
 
  <refsect1 role="parameters">
@@ -25,30 +42,84 @@
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>str</parameter></term>
+     <term><parameter>data</parameter></term>
      <listitem>
       <para>
-       La stringa serializzata.
+       The serialized string.
       </para>
       <para>
-       Se la variabile da ripristinare è un oggetto, dopo avere ricostruito
-       l'oggetto, il PHP cercherà di eseguire la funzione membro 
-       <function>__wakeup</function> (se esiste).
+       If the variable being unserialized is an object, after successfully
+       reconstructing the object PHP will automatically attempt to call the
+       <link linkend="object.unserialize">__unserialize()</link> or <link linkend="object.wakeup">__wakeup()</link> methods (if one exists).
       </para>
       <para>
        <note>
-        <title>Direttiva unserialize_callback_func</title>
+        <title>
+         <link linkend="ini.unserialize-callback-func">unserialize_callback_func</link>
+          directive
+        </title>
         <para>
-         E' possibile impostare una funzione di callback che possa essere richiamata
-         se, durante la fase di deserializzazione, occorre istanziare una classe indefinita.
-         (per evitare di ottenere un tipo <type>object</type> incompleto "__PHP_Incomplete_Class".)
-         Per definire il parametro 'unserialize_callback_func' si può agire sul
-         &php.ini;, o usare <function>ini_set</function> oppure con &htaccess;.
-         Verrà utilizzata questa funzione ogni volta che occorre istanziare una classe indefinita.
-         Per disabilitare questa opzione, lasciare vuota questa impostazione.
+         The callback specified in the
+         <link linkend="ini.unserialize-callback-func">unserialize_callback_func</link>
+         directive is called when an undefined class is unserialized.
+         If no callback is specified, the object will be instantiated as
+         <classname>__PHP_Incomplete_Class</classname>.
         </para>
        </note>
       </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>options</parameter></term>
+     <listitem>
+      <para>
+       Any options to be provided to <function>unserialize</function>, as an
+       associative array.
+      </para>
+      <table>
+       <title>Valid options</title>
+       <tgroup cols="3">
+        <thead>
+         <row>
+          <entry>Name</entry>
+          <entry>Type</entry>
+          <entry>Description</entry>
+         </row>
+        </thead>
+        <tbody>
+         <row>
+          <entry><literal>allowed_classes</literal></entry>
+          <entry><type class="union"><type>array</type><type>bool</type></type></entry>
+          <entry>
+           <simpara>
+            Either an <type>array</type> of class names which should be
+            accepted, &false; to accept no classes, or &true; to accept all
+            classes. If this option is defined and
+            <function>unserialize</function> encounters an object of a class
+            that isn't to be accepted, then the object will be instantiated as
+            <classname>__PHP_Incomplete_Class</classname> instead.
+           </simpara>
+           <simpara>
+            Omitting this option is the same as defining it as &true;: PHP
+            will attempt to instantiate objects of any class.
+           </simpara>
+          </entry>
+         </row>
+         <row>
+          <entry><literal>max_depth</literal></entry>
+          <entry><type>int</type></entry>
+          <entry>
+           <simpara>
+            The maximum depth of structures permitted during unserialization,
+            and is intended to prevent stack overflows. The default depth limit
+            is <literal>4096</literal> and can be disabled by setting
+            <literal>max_depth</literal> to <literal>0</literal>.
+           </simpara>
+          </entry>
+         </row>
+        </tbody>
+       </tgroup>
+      </table>
      </listitem>
     </varlistentry>
    </variablelist>
@@ -58,14 +129,27 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Il valore convertito è restituito, e può essere un <type>boolean</type>,
-   <type>integer</type>, <type>float</type>, <type>string</type>,
-   <type>array</type> oppure <type>object</type>.
+   The converted value is returned, and can be a <type>bool</type>,
+   <type>int</type>, <type>float</type>, <type>string</type>,
+   <type>array</type> or <type>object</type>.
   </para>
   <para>
-   Nel caso in cui la stringa passata non sia deserializzabile la funzione restituisce &false; e genera
-   un <constant>E_NOTICE</constant>.
+   In case the passed string is not unserializeable, &false; is returned and
+   <constant>E_WARNING</constant> is issued.
   </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <simpara>
+   Objects may throw <classname>Throwable</classname>s in their unserialization handlers.
+  </simpara>
+  <simpara>
+   As of PHP 8.4.0, if the <literal>allowed_classes</literal> element of
+   <parameter>options</parameter> is not an <type>array</type> of class names,
+   <function>unserialize</function> throws <exceptionname>TypeError</exceptionname>s
+   and <exceptionname>ValueError</exceptionname>s.
+  </simpara>
  </refsect1>
 
  <refsect1 role="changelog">
@@ -81,9 +165,41 @@
      </thead>
      <tbody>
       <row>
-       <entry>4.2.0</entry>
+       <entry>8.4.0</entry>
        <entry>
-        La direttiva unserialize_callback_func è disponibile.
+        Now throws <exceptionname>TypeError</exceptionname>s and
+        <exceptionname>ValueError</exceptionname>s if the <literal>allowed_classes</literal>
+        element of <parameter>options</parameter> is not an <type>array</type> of class names.
+       </entry>
+      </row>
+      <row>
+       <entry>8.3.0</entry>
+       <entry>
+        Now emits <constant>E_WARNING</constant> when the input string has unconsumed data.
+       </entry>
+      </row>
+      <row>
+       <entry>8.3.0</entry>
+       <entry>
+        Now emits <constant>E_WARNING</constant> when the passed string is not unserializeable;
+        previously <constant>E_NOTICE</constant> was emitted.
+       </entry>
+      </row>
+      <row>
+       <entry>7.4.0</entry>
+       <entry>
+        Added the <literal>max_depth</literal> element of
+        <parameter>options</parameter> to set the maximum depth of structures permitted during unserialization.
+       </entry>
+      </row>
+      <row>
+       <entry>7.1.0</entry>
+       <entry>
+        The <literal>allowed_classes</literal> element of
+        <parameter>options</parameter> is now strictly typed, i.e. if anything
+        other than an <type>array</type> or a <type>bool</type> is given,
+        <function>unserialize</function> returns &false; and issues an
+        <constant>E_WARNING</constant>.
        </entry>
       </row>
      </tbody>
@@ -96,26 +212,26 @@
   &reftitle.examples;
   <para>
    <example>
-    <title>Esempio di uso di <function>unserialize</function></title>
+    <title><function>unserialize</function> example</title>
     <programlisting role="php">
 <![CDATA[
 <?php
-// In questo esempio si usa unserialize() per caricare i dati nell'array
-// $session_data dalla stringa estratta da un database.
-// Questo esempio è complementare a quello descritto in serialize().
+// Here, we use unserialize() to load session data to the
+// $session_data array from the string selected from a database.
+// This example complements the one described with serialize().
 
 $conn = odbc_connect("webdb", "php", "chicken");
 $stmt = odbc_prepare($conn, "SELECT data FROM sessions WHERE id = ?");
 $sqldata = array($_SERVER['PHP_AUTH_USER']);
 if (!odbc_execute($stmt, $sqldata) || !odbc_fetch_into($stmt, $tmp)) {
-    // se odbc_execute o odbc_fetch_into generano un errore, si predispone un array vuoto
+    // if the execute or fetch fails, initialize to empty array
     $session_data = array();
 } else {
-    // ora abbiamo i dati serializzati in $tmp[0].
+    // we should now have the serialized data in $tmp[0].
     $session_data = unserialize($tmp[0]);
     if (!is_array($session_data)) {
-       // qualcosa non ha funzionato, si predispone un array vuoto
-       $session_data = array();
+        // something went wrong, initialize to empty array
+        $session_data = array();
     }
 }
 ?>
@@ -125,19 +241,18 @@ if (!odbc_execute($stmt, $sqldata) || !odbc_fetch_into($stmt, $tmp)) {
   </para>
   <para>
    <example>
-    <title>Esempio di unserialize_callback_func</title>
+    <title>unserialize_callback_func example</title>
     <programlisting role="php">
 <![CDATA[
 <?php
 $serialized_object='O:1:"a":1:{s:5:"value";s:3:"100";}';
 
-// direttiva unserialize_callback_func disponibile da PHP 4.2.0
-ini_set('unserialize_callback_func', 'mycallback'); // imposta la callback_function
+ini_set('unserialize_callback_func', 'mycallback'); // set your callback_function
 
-function mycallback($classname) 
+function mycallback($classname)
 {
-    // includere un file contenente la definizione di classe
-    // $classname indica la classe da usare
+    // just include a file containing your class definition
+    // you get $classname to figure out which class definition is required
 }
 ?>
 ]]>
@@ -150,11 +265,11 @@ function mycallback($classname)
   &reftitle.notes;
   <warning>
    <para>
-    &false; è restituito sia in caso di errore e sia in caso di de-serializzazione 
-    del valore &false;. Questo caso particolare può essere intercettato
-    confrontando <parameter>str</parameter> con
-    <literal>serialize(false)</literal> o rilevando il 
-    <constant>E_NOTICE</constant> generato.
+    &false; is returned both in the case of an error and if unserializing
+    the serialized &false; value. It is possible to catch this special case by
+    comparing <parameter>data</parameter> with
+    <literal>serialize(false)</literal> or by catching the issued
+    <constant>E_NOTICE</constant>.
    </para>
   </warning>
  </refsect1>
@@ -163,15 +278,21 @@ function mycallback($classname)
   &reftitle.seealso;
   <para>
    <simplelist>
+    <member><function>json_encode</function></member>
+    <member><function>json_decode</function></member>
+    <member><function>hash_hmac</function></member>
     <member><function>serialize</function></member>
-    <member><link linkend="language.oop5.autoload">Autoloading Objects</link></member>
-    <member><link linkend="unserialize-callback-func">unserialize_callback_func</link></member>
+    <member><link linkend="language.oop5.autoload">Autoloading Classes</link></member>
+    <member><link linkend="ini.unserialize-callback-func">unserialize_callback_func</link></member>
+    <member><link linkend="ini.unserialize-max-depth">unserialize_max_depth</link></member>
+    <member><link linkend="object.wakeup">__wakeup()</link></member>
+    <member><link linkend="object.serialize">__serialize()</link></member>
+    <member><link linkend="object.unserialize">__unserialize()</link></member>
    </simplelist>
   </para>
  </refsect1>
 
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: a1e3d629b4f01ee41bd38391cd5c6ae5ee894cb3 Maintainer: pastore Status: ready -->
-<!-- CREDITS: SvenHolmgren -->
+<!-- $Revision$ -->
 <sect1 xml:id="language.types.float" xmlns:xlink="http://www.w3.org/1999/xlink">
- <title>Numeri floating point</title>
+ <title>Floating point numbers</title>
 
  <para>
-  I valori floating point (anche conosciuti come "float", "double", o "numeri reali")
-  possono essere specificati utilizzando una delle seguenti sintassi:
+  Floating point numbers (also known as "floats", "doubles", or "real numbers")
+  can be specified using any of the following syntaxes:
  </para>
 
  <informalexample>
@@ -16,14 +15,14 @@
 $a = 1.234; 
 $b = 1.2e3; 
 $c = 7E-10;
-$d = 1_234.567; // a partire da PHP 7.4.0
+$d = 1_234.567; // as of PHP 7.4.0
 ?>
 ]]>
   </programlisting>
  </informalexample>
 
  <para>
-  Formalmente a partire da PHP 7.4.0 (in precedenza, i trattini bassi non erano consentiti):
+  Formally as of PHP 7.4.0 (previously, underscores have not been allowed):
  </para>
 
  <informalexample>
@@ -37,78 +36,78 @@ EXPONENT_DNUM (({LNUM} | {DNUM}) [eE][+-]? {LNUM})
  </informalexample>
 
  <para>
-  La dimensione di una variabile float dipende dalla piattaforma in uso, sebbene un massimo di circa 1.8e308
-  con una precisione di circa 14 cifre decimali sia il valore comune (il formato a 64 bit
-  IEEE).
+  The size of a float is platform-dependent, although a maximum of approximately 1.8e308 
+  with a precision of roughly 14 decimal digits is a common value (the 64 bit IEEE
+  format).
  </para>
 
  <warning xml:id="warn.float-precision">
-  <title>Precisione di un valore floating point</title>
+  <title>Floating point precision</title>
 
   <para>
-   I numeri floating point hanno una precisione limitata. Nonostante questa dipenda dal
-   sistema in uso. PHP tipicamente utilizza il formato IEEE 754 double-precision, il quale
-   pone un errore relativo massimo causato dall'arrotondamento nell'ordine di 1.11e-16.
-   Operazioni aritmetiche non elementari possono restituire un errore maggiore e, di conseguenza,
-   la propagazione dell'errore deve essere considerata quando più operazioni vengono eseguite
-   in successione.
+   Floating point numbers have limited precision. Although it depends on the
+   system, PHP typically uses the IEEE 754 double precision format, which will
+   give a maximum relative error due to rounding in the order of 1.11e-16.
+   Non elementary arithmetic operations may give larger errors, and, of course,
+   error propagation must be considered when several operations are
+   compounded.
   </para>
   
   <para>
-   In più, alcuni numeri razionali che sono esattamente rappresentabili come numeri
-   floating point in base 10, ad esempio <literal>0.1</literal> o
-   <literal>0.7</literal>), non hanno, al contrario, una rappresentazione come numeri
-   floating point in base 2, la quale viene utilizzata internamente dal sistema, indipendentemente dalla dimensione
-   della mantissa. Dunque, questi non possono essere convertiti nella loro controparte binaria
-   interna senza una piccola perdita di precisione. Ciò può portare a risultati
-   confusionari: per esempio, <literal>floor((0.1+0.7)*10)</literal> solitamente
-   ritornerà come risultato <literal>7</literal> invece di <literal>8</literal>,
-   in quanto la sua rappresentazione interna sarà qualcosa di simile a
+   Additionally, rational numbers that are exactly representable as floating
+   point numbers in base 10, like <literal>0.1</literal> or
+   <literal>0.7</literal>, do not have an exact representation as floating
+   point numbers in base 2, which is used internally, no matter the size of
+   the mantissa. Hence, they cannot be converted into their internal binary
+   counterparts without a small loss of precision. This can lead to confusing
+   results: for example, <literal>floor((0.1+0.7)*10)</literal> will usually
+   return <literal>7</literal> instead of the expected <literal>8</literal>,
+   since the internal representation will be something like
    <literal>7.9999999999999991118...</literal>.
   </para>
 
   <para>
-   Perciò non fate mai affidamento sui risultati numerici decimali sino all'ultima cifra e non comparate 
-   numeri floating point direttamente per uguaglianza. Se è necessaria una maggior
-   precisione, sono disponibili le <link linkend="ref.bc">funzioni matematiche con precisione arbitraria</link>
-   e le funzioni <link linkend="ref.gmp">gmp</link>.
+   So never trust floating number results to the last digit, and do not compare 
+   floating point numbers directly for equality. If higher precision is
+   necessary, the <link linkend="ref.bc">arbitrary precision math functions</link>
+   and <link linkend="ref.gmp">gmp</link> functions are available.
   </para>
   
   <para>
-   Per una "semplice" spiegazione, vedere la <link xlink:href="&url.floating.point.guide;">guida per floating point</link>,
-   la quale è anche intitolata "Why don’t my numbers add up?"
+   For a "simple" explanation, see the <link xlink:href="&url.floating.point.guide;">floating point guide</link>
+   that's also titled "Why don’t my numbers add up?"
   </para>
  </warning>
 
  <sect2 xml:id="language.types.float.casting">
-  <title>Conversione a float</title>
+  <title>Converting to float</title>
 
   <sect3 xml:id="language.types.float.casting.from-string">
-   <title>Da stringhe</title>
+   <title>From strings</title>
 
    <simpara>
-    Se la stringa è
-    <link linkend="language.types.numeric-strings">numerica</link>
-    o inizia con un numero, verrà risolta nel
-    valore float corrispondente, altrimenti verrà convertita in zero
+    If the string is
+    <link linkend="language.types.numeric-strings">numeric</link>
+    or leading numeric then it will resolve to the
+    corresponding float value, otherwise it is converted to zero
     (<literal>0</literal>).
    </simpara>
   </sect3>
 
   <sect3 xml:id="language.types.float.casting.from-other">
-   <title>Da altri tipi</title>
+   <title>From other types</title>
 
    <para>
-    Per i valori di altri tipi, la conversione viene eseguita convertendo il
-    valore prima in <type>int</type> e poi in <type>float</type>. Vedere
-    <link linkend="language.types.integer.casting">Conversione in numero intero</link>
-    per ulteriori informazioni.
+    For values of other types, the conversion is performed by converting the
+    value to <type>int</type> first and then to <type>float</type>. See
+    <link linkend="language.types.integer.casting">Converting to integer</link>
+    for more information.
    </para>
 
    <note>
     <para>
-     Poiché alcuni tipi hanno un comportamento indefinito durante la conversione in
-     <type>int</type>, lo stesso vale durante la conversione in
+     As certain types have undefined behavior when converting to
+     <type>int</type>, this is also the case when converting to
      <type>float</type>.
     </para>
    </note>
@@ -116,25 +115,25 @@ EXPONENT_DNUM (({LNUM} | {DNUM}) [eE][+-]? {LNUM})
  </sect2>
 
  <sect2 xml:id="language.types.float.comparison">
-  <title>Comparare float</title>
+  <title>Comparing floats</title>
 
   <para>
-   Come fatto notare nell'esempio sopra, comparare valori floating point per uguaglianza potrebbe risultare
-   problematico a causa della loro rappresentazione interna. Tuttavia
-   esistono dei metodi per comparare dei valori floating point che aggirano
-   queste limitazioni.
+   As noted in the warning above, testing floating point values for equality is
+   problematic, due to the way that they are represented internally. However,
+   there are ways to make comparisons of floating point values that work around
+   these limitations.
   </para>
 
   <para>
-   Per confrontare valori floating point per uguaglianza viene scelto un limite superiore all'errore
-   relativo creato dall'arrotondamento. Questo valore è conosciuto come la macchina epsilon,
-   o unità roundoff, ed è la più piccola differenza accettabile nel calcolo.
+   To test floating point values for equality, an upper bound on the relative
+   error due to rounding is used. This value is known as the machine epsilon,
+   or unit roundoff, and is the smallest acceptable difference in calculations.
   </para>
   
   <informalexample>
    <simpara>
-    <varname>$a</varname> e <varname>$b</varname> sono uguali per 5 cifre di
-    precisione.
+    <varname>$a</varname> and <varname>$b</varname> are equal to 5 digits of
+    precision.
    </simpara>
    <programlisting role="php">
 <![CDATA[
@@ -155,16 +154,16 @@ if(abs($a-$b) < $epsilon) {
  <sect2 xml:id="language.types.float.nan">
   <title>NaN</title>
   <para>
-   Alcune operazioni possono ritornare un valore rappresentato dalla costante
-   <constant>NAN</constant>. Questo risultato rappresenta un valore indefinito o
-   non presentabile nei calcoli di numeri floating point. Qualsiasi comparazione
-   per uguaglianza o per identicità di questo valore con qualsiasi altro, incluso sé stesso,
-   risulterà &false;.
+   Some numeric operations can result in a value represented by the constant
+   <constant>NAN</constant>. This result represents an undefined or
+   unrepresentable value in floating-point calculations. Any loose or strict
+   comparisons of this value against any other value, including itself, but except &true;, will
+   have a result of &false;.
   </para>
   <para>
-   Poiché <constant>NAN</constant> rappresenta un qualsiasi numero di differenti valori,
-   <constant>NAN</constant> non dovrebbe essere comparato ad altri valori, incluso
-   se stesso, e dovrebbe invece essere verificato tramite la funzione <function>is_nan</function>.
+   Because <constant>NAN</constant> represents any number of different values,
+   <constant>NAN</constant> should not be compared to other values, including
+   itself, and instead should be checked for using <function>is_nan</function>.
   </para>
  </sect2>
 </sect1>

@@ -1,163 +1,161 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: 4526a0712f78a2b1c41976dbdb230ff5245893f8 Maintainer: pastore Status: ready -->
-<!-- CREDITS: darvina -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
 <refentry xml:id="function.assert" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>assert</refname>
-  <refpurpose>Verifica se un'asserzione è &false;</refpurpose>
+  <refpurpose>Checks an assertion</refpurpose>
  </refnamediv>
- 
+
  <refsect1 role="description">
   &reftitle.description;
-  <para>PHP 5</para>
   <methodsynopsis>
    <type>bool</type><methodname>assert</methodname>
    <methodparam><type>mixed</type><parameter>assertion</parameter></methodparam>
-   <methodparam choice="opt"><type>string</type><parameter>description</parameter></methodparam>
-  </methodsynopsis>
-  <para>PHP 7</para>
-  <methodsynopsis>
-   <type>bool</type><methodname>assert</methodname>
-   <methodparam><type>mixed</type><parameter>assertion</parameter></methodparam>
-   <methodparam choice="opt"><type>Throwable</type><parameter>exception</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>Throwable</type><type>string</type><type>null</type></type><parameter>description</parameter><initializer>&null;</initializer></methodparam>
   </methodsynopsis>
   <para>
-   <function>assert</function> verifica l'
-   <parameter>assertion</parameter> data e prende gli opportuni provvedimenti se
-   il suo risultato è &false;.
+   <function>assert</function>
+   allows for the definition of expectations: assertions that take effect
+   in development and testing environments, but are optimised away to have
+   zero cost in production.
   </para>
-  <refsect2>
-   <title>Asserzioni tradizionali (PHP 5 e 7)</title>
-   <para>
-    Se il parametro <parameter>assertion</parameter> è una stringa, verrà
-    valutata come codice PHP da <function>assert</function>.
-    I vantaggi di usare le stringhe con <parameter>assertion</parameter> sono
-    meno overhead nella verifica e la visualizzazione dei messaggi
-    che contengono <parameter>assertion</parameter> quando
-    questa fallisce. Ciò significa che se si passa una condizione booleana
-    come <parameter>assertion</parameter>, questa condizione non sarà mostrata come
-    parametro della funzione di asserzione che può essere definita con la
-    funzione <function>assert_options</function>, la condizione è convertita
-    in una stringa prima di chiamare la funzione handler, e il valore booleano &false;
-    viene convertito in una stringa vuota.
-   </para>
-   <para>
-    Le asserzioni dovrebbero essere utilizzate solo per il debug. Si possono
-    usare per controlli di coerenza che testano per condizioni che dovrebbero
-    essere sempre &true; e che, in caso contrario, indichino errori di programmazione,
-    oppure per verificare la presenza o meno di certe caratteristiche, tipo le estensioni,
-    oppure certi limiti di sistema o caratteristiche.
-   </para>
-   <para>
-    Le asserzioni non dovrebbero essere utilizzate per le normali operazioni di
-    runtime quali il controllo dei parametri di input. Come regola si deve avere
-    che il programma debba funzionare correttamente anche disabilitando le regole di 
-    asserzione.
-   </para>
-   <para>
-    Il comportamento di <function>assert</function> può essere impostato
-    tramite <function>assert_options</function> oppure tramite .ini-settings come descritto
-    nelle pagine del manuale relative a quelle funzioni.
-   </para>
-   <para>
-    La funzione <function>assert_options</function> e/o il parametro
-    <constant>ASSERT_CALLBACK</constant> permettono/e
-    di attivare una funzione di callback per gestire una asserzione fallita.
-   </para>
-   <para>
-    Le callback di <function>assert</function> sono particolarmente utili
-    per costruire suite di test poiché permettono di catturare facilmente
-    il codice passato all'assert, oltre alle informazioni
-    su dove l'assert è scattato. Sebbene quest'ultime informazioni siano
-    rilevabili anche con altri metodi, l'uso delle asserzione rende il tutto
-    molto più veloce e semplice!
-   </para>
-   <para>
-    Le funzioni di callback devono accettare tre parametri. Il primo
-    conterrà il nome del file in cui si trova l'asserzione fallita. Il
-    secondo parametro conterrà il numero di linea dell'asserzione fallita, ed
-    il terzo parametro conterrà l'espressione dell'asserzione fallita (se
-    qualsiasi &#x2014; valore letterale come 1 o "due" non verrà passato con
-    questo parametro). Gli utenti di PHP 5.4.8 e successivi possono anche fornire un quarto
-    parametro opzionale, che conterrà la
-    <parameter>description</parameter> data all'<function>assert</function>, se
-    è stata impostata.
-   </para>
-  </refsect2>
-  <refsect2 xml:id="function.assert.expectations">
-   <title>Aspettative (solo PHP 7)</title>
-   <para>
-    <function>assert</function> è un costrutto del linguaggio in PHP 7, consentendo
-    la definizione delle aspettative: asserzioni che hanno effetto in ambienti di
-    sviluppo e di test, ma sono ottimizzate per avere un costo zero in
-    produzione.
-   </para>
-   <para>
-    Mentre <function>assert_options</function> può ancora essere utilizzata per controllare
-    il comportamento come sopra descritto per ragioni di retrocompatibilità, il codice
-    solo per PHP 7 dovrebbe usare le due nuove direttive di configurazione per controllare
-    il comportamento di <function>assert</function> e non chiamare
-    <function>assert_options</function>.
-   </para>
+  <para>
+   Assertions should be used as a debugging feature only.
+   One use case for them is to act as sanity-checks for preconditions
+   that should always be &true; and that if they aren't upheld this indicates
+   some programming errors.
+   Another use case is to ensure the presence of certain features like
+   extension functions or certain system limits and features.
+  </para>
+  <para>
+   As assertions can be configured to be eliminated, they should
+   <emphasis>not</emphasis> be used for normal runtime operations like
+   input parameter checks. As a rule of thumb code should behave as expected
+   even if assertion checking is deactivated.
+  </para>
+  <para>
+   <function>assert</function> will check that the expectation given in
+   <parameter>assertion</parameter> holds.
+   If not, and thus the result is &false;, it will take the appropriate action
+   depending on how <function>assert</function> was configured.
+  </para>
+
+  <para>
+   The behaviour of <function>assert</function> is dictated by the
+   following INI settings:
    <table>
-    <title>
-     Direttive di configurazione di PHP 7 per <function>assert</function>
-    </title>
-    <tgroup cols="3">
+    <title>Assert &ConfigureOptions;</title>
+    <tgroup cols="4">
      <thead>
       <row>
-       <entry>Direttiva</entry>
-       <entry>Valore predefinito</entry>
-       <entry>Valori possibili</entry>
+       <entry>&Name;</entry>
+       <entry>&Default;</entry>
+       <entry>&Description;</entry>
+       <entry>&Changelog;</entry>
       </row>
      </thead>
      <tbody>
       <row>
-       <entry>
-        <link linkend="ini.zend.assertions">zend.assertions</link>
-       </entry>
+       <entry><link linkend="ini.zend.assertions">zend.assertions</link></entry>
        <entry><literal>1</literal></entry>
        <entry>
         <simplelist>
          <member>
-          <literal>1</literal>: genera ed esegue il codice (modalità di sviluppo)
+          <literal>1</literal>: generate and execute code (development mode)
          </member>
          <member>
           <!-- TODO: look up the RFC to figure out why you'd want this -->
-          <literal>0</literal>: genera il codice ma lo salta in fase di runtime
+          <literal>0</literal>: generate code but jump around it at runtime
          </member>
          <member>
-          <literal>-1</literal>: non genera il codice (modalità di produzione)
+          <literal>-1</literal>: do not generate code (production mode)
          </member>
         </simplelist>
+       </entry>
+       <entry/>
+      </row>
+      <row>
+       <entry><link linkend="ini.assert.active">assert.active</link></entry>
+       <entry>&true;</entry>
+       <entry>
+        If &false;, <function>assert</function> does not check the expectation
+        and returns &true;, unconditionally.
+       </entry>
+       <entry>
+        Deprecated as of PHP 8.3.0.
        </entry>
       </row>
       <row>
+       <entry><link linkend="ini.assert.callback">assert.callback</link></entry>
+       <entry>&null;</entry>
        <entry>
-        <link linkend="ini.assert.exception">assert.exception</link>
+        <para>
+         A user defined function to call when an assertion fails.
+         It's signature should be:
+         <methodsynopsis role="procedural">
+          <type>void</type><methodname>assert_callback</methodname>
+          <methodparam><type>string</type><parameter>file</parameter></methodparam>
+          <methodparam><type>int</type><parameter>line</parameter></methodparam>
+          <methodparam><type>null</type><parameter>assertion</parameter></methodparam>
+          <methodparam choice="opt"><type>string</type><parameter>description</parameter></methodparam>
+         </methodsynopsis>
+        </para>
        </entry>
-       <entry><literal>0</literal></entry>
        <entry>
-        <simplelist>
-         <member>
-          <literal>1</literal>: segnala quando l'asserzione fallisce, o
-          sollevando l'oggetto fornito come <parameter>exception</parameter>
-          o sollevando un nuovo oggetto <classname>AssertionError</classname> se
-          <parameter>exception</parameter> non è stato fornito
-         </member>
-         <member>
-          <literal>0</literal>: utilizza o genera un
-          <classname>Throwable</classname> come descritto sopra, ma genera
-          solo un warning basato su quell'oggetto al posto di sollevarlo
-          (compatibile con il comportamento di PHP 5)
-         </member>
-        </simplelist>
+        <para>
+         Prior to PHP 8.0.0, the signature of the callback should be:
+         <methodsynopsis role="procedural">
+          <type>void</type><methodname>assert_callback</methodname>
+          <methodparam><type>string</type><parameter>file</parameter></methodparam>
+          <methodparam><type>int</type><parameter>line</parameter></methodparam>
+          <methodparam><type>string</type><parameter>assertion</parameter></methodparam>
+          <methodparam choice="opt"><type>string</type><parameter>description</parameter></methodparam>
+         </methodsynopsis>
+        </para>
+        <simpara>
+         Deprecated as of PHP 8.3.0.
+        </simpara>
+       </entry>
+      </row>
+      <row>
+       <entry><link linkend="ini.assert.exception">assert.exception</link></entry>
+       <entry>&true;</entry>
+       <entry>
+        If &true; will throw an <classname>AssertionError</classname> if the
+        expectation isn't upheld.
+       </entry>
+       <entry>
+        Deprecated as of PHP 8.3.0.
+       </entry>
+      </row>
+      <row>
+       <entry><link linkend="ini.assert.bail">assert.bail</link></entry>
+       <entry>&false;</entry>
+       <entry>
+        If &true; will abort execution of the PHP script if the
+        expectation isn't upheld.
+       </entry>
+       <entry>
+        Deprecated as of PHP 8.3.0.
+       </entry>
+      </row>
+      <row>
+       <entry><link linkend="ini.assert.warning">assert.warning</link></entry>
+       <entry>&true;</entry>
+       <entry>
+        If &true;, will emit an <constant>E_WARNING</constant> if the
+        expectation isn't upheld. This INI setting is ineffective if
+        <link linkend="ini.assert.exception">assert.exception</link>
+        is enabled.
+       </entry>
+       <entry>
+        Deprecated as of PHP 8.3.0.
        </entry>
       </row>
      </tbody>
     </tgroup>
    </table>
-  </refsect2>
+  </para>
  </refsect1>
 
  <refsect1 role="parameters">
@@ -168,32 +166,60 @@
      <term><parameter>assertion</parameter></term>
      <listitem>
       <para>
-       L'asserzione. In PHP 5, questo deve essere o una <type>string</type> da
-       essere valutata o un <type>boolean</type> da testare. In PHP 7, questo può
-       anche essere qualsiasi espressione che restituisce un valore, che verrà eseguita e
-       il risultato usato per indicare se l'asserzione è riuscita o meno.
+       This is any expression that returns a value, which will be executed
+       and the result is used to indicate whether the assertion succeeded or failed.
       </para>
+
+      <warning>
+       <para>
+        Prior to PHP 8.0.0, if <parameter>assertion</parameter> was a
+        <type>string</type> it was interpreted as PHP code and executed via
+        <function>eval</function>.
+        This string would be passed to the callback as the third argument.
+        This behaviour was <emphasis>DEPRECATED</emphasis> in PHP 7.2.0,
+        and <emphasis>REMOVED</emphasis> in PHP 8.0.0.
+       </para>
+      </warning>
      </listitem>
     </varlistentry>
     <varlistentry>
      <term><parameter>description</parameter></term>
      <listitem>
       <para>
-       Una descrizione opzionale che sarà inclusa nel messaggio di fallimento se
-       l'<parameter>assertion</parameter> fallisce.
+       If <parameter>description</parameter> is an instance of
+       <classname>Throwable</classname>, it will be thrown only if the
+       <parameter>assertion</parameter> is executed and fails.
+       <note>
+        <para>
+         As of PHP 8.0.0, this is done <emphasis>prior</emphasis> to calling
+         the potentially defined assertion callback.
+        </para>
+       </note>
+       <note>
+        <para>
+         As of PHP 8.0.0, the &object; will be thrown regardless of the configuration of
+         <link linkend="ini.assert.exception">assert.exception</link>.
+        </para>
+       </note>
+       <note>
+        <para>
+         As of PHP 8.0.0, the
+         <link linkend="ini.assert.bail">assert.bail</link>
+         setting has no effect in this case.
+        </para>
+       </note>
       </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>exception</parameter></term>
-     <listitem>
       <para>
-       In PHP 7, il secondo parametro può essere un
-       oggetto <classname>Throwable</classname> al posto di una <type>string</type>
-       descrittiva, nel qual caso questo è l'oggetto che sarà
-       sollevato se l'asserzione fallisce e la
-       direttiva di configurazione
-       <link linkend="ini.assert.exception">assert.exception</link> è abilitata.
+       If <parameter>description</parameter> is a &string; this message
+       will be used if an exception or a warning is emitted.
+       An optional description that will be included in the failure message if
+       the <parameter>assertion</parameter> fails.
+      </para>
+      <para>
+       If <parameter>description</parameter> is omitted.
+       <!-- This does not happen if &null; is passed ... -->
+       A default description equal to the source code for the invocation of
+       <function>assert</function> is created at compile time.
       </para>
      </listitem>
     </varlistentry>
@@ -204,7 +230,18 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   &false; se l'asserzione è false, &true; in caso contrario.
+   <function>assert</function> will always return &true; if at least one of the following is true:
+  </para>
+  <simplelist>
+   <member><literal>zend.assertions=0</literal></member>
+   <member><literal>zend.assertions=-1</literal></member>
+   <member><literal>assert.exception=1</literal></member>
+   <member><literal>assert.bail=1</literal></member>
+   <member>A custom exception object is passed to <parameter>description</parameter>.</member>
+  </simplelist>
+  <para>
+   If none of the conditions are true <function>assert</function> will return &true; if
+   <parameter>assertion</parameter> is truthy and &false; otherwise.
   </para>
  </refsect1>
 
@@ -221,23 +258,60 @@
      </thead>
      <tbody>
       <row>
-       <entry>7.0.0</entry>
+       <entry>8.3.0</entry>
        <entry>
-        <function>assert</function> è ora un costrutto del linguaggio e non una
-        funzione. <function>assertion</function> ora può essere usata come un'espressione.
-        Il secondo parametro è ora interpretato o come un
-        <parameter>exception</parameter> (se
-        viene passato un oggetto<classname>Throwable</classname>), o come la
-        <parameter>description</parameter> supportato da PHP 5.4.8 in poi.
+        All <literal>assert.</literal> INI settings have been deprecated.
        </entry>
       </row>
       <row>
-       <entry>5.4.8</entry>
+       <entry>8.0.0</entry>
        <entry>
-        È stato aggiunto il parametro <parameter>description</parameter>. La
-        <parameter>description</parameter> è anche ora fornita ad una funzione
-        di callback in modalità <constant>ASSERT_CALLBACK</constant> come quarto
-        parametro.
+         <function>assert</function> will no longer evaluate string arguments, instead they will be
+         treated like any other argument. <code>assert($a == $b)</code> should be used instead of
+         <code>assert('$a == $b')</code>. The <literal>assert.quiet_eval</literal> &php.ini; directive and
+         the <constant>ASSERT_QUIET_EVAL</constant> constant have also been removed, as they would no longer
+         have any effect.
+       </entry>
+      </row>
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        If <parameter>description</parameter> is an instance of
+        <classname>Throwable</classname>, the object is thrown if the assertion
+        fails, regardless of the value of
+        <link linkend="ini.assert.exception">assert.exception</link>.
+       </entry>
+      </row>
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        If <parameter>description</parameter> is an instance of
+        <classname>Throwable</classname>, no user callback is called even
+        if it set.
+       </entry>
+      </row>
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        Declaring a function called <literal>assert()</literal> inside a namespace is
+        no longer allowed, and issues <constant>E_COMPILE_ERROR</constant>.
+       </entry>
+      </row>
+      <row>
+       <entry>7.3.0</entry>
+       <entry>
+        Declaring a function called <literal>assert()</literal> inside a namespace
+        became deprecated. Such declaration now emits an <constant>E_DEPRECATED</constant>.
+       </entry>
+      </row>
+      <row>
+       <entry>7.2.0</entry>
+       <entry>
+        Usage of a <type>string</type> as the <parameter>assertion</parameter>
+        became deprecated. It now emits an <constant>E_DEPRECATED</constant>
+        notice when both <link linkend="ini.assert.active">assert.active</link>
+        and <link linkend="ini.zend.assertions">zend.assertions</link> are set
+        to <literal>1</literal>.
        </entry>
       </row>
      </tbody>
@@ -248,174 +322,99 @@
 
  <refsect1 role="examples">
   &reftitle.examples;
-  <refsect2>
-   <title>Asserzioni tradizionali (PHP 5 e 7)</title>
-   <para>
-    <example>
-     <title>Gestione di un'asserzione fallita con un handler personalizzato</title>
-     <programlisting role="php">
-<![CDATA[
-<?php
-// Attiva l'asserzione e la rende silenziosa
-assert_options(ASSERT_ACTIVE, 1);
-assert_options(ASSERT_WARNING, 0);
-assert_options(ASSERT_QUIET_EVAL, 1);
-
-// Crea una funzione handler
-function my_assert_handler($file, $line, $code)
-{
-    echo "<hr>Assertion Failed:
-        File '$file'<br />
-        Line '$line'<br />
-        Code '$code'<br /><hr />";
-}
-
-// Imposta la callback
-assert_options(ASSERT_CALLBACK, 'my_assert_handler');
-
-// Fa un'asserzione che dovrebbe fallire
-assert('mysql_query("")');
-?>
-]]>
-     </programlisting>
-    </example>
-   </para>
-   <para>
-    <example>
-     <title>Uso di un gestore personalizzato per stampare una descrizione</title>
-     <programlisting role="php">
-<![CDATA[
-<?php
-// Attiva l'asserzione e la rende silenziosa
-assert_options(ASSERT_ACTIVE, 1);
-assert_options(ASSERT_WARNING, 0);
-assert_options(ASSERT_QUIET_EVAL, 1);
-
-// Crea una funzione handler
-function my_assert_handler($file, $line, $code, $desc = null)
-{
-    echo "Assertion failed at $file:$line: $code";
-    if ($desc) {
-        echo ": $desc";
-    }
-    echo "\n";
-}
-
-// Imposta la callback
-assert_options(ASSERT_CALLBACK, 'my_assert_handler');
-
-// Fa un'asserzione che dovrebbe fallire
-assert('2 < 1');
-assert('2 < 1', 'Two is less than one');
-?>
-]]>
-     </programlisting>
-     &example.outputs;
-     <screen>
- <![CDATA[
- Assertion failed at test.php:21: 2 < 1
- Assertion failed at test.php:22: 2 < 1: Two is less than one
- ]]>
-     </screen>
-    </example>
-   </para>
-  </refsect2>
-  <refsect2>
-   <title>Aspettative (solo PHP 7)</title>
    <example>
-    <title>Aspettative senza un'eccezione personalizzata</title>
+    <title><function>assert</function> example</title>
     <programlisting role="php">
 <![CDATA[
 <?php
-assert(true == false);
+assert(1 > 2);
 echo 'Hi!';
-?>
 ]]>
     </programlisting>
     <para>
-     Con <link linkend="ini.zend.assertions">zend.assertions</link> impostato a 0,
-     l'esempio di sopra stamperà:
+     If assertions are enabled (<link linkend="ini.zend.assertions"><literal>zend.assertions=1</literal></link>)
+     the above example will output:
     </para>
     <screen>
 <![CDATA[
-Hi!
-]]>
-    </screen>
-    <para>
-     Con <link linkend="ini.zend.assertions">zend.assertions</link> impostato a 1
-     e <link linkend="ini.assert.exception">assert.exception</link> impostato a 0,
-     l'esempio di sopra stamperà:
-    </para>
-    <screen>
-<![CDATA[
-Warning: assert(): assert(true == false) failed in - on line 2
-Hi!
-]]>
-    </screen>
-    <para>
-     Con <link linkend="ini.zend.assertions">zend.assertions</link> impostato a 1
-     e <link linkend="ini.assert.exception">assert.exception</link> impostato a 1,
-     l'esempio di sopra stamperà:
-    </para>
-    <screen>
-<![CDATA[
-Fatal error: Uncaught AssertionError: assert(true == false) in -:2
+Fatal error: Uncaught AssertionError: assert(1 > 2) in example.php:2
 Stack trace:
-#0 -(2): assert(false, 'assert(true == ...')
+#0 example.php(2): assert(false, 'assert(1 > 2)')
 #1 {main}
-  thrown in - on line 2
+  thrown in example.php on line 2
+]]>
+    </screen>
+    <para>
+     If assertions are disabled (<literal>zend.assertions=0</literal> or <literal>zend.assertions=-1</literal>)
+     the above example will output:
+    </para>
+    <screen>
+<![CDATA[
+Hi!
 ]]>
     </screen>
    </example>
    <example>
-    <title>Aspettative con un'eccezione personalizzata</title>
+    <title>Using a custom message</title>
     <programlisting role="php">
 <![CDATA[
 <?php
-class CustomError extends AssertionError {}
-
-assert(true == false, new CustomError('True is not false!'));
+assert(1 > 2, "Expected one to be greater than two");
 echo 'Hi!';
-?>
 ]]>
     </programlisting>
     <para>
-     Con <link linkend="ini.zend.assertions">zend.assertions</link> impostato a 0,
-     l'esempio di sopra stamperà:
+     If assertions are enabled the above example will output:
     </para>
     <screen>
 <![CDATA[
-Hi!
-]]>
-    </screen>
-    <para>
-     Con <link linkend="ini.zend.assertions">zend.assertions</link> impostato a 1
-     e <link linkend="ini.assert.exception">assert.exception</link> impostato a 0,
-     l'esempio di sopra stamperà:
-    </para>
-    <screen>
-<![CDATA[
-Warning: assert(): CustomError: True is not false! in -:4
+Fatal error: Uncaught AssertionError: Expected one to be greater than two in example.php:2
 Stack trace:
-#0 {main} failed in - on line 4
-Hi!
+#0 example.php(2): assert(false, 'Expected one to...')
+#1 {main}
+  thrown in example.php on line 2
 ]]>
     </screen>
     <para>
-     Con <link linkend="ini.zend.assertions">zend.assertions</link> impostato a 1
-     e <link linkend="ini.assert.exception">assert.exception</link> impostato a 1,
-     l'esempio di sopra stamperà:
+     If assertions are disabled the above example will output:
     </para>
     <screen>
 <![CDATA[
-Fatal error: Uncaught CustomError: True is not false! in -:4
+Hi!
+]]>
+    </screen>
+   </example>
+   <example>
+    <title>Using a custom exception class</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class ArithmeticAssertionError extends AssertionError {}
+
+assert(1 > 2, new ArithmeticAssertionError("Expected one to be greater than two"));
+echo 'Hi!';
+]]>
+    </programlisting>
+    <para>
+     If assertions are enabled the above example will output:
+    </para>
+    <screen>
+<![CDATA[
+Fatal error: Uncaught ArithmeticAssertionError: Expected one to be greater than two in example.php:4
 Stack trace:
 #0 {main}
-  thrown in - on line 4
+  thrown in example.php on line 4
+]]>
+    </screen>
+    <para>
+     If assertions are disabled the above example will output:
+    </para>
+    <screen>
+<![CDATA[
+Hi!
 ]]>
     </screen>
    </example>
-  </refsect2>
  </refsect1>
 
  <refsect1 role="seealso">
@@ -428,7 +427,6 @@ Stack trace:
  </refsect1>
 
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

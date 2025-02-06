@@ -1,82 +1,146 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-<!-- CREDITS: cortesi -->  
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
 <refentry xml:id="function.fseek" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>fseek</refname>
-    <refpurpose>Sposta un puntatore sul file</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>fseek</methodname>
-      <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
-      <methodparam><type>int</type><parameter>offset</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>whence</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Imposta l'indicatore di posizione del file riferito da
-     <parameter>handle</parameter>. La nuova posizione, misurata in byte
-     dall'inizio del file, si ottiene aggiungendo
-     <parameter>offset</parameter> alla posizione specificata da
-     <parameter>whence</parameter>, i cui valori sono definiti come 
-     segue:
-     <simplelist>
-      <member><constant>SEEK_SET</constant> - Imposta la posizione uguale a <parameter>offset</parameter> byte.</member> 
-      <member><constant>SEEK_CUR</constant> - Imposta la posizione alla attuale più <parameter>offset</parameter>.</member> 
-      <member><constant>SEEK_END</constant> - Imposta la posizione alla fine del file più <parameter>offset</parameter>.
-      (To move to a position before the end-of-file, you need to pass a negative 
-      value in <parameter>offset</parameter>.)</member>
-     </simplelist>
-    </para>
-    <para>
-    Se <parameter>whence</parameter> non viene specificato, viene assunto come
-    <constant>SEEK_SET</constant>.
-    </para>
-    <para>
-     In caso di successo, restituisce 0; altrimenti, restituisce -1. Nota che spostarsi oltre
-     EOF non è considerato un errore.
-    </para>
-    <para>
-     <example>
-      <title>Esempio di uso di <function>fseek</function></title>
-      <programlisting role="php">
+ <refnamediv>
+  <refname>fseek</refname>
+  <refpurpose>Seeks on a file pointer</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>int</type><methodname>fseek</methodname>
+   <methodparam><type>resource</type><parameter>stream</parameter></methodparam>
+   <methodparam><type>int</type><parameter>offset</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>whence</parameter><initializer><constant>SEEK_SET</constant></initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Sets the file position indicator for the file referenced by
+   <parameter>stream</parameter>. The new position, measured in bytes
+   from the beginning of the file, is obtained by adding
+   <parameter>offset</parameter> to the position specified by
+   <parameter>whence</parameter>.
+  </para>
+  <para>
+   In general, it is allowed to seek past the end-of-file; if data is then
+   written, reads in any unwritten region between the end-of-file and the
+   sought position will yield bytes with value 0. However, certain streams
+   may not support this behavior, especially when they have an underlying
+   fixed size storage.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>stream</parameter></term>
+     <listitem>
+      &fs.file.pointer;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>offset</parameter></term>
+     <listitem>
+      <para>
+       The offset.
+      </para>
+      <para>
+       To move to a position before the end-of-file,
+       a negative value in the <parameter>offset</parameter> must be passed and
+       the <parameter>whence</parameter> parameter must be set
+       to <constant>SEEK_END</constant>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>whence</parameter></term>
+     <listitem>
+      <para>
+       <parameter>whence</parameter> values are:
+       <simplelist>
+        <member><constant>SEEK_SET</constant> - Set position equal to <parameter>offset</parameter> bytes from the start of the file.</member>
+        <member><constant>SEEK_CUR</constant> - Set position to current location plus <parameter>offset</parameter> bytes.</member>
+        <member><constant>SEEK_END</constant> - Set position to end-of-file plus <parameter>offset</parameter> bytes.</member>
+       </simplelist>
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Upon success, returns <literal>0</literal>;
+   otherwise, returns <literal>-1</literal>.
+  </para>
+  <warning>
+   <simpara>
+    This function was created to imitate the C language function of the same
+    name. Please pay attention to the return values as they differ from what
+    one would expect in PHP.
+   </simpara>
+  </warning>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>fseek</function> example</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
- 
-$fp = fopen('somefile.txt');
 
-// Lettura di qualche dato
+$fp = fopen('somefile.txt', 'r');
+
+// read some data
 $data = fgets($fp, 4096);
 
-// si torna ad inizio file
-// come rewind($fp);
+// move back to the beginning of the file
+// same as rewind($fp);
 fseek($fp, 0);
 
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Non può essere usato su puntatori a file restituiti da
-     <function>fopen</function> se è in uso il formato 
-     "http://" o "ftp://". <function>fseek</function> da anche risultati non definiti 
-    per stream in modalità append-only (aperti con il flag "a").
-    </para>
-    <note>
-     <para>
-      L'argomento <parameter>whence</parameter> è stato aggiunto dopo PHP 4.0.0.
-     </para>
-    </note>
-    <para>
-     Vedere anche <function>ftell</function> e
-     <function>rewind</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    If you have opened the file in append (<literal>a</literal> or
+    <literal>a+</literal>) mode, any data you write to the file will always be
+    appended, regardless of the file position, and the result of calling
+    <function>fseek</function> will be undefined.
+   </para>
+  </note>
+  <note>
+   <para>
+    Not all streams support seeking. For those that do not support seeking,
+    forward seeking from the current position is accomplished by reading
+    and discarding data; other forms of seeking will fail.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>ftell</function></member>
+    <member><function>rewind</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

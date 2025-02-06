@@ -1,162 +1,228 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.crypt" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>crypt</refname>
-    <refpurpose>Criptazione di una stringa a senso unico (hashing)</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>crypt</methodname>
-      <methodparam><type>string</type><parameter>str</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>salt</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     La funzione <function>crypt</function> restituisce una stringa criptata tramite
-     l'algoritmo standard di crittografia di UNIX basato sul <abbrev>DES</abbrev>
-     o su algoritmo alternativi disponibili sul sistema. I parametri sono
-     la stringa che deve essere crittografata, e un parametro opzionale da usarsi come
-     base per la crittografia. Vedere le pagine Unix relative alla funzione cript
-     per maggiori dettagli.
-    </para>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://docbook.org/ns/docbook" xml:id="function.crypt">
+ <refnamediv>
+  <refname>crypt</refname>
+  <refpurpose>One-way string hashing</refpurpose>
+ </refnamediv>
+ 
+ <refsynopsisdiv>
+  &note.not-bin-safe;
+ </refsynopsisdiv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>crypt</methodname>
+   <methodparam><modifier role="attribute">#[\SensitiveParameter]</modifier><type>string</type><parameter>string</parameter></methodparam>
+   <methodparam><type>string</type><parameter>salt</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>crypt</function> will return a hashed string using the
+   standard Unix <abbrev>DES</abbrev>-based algorithm or
+   alternative algorithms. <function>password_verify</function> is
+   compatible with <function>crypt</function>. Therefore, password
+   hashes created by <function>crypt</function> can be used with
+   <function>password_verify</function>.
+  </para>
+  <para>
+   Prior to PHP 8.0.0, the <parameter>salt</parameter> parameter was optional. However, <function>crypt</function> creates a weak hash without the <parameter>salt</parameter>, and raises an <constant>E_NOTICE</constant> error without it. Make sure to specify a strong enough salt for better security. 
+  </para>
+  <para>
+   <function>password_hash</function> uses a strong hash, generates a strong salt, and applies proper rounds automatically. <function>password_hash</function> is a simple <function>crypt</function> wrapper and compatible with existing password hashes. Use of <function>password_hash</function> is encouraged.
+  </para>
+  <para>
+   The hash type is triggered by the salt argument.
+   If no salt is provided, PHP will
+   auto-generate either a standard two character (DES) salt, or a twelve
+   character (MD5), depending on the availability of MD5 crypt().  PHP sets a
+   constant named <constant>CRYPT_SALT_LENGTH</constant> which indicates the
+   longest valid salt allowed by the available hashes.
+  </para>
+  <para>
+   The standard DES-based <function>crypt</function> returns the
+   salt as the first two characters of the output. It also only uses the
+   first eight characters of <parameter>string</parameter>, so longer strings
+   that start with the same eight characters will generate the same result
+   (when the same salt is used).
+  </para>
+  <simpara>
+   The following hash types are supported:
+  </simpara>
+  <itemizedlist>
+   <listitem>
     <simpara>
-     Se il parametro salt non viene fornito, il PHP ne genererà
-     uno casuale ad ogni chiamata.
+     <constant>CRYPT_STD_DES</constant> - Standard DES-based hash with a two character salt
+       from the alphabet "./0-9A-Za-z". Using invalid characters in the salt will cause
+       crypt() to fail.
     </simpara>
+   </listitem>
+   <listitem>
     <simpara>
-     Alcuni sistemi operativi supportano più di un tipo di cifratura. Infatti
-     in alcuni casi lo standard basato sul DES viene sostituito da un algoritmo
-     basato su MD5. Il tipo di crittografia da utilizzare viene attivato tramite il parametro
-     salt. Al momento dell'installazione il PHP cerca di determinare le caratteristiche
-     della funzione crypt e accetterà salt per altri tipi di funzioni.
-     Se il parametro salt non viene passato, il PHP genererà, per default, una chiave di due caratteri
-     a meno che il sistema di cifratura di default del sistema non sia MD5, in questo caso
-     si genererà una chiave casuale compatibile con MD5. Il PHP imposta 
-     una costante chiamata CRYPT_SALT_LENGTH dalla quale si può sapere se sul sistema
-     si può utilizzare una chiave di due caratteri o la chiave più lunga di 
-     12 caratteri.
+     <constant>CRYPT_EXT_DES</constant> - Extended DES-based hash. The "salt" is a
+     9-character string consisting of an underscore followed by 4 characters of iteration count
+     and 4 characters of salt. Each of these 4-character strings encode 24 bits, least significant
+     character first. The values <literal>0</literal> to <literal>63</literal> are encoded as
+     <literal>./0-9A-Za-z</literal>. Using invalid characters in the salt will cause crypt() to fail.
     </simpara>
+   </listitem>
+   <listitem>
     <simpara>
-     Se si usa la chiave generata, bisogna fare attenzione che questa
-     viene generata una sola volta. Se si chiama la funzione ricorsivamente, si possono
-     avere dei problemi di formato e di sicurezza.
+     <constant>CRYPT_MD5</constant> - MD5 hashing with a twelve character salt starting with
+     $1$
     </simpara>
+   </listitem>
+   <listitem>
     <simpara>
-     La crittografia basa sullo standard DES restituisce la chiave come
-     primi due caratteri dell'output. Inoltre utilizza solo i primi 8 caratteri
-     del parametro <parameter>str</parameter>, pertanto stringhe più lunghe
-     che inizino con i medesimi otto caratteri, creeranno il medesimo risultato
-     (se si utilizza la medesima chiave).
+     <constant>CRYPT_BLOWFISH</constant> - Blowfish hashing with a salt as
+     follows: "$2a$", "$2x$" or "$2y$", a two digit cost parameter, "$", and
+     22 characters from the alphabet "./0-9A-Za-z". Using characters outside of
+     this range in the salt will cause crypt() to return a zero-length string.
+     The two digit cost parameter is the base-2 logarithm of the iteration
+     count for the underlying Blowfish-based hashing algorithm and must be
+     in range 04-31, values outside this range will cause crypt() to fail.
+     "$2x$" hashes are potentially weak; "$2a$" hashes are compatible and
+     mitigate this weakness. For new hashes, "$2y$" should be used.
     </simpara>
+   </listitem>
+   <listitem>
     <simpara>
-     Sui sistemi nei quali la funzione cript() supporta più tipi
-     di crittografia, si imposteranno le seguenti costanti a 0 o a 1
-     in base al tipo disponibile.
+     <constant>CRYPT_SHA256</constant> - SHA-256 hash with a sixteen character salt
+     prefixed with $5$. If the salt string starts with 'rounds=&lt;N&gt;$', the numeric value of N
+     is used to indicate how many times the hashing loop should be executed, much like the cost
+     parameter on Blowfish. The default number of rounds is 5000, there is a minimum of
+     1000 and a maximum of 999,999,999. Any selection of N outside this range will be truncated to
+     the nearest limit.
     </simpara>
-    <itemizedlist>
+   </listitem>
+   <listitem>
+    <simpara>
+     <constant>CRYPT_SHA512</constant> - SHA-512 hash with a sixteen character salt
+     prefixed with $6$. If the salt string starts with 'rounds=&lt;N&gt;$', the numeric value of N
+     is used to indicate how many times the hashing loop should be executed, much like the cost
+     parameter on Blowfish. The default number of rounds is 5000, there is a minimum of
+     1000 and a maximum of 999,999,999. Any selection of N outside this range will be truncated to
+     the nearest limit.
+    </simpara>
+   </listitem>
+  </itemizedlist>
+ </refsect1>
+ 
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>string</parameter></term>
      <listitem>
-      <simpara>
-       CRYPT_STD_DES - Standard basato su DES con chiave di due caratteri
-      </simpara>
+      <para>
+       The string to be hashed.
+      </para>
+      <caution>
+       <para>
+        Using the <constant>CRYPT_BLOWFISH</constant> algorithm, will result
+        in the <parameter>string</parameter> parameter being truncated to a
+        maximum length of 72 bytes.
+       </para>
+      </caution>
      </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>salt</parameter></term>
      <listitem>
-      <simpara>
-       CRYPT_EXT_DES - Estensione basato su DES con chiave di nove caratteri
-      </simpara>
+      <para>
+       A salt string to base the hashing on. If not provided, the
+       behaviour is defined by the algorithm implementation and can lead to
+       unexpected results.
+      </para>
      </listitem>
-     <listitem>
-      <simpara>
-       CRYPT_MD5 - Crittografia basata su MD5 con 12 caratteri di chiave inizianti con
-       $1$
-      </simpara>
-     </listitem>
-     <listitem>
-      <simpara>
-       CRYPT_BLOWFISH - Crittografia Blowfish con 16 caratteri di chiave
-       inizianti con $2$ oppure $2a$
-      </simpara>
-     </listitem>
-    </itemizedlist>
-    <note>
-     <simpara>
-      Non esiste una funzione di decriptazione, poiché <function>crypt</function>
-      è un algoritmo ad una via.
-     </simpara>
-    </note>
-    <example>
-     <title>Esempio di uso di <function>crypt</function></title>
-     <programlisting role="php">
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Returns the hashed string or a string that is shorter than 13 characters
+   and is guaranteed to differ from the salt on failure.
+  </para>
+  <warning>
+   <simpara>
+    When validating passwords, a string comparison function that isn't
+    vulnerable to timing attacks should be used to compare the output of
+    <function>crypt</function> to the previously known hash. PHP
+    provides <function>hash_equals</function> for this purpose.
+   </simpara>
+  </warning>
+ </refsect1>
+ 
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       The <parameter>salt</parameter> is no longer optional.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>crypt</function> examples</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$password = crypt("My1sTpassword"); // let salt be generated
+$user_input = 'rasmuslerdorf';
+$hashed_password = '$6$rounds=1000000$NJy4rIPjpOaU$0ACEYGg/aKCY3v8O8AfyiO7CTfZQ8/W231Qfh2tRLmfdvFD6XfHk12u6hMr9cYIA4hnpjLNSTRtUwYr9km9Ij/';
 
-/* Si dovrebbe passare l'intero risultato di crypt() come chiave di confronto
-   della password per evitare problemi con differenti algoritmi di hash. (Come detto prima
-   lo standard basato su DES usa chiavi di 2 caratteri,
-   mentre lo standard basato su MD5 ne usa 12). */
-if (crypt($user_input, $password) == $password) {
+// Validate an existing crypt() hash in a way that is compatible with non-PHP software.
+if (hash_equals($hashed_password, crypt($user_input, $hashed_password))) {
    echo "Password verified!";
 }
 ?>
 ]]>
-     </programlisting>
-    </example>
-    <example>
-     <title>Utilizzo di <function>crypt</function> con htpasswd</title>
-     <programlisting role="php">
-<![CDATA[
-<?php
-// Set the password
-$password = 'mypassword';
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
  
-// Get the hash, letting the salt be automatically generated
-$hash = crypt($password);
-?>
-]]>
-     </programlisting>
-    </example>
-    <example>
-     <title>Uso dei diversi tipi di criptazione</title>
-     <programlisting role="php">
-<![CDATA[
-<?php
-if (CRYPT_STD_DES == 1) {
-    echo 'Standard DES: ' . crypt('rasmuslerdorf', 'rl') . "\n";
-}
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <simpara>
+    There is no decrypt function, since <function>crypt</function> uses a
+    one-way algorithm.
+   </simpara>
+  </note>
+ </refsect1>
  
-if (CRYPT_EXT_DES == 1) {
-    echo 'Extended DES: ' . crypt('rasmuslerdorf', '_J9..rasm') . "\n";
-}
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>hash_equals</function></member>
+    <member><function>password_hash</function></member>
+    <member>The Unix man page for your crypt function for more information</member>
+   </simplelist>
+  </para>
+ </refsect1>
  
-if (CRYPT_MD5 == 1) {
-    echo 'MD5:          ' . crypt('rasmuslerdorf', '$1$rasmusle$') . "\n";
-}
- 
-if (CRYPT_BLOWFISH == 1) {
-    echo 'Blowfish:     ' . crypt('rasmuslerdorf', '$2a$07$rasmuslerd...........$') . "\n";
-}
-?>
-]]>
-     </programlisting>
-      &example.outputs.similar;
-     <screen>
-<![CDATA[
-Standard DES: rl.3StKT.4T8M
-Extended DES: _J9..rasmBYk8r9AiWNc
-MD5:          $1$rasmusle$rISCgZzpwk3UhDidwXvin0
-Blowfish:     $2a$07$rasmuslerd............nIdrcHdxcUxWomQX9j6kvERCFjTg7Ra
-]]>
-     </screen>
-    </example>
-    <simpara>
-     Vedere anche <function>md5</function> e <link linkend="ref.mcrypt">il 
-     modulo Mcrypt</link>.
-    </simpara>
-   </refsect1>
-  </refentry>
-
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

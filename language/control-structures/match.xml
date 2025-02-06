@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 7104ee97ced1768a3231588dfc0bc0d7eb1117ad Maintainer: pastore Status: ready -->
+<!-- $Revision$ -->
 
 <sect1 xml:id="control-structures.match" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <title>match</title>
  <?phpdoc print-version-for="match"?>
  <para>
-  La valutazione dei rami dell'espressione <literal>match</literal> basata su un
-  controllo di identità di un valore.
-  Analogamente a un'istruzione <literal>switch</literal>, un'
-  espressione <literal>match</literal> ha un'espressione soggetto che viene
-  confrontata con più alternative. A differenza di <literal>switch</literal>,
-  restituirà un valore molto simile alle espressioni ternarie.
-  A differenza di <literal>switch</literal>, il confronto è un controllo di identità
-  (<code>===</code>) piuttosto che un controllo di uguaglianza debole (<code>==</code>).
-  Le espressioni di corrispondenza sono disponibili a partire da PHP 8.0.0.
+  The <literal>match</literal> expression branches evaluation based on an
+  identity check of a value.
+  Similarly to a <literal>switch</literal> statement, a
+  <literal>match</literal> expression has a subject expression that is
+  compared against multiple alternatives. Unlike <literal>switch</literal>,
+  it will evaluate to a value much like ternary expressions.
+  Unlike <literal>switch</literal>, the comparison is an identity check
+  (<code>===</code>) rather than a weak equality check (<code>==</code>).
+  Match expressions are available as of PHP 8.0.0.
  </para>
 
  <example>
@@ -28,67 +28,120 @@ $return_value = match (subject_expression) {
 ?>
 ]]>
   </programlisting>
+  
+  <example>
+   <title>Basic <literal>match</literal> usage</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$food = 'cake';
+
+$return_value = match ($food) {
+    'apple' => 'This food is an apple',
+    'bar' => 'This food is a bar',
+    'cake' => 'This food is a cake',
+};
+
+var_dump($return_value);
+?>
+]]>
+  </programlisting>
+  &example.outputs;
+   <screen>
+<![CDATA[
+string(19) "This food is a cake"
+]]>
+   </screen>
+  </example>
+
+  <example>
+   <title>Example of using <literal>match</literal> with comparison operators</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$age = 18;
+
+$output = match (true) {
+    $age < 2 => "Baby",
+    $age < 13 => "Child",
+    $age <= 19 => "Teenager",
+    $age >= 40 => "Old adult",
+    $age > 19 => "Young adult",
+};
+
+var_dump($output);
+?>
+]]>
+  </programlisting>
+  &example.outputs;
+   <screen>
+<![CDATA[
+string(8) "Teenager"
+]]>
+   </screen>
+  </example>
 
   <note>
    <simpara>
-    Non è necessario utilizzare il risultato di un'espressione <literal>match</literal>.
+    The result of a <literal>match</literal> expression does not need to be used.
    </simpara>
   </note>
   <note>
    <simpara>
-    Un'espressione <literal>match</literal> <emphasis>deve</emphasis> essere
-    terminata da un punto e virgola <literal>;</literal>.
+    When a <literal>match</literal> expression is used as a standalone
+    expression it <emphasis>must</emphasis> be terminated
+    by a semicolon <literal>;</literal>.
    </simpara>
   </note>
  </example>
 
  <para>
-  L'espressione <literal>match</literal> è simile a un'
-  istruzione <literal>switch</literal> ma presenta alcune differenze fondamentali:
+  The <literal>match</literal> expression is similar to a
+  <literal>switch</literal> statement but has some key differences:
   
   <itemizedlist>
    <listitem>
     <simpara>
-     Un braccio <literal>match</literal> confronta i valori rigorosamente (<code>===</code>) invece
-     che vagamente come fa l'istruzione switch.
+     A <literal>match</literal> arm compares values strictly (<code>===</code>) instead
+     of loosely as the switch statement does.
     </simpara>
    </listitem>
    <listitem>
     <simpara>
-     Un'espressione <literal>match</literal> restituisce un valore.
+     A <literal>match</literal> expression returns a value.
     </simpara>
    </listitem>
    <listitem>
     <simpara>
-     Le braccia <literal>match</literal> non ricadono in casi successivi come
-     fanno le istruzioni <literal>switch</literal>.
+     <literal>match</literal> arms do not fall-through to later cases the way
+     <literal>switch</literal> statements do.
     </simpara>
    </listitem>
    <listitem>
     <simpara>
-     Un'espressione <literal>match</literal> deve essere esaustiva.
+     A <literal>match</literal> expression must be exhaustive.
     </simpara>
    </listitem>
   </itemizedlist>
  </para>
 
  <para>
-  Come le istruzioni <literal>switch</literal>, le espressioni
-  <literal>match</literal> vengono eseguite braccio di confronto per braccio di confronto.
-  All'inizio non viene eseguito alcun codice.
-  Le espressioni condizionali vengono valutate solo se tutte le espressioni condizionali
-  precedenti non sono riuscite a corrispondere all'espressione del soggetto.
-  Verrà valutata solo l'espressione di ritorno corrispondente all'espressione
-  condizionale corrispondente.
-  Per esempio:
+  As <literal>switch</literal> statements, <literal>match</literal>
+  expressions are executed match arm by match arm.
+  In the beginning, no code is executed.
+  The conditional expressions are only evaluated if all previous conditional
+  expressions failed to match the subject expression.
+  Only the return expression corresponding to the matching conditional
+  expression will be evaluated.
+  For example:
   <informalexample>
    <programlisting role="php">
 <![CDATA[
 <?php
 $result = match ($x) {
     foo() => ...,
-    $this->bar() => ..., // bar() non viene chiamata se foo() === $x
-    $this->baz => beep(), // beep() non è chiamata a meno che $x === $this->baz
+    $this->bar() => ..., // $this->bar() isn't called if foo() === $x
+    $this->baz => beep(), // beep() isn't called unless $x === $this->baz
     // etc.
 };
 ?>
@@ -98,9 +151,9 @@ $result = match ($x) {
  </para>
 
  <para>
-  I bracci delle espressioni <literal>match</literal> possono contenere più espressioni
-  separate da una virgola.  Questo è un OR logico, ed è una scorciatoia per più
-  bracci di corrispondenza con lo stesso lato destro.
+  <literal>match</literal> expression arms may contain multiple expressions
+  separated by a comma.  That is a logical OR, and is a short-hand for multiple
+  match arms with the same right-hand side.
  </para>
  <para>
   <informalexample>
@@ -108,9 +161,9 @@ $result = match ($x) {
 <![CDATA[
 <?php
 $result = match ($x) {
-    // Questo braccio di corrispondenza:
+    // This match arm:
     $a, $b, $c => 5,
-    // È equivalente a questi tre bracci di corrispondenza:
+    // Is equivalent to these three match arms:
     $a => 5,
     $b => 5,
     $c => 5,
@@ -121,9 +174,9 @@ $result = match ($x) {
   </informalexample>
  </para>
  <para>
-  Un caso speciale è il pattern <literal>default</literal>.
-  Questo modello corrisponde a tutto ciò che non era stato precedentemente trovato.
-  Per esempio:
+  A special case is the <literal>default</literal> pattern.
+  This pattern matches anything that wasn't previously matched.
+  For example:
   <informalexample>
    <programlisting role="php">
 <![CDATA[
@@ -139,20 +192,20 @@ $expressionResult = match ($condition) {
   </informalexample>
   <note>
    <simpara>
-    Più pattern predefiniti solleveranno un
-    errore <constant>E_FATAL_ERROR</constant>.
+    Multiple default patterns will raise a
+    <constant>E_FATAL_ERROR</constant> error.
    </simpara>
   </note>
  </para>
 
  <para>
-  Un'espressione <literal>match</literal> deve essere esaustiva.  Se l'
-  espressione del soggetto non è gestita da alcun braccio di corrispondenza, viene
-  lanciato un <classname>UnhandledMatchError</classname>.
+  A <literal>match</literal> expression must be exhaustive.  If the
+  subject expression is not handled by any match arm an
+  <classname>UnhandledMatchError</classname> is thrown.
  </para>
 
  <example>
-  <title>Esempio di un'espressione di corrispondenza non gestita</title>
+  <title>Example of an unhandled match expression</title>
   <programlisting role="php">
 <![CDATA[
 <?php
@@ -194,15 +247,15 @@ object(UnhandledMatchError)#1 (7) {
  </example>
 
  <sect2>
-  <title>Utilizzo di espressioni di corrispondenza per gestire i controlli non di identità</title>
+  <title>Using match expressions to handle non identity checks</title>
   <para>
-   È possibile utilizzare un'espressione <literal>match</literal> per gestire
-   casi condizionali non di identità utilizzando <code>true</code> come espressione
-   del soggetto.
+   It is possible to use a <literal>match</literal> expression to handle
+   non-identity conditional cases by using <code>true</code> as the subject
+   expression.
   </para>
 
   <example>
-   <title>Utilizzo di espressioni di corrispondenza generalizzate per ramificare su intervalli interi</title>
+   <title>Using a generalized match expressions to branch on integer ranges</title>
    <programlisting role="php">
 <![CDATA[
 <?php
@@ -229,7 +282,7 @@ string(11) "young adult"
   </example>
 
   <example>
-   <title>Utilizzo di espressioni di corrispondenza generalizzate per ramificare sul contenuto della stringa</title>
+   <title>Using a generalized match expressions to branch on string content</title>
    <programlisting role="php">
 <![CDATA[
 <?php

@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 53b6f116ed5f8649ca540c38dfe0ce30619d0dd9 Maintainer: cucinato Status: ready -->
-<!-- splitted from ./it/functions/dir.xml, last change in rev 1.1 -->
-<!-- CREDITS: cortesi -->
+<!-- $Revision$ -->
+<!-- splitted from ./en/functions/dir.xml, last change in rev 1.2 -->
 <refentry xml:id="function.opendir" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>opendir</refname>
-  <refpurpose>Apre l'handle della directory</refpurpose>
+  <refpurpose>Open directory handle</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type>resource</type><methodname>opendir</methodname>
-   <methodparam><type>string</type><parameter>path</parameter></methodparam>
-   <methodparam choice="opt"><type>resource</type><parameter>context</parameter></methodparam>
+   <type class="union"><type>resource</type><type>false</type></type><methodname>opendir</methodname>
+   <methodparam><type>string</type><parameter>directory</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>resource</type><type>null</type></type><parameter>context</parameter><initializer>&null;</initializer></methodparam>
   </methodsynopsis>
   <para>
-   Restituisce un handle della directory da usare nelle chiamate alle funzioni
-   <function>closedir</function>, <function>readdir</function> e
-   <function>rewinddir</function>.
+   Opens up a directory handle to be used in subsequent
+   <function>closedir</function>, <function>readdir</function>, and
+   <function>rewinddir</function> calls.
   </para>
  </refsect1>
 
@@ -27,10 +26,10 @@
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>path</parameter></term>
+     <term><parameter>directory</parameter></term>
      <listitem>
       <para>
-       Il percorso della cartella da aprire
+       The directory path that is to be opened
       </para>
      </listitem>
     </varlistentry>
@@ -38,9 +37,9 @@
      <term><parameter>context</parameter></term>
      <listitem>
       <para>
-       Per una descrizione del parametro <parameter>context</parameter>,
-       fare riferimento a <link linkend="ref.stream">la sezione sugli stream</link> del
-       manuale.
+       For a description of the <parameter>context</parameter> parameter, 
+       refer to <link linkend="ref.stream">the streams section</link> of
+       the manual.
       </para> 
      </listitem>
     </varlistentry>
@@ -51,59 +50,48 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce, in caso di successo, un <type>resource</type> puntatore a una cartella, oppure
-   &false; in caso di fallimento.
-  </para> 
+   Returns a directory handle <type>resource</type> on success,
+   &return.falseforfailure;
+  </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  &fs.emits.warning.on.failure;
   <para>
-   Se <parameter>path</parameter> non è una directory valida o la
-   directory non può essere aperta a causa di restrizioni sui permessi di accesso o
-   a causa di errori del filesystem, <function>opendir</function> restituisce &false; e
-   genera un errore PHP di tipo <link linkend="errorfunc.constants">
-   E_WARNING</link>. Si può sopprimere l'output dell'errore di
-   <function>opendir</function> anteponendo
-   '<link linkend="language.operators.errorcontrol">@</link>' al nome della
-   funzione.
+   This may happen if <parameter>directory</parameter> is not a valid directory,
+   the directory can not be opened due to permission restrictions,
+   or due to filesystem errors.
   </para>
  </refsect1>
 
  <refsect1 role="changelog">
   &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>5.0.0</entry>
-       <entry>
-        <parameter>path</parameter> accetta il wrapper URL <literal>ftp://</literal> 
-        .
-       </entry>
-      </row>
-      <row>
-       <entry>4.3.0</entry>
-       <entry>
-        <parameter>path</parameter> può anche essere qualsiasi URL che supporti
-        l'elencazione del contenuto delle cartelle; comunque solo il wrapper URL <literal>file://</literal>
-        lo supporta in PHP 4
-       </entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </informaltable>
-  </para>
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>context</parameter> is now nullable.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
  </refsect1>
 
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title>esempio <function>opendir</function></title>
+    <title><function>opendir</function> example</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -146,7 +134,6 @@ filename: cli : filetype: dir
   </para>
  </refsect1>
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

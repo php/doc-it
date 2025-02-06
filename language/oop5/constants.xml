@@ -1,101 +1,177 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: f11cc3162cfe3307657c5886316f0278c7edbc7b Maintainer: pastore Status: ready -->
-<!-- CREDITS: butera -->
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
 <sect1 xml:id="language.oop5.constants" xmlns="http://docbook.org/ns/docbook">
- <title>Costanti di classe</title>
+ <title>Class Constants</title>
  <para>
-  Si possono definire valori costanti relativi ad una classe che rimangano 
-  non modificabili. Le costanti si distinguono dalle normali variabili poiché
-  non si utilizza il simbolo <varname>$</varname> per dichiararle o riferirsi ad esse. 
+  It is possible to define <link linkend="language.constants">constants</link>
+  on a per-class basis remaining the same and unchangeable.
+  The default visibility of class constants is <literal>public</literal>.
+ </para>
+ <note>
+  <para>
+   Class constants can be redefined by a child class.
+   As of PHP 8.1.0, class constants cannot be redefined by a child class
+   if it is defined as <link linkend="language.oop5.final">final</link>.
+  </para>
+ </note>
+ <para>
+  It's also possible for interfaces to have constants. Look
+  at the <link linkend="language.oop5.interfaces">interface documentation</link>
+  for examples.
  </para>
  <para>
-  Il valore deve essere un'espressione costante, non (ad esempio) una variabile, una
-  proprietà, o la chiamata ad una funzione.
+  It's possible to reference the class using a variable.
+  The variable's value can not be a keyword (e.g. <literal>self</literal>,
+  <literal>parent</literal> and <literal>static</literal>).
  </para>
  <para>
-  È inoltre possibile dichiarare <literal>constants</literal> relative alle interfacce. Fare riferimento  
-  alla <link linkend="language.oop5.interfaces">documentazione interfacce</link> per
- degli esempi.
+  Note that class constants are allocated once per class, and not for each
+  class instance.
  </para>
- <para>
-  A partire da PHP 5.3.0, è possibile fare riferimento alla classe utilizzando una variabile.
-  Il valore della variabile non può essere una parola chiave (ad esempio, <literal> self </literal>
-  <literal> parent </literal> o <literal> static </literal> ).
- </para>   
  <example>
-  <title>Definire ed usare una costante</title>
+  <title>Defining and using a constant</title>
   <programlisting role="php">
 <![CDATA[
 <?php
-class MiaClasse
+class MyClass
 {
-    const COSTANTE = 'valore costante';
+    const CONSTANT = 'constant value';
 
-    function mostraConstante() {
-        echo  self::COSTANTE . "\n";
+    function showConstant() {
+        echo  self::CONSTANT . "\n";
     }
 }
 
-echo MiaClasse::COSTANTE . "\n";
+echo MyClass::CONSTANT . "\n";
 
-$nomeclasse = "MiaClasse";
-echo $nomeclasse::COSTANTE . "\n"; // PHP 5.3.0
+$classname = "MyClass";
+echo $classname::CONSTANT . "\n";
 
-$classe = new MiaClasse();
-$classe->mostraConstante();
+$class = new MyClass();
+$class->showConstant();
 
-echo $classe::COSTANTE."\n"; // PHP 5.3.0
+echo $class::CONSTANT."\n";
 ?>
 ]]>
   </programlisting>
  </example>
+ <para>
+  The special <constant>::class</constant> constant allows
+  for fully qualified class name resolution at compile time,
+  this is useful for namespaced classes:
+ </para>
  <example>
-  <title>Esempio di dati statici</title>
+  <title>Namespaced ::class example</title>
   <programlisting role="php">
 <![CDATA[
 <?php
-class foo {
-    // PHP 5.3.0
-    const BAR = <<<'EOT'
-bar
-EOT;
-    // PHP 5.3.0
-    const BAZ = <<<EOT
-baz
-EOT;
+namespace foo {
+    class bar {
+    }
+
+    echo bar::class; // foo\bar
 }
 ?>
 ]]>
   </programlisting>
  </example>
- <note>
-  <para>
-   Il supporto per l'inizializzazione di costanti con la sintassi Heredoc e Nowdoc è stato aggiunto in PHP 5.3.0.
-  </para>
- </note>
+
  <example>
-  <title>Esempio di espressione delle costanti</title>
+  <title>Class constant expression example</title>
   <programlisting role="php">
 <![CDATA[
 <?php
 const ONE = 1;
-
 class foo {
-    // PHP 5.6.0
     const TWO = ONE * 2;
     const THREE = ONE + self::TWO;
-    const SENTENCE = 'Il valore di THREE è '.self::THREE;
+    const SENTENCE = 'The value of THREE is '.self::THREE;
 }
 ?>
 ]]>
   </programlisting>
-  <para>
-   È possibile fornire un'espressione scalare che coinvolge numeri e stringhe e/o costanti nel contesto di una costante di una classe.
-  </para>
+ </example>
+
+ <example>
+  <title>Class constant visibility modifiers, as of PHP 7.1.0</title>
+  <programlisting role="php">
+<![CDATA[
+<?php
+class Foo {
+    public const BAR = 'bar';
+    private const BAZ = 'baz';
+}
+echo Foo::BAR, PHP_EOL;
+echo Foo::BAZ, PHP_EOL;
+?>
+]]>
+  </programlisting>
+   &example.outputs.71;
+   <screen>
+<![CDATA[
+bar
+
+Fatal error: Uncaught Error: Cannot access private const Foo::BAZ in …
+]]>
+   </screen>
  </example>
  <note>
   <para>
-   Il supporto per le espressioni delle costanti è stato aggiunto in PHP 5.3.0.
+   As of PHP 7.1.0 visibility modifiers are allowed for class constants.
+  </para>
+ </note>
+ <example>
+  <title>Class constant visibility variance check, as of PHP 8.3.0</title>
+  <programlisting role="php">
+<![CDATA[
+<?php
+
+interface MyInterface
+{
+    public const VALUE = 42;
+}
+
+class MyClass implements MyInterface
+{
+    protected const VALUE = 42;
+}
+?>
+]]>
+  </programlisting>
+  &example.outputs.83;
+  <screen>
+<![CDATA[
+Fatal error: Access level to MyClass::VALUE must be public (as in interface MyInterface) …
+]]>
+  </screen>
+ </example>
+ <note>
+  <simpara>
+   As of PHP 8.3.0 visibility variance is checked more strictly.
+   Prior to this version, the visibility of a class constant could be different
+   from the visibility of the constant in the implemented interface.
+  </simpara>
+ </note>
+ <example>
+  <title>Fetch class constant syntax, as of PHP 8.3.0</title>
+  <programlisting role="php">
+<![CDATA[
+<?php
+class Foo {
+    public const BAR = 'bar';
+    private const BAZ = 'baz';
+}
+
+$name = 'BAR';
+echo Foo::{$name}, PHP_EOL; // bar
+?>
+]]>
+  </programlisting>
+ </example>
+ <note>
+  <para>
+   As of PHP 8.3.0, class constants can be fetched dynamically using a
+   variable.
   </para>
  </note>
 </sect1>

@@ -1,78 +1,166 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/pgsql.xml, last change in rev 1.10 -->
-<!-- last change to 'pg-connect' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.70/EN.1.2 -->
-  <refentry xml:id="function.pg-connect" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_connect</refname>
-    <refpurpose>Stabilisce una connessione PostgreSQL</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>resource</type><methodname>pg_connect</methodname>
-      <methodparam><type>string</type><parameter>stringa_connessione</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_connect</function> restituisce una risorsa di connessione
-     necessaria per l'utilizzo delle altre funzioni PostgreSQL.
-    </para>
-    <para>
-     <function>pg_connect</function> stabilisce una connessione a un
-     database PostgreSQL specificato da
-     <parameter>stringa_connessione</parameter>. Restituisce una risorsa di
-     connessione in caso di successo. Restituisce &false;, se la connessione non può
-     essere stabilita. <parameter>stringa_connessione</parameter> dovrebbe essere una
-     stringa racchiusa tra apici.
-     <example>
-     <title>Uso di pg_connect</title>
-     <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.2 -->
+<refentry xml:id="function.pg-connect" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_connect</refname>
+  <refpurpose>Open a PostgreSQL connection</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>PgSql\Connection</type><type>false</type></type><methodname>pg_connect</methodname>
+   <methodparam><type>string</type><parameter>connection_string</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>flags</parameter><initializer>0</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_connect</function> opens a connection to a
+   PostgreSQL database specified by the
+   <parameter>connection_string</parameter>.
+  </para>
+  <para>
+   If a second call is made to <function>pg_connect</function> with
+   the same <parameter>connection_string</parameter> as an existing connection, the
+   existing connection will be returned unless you pass
+   <constant>PGSQL_CONNECT_FORCE_NEW</constant> as
+   <parameter>flags</parameter>.
+  </para>
+  <para>
+   The old syntax with multiple parameters
+   <command>$conn = pg_connect("host", "port", "options", "tty", "dbname")
+   </command> has been deprecated.
+  </para>
+ </refsect1>
+
+<refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>connection_string</parameter></term>
+     <listitem>
+      <para>
+       The <parameter>connection_string</parameter> can be empty to use all default parameters, or it 
+       can contain one or more parameter settings separated by whitespace. 
+       Each parameter setting is in the form <literal>keyword = value</literal>. Spaces around 
+       the equal sign are optional. To write an empty value or a value 
+       containing spaces, surround it with single quotes, e.g., <literal>keyword = 
+       'a value'</literal>. Single quotes and backslashes within the value must be 
+       escaped with a backslash, i.e., \' and \\.  
+      </para>
+      <para>
+       The currently recognized parameter keywords are:
+       <parameter>host</parameter>, <parameter>hostaddr</parameter>, <parameter>port</parameter>,
+       <parameter>dbname</parameter> (defaults to value of <parameter>user</parameter>),
+       <parameter>user</parameter>,
+       <parameter>password</parameter>, <parameter>connect_timeout</parameter>,
+       <parameter>options</parameter>, <parameter>tty</parameter> (ignored), <parameter>sslmode</parameter>,
+       <parameter>requiressl</parameter> (deprecated in favor of <parameter>sslmode</parameter>), and
+       <parameter>service</parameter>.  Which of these arguments exist depends
+       on your PostgreSQL version.
+      </para>
+      <para>
+       The <parameter>options</parameter> parameter can be used to set command line parameters 
+       to be invoked by the server.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>flags</parameter></term>
+     <listitem>
+      <para>
+       If <constant>PGSQL_CONNECT_FORCE_NEW</constant> is passed, then a new connection
+       is created, even if the <parameter>connection_string</parameter> is identical to
+       an existing connection.
+      </para>
+      <para>
+       If <constant>PGSQL_CONNECT_ASYNC</constant> is given, then the
+       connection is established asynchronously. The state of the connection
+       can then be checked via <function>pg_connect_poll</function> or
+       <function>pg_connection_status</function>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Returns an <classname>PgSql\Connection</classname> instance on success, &return.falseforfailure;.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.1.0</entry>
+      <entry>
+       Returns an <classname>PgSql\Connection</classname> instance now;
+       previously, a &resource; was returned.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Using <function>pg_connect</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$dbconn = pg_connect ("dbname=mary");
-//collegamento ad un database chiamato "mary"
-$dbconn2 = pg_connect ("host=localhost port=5432 dbname=mary");
-//collegamento ad un database chiamato "mary" su "localhost" alla porta "5432"
-$dbconn3 = pg_connect ("host=sheep port=5432 dbname=mary user=lamb password=foo");
-//collegamento ad un database chiamato "mary" sull'host "sheep" con una username ed una password
+$dbconn = pg_connect("dbname=mary");
+//connect to a database named "mary"
+
+$dbconn2 = pg_connect("host=localhost port=5432 dbname=mary");
+// connect to a database named "mary" on "localhost" at port "5432"
+
+$dbconn3 = pg_connect("host=sheep port=5432 dbname=mary user=lamb password=foo");
+//connect to a database named "mary" on the host "sheep" with a username and password
+
 $conn_string = "host=sheep port=5432 dbname=test user=lamb password=bar";
-$dbconn4 = pg_connect ($conn_string);
-//collegamento ad un database chiamato "test" sull'host "sheep" con una username ed una password
+$dbconn4 = pg_connect($conn_string);
+//connect to a database named "test" on the host "sheep" with a username and password
+
+$dbconn5 = pg_connect("host=localhost options='--client_encoding=UTF8'");
+//connect to a database on "localhost" and set the command line parameter which tells the encoding is in UTF-8
 ?>
 ]]>
-     </programlisting>
-     </example>
-     Gli argomenti che si possono passare a 
-     <parameter>connection_string</parameter> includono
-     <parameter>host</parameter>, <parameter>port</parameter>,
-     <parameter>tty</parameter>, <parameter>options</parameter>,
-     <parameter>dbname</parameter>, <parameter>user</parameter>, e
-     <parameter>password</parameter>.
-    </para>
-    <para>
-     Se viene eseguita una seconda chiamata a <function>pg_connect</function> con
-     stessi argomenti nella <parameter>stringa_connessione</parameter>, non
-     viene stabilita una nuova connessione, bensì viene restituita la
-     risorsa che punta alla connessione già aperta. Si possono
-     avere connessioni multiple allo stesso database se si usano
-     stringhe di connessione differenti.
-    </para>
-    <para>
-     La sintassi a parametri multipli:
-     <command>$conn = pg_connect ("host", "port", "options", "tty", "dbname")
-     </command>
-     è deprecata.
-    </para>
-    <para>
-     Vedere anche <function>pg_pconnect</function>,
-     <function>pg_close</function>, <function>pg_host</function>,
-     <function>pg_port</function>, <function>pg_tty</function>,
-     <function>pg_options</function> e <function>pg_dbname</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_pconnect</function></member>
+    <member><function>pg_close</function></member>
+    <member><function>pg_host</function></member>
+    <member><function>pg_port</function></member>
+    <member><function>pg_tty</function></member>
+    <member><function>pg_options</function></member>
+    <member><function>pg_dbname</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

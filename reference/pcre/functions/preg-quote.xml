@@ -1,79 +1,158 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/pcre.xml, last change in rev 1.1 -->
-<!-- last change to 'preg-quote' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- OLD-Revision: 1.78/EN.1.2 -->
-  <refentry xml:id="function.preg-quote" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>preg_quote</refname>
-    <refpurpose>Inserisce il carattere di escape nei caratteri delle espressioni regolari</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string </type><methodname>preg_quote</methodname> 
-      <methodparam><type>string </type><parameter>stringa</parameter></methodparam>
-      <methodparam choice="opt"><type>string </type><parameter>delimitatori</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     La funzione <function>preg_quote</function> inserisce il carattere 
-     di escape (\) davanti ad ogni carattere presente in <parameter>stringa</parameter>
-     che sia parte della sintassi di una espressione regolare. Questa
-     funzione è utile nei casi in cui si generino, durante l'esecuzione, 
-     delle stringhe da usare come criteri di riconoscimento, e queste possano
-     contenere dei caratteri speciali per le espressioni regolari.
-    </para>
-    <para>
-     Se viene specificato un carattere come parametro <parameter>delimitatore</parameter>,
-     anche a questo sarà anteposto il carattere di escape (\).
-     Ciò è particolarmente utile per porre il carattere di escape nei
-     delimitatori richiesti dalle funzioni PCRE. Il carattere di delimitazione
-     più comunemente utilizzato è /.
-    </para>
-    <para>
-     I caratteri speciali per le espressioni regolari sono:
-     <literal>. \\ + * ? [ ^ ] $ ( ) { } = ! &lt; &gt; | :</literal>
-    </para>
-    <para>
-     <example>
-      <title>Esempio di <function>preg_quote</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.preg-quote" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>preg_quote</refname>
+  <refpurpose>Quote regular expression characters</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>preg_quote</methodname>
+   <methodparam><type>string</type><parameter>str</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>delimiter</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>preg_quote</function> takes <parameter>str</parameter>
+   and puts a backslash in front of every character that is part of
+   the regular expression syntax.  This is useful if you have a
+   run-time string that you need to match in some text and the
+   string may contain special regex characters.
+  </para>
+  <para>
+   The special regular expression characters are:
+   <literal>. \ + * ? [ ^ ] $ ( ) { } = ! &lt; &gt; | : - #</literal>
+  </para>
+  <para>
+   Note that <literal>/</literal> is not a special regular expression character.
+  </para>
+  <note>
+   <para>
+    Note that <function>preg_quote</function> is not meant to be applied to the
+    $replacement string(s) of <function>preg_replace</function> etc.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>str</parameter></term>
+     <listitem>
+      <para>
+       The input string.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>delimiter</parameter></term>
+     <listitem>
+      <para>
+       If the optional <parameter>delimiter</parameter> is specified, it
+       will also be escaped.  This is useful for escaping the delimiter
+       that is required by the PCRE functions. The <literal>/</literal> is the most commonly
+       used delimiter.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Returns the quoted (escaped) string.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>7.3.0</entry>
+       <entry>
+        The <literal>#</literal> character is now quoted
+       </entry>
+      </row>
+      <row>
+       <entry>7.2.0</entry>
+       <entry>
+        <parameter>delimiter</parameter> is nullable now.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>preg_quote</function> example</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$keywords = "$40 for a g3/400";
-$keywords = preg_quote($keywords, "/");
+$keywords = '$40 for a g3/400';
+$keywords = preg_quote($keywords, '/');
 echo $keywords; // returns \$40 for a g3\/400
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     <example>
-      <title>Esempio di come rendere in corsivo una qualsiasi parola di un testo</title>
-      <programlisting role="php">
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Italicizing a word within some text</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-// In questo esempio, la funzione preg_quote($word) viene usata
-// per impedire agli asterischi di avere il loro significato
-// speciale per le espressioni regolari.
+// In this example, preg_quote($word) is used to keep the
+// asterisks from having special meaning to the regular
+// expression.
 
-$testo = "Questo libro è *molto* difficile da trovare.";
-$parola = "*molto*";
-$testo = preg_replace("/". preg_quote($parola) . "/",
-                          "<i>" . $parola . "</i>",
-                          $testo);
+$textbody = "This book is *very* difficult to find.";
+$word = "*very*";
+$textbody = preg_replace ("/" . preg_quote($word, '/') . "/",
+                          "<i>" . $word . "</i>",
+                          $textbody);
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
-    &note.bin-safe;
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.bin-safe;
+ </refsect1>
 
-   </refsect1>
-  </refentry>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><link linkend="pcre.pattern">PCRE Patterns</link></member>
+    <member><function>escapeshellcmd</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
 
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

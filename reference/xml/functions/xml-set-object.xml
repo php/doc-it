@@ -1,24 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: 10eeb063bbad9f6ef0d08fdcc71f1d80511b01c0 Maintainer: pastore Status: ready -->
-<!-- CREDITS: darvina -->
-<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.xml-set-object">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.xml-set-object" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>xml_set_object</refname>
-  <refpurpose>Utilizza il parser XML all'interno di un oggetto</refpurpose>
+  <refpurpose>Use XML Parser within an object</refpurpose>
  </refnamediv>
+
+ <refsynopsisdiv>
+  &warn.deprecated.function-8-4-0;
+ </refsynopsisdiv>
  
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type>bool</type><methodname>xml_set_object</methodname>
-   <methodparam><type>resource</type><parameter>parser</parameter></methodparam>
-   <methodparam><type>object</type><parameter role="reference">object</parameter></methodparam>
+   <modifier role="attribute">#[\Deprecated]</modifier>
+   <type>true</type><methodname>xml_set_object</methodname>
+   <methodparam><type>XMLParser</type><parameter>parser</parameter></methodparam>
+   <methodparam><type>object</type><parameter>object</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Questa funzione permette l'uso del <parameter>parser</parameter> all'interno
-   di un <parameter>object</parameter>. Tutte le funzioni di callback possono essere indicate con
-   <function>xml_set_element_handler</function> e simili, e sono assunte come metodi
-   dell'<parameter>object</parameter>.
+   This function allows to use <parameter>parser</parameter> inside
+   <parameter>object</parameter>. All callback functions could be set with
+   <function>xml_set_element_handler</function> etc and assumed to be
+   methods of <parameter>object</parameter>.
   </para>
  </refsect1>
 
@@ -30,7 +34,7 @@
      <term><parameter>parser</parameter></term>
      <listitem>
       <para>
-       Un riferimento al parser XML da utilizzare all'interno dell'oggetto.
+       A reference to the XML parser to use inside the object.
       </para>
      </listitem>
     </varlistentry>
@@ -38,7 +42,7 @@
      <term><parameter>object</parameter></term>
      <listitem>
       <para>
-       L'oggetto in cui utilizzare il parser XML.
+       The object where to use the XML parser.
       </para>
      </listitem>
     </varlistentry>
@@ -49,22 +53,48 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   &return.success;
+   &return.true.always;
   </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.4.0</entry>
+      <entry>
+       This function is now deprecated,
+       instead pass proper <type>callable</type> values to
+       <function>xml_set_</function>
+      </entry>
+     </row>
+      &xml.changelog.parser-param;
+    </tbody>
+   </tgroup>
+  </informaltable>
  </refsect1>
 
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title>Esempio di uso di <function>xml_set_object</function></title>
+    <title><function>xml_set_object</function> example</title>
     <programlisting role="php">
 <![CDATA[
 <?php
-class xml  {
-    var $parser;
+class CustomXMLParser
+{
+    private $parser;
 
-    function xml() 
+    function __construct() 
     {
         $this->parser = xml_parser_create();
 
@@ -80,32 +110,42 @@ class xml  {
 
     function tag_open($parser, $tag, $attributes) 
     {
-        var_dump($parser, $tag, $attributes); 
+        var_dump($tag, $attributes); 
     }
 
     function cdata($parser, $cdata) 
     {
-        var_dump($parser, $cdata);
+        var_dump($cdata);
     }
 
     function tag_close($parser, $tag) 
     {
-        var_dump($parser, $tag);
+        var_dump($tag);
     }
+}
 
-} // end of class xml
-
-$xml_parser = new xml();
+$xml_parser = new CustomXMLParser();
 $xml_parser->parse("<A ID='hallo'>PHP</A>");
 ?>
 ]]>
     </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+string(1) "A"
+array(1) {
+  ["ID"]=>
+  string(5) "hallo"
+}
+string(3) "PHP"
+string(1) "A"
+]]>
+    </screen>
    </example>
   </para>
  </refsect1>
 
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

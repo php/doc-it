@@ -1,130 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 96c9d88bad9a7d7d44bfb7f26c226df7ee9ddf26 Maintainer: cucinato Status: ready -->
+<!-- $Revision$ -->
 <!-- splitted from ./en/functions/pcre.xml, last change in rev 1.2 -->
 <article xml:id="reference.pcre.pattern.differences" xmlns="http://docbook.org/ns/docbook">
- <title>Differenze rispetto a Perl</title>
- <titleabbrev>Differenze rispetto a Perl</titleabbrev>
+ <title>Perl Differences</title>
+ <titleabbrev>Differences From Perl</titleabbrev>
  <para>
-  In questo capitolo saranno descritte le differenze rispetto a Perl 5.005.
+  The differences described here are with respect to Perl 5.005.
   <orderedlist>
    <listitem>
     <simpara>
-     Per default, lo  spazio  bianco  indica  tutti  i  caratteri riconoscibili
-     dalla  funzione  isspace()  della libreria C, ciò non pregiudica la
-     possibilità di compilare PCRE  con  un set di caratteri alternativi.
-     Normalmente isspace() riconosce gli spazi, il salto pagina, il carattere 'a capo' (newline),
-     il carattere carriage return, la tabulazione orizzontale e verticale. Perl 5 non
-     riconosce nel set dei caratteri indicati dallo "spazio bianco" la tabulazione verticale.
-     Infatti il carattere di escape \v è stato presente per diverso tempo nella
-     documentazione di Perl, ma  di fatto non viene riconosciuto. Tuttavia lo
-     stesso carattere viene trattato come spazio bianco fino alla versione 5.002 di Perl.
-     Nelle versioni 5.004 e 5.005 non viene riconosciuto il carattere \s.
+     By default, a whitespace character is any character  that
+     the C library function isspace() recognizes, though it is
+     possible to compile PCRE  with alternative character type
+     tables. Normally isspace() matches space, formfeed, newline,
+     carriage return, horizontal tab, and vertical tab. Perl 5 no
+     longer  includes vertical tab in its set of whitespace characters.
+     The \v escape that was in the Perl documentation for
+     a long time was never in fact recognized. However, the character
+     itself was treated as whitespace at least up to 5.002.
+     In 5.004 and 5.005 it does not match \s.
     </simpara>
    </listitem>
    <listitem>
     <simpara>
-     PCRE non supporta occorrenze ripetute in espressioni che "guardano avanti".
-     Perl lo permette, ma non nel modo a cui si possa pensare. Ad esempio,
-     (?!a){3}, non indica che i tre caratteri successivi non debbano essere
-     delle "a", ma indica per tre volte che il carattere successivo non
-     debba essere una "a".
+     PCRE does not allow repeat quantifiers on lookahead
+     assertions. Perl permits them, but they do not mean what you
+     might think. For example, (?!a){3} does not assert that  the
+     next three characters are not "a". It just asserts that the
+     next character is not "a" three times.
     </simpara>
    </listitem>
    <listitem>
     <simpara>
-     Il riconoscimento di criteri parziali che possono verificarsi
-     all'interno di espressioni che "guardano avanti" negative
-     sono contati, ma i loro riferimenti non sono inseriti nel
-     vettore degli offset. Perl valorizza le sue variabili da
-     qualsiasi criterio che sia riconosciuto prima che l'espressione
-     regolare fallisca nel riconoscere qualcosa (riuscendo in tal modo), ma questo solo se
-     l'espressione che "guarda avanti" contiene almeno un ramo alternativo.
+     Capturing subpatterns that occur inside negative
+     lookahead assertions are counted, but their entries in the
+     offsets vector are never set. Perl sets its numerical
+     variables from any such patterns that are matched before the
+     assertion fails to match something (thereby succeeding), but
+     only  if  the negative lookahead assertion contains just one
+     branch.
     </simpara>
    </listitem>
    <listitem>
     <simpara>
-     Sebbene il carattere di 0 binario sia supportato nella stringa in cui si
-     deve svolgere la ricerca, non è ammesso nel testo dell'espressione regolare,
-     questo perché il testo viene passato come stringa C conclusa dal carattere zero.
-     Si può comunque utilizzare la sequenza "\\x00" per richiedere il riconoscimento dello zero binario.
+     Though binary zero characters are supported in  the  subject  string,
+     they are not allowed in a pattern string because it is passed as a
+     normal C string, terminated  by zero. The escape sequence "\x00" can
+     be used in the pattern to represent a binary zero.
     </simpara>
     </listitem>
     <listitem>
     <simpara>
-     Non sono supportate le seguenti sequenze di escape di Perl:
-     \l,  \u,  \L,  \U. Infatti queste sono implementate
-     nelle funzioni di gestione delle stringhe di Perl e non nel
-     suo motore di riconoscimento delle espressioni regolari.
+     The following Perl escape sequences  are  not  supported:
+     \l,  \u,  \L,  \U. In fact these are implemented by
+     Perl's general string-handling and are not part of its
+     pattern matching engine.
     </simpara>
     </listitem>
     <listitem>
     <simpara>
-    L'asserzione di Perl \G non è supportata poiché non è
-    rilevante per il riconoscimento di espressioni singole.
+     The Perl \G assertion is  not  supported  as  it  is  not
+     relevant to single pattern matches.
     </simpara>
     </listitem>
     <listitem>
     <simpara>
-     Ovviamente PCRE non supporta il costrutto (?{code}) e (??{code}).
-     Comunque, le espressioni ricorsive sono supportate.
+     Fairly obviously, PCRE does not support the (?{code}) and (??{code})
+     construction. However, there is support for recursive  patterns.
     </simpara>
     </listitem>
     <listitem>
     <simpara>
-     Al momento in cui si scrive, in Perl  5.005_02 vi sono alcune particolarità
-     riguardanti la parametrizzazione delle stringhe catturate quando
-     parte del criterio di riconoscimento viene ripetuto. Ad esempio, il riconoscimento
-     di "aba" con il criterio /^(a(b)?)+$/, valorizza $2 con la lettera "b",i
-     usando il testo "aabbaa" con il criterio /^(aa(bb)?)+$/ non si ha la
-     valorizzazione di $2. Tuttavia se il criterio di riconoscimento viene
-     variato in /^(aa(b(b))?)+$/, sia $2 che $3 vengono valorizzate.
-     Nelle versione 5.004 di Perl, la variabile $2 viene valorizzata in
-     entrambi i casi, come pure è &true; in PCRE. Se in futuro Perl cambierà
-     nella gestione anche PCRE potrà cambiare di conseguenza.
+     There are at the time of writing some  oddities  in  Perl
+     5.005_02  concerned  with  the  settings of captured strings
+     when part of a pattern is repeated.  For  example,  matching
+     "aba"  against the pattern /^(a(b)?)+$/ sets $2 to the value
+     "b", but matching "aabbaa" against /^(aa(bb)?)+$/ leaves  $2
+     unset.    However,    if   the   pattern   is   changed   to
+     /^(aa(b(b))?)+$/ then $2 (and $3) get set.
+     In Perl 5.004 $2 is set in both cases, and that is also &true;
+     of PCRE. If in the future Perl changes to a consistent state
+     that is different, PCRE may change to follow.
     </simpara>
     </listitem>
     <listitem>
     <simpara>
-     Un'altra discrepanza non ancora risolta riguarda il criterio di
-     riconoscimento /^(a)?(?(1)a|b)+$/, che in Perl 5.005_02 riconosce
-     la stringa "a", mentre non accade in PCRE. Tuttavia in entrambi
-     ( Perl e PCRE ) il riconoscimento di "a" con il criterio /^(a)?a/ non valorizza $1.
+     Another as yet unresolved discrepancy  is  that  in  Perl
+     5.005_02  the  pattern /^(a)?(?(1)a|b)+$/ matches the string
+     "a", whereas in PCRE it does not.  However, in both Perl and
+     PCRE /^(a)?a/ matched against "a" leaves $1 unset.
     </simpara>
     </listitem>
     <listitem>
     <para>
-     PCRE prevede alcune estensioni per la gestione delle
-     espressioni regolari di Perl:
+     PCRE  provides  some  extensions  to  the  Perl  regular
+     expression facilities:
       <orderedlist>
        <listitem>
         <simpara>
-         Sebbene le asserzioni che "guardano indietro" richiedano testi di
-         lunghezza fissa, è ammesso che ciascun ramo alternativo del criterio
-         di ricerca possa intercettare stringhe di lunghezza differente.
-         Al contrario Perl 5.005 richiede che tutte le stringhe abbiamo la stessa lunghezza.
+         Although lookbehind assertions must match  fixed  length
+         strings,  each  alternative branch of a lookbehind assertion
+         can match a different length of string. Perl 5.005  requires
+         them all to have the same length.
        </simpara>
       </listitem>
       <listitem>
        <simpara>
-        Se viene settato <link linkend="reference.pcre.pattern.modifiers">PCRE_DOLLAR_ENDONLY</link>
-        e non viene attivato <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link>,
-        il meta-carattere $ indica soltanto la fine della
-        stringa.
+        If <link linkend="reference.pcre.pattern.modifiers">PCRE_DOLLAR_ENDONLY</link>
+        is set and <link linkend="reference.pcre.pattern.modifiers">PCRE_MULTILINE</link> is
+        not set, the $ meta-character matches only at the very end of the
+        string.
        </simpara>
       </listitem>
       <listitem>
        <simpara>
-        Se si attiva <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTRA</link>,
-        un carattere backslash (\) seguito da una lettera che
-        non abbia un significato speciale genera un errore.
+        If <link linkend="reference.pcre.pattern.modifiers">PCRE_EXTRA</link> is
+        set, a backslash followed by a letter with no special meaning is
+        faulted.
        </simpara>
       </listitem>
       <listitem>
        <simpara>
-        Se si attiva <link linkend="reference.pcre.pattern.modifiers">PCRE_UNGREEDY</link>,
-        si inverte la "voracità" delle occorrenze, in modo da non
-        essere voraci per default, ma lo tornano ad essere se
-        seguiti da "?".
+        If <link linkend="reference.pcre.pattern.modifiers">PCRE_UNGREEDY</link> is
+        set, the greediness of the repetition  quantifiers  is inverted,
+        that is, by default they are not greedy, but if followed by a
+        question mark they are.
        </simpara>
       </listitem>
      </orderedlist>

@@ -1,94 +1,149 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: fernando Status: ready -->
-<!-- CREDITS: cortesi -->
-<!-- splitted from ./it/functions/dir.xml, last change in rev 1.1 -->
-  <refentry xml:id="function.readdir" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>readdir</refname>
-    <refpurpose>Legge una voce dall'handle della directory</refpurpose>
-   </refnamediv>
-   <refsect1>
-    &reftitle.description;
-     <methodsynopsis>
-      <type>string</type><methodname>readdir</methodname>
-      <methodparam><type>resource</type><parameter>dir_handle</parameter></methodparam>
-     </methodsynopsis>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<!-- splitted from ./en/functions/dir.xml, last change in rev 1.2 -->
+<refentry xml:id="function.readdir" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>readdir</refname>
+  <refpurpose>Read entry from directory handle</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>false</type></type><methodname>readdir</methodname>
+   <methodparam choice="opt"><type class="union"><type>resource</type><type>null</type></type><parameter>dir_handle</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Returns the name of the next entry in the directory. The
+   entries are returned in the order in which they are stored by
+   the filesystem.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>dir_handle</parameter></term>
+     <listitem>
+      <para>
+       The directory handle <type>resource</type> previously opened
+       with <function>opendir</function>. If the directory handle is 
+       not specified, the last link opened by <function>opendir</function> 
+       is assumed.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Returns the entry name on success&return.falseforfailure;.
+  </para> 
+  &return.falseproblem;
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>dir_handle</parameter> is now nullable.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>List all entries in a directory</title>
     <para>
-     Restituisce il nomefile del file successivo della directory. I nomi
-     dei file vengono restituiti secondo l'ordine in cui sono memorizzati
-     nel filesystem.
+     Please note the fashion in which <function>readdir</function>'s
+     return value is checked in the examples below. We are explicitly
+     testing whether the return value is identical to (equal to and of
+     the same type as--see <link linkend="language.operators.comparison">Comparison
+     Operators</link> for more information) &false; since otherwise,
+     any directory entry whose name evaluates to &false; will stop the
+     loop (e.g. a directory named "0").
     </para>
-    <para>
-     Si faccia caso al modo in cui il valore restituito da <function>readdir</function>
-     viene controllato negli esempi successivi. Viene controllato esplicitamente
-     che il valore restituito sia identico a (uguale a e dello
-     stesso tipo di (vedere <link
-     linkend="language.operators.comparison">Comparison
-     Operators</link> per maggiori informazioni) &false; altrimenti avverrebbe che
-     ogni nome di directory il cui nome fosse valutato &false; interromperebbe il
-     loop (per esempio una directory chiamata "0").
-    </para>
-    <para>
-     <example>
-      <title>Elenca tutti i file presenti in una directory</title>
-      <programlisting role="php">
+    <programlisting role="php">
 <![CDATA[
 <?php
-// Nota che l'operatore !== non è esistito fino alla versione 4.0.0-RC2
-if ($handle = opendir('/percorso/ai/file')) {
-    echo "Handle della directory: $handle\n";
-    echo "File:\n";
 
-   /* Questa è la maniera corretta di eseguire un loop all'interno di una directory. */
-   while (false !== ($file = readdir($handle))) { 
-       echo "$file\n";
-   }
+if ($handle = opendir('/path/to/files')) {
+    echo "Directory handle: $handle\n";
+    echo "Entries:\n";
 
-   /* Questa è la maniera SCORRETTA di eseguire un loop all'interno di una directory. */
-   while ($file = readdir($handle)) { 
-       echo "$file\n";
-   }
-
-   closedir($handle); 
-}
-?>
-]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Nota che <function>readdir</function> restituirà le voci <literal>.</literal> 
-     e 
-     <literal>..</literal>. Se non si vogliono ottenere queste, si possono semplicemente 
-     eliminare:
-     <example>
-      <title>
-       Elenca tutti i file della directory in uso ed elimina <literal>.</literal> 
-       e <literal>..</literal>
-      </title>
-      <programlisting role="php">
-<![CDATA[
-<?php 
-if ($handle = opendir('.')) {
-    while (false !== ($file = readdir($handle))) { 
-        if ($file != "." && $file != "..") { 
-            echo "$file\n"; 
-        } 
+    /* This is the correct way to loop over the directory. */
+    while (false !== ($entry = readdir($handle))) {
+        echo "$entry\n";
     }
-    closedir($handle); 
+
+    /* This is the WRONG way to loop over the directory. */
+    while ($entry = readdir($handle)) {
+        echo "$entry\n";
+    }
+
+    closedir($handle);
 }
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Vedere anche: <function>is_dir</function> e
-     <function>glob</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>
+     List all entries in the current directory and strip out <literal>.</literal>
+     and <literal>..</literal>
+    </title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+if ($handle = opendir('.')) {
+    while (false !== ($entry = readdir($handle))) {
+        if ($entry != "." && $entry != "..") {
+            echo "$entry\n";
+        }
+    }
+    closedir($handle);
+}
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>is_dir</function></member>
+    <member><function>glob</function></member>
+    <member><function>opendir</function></member>
+    <member><function>scandir</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

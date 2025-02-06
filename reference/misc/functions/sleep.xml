@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 6ef46c971edd862c39d3b30513e549dacc735e04 Maintainer: reghe Status: ready -->
+<!-- $Revision$ -->
 <refentry xml:id="function.sleep" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>sleep</refname>
-  <refpurpose>Pausa dell'esecuzione</refpurpose>
+  <refpurpose>Delay execution</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
@@ -13,9 +13,16 @@
    <methodparam><type>int</type><parameter>seconds</parameter></methodparam>
   </methodsynopsis>
   <simpara>
-   Mette in pausa l'esecuzione del programma per il numero indicato di 
-   secondi.
+   Delays the program execution for the given number of
+   <parameter>seconds</parameter>.
   </simpara>
+  <note>
+   <para>
+    In order to delay program execution for a fraction of a second, use <function>usleep</function>
+    as the <function>sleep</function> function expects an &integer;. For example, <code>sleep(0.25)</code> will
+    pause program execution for <literal>0</literal> seconds.
+   </para>
+  </note>
  </refsect1>
 
  <refsect1 role="parameters">
@@ -26,7 +33,7 @@
      <term><parameter>seconds</parameter></term>
      <listitem>
       <para>
-       Tempo di pausa in secondi.
+       Halt time in seconds (must be greater than or equal to <literal>0</literal>).
       </para>
      </listitem>
     </varlistentry>
@@ -37,57 +44,54 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Ritorna zero in caso di successo o &false; in caso di errore.
+   Returns zero on success.
   </para>
   <para>
-   Se la chiamata viene interrotta da un segnale, <function>sleep</function> ritorna
-   un valore non-zero. Su Windows questo valore è sempre
-   <literal>192</literal> (cioè il valore di
-   <constant>WAIT_IO_COMPLETION</constant> nelle Windows API).
-   In altre piattaforme il valore di ritorno è il numero di secondi rimanenti di
-   pausa.
+   If the call was interrupted by a signal, <function>sleep</function> returns
+   a non-zero value. On Windows, this value will always be
+   <literal>192</literal> (the value of the
+   <constant>WAIT_IO_COMPLETION</constant> constant within the Windows API).
+   On other platforms, the return value will be the number of seconds left to
+   sleep.
   </para>
  </refsect1>
 
  <refsect1 role="errors">
   &reftitle.errors;
   <para>
-   Se <parameter>seconds</parameter> (cioè il numero di secondi specificato) è negativo,
-   la funzione genera un errore <constant>E_WARNING</constant>.
+   If the specified number of <parameter>seconds</parameter> is negative,
+   this function will throw a <classname>ValueError</classname>.
   </para>
  </refsect1>
 
  <refsect1 role="changelog">
   &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>5.3.4</entry>
-       <entry>
-        Prima di PHP 5.3.4 in Windows, <function>sleep</function> ritorna
-        sempre &null; quando è eseguita, a prescindere dal fatto che sia stata
-        interrotta o meno.
-       </entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </informaltable>
-  </para>
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       The function throws a <classname>ValueError</classname> on negative <parameter>seconds</parameter>;
+       previously, an <constant>E_WARNING</constant> was raised instead, and the function returned &false;.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
  </refsect1>
 
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title>Esempio <function>sleep</function></title>
+    <title><function>sleep</function> example</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -105,7 +109,7 @@ echo date('h:i:s') . "\n";
 ]]>
     </programlisting>
     <para>
-     Questo esempio stampa (dopo 10 secondi)
+     This example will output (after 10 seconds)
     </para>
     <screen>
 <![CDATA[

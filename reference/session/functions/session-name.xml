@@ -1,30 +1,38 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: 93edd6c0cc2861808afb845e5744e0c3321609a8 Maintainer: pastore Status: ready -->
-<!-- CREDITS: penzo -->
-<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.session-name">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.session-name" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>session_name</refname>
-  <refpurpose>Recupera e/o imposta il nome della sessione corrente</refpurpose>
+  <refpurpose>Get and/or set the current session name</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type>string</type><methodname>session_name</methodname>
-   <methodparam choice="opt"><type>string</type><parameter>name</parameter></methodparam>
+   <type class="union"><type>string</type><type>false</type></type><methodname>session_name</methodname>
+   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>name</parameter><initializer>&null;</initializer></methodparam>
   </methodsynopsis>
   <para>
-   <function>session_name</function> ritorna il nome della sessione 
-   corrente. Se viene fornito <parameter>name</parameter>,
-   <function>session_name</function> aggiornerà il nome della sessione e restituirà
-   il <emphasis>vecchio</emphasis> nome della sessione.
+   <function>session_name</function> returns the name of the current
+   session. If <parameter>name</parameter> is given,
+   <function>session_name</function> will update the session name and return
+   the <emphasis>old</emphasis> session name.
   </para>
   <para>
-   Il nome di sessione è ripristinato al valore memorizzato in
-   <literal>session.name</literal> al momento della request. Quindi, si deve
-   chiamare <function>session_name</function> ad ogni richiesta (e prima che
-   <function>session_start</function> o <function>session_register</function>
-   vengano chiamate).
+   If a new session <parameter>name</parameter> is
+   supplied, <function>session_name</function> modifies the HTTP cookie
+   (and outputs the content when <link linkend="ini.session.use-trans-sid">session.use_trans_sid</link> is
+   enabled). Once the HTTP cookie has been
+   sent, calling <function>session_name</function> raises an <constant>E_WARNING</constant>.
+   <function>session_name</function> must be called
+   before <function>session_start</function> for the session to work
+   properly.
+  </para>
+  <para>
+   The session name is reset to the default value stored in
+   <literal>session.name</literal> at request startup time. Thus, you need to
+   call <function>session_name</function> for every request (and before
+   <function>session_start</function> is called).
   </para>
  </refsect1>
 
@@ -36,18 +44,18 @@
      <term><parameter>name</parameter></term>
      <listitem>
       <para>
-       Il nome della sessione si riferisce al nome della sessione, che
-       viene utilizzato nei cookies e negli URL (p.e. <literal>PHPSESSID</literal>).
-       Dovrebbe contenere solo caratteri alfanumerici; dovrebbe essere corto e
-       descrittivo (p.e. per utenti con l'avviso di cookie attivo).
-       Se <parameter>name</parameter> è specificato, il nome della
-       sessione corrente viene cambiato al suo valore.
+       The session name references the name of the session, which is 
+       used in cookies and URLs (e.g. <literal>PHPSESSID</literal>). It
+       should contain only alphanumeric characters; it should be short and
+       descriptive (i.e. for users with enabled cookie warnings).
+       If <parameter>name</parameter> is specified and not &null;, the name of the current
+       session is changed to its value.
       </para>
       <para>
        <warning>
         <para>
-         Il nome di sessione non può essere composto da sole cifre numeriche, deve
-         essere presente almeno una lettera. In caso contrario un nuovo nome è generato ogni volta.
+         The session name can't consist of digits only, at least one letter
+         must be present. Otherwise a new session id is generated every time.
         </para>
        </warning>
       </para>
@@ -60,9 +68,44 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce il nome della sessione corrente. Se viene passato il <parameter>name</parameter>
-   e la funzione aggiorna il nome della sessione, viene restituito il nome della
-   <emphasis>vecchia</emphasis> sessione.
+   Returns the name of the current session. If <parameter>name</parameter> is given
+   and function updates the session name, name of the <emphasis>old</emphasis> session
+   is returned, &return.falseforfailure;.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        <parameter>name</parameter> is nullable now.
+       </entry>
+      </row>
+      <row>
+       <entry>7.2.0</entry>
+       <entry>
+        <function>session_name</function> checks session status,
+        previously it only checked cookie status. Therefore,
+        older <function>session_name</function> allows to
+        call <function>session_name</function>
+        after <function>session_start</function> which may crash PHP
+        and may result in misbehaviors.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
   </para>
  </refsect1>
 
@@ -70,16 +113,16 @@
   &reftitle.examples;
   <para>
    <example>
-    <title><function>session_name</function> esempi</title>
+    <title><function>session_name</function> example</title>
     <programlisting role="php">
 <![CDATA[
 <?php
 
-// imposta il nome di sessione a WebsiteID
+/* set the session name to WebsiteID */
 
 $previous_name = session_name("WebsiteID");
 
-echo "Il precedente nome di sessione è $previous_name<br />";
+echo "The previous session name was $previous_name<br />";
 ?>
 ]]>
     </programlisting>
@@ -92,15 +135,14 @@ echo "Il precedente nome di sessione è $previous_name<br />";
   <para>
    <simplelist>
     <member>
-     La direttiva di configurazione <link linkend="ini.session.name">session.name</link>
-
+     The <link linkend="ini.session.name">session.name</link> configuration
+     directive
     </member>
    </simplelist>
   </para>
  </refsect1>
 
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

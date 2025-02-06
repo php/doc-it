@@ -1,54 +1,161 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/bc.xml, last change in rev 1.1 -->
-<!-- last change to 'bcpow' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.24/EN.1.2 -->
-  <refentry xml:id="function.bcpow" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>bcpow</refname>
-    <refpurpose>
-     Effettua l'elevamento a potenza
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>bcpow</methodname>
-      <methodparam><type>string</type><parameter>x</parameter></methodparam>
-      <methodparam><type>string</type><parameter>y</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>precisione</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Eleva <parameter>x</parameter> alla potenza
-     <parameter>y</parameter>.  Il parametro opzionale
-     <parameter>precisione</parameter> può essere usato per impostare il numero di cifre
-     dopo il punto decimale nel risultato.
-    </para>
-   </refsect1>
-   <refsect1>
-    &reftitle.examples;
-    <example>
-     <title><function>bcpow</function> example</title>
-     <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.bcpow" xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude">
+ <refnamediv>
+  <refname>bcpow</refname>
+  <refpurpose>Raise an arbitrary precision number to another</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>bcpow</methodname>
+   <methodparam><type>string</type><parameter>num</parameter></methodparam>
+   <methodparam><type>string</type><parameter>exponent</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>scale</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Raise <parameter>num</parameter> to the power 
+   <parameter>exponent</parameter>. 
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>num</parameter></term>
+     <listitem>
+      <para>
+       The base, as a string.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>exponent</parameter></term>
+     <listitem>
+      <para>
+       The exponent, as a string. Must be a value with no fractional part.
+       The valid range of the exponent is platform specific, but is at least
+       <literal>-2147483648</literal> to <literal>2147483647</literal>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <xi:include xpointer="function.bcadd..parameters.scale" />
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Returns the result as a string.
+  </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <para>
+   This function throws a <exceptionname>ValueError</exceptionname> in the following cases:
+   <simplelist>
+    <member><parameter>num</parameter> or <parameter>exponent</parameter> is not a well-formed BCMath numeric string</member>
+    <member><parameter>exponent</parameter> has a fractional part</member>
+    <member><parameter>exponent</parameter> or <parameter>scale</parameter> is outside the valid range</member>
+   </simplelist>
+  </para>
+  <simpara>
+   This function throws a <exceptionname>DivisionByZeroError</exceptionname> exception if <parameter>num</parameter>
+   is <literal>0</literal> and <parameter>exponent</parameter> is a negative value.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="changelog"><!-- {{{ -->
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.4.0</entry>
+      <entry>
+       Negative powers of <literal>0</literal> previously returned <literal>0</literal>, but now throw a <exceptionname>DivisionByZeroError</exceptionname>
+       exception.
+      </entry>
+     </row>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       When <parameter>exponent</parameter> has a fractional part, it now throws a <exceptionname>ValueError</exceptionname>
+       instead of truncating.
+      </entry>
+     </row>
+     <row>
+      <entry>7.3.0</entry>
+      <entry>
+       <function>bcpow</function> now returns numbers with the requested scale.
+       Formerly, the returned numbers may have omitted trailing decimal zeroes.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1><!-- }}} -->
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <example>
+   <title><function>bcpow</function> example</title>
+   <programlisting role="php">
 <![CDATA[
 <?php
 
-echo bcpow(4.2, 3, 2); // 74.08
+echo bcpow('4.2', '3', 2); // 74.08
 
+?>
+]]>
+   </programlisting>
+  </example>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    Before PHP 7.3.0 <function>bcpow</function> may return a result with fewer digits after the
+    decimal point than the <parameter>scale</parameter> parameter would
+    indicate. This only occurs when the result doesn't require all of the
+    precision allowed by the <parameter>scale</parameter>. For example:
+    <example>
+     <title><function>bcpow</function> scale example</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+echo bcpow('5', '2', 2);     // prints "25", not "25.00"
 ?>
 ]]>
      </programlisting>
     </example>
-   </refsect1>
-   <refsect1>
-    &reftitle.seealso;
-    <para>
-     <function>bcpowmod</function>&listendand;
-     <function>bcsqrt</function>.
-    </para>
-   </refsect1>
-  </refentry>
-
+   </para>
+  </note>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>bcpowmod</function></member>
+    <member><function>bcsqrt</function></member>
+   <member><methodname>BcMath\Number::pow</methodname></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

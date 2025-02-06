@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: f7800a7c1d2940cd986e86b76a46f6718a277853 Maintainer: pastore Status: ready -->
-<!-- CREDITS: darvina -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
 <refentry xml:id="function.empty" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>empty</refname>
-  <refpurpose>Determina se una variabile è valorizzata</refpurpose>
+  <refpurpose>Determine whether a variable is empty</refpurpose>
  </refnamediv>
  <refsect1 role="description">
   &reftitle.description;
@@ -13,7 +12,7 @@
    <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Determina se una variabile è da considerare vuota. Una variabile è considerata vuota se non esiste oppure se il suo valore è uguale a &false;. <function>empty</function> non genera un avviso se la variabile non esiste.
+   Determine whether a variable is considered to be empty. A variable is considered empty if it does not exist or if its value equals &false;. <function>empty</function> does not generate a warning if the variable does not exist.
   </para>
  </refsect1>
  <refsect1 role="parameters">
@@ -24,20 +23,13 @@
      <term><parameter>var</parameter></term>
      <listitem>
       <para>
-       Variabile da controllare
+       Variable to be checked
       </para>
-      <note>
-       <para>
-        Prima di PHP 5.5, <function>empty</function> supporta solo variabili;
-        qualsiasi altra cosa si traduce in un errore di analisi. In altre parole, il
-        seguente comando non funziona: <command>empty(trim($name))</command>.
-        Invece, utilizzare <command>trim($name) == false</command>.
-       </para>
-      </note>
       <para>
-       Se la variabile non esiste, nessun avviso verrà generato.
-       Questo significa che <function>empty</function> è essenzialmente l'equivalente
-       conciso di <command>!isset($var) || $var == false</command>.
+       No warning is generated if the variable does not exist.
+       That means <function>empty</function> is essentially the
+       concise equivalent to <command>!isset($var) || $var == false</command>.
+       This also applies to nested structures, such as a multidimensional array or chained properties.
       </para>
      </listitem>
     </varlistentry>
@@ -47,54 +39,9 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce &false; se <parameter>var</parameter> esiste e ha un valore non vuoto e diverso da zero.
-   Altrimenti restituisce &true;.
-  </para>
-  <para>
-   I seguenti valori sono considerati vuoti:
-   <simplelist>
-    <member><literal>""</literal> (una stringa vuota)</member>
-    <member><literal>0</literal> (0 come intero)</member>
-    <member><literal>0.0</literal> (0 come numero decimale)</member>
-    <member><literal>"0"</literal> (0 come stringa)</member>
-    <member>&null;</member>
-    <member>&false;</member>
-    <member><literal>array()</literal> (un array vuoto)</member>
-   </simplelist>
-  </para>
- </refsect1>
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>5.5.0</entry>
-       <entry>
-        <para>
-         <function>empty</function> ora supporta le espressioni, piuttosto che solo
-         variabili.
-        </para>
-       </entry>
-      </row>
-      <row>
-       <entry>5.4.0</entry>
-       <entry>
-        <para>
-         Il controllo su offset non numerici di stringhe restituisce &true;.
-        </para>
-       </entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </informaltable>
+   Returns &true; if <parameter>var</parameter> does not exist or has a value that is empty or equal to zero,
+   aka falsey, see <link linkend="language.types.boolean.casting">conversion to boolean</link>.
+   Otherwise returns &false;.
   </para>
  </refsect1>
  <refsect1 role="examples">
@@ -102,20 +49,20 @@
   <para>
    <example>
     <title>
-     Semplici confronti 
-     <function>empty</function> / <function>isset</function>.
+     A simple <function>empty</function> / <function>isset</function>
+     comparison.
     </title>  
     <programlisting role="php">
 <![CDATA[
 <?php
 $var = 0;
 
-// Valutata come true perché $var è vuota
+// Evaluates to true because $var is empty
 if (empty($var)) {
     echo '$var is either 0, empty, or not set at all';
 }
 
-// Valutata come vera perché $var è impostata
+// Evaluates as true because $var is set
 if (isset($var)) {
     echo '$var is set even though it is empty';
 }
@@ -126,10 +73,6 @@ if (isset($var)) {
   </para>
   <example>
    <title><function>empty</function> on String Offsets</title>
-   <para>
-    PHP 5.4 cambia il comportamento di <function>empty</function>
-    quando vengono passati offset di stringhe.
-   </para>
    <programlisting role="php">
 <![CDATA[
 <?php
@@ -137,32 +80,51 @@ $expected_array_got_string = 'somestring';
 var_dump(empty($expected_array_got_string['some_key']));
 var_dump(empty($expected_array_got_string[0]));
 var_dump(empty($expected_array_got_string['0']));
-var_dump(empty($expected_array_got_string[0.5]));
 var_dump(empty($expected_array_got_string['0.5']));
 var_dump(empty($expected_array_got_string['0 Mostel']));
 ?>
 ]]>
    </programlisting>
-   &example.outputs.53;
+   &example.outputs;
    <screen>
 <![CDATA[
+bool(true)
 bool(false)
 bool(false)
-bool(false)
-bool(false)
-bool(false)
-bool(false)
+bool(true)
+bool(true)
 ]]>
    </screen>
-   &example.outputs.54;
+  </example>
+  <example>
+   <title><function>empty</function> on multidimensional arrays</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$multidimensional = [
+    'some' => [
+        'deep' => [
+            'nested' => 'value'
+        ]
+    ]
+];
+
+if (!empty($multidimensional['some']['some']['nested'])) {
+    $someVariable = $multidimensional['some']['deep']['nested'];
+}
+
+var_dump(empty($multidimensional['some-undefined-key']));
+var_dump(empty($multidimensional['some']['deep']['unknown']));
+var_dump(empty($multidimensional['some']['deep']['nested']));
+?>
+]]>
+   </programlisting>
+   &example.outputs;
    <screen>
 <![CDATA[
 bool(true)
-bool(false)
-bool(false)
-bool(false)
 bool(true)
-bool(true)
+bool(false)
 ]]>
    </screen>
   </example>
@@ -172,9 +134,9 @@ bool(true)
   &note.language-construct;
   <note>
    <para>
-    Quando viene utilizzata <function>empty</function> su proprietà di oggetti inaccessibili,
-    il metodo di overloading <link linkend="object.isset">__isset()</link>
-    sarà chiamato, se dichiarato.
+    When using <function>empty</function> on inaccessible object properties,
+    the <link linkend="object.isset">__isset()</link>
+    overloading method will be called, if declared.
    </para>
   </note>
  </refsect1>
@@ -188,7 +150,7 @@ bool(true)
     <member><function>array_key_exists</function></member>
     <member><function>count</function></member> 
     <member><function>strlen</function></member>
-    <member><link linkend="types.comparisons">la tabella di comparazione dei tipi</link></member>
+    <member><link linkend="types.comparisons">The type comparison tables</link></member>
    </simplelist>
   </para>
  </refsect1>

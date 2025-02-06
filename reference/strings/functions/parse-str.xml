@@ -1,74 +1,177 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.parse-str" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>parse_str</refname>
-    <refpurpose>Suddivide una stringa in variabili</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>void</type><methodname>parse_str</methodname>
-      <methodparam><type>string</type><parameter>str</parameter></methodparam>
-      <methodparam choice="opt"><type>array</type><parameter>arr</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Suddivide la stringa <parameter>str</parameter> come se fosse una stringa di query
-     passata via URL ed imposta le variabili con visibilità locale. Se si indica
-     il secondo parametro <parameter>arr</parameter>, 
-     la variabili sono memorizzate come elementi della matrice <parameter>arr</parameter>.
-    </para>
-    <note>
-     <para>
-      Il supporto per il secondo parametro, opzionale, è stato aggiunto in PHP 4.0.3.
-     </para>
-    </note>
-    <note>
-     <para>
-      Per avere la <emphasis>QUERY_STRING</emphasis> corrente occorre utilizzare la variabile
-      <link linkend="reserved.variables.server">$_SERVER['QUERY_STRING']</link>.
-      Inoltre è opportuno leggere la sezione sulle 
-      <link linkend="language.variables.external">variabili esterne al PHP</link>.
-     </para>
-    </note>
-    <note>
-     <para>
-      L'impostazione <link linkend="ini.magic-quotes-gpc">magic_quotes_gpc</link>
-      influisce sull'output di questa funzione, poiché <function>parse_str</function> utilizza
-      lo stesso meccanismo che usa il PHP per compilare le variabili
-      <literal>$_GET</literal>, <literal>$_POST</literal>, ecc.
-     </para>
-    </note>
-    <para>
-     <example>
-      <title>Esempio di uso di  <function>parse_str</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.parse-str" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>parse_str</refname>
+  <refpurpose>Parses the string into variables</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>void</type><methodname>parse_str</methodname>
+   <methodparam><type>string</type><parameter>string</parameter></methodparam>
+   <methodparam><type>array</type><parameter role="reference">result</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Parses <parameter>string</parameter> as if it were the query string
+   passed via a URL and sets variables in the current scope (or in the array
+   if <parameter>result</parameter> is provided).
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>string</parameter></term>
+     <listitem>
+      <para>
+       The input string.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>result</parameter></term>
+     <listitem>
+      <para>
+       If the second parameter <parameter>result</parameter> is present,
+       variables are stored in this variable as array elements instead.
+      </para>
+
+      <warning>
+       <para>
+        Using this function without the <parameter>result</parameter> parameter is highly
+        <emphasis>DISCOURAGED</emphasis> and <emphasis>DEPRECATED</emphasis> as of PHP 7.2.
+        As of PHP 8.0.0, the <parameter>result</parameter> parameter is <emphasis>mandatory</emphasis>.
+       </para>
+      </warning>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.void;
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>result</parameter> is no longer optional.
+      </entry>
+     </row>
+      <row>
+       <entry>7.2.0</entry>
+       <entry>
+        Usage of <function>parse_str</function> without a second parameter
+        now emits an <constant>E_DEPRECATED</constant> notice.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Using <function>parse_str</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 $str = "first=value&arr[]=foo+bar&arr[]=baz";
-parse_str($str);
-echo $first;  // value
-echo $arr[0]; // foo bar
-echo $arr[1]; // baz
 
+// Recommended
 parse_str($str, $output);
 echo $output['first'];  // value
 echo $output['arr'][0]; // foo bar
 echo $output['arr'][1]; // baz
 
+// DISCOURAGED
+parse_str($str);
+echo $first;  // value
+echo $arr[0]; // foo bar
+echo $arr[1]; // baz
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Vedere anche <function>parse_url</function>, <function>pathinfo</function>,
-     <function>get_magic_quotes_gpc</function> e <function>urldecode</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   Because variables in PHP can't have dots and spaces in their names,
+   those are converted to underscores. Same applies to naming of
+   respective key names in case of using this function with
+   <parameter>result</parameter> parameter.   
+   <example>
+    <title><function>parse_str</function> name mangling</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+parse_str("My Value=Something");
+echo $My_Value; // Something
 
+parse_str("My Value=Something", $output);
+echo $output['My_Value']; // Something
+?>
+]]>
+    </programlisting>
+   </example>
+  </para> 
+ </refsect1>
+ 
+ <refsect1 role="notes">
+  &reftitle.notes;
+
+  <note>
+   <para>
+    All variables created (or values returned into array if second parameter is set)
+    are already <function>urldecode</function>d.
+   </para>
+  </note>
+  <note>
+   <para>
+    To get the current <literal>QUERY_STRING</literal>, you may use the variable
+    <varname>$_SERVER['QUERY_STRING']</varname>.
+    Also, you may want to read the section on
+    <link linkend="language.variables.external">variables from external
+    sources</link>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>parse_url</function></member>
+    <member><function>pathinfo</function></member>
+    <member><function>http_build_query</function></member>
+    <member><function>urldecode</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,70 +1,127 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/network.xml, last change in rev 1.10 -->
-<!-- last change to 'ip2long' in en/ tree in rev 1.18 -->
-<!-- EN-Revision: n/a Maintainer: cortesi Status: ready -->
-<!-- OLD-Revision: 1.60/EN.1.18 -->
-  <refentry xml:id="function.ip2long" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>ip2long</refname>
-    <refpurpose>
-      Converts a string containing an (IPv4) Internet Protocol dotted address
-      into a proper address.
-      Converte una stringa contenente un indirizzo di rete del Protocollo Internet (IPv4)
-      in un indirizzo espresso come tipo di dato int.
-    </refpurpose> 
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>ip2long</methodname>
-      <methodparam><type>string</type><parameter>indirizzo_ip</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     La funzione <function>ip2long</function> genera un indirizzo di rete Internet IPv4
-     a partire dalla rappresentazione in formato standard 
-     (stringa separata da punti).
-     <example>
-      <title>Esempio di <function>ip2long</function></title>
-      <programlisting role="php">
-<![CDATA[
-<?php
-$ip = gethostbyname("www.php.net");
-$out = "I seguenti URL sono equivalenti:<br>\n";
-$out .= "http://www.php.net/, http://".$ip."/, e http://".sprintf("%u",ip2long($ip))."/<br>\n";
-echo $out;
-?>
-]]>
-      </programlisting>
-     </example>
-     <note>
-      <para>
-       Poiché il tipo di dato integer in PHP è signed e molti indirizzi IP risulterebbero essere 
-       interi negativi, è necessario usare il formattatore "%u" della funzione
-       <function>sprintf</function> e <function>printf</function> per ottenere
-       la rappresentazione in stringa dell'indirizzo IP in modo nsigned.
-      </para>
-     </note>
-     Questo secondo esempio mostra come stampare un indirizzo convertito, usando la
-     funzione <function>printf</function>:
-     <example>
-      <title>Visualizzazione di un indirizzo IP</title>
-      <programlisting role="php">
-<![CDATA[
-<?php
-$ip = gethostbyname("www.php.net");
-printf("%u\n", ip2long($ip));
-echo $out;
-?>
-]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Vedere anche: <function>long2ip</function>
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="function.ip2long">
+ <refnamediv>
+  <refname>ip2long</refname>
+  <refpurpose>Converts a string containing an (IPv4) Internet Protocol dotted address into a long integer</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>int</type><type>false</type></type><methodname>ip2long</methodname>
+   <methodparam><type>string</type><parameter>ip</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   The function <function>ip2long</function> generates a long integer
+   representation of IPv4 Internet network address from its Internet
+   standard format (dotted string) representation. 
+  </para>
+  <para>
+   <function>ip2long</function> will also work with non-complete IP
+   addresses. Read <link xlink:href="&url.ip2long.tech;">&url.ip2long.tech;</link>
+   for more info.
+  </para>
+ </refsect1>
 
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>ip</parameter></term>
+     <listitem>
+      <para>
+       A standard format address.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Returns the long integer or &false; if <parameter>ip</parameter>
+   is invalid.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>ip2long</function> Example</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$ip = gethostbyname('www.example.com');
+$out = "The following URLs are equivalent:<br />\n";
+$out .= 'http://www.example.com/, http://' . $ip . '/, and http://' . sprintf("%u", ip2long($ip)) . "/<br />\n";
+echo $out;
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Displaying an IP address</title>
+    <para>
+     This second example shows how to print a converted address with the
+     <function>printf</function> function:
+    </para>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$ip   = gethostbyname('www.example.com');
+$long = ip2long($ip);
+
+if ($long == -1 || $long === FALSE) {
+    echo 'Invalid IP, please try again';
+} else {
+    echo $ip   . "\n";            // 192.0.34.166
+    echo $long . "\n";            // 3221234342 (-1073732954 on 32-bit systems, due to integer overflow)
+    printf("%u\n", ip2long($ip)); // 3221234342
+}
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    Because PHP's <type>int</type> type is signed, and many IP addresses
+    will result in negative integers on 32-bit architectures, you need to use
+    the "%u" formatter of <function>sprintf</function> or
+    <function>printf</function> to get the string representation of the
+    unsigned IP address.
+   </para>
+  </note>
+  <note>
+   <para>
+    <function>ip2long</function> will return <literal>-1</literal> for the IP
+    <literal>255.255.255.255</literal> on 32-bit systems due to the integer value overflowing.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>long2ip</function></member>
+    <member><function>sprintf</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

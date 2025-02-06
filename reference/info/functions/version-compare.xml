@@ -1,81 +1,168 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/info.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.version-compare" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>version_compare</refname>
-    <refpurpose>
-     Confronta due stringhe contenenti il numero di versione di "PHP-standardized" 
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>version_compare</methodname>
-      <methodparam><type>string</type><parameter>version1</parameter></methodparam>
-      <methodparam><type>string</type><parameter>version2</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>
-        operator
-       </parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>version_compare</function> confronta due numeri di versione
-     "PHP-standardized" . Questa funzione è utile quando si desideri
-     che funzioni solo con alcune versioni di PHP.
-    </para>
-    <para>
-     La funzione <function>version_compare</function> restituisce -1 se la prima verisone
-     è minore della seconda, 0 se sono uguali, +1 se la sceonda è
-     inferiore.
-    </para>
-    <para>
-     Per prima cosa la funzione sostituisce nella strina di versione le lettere 
-     <literal>_</literal>, <literal>-</literal>
-     e <literal>+</literal> con un puntot <literal>.</literal> ed inserisce un punto <literal>.</literal> prima e dopo ogni carattere
-     non numerico, in modo che, ad esempio, '4.3.2RC1' diventi ''4.3.2.RC.1'. Quindi
-     divite il testo come se usasse explode('.', $ver). Poi confronta le parti cominciando da sinistra verso destra
-     Se una parte contiene versioni speciali queste sono gestite nel seguente modo:
-     <literal>dev</literal> &lt; <literal>alpha</literal> = 
-     <literal>a</literal> &lt; <literal>beta</literal> = 
-     <literal>b</literal> &lt; <literal>RC</literal> &lt; 
-     <literal>pl</literal>. In quest modo possono essere confrontati non solo
-     differenti livelli di versioni quali '4.1' e '4.1.2', ma anche versioni di PHP 
-     in fase di sviluppo.
-    </para>
-    <para>
-     Specificando il terzo parametro opzionale <parameter>operator</parameter>
-     si possono testare particolari relazioni. I possibili operatori sono:
-     <literal>&lt;</literal>,
-     <literal>lt</literal>, <literal>&lt;=</literal>,
-     <literal>le</literal>, <literal>&gt;</literal>,
-     <literal>gt</literal>, <literal>&gt;=</literal>,
-     <literal>ge</literal>, <literal>==</literal>,
-     <literal>=</literal>, <literal>eq</literal>,
-     <literal>!=</literal>, <literal>&lt;&gt;</literal>,
-     <literal>ne</literal>. Utilizzando questi parametri, la funzione restituirà
-     1 se la relazione è una di quelle specificate dall'operatore, 
-     altrimenti 0.
-    </para>
-    <para>
-     <example>
-      <title>Esempio di uso di <function>version_compare</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.version-compare" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>version_compare</refname>
+  <refpurpose>Compares two "PHP-standardized" version number strings</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>int</type><type>bool</type></type><methodname>version_compare</methodname>
+   <methodparam><type>string</type><parameter>version1</parameter></methodparam>
+   <methodparam><type>string</type><parameter>version2</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>operator</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>version_compare</function> compares two "PHP-standardized"
+   version number strings.
+  </para>
+  <para>
+   The function first replaces <literal>_</literal>, <literal>-</literal> and
+   <literal>+</literal> with a dot <literal>.</literal> in the version
+   strings and also inserts dots <literal>.</literal> before and after any
+   non number so that for example '4.3.2RC1' becomes '4.3.2.RC.1'. Then it
+   compares the parts starting from left to right. If a part contains
+   special version strings these are handled in the following order:
+   <literal>any string not found in this list</literal> &lt; 
+   <literal>dev</literal> &lt; <literal>alpha</literal> =
+   <literal>a</literal> &lt; <literal>beta</literal> =
+   <literal>b</literal> &lt; <literal>RC</literal> =  
+   <literal>rc</literal> &lt; <literal>#</literal> &lt;
+   <literal>pl</literal> = <literal>p</literal>. This way not only versions
+   with different levels like '4.1' and '4.1.2' can be compared but also any
+   PHP specific version containing development state.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>version1</parameter></term>
+     <listitem>
+      <para>
+       First version number.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>version2</parameter></term>
+     <listitem>
+      <para>
+       Second version number.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>operator</parameter></term>
+     <listitem>
+      <para>
+       An optional operator. The possible operators
+       are: <literal>&lt;</literal>, <literal>lt</literal>,
+       <literal>&lt;=</literal>, <literal>le</literal>, <literal>&gt;</literal>,
+       <literal>gt</literal>, <literal>&gt;=</literal>, <literal>ge</literal>,
+       <literal>==</literal>, <literal>=</literal>, <literal>eq</literal>,
+       <literal>!=</literal>, <literal>&lt;&gt;</literal>, <literal>ne</literal>
+       respectively.
+      </para>
+      <para>
+       This parameter is case-sensitive, values should be lowercase.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   By default, <function>version_compare</function> returns
+   <literal>-1</literal> if the first version is lower than the second,
+   <literal>0</literal> if they are equal, and
+   <literal>1</literal> if the second is lower.
+  </para>
+  <para>
+   When using the optional <parameter>operator</parameter> argument, the
+   function will return &true; if the relationship is the one specified
+   by the operator, &false; otherwise.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   The examples below use the <constant>PHP_VERSION</constant> constant,
+   because it contains the value of the PHP version that is executing
+   the code.
+  </para>
+  <para>
+   <example>
+    <title><function>version_compare</function> examples</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-// prints -1
-echo version_compare("4.0.4", "4.0.6");
+if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
+    echo 'I am at least PHP version 7.0.0, my version: ' . PHP_VERSION . "\n";
+}
 
-// queste stampano 1
-echo version_compare("4.0.4", "4.0.6", "<");
-echo version_compare("4.0.6", "4.0.6", "eq");
+if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
+    echo 'I am at least PHP version 5.3.0, my version: ' . PHP_VERSION . "\n";
+}
+
+if (version_compare(PHP_VERSION, '5.0.0', '>=')) {
+    echo 'I am at least PHP version 5.0.0, my version: ' . PHP_VERSION . "\n";
+}
+
+if (version_compare(PHP_VERSION, '5.0.0', '<')) {
+    echo 'I am still PHP 4, my version: ' . PHP_VERSION . "\n";
+}
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    The <constant>PHP_VERSION</constant> constant holds current PHP version.
+   </para>
+  </note>
+  <note>
+   <para>
+    Note that pre-release versions, such as 5.3.0-dev, are considered
+    lower than their final release counterparts (like 5.3.0).
+   </para>
+  </note>
+  <note>
+   <para>
+    Special version strings such as <literal>alpha</literal> and
+    <literal>beta</literal> are case sensitive. Version strings from arbitrary
+    sources that do not adhere to the PHP standard may need to be lowercased
+    via <function>strtolower</function> before calling
+    <function>version_compare</function>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>phpversion</function></member>
+    <member><function>php_uname</function></member>
+    <member><function>function_exists</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

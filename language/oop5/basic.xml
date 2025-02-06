@@ -1,43 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 512670405c88acf7f0c9124f98c249e530ecd3cb Maintainer: pastore Status: ready -->
-<!-- Reviewed: yes Maintainer: cucinato -->
-<!-- CREDITS: montefoschi,cucinato -->
+<!-- $Revision$ -->
+
  <sect1 xml:id="language.oop5.basic" xmlns="http://docbook.org/ns/docbook">
-  <title>Nozioni di base</title>
+  <title>The Basics</title>
 
   <sect2 xml:id="language.oop5.basic.class">
    <title>class</title>
    <para>
-    La definizione più semplice di una classe è composta
-    dal termine <literal>class</literal>, seguito dal nome della classe,
-    seguito da una coppia di parentesi graffe che racchiudono le definizioni
-    delle proprietà e dei metodi che fanno parte della classe stessa.
+    Basic class definitions begin with the
+    keyword <literal>class</literal>, followed by a class name,
+    followed by a pair of curly braces which enclose the definitions
+    of the properties and methods belonging to the class.
    </para>
    <para>
-    Il nome della classe può essere una qualunque etichetta valida che non 
-    sia una <link linkend="reserved">parola riservata</link> di PHP. 
-    Un nome di classe valido inizia con una lettera o un underscore, seguiti da 
-    lettere, numeri, o underscores. Questa regola può essere rappresentata 
-    dalla seguente espressione regolare:
-    <literal>^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$</literal>.
+    The class name can be any valid label, provided it is not a
+    PHP <link linkend="reserved">reserved word</link>.
+    As of PHP 8.4.0, using a single underscore <literal>_</literal> as a
+    class name is deprecated.
+    A valid class name starts with a letter or underscore,
+    followed by any number of letters, numbers, or underscores.
+    As a regular expression, it would be expressed thus:
+    <code>^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$</code>.
    </para>
    <para>
-    Una classe può contenere le proprie 
-    <link linkend="language.oop5.constants">costanti</link>, <link linkend="language.oop5.properties">variabili</link>
-    (chiamate "proprietà"), e funzioni (chiamate "methods").
+    A class may contain its
+    own <link linkend="language.oop5.constants">constants</link>, <link linkend="language.oop5.properties">variables</link>
+    (called "properties"), and functions (called "methods").
    </para>
    <example>
-    <title>Semplice definizione di una classe</title>
+    <title>Simple Class definition</title>
     <programlisting role="php">
 <![CDATA[
 <?php
 class SimpleClass
 {
-    // dichiarazione di proprietà
-    public $var = 'un valore di default';
+    // property declaration
+    public $var = 'a default value';
 
-    // dichiarazione di metodi
-    public function mostraVar() {
+    // method declaration
+    public function displayVar() {
         echo $this->var;
     }
 }
@@ -46,19 +47,19 @@ class SimpleClass
     </programlisting>
    </example>
    <para>
-    La pseudo-variabile <varname>$this</varname> è disponibile quando un 
-    metodo è invocato dall'interno del contesto di un oggetto. 
-    <varname>$this</varname> è il valore dell'oggetto chiamante.
+    The pseudo-variable <varname>$this</varname> is available when a
+    method is called from within an object context.
+    <varname>$this</varname> is the value of the calling object.
    </para>
    <warning>
     <para>
-     La chiamata in modo statico di un metodo non statico genera un
+     Calling a non-static method statically throws an
      <classname>Error</classname>.
-     Prima di PHP 8.0.0, questo generava un avviso di deprecazione
-     e <varname>$this</varname> non sarebbe stato definito.
+     Prior to PHP 8.0.0, this would generate a deprecation notice,
+     and <varname>$this</varname> would be undefined.
     </para>
     <example xml:id="language.oop5.basic.class.this">
-     <title>Esempi della pseudo-variabile <varname>$this</varname></title>
+     <title>Some examples of the <varname>$this</varname> pseudo-variable</title>
      <programlisting role="php">
 <![CDATA[
 <?php
@@ -67,11 +68,11 @@ class A
     function foo()
     {
         if (isset($this)) {
-            echo '$this è definito (';
+            echo '$this is defined (';
             echo get_class($this);
             echo ")\n";
         } else {
-            echo "\$this non è definito.\n";
+            echo "\$this is not defined.\n";
         }
     }
 }
@@ -99,24 +100,24 @@ B::bar();
      &example.outputs.7;
      <screen>
 <![CDATA[
-$this è definito (A)
+$this is defined (A)
 
 Deprecated: Non-static method A::foo() should not be called statically in %s  on line 27
-$this non è definito.
+$this is not defined.
 
 Deprecated: Non-static method A::foo() should not be called statically in %s  on line 20
-$this non è definito.
+$this is not defined.
 
 Deprecated: Non-static method B::bar() should not be called statically in %s  on line 32
 
 Deprecated: Non-static method A::foo() should not be called statically in %s  on line 20
-$this non è definito.
+$this is not defined.
 ]]>
      </screen>
      &example.outputs.8;
      <screen>
 <![CDATA[
-$this è definito (A)
+$this is defined (A)
 
 Fatal error: Uncaught Error: Non-static method A::foo() cannot be called statically in %s :27
 Stack trace:
@@ -128,17 +129,17 @@ Stack trace:
    </warning>
 
    <sect3 xml:id="language.oop5.basic.class.readonly">
-    <title>Classi readonly</title>
+    <title>Readonly classes</title>
     <para>
-     A partire da PHP 8.2.0, una classe può essere marcata con il
-     modificatore <modifier>readonly</modifier>.
-     Marcando una classe come <modifier>readonly</modifier> si aggiungerà il
-     <link linkend="language.oop5.properties.readonly-properties">modificatore <modifier>readonly</modifier></link>
-     ad ogni proprietà dichiarata, e preverrà la creazione di
-     <link linkend="language.oop5.properties.dynamic-properties">proprietà dinamiche</link>.
-     Inoltre, è impossibile aggiungere il loro supporto utilizzando
-     l'attributo <classname>AllowDynamicProperties</classname>. Provando ad utilizzarlo
-     si innescherà un errore in fase di compilazione.
+     As of PHP 8.2.0, a class can be marked with the
+     <modifier>readonly</modifier> modifier.
+     Marking a class as <modifier>readonly</modifier> will add the
+     <link linkend="language.oop5.properties.readonly-properties"><modifier>readonly</modifier> modifier</link>
+     to every declared property, and prevent the creation of
+     <link linkend="language.oop5.properties.dynamic-properties">dynamic properties</link>.
+     Moreover, it is impossible to add support for them by using the
+     <classname>AllowDynamicProperties</classname> attribute. Attempting to do so
+     will trigger a compile-time error.
     </para>
     <informalexample>
      <programlisting role="php">
@@ -155,9 +156,9 @@ readonly class Foo {
     </informalexample>
 
     <para>
-     Poiché né le proprietà non tipizzate né quelle statiche possono essere contrassegnate con il
-     modificatore <literal>readonly</literal>, le classi readonly non possono dichiarare
-     nemmeno loro:
+     As neither untyped nor static properties can be marked with the
+     <literal>readonly</literal> modifier, readonly classes cannot declare
+     them either:
     </para>
     <informalexample>
      <programlisting role="php">
@@ -186,10 +187,10 @@ readonly class Foo
      </programlisting>
     </informalexample>
     <para>
-     Una classe <modifier>readonly</modifier> può essere
-     <link linkend="language.oop5.basic.extends">estesa</link>
-     se, e solo se, la classe figlia è anche una
-     classe <modifier>readonly</modifier>.
+     A <modifier>readonly</modifier> class can be
+     <link linkend="language.oop5.basic.extends">extended</link>
+     if, and only if, the child class is also a
+     <modifier>readonly</modifier> class.
     </para>
    </sect3>
   </sect2>
@@ -197,35 +198,35 @@ readonly class Foo
   <sect2 xml:id="language.oop5.basic.new">
    <title>new</title>
    <para>
-    Per creare un'istanza di una classe, deve essere usata la parola chiave <literal>new</literal>.
-    Un oggetto sarà sempre creato a meno che la classe abbia un 
-    <link linkend="language.oop5.decon">costruttore</link> definito il quale sollevi un'
-    <link linkend="language.exceptions">eccezione</link> in caso di errore. Le classi 
-    dovrebbero essere definite prima dell'istanziazione (in alcuni casi questo è un 
-    requisito).
+    To create an instance of a class, the <literal>new</literal> keyword must
+    be used.  An object will always be created unless the object has a
+    <link linkend="language.oop5.decon">constructor</link> defined that throws an
+    <link linkend="language.exceptions">exception</link> on error. Classes
+    should be defined before instantiation (and in some cases this is a
+    requirement).
    </para>
    <para>
-    Se viene usata una <type>stringa</type> contenente il nome di una classe con
-    <literal>new</literal>, verrà creata una nuova istanza di quella classe. Se
-    la classe appartiene ad un namespace, deve essere utilizzato il suo nome completamente 
-    qualificato.
+    If a variable containing a <type>string</type> with the name of a class is used with
+    <literal>new</literal>, a new instance of that class will be created. If
+    the class is in a namespace, its fully qualified name must be used when
+    doing this.
    </para>
 
    <note>
     <para>
-     Se non ci sono argomenti da passare al costruttore della classe,
-     le parentesi dopo il nome della classe possono essere omesse.
+     If there are no arguments to be passed to the class's constructor,
+     parentheses after the class name may be omitted.
     </para>
    </note>
 
    <example>
-    <title>Creazione di un'istanza</title>
+    <title>Creating an instance</title>
     <programlisting role="php">
 <![CDATA[
 <?php
 $instance = new SimpleClass();
 
-// è anche possibile istanziare una classe il cui nome sia contenuto in una variabile:
+// This can also be done with a variable:
 $className = 'SimpleClass';
 $instance = new $className(); // new SimpleClass()
 ?>
@@ -233,15 +234,15 @@ $instance = new $className(); // new SimpleClass()
     </programlisting>
    </example>
    <para>
-    Da PHP 8.0.0, l'utilizzo di <literal>new</literal> con espressioni arbitrarie
-    è supportato. Ciò consente istanziazioni più complesse se l'espressione
-    produce una <type>stringa</type>. Le espressioni devono essere racchiuse tra parentesi.
+    As of PHP 8.0.0, using <literal>new</literal> with arbitrary expressions
+    is supported. This allows more complex instantiation if the expression
+    produces a <type>string</type>. The expressions must be wrapped in parentheses.
    </para>
    <example>
-    <title>Creazione di un'istanza utilizzando un'espressione arbitraria</title>
+    <title>Creating an instance using an arbitrary expression</title>
     <para>
-     Nell'esempio fornito mostriamo più esempi di espressioni arbitrarie valide che producono un nome di classe.
-     Questo mostra una chiamata a una funzione, la concatenazione di stringhe e la costante <constant>::class</constant>.
+     In the given example we show multiple examples of valid arbitrary expressions that produce a class name.
+     This shows a call to a function, string concatenation, and the <constant>::class</constant> constant.
     </para>
     <programlisting role="php">
      <![CDATA[
@@ -280,18 +281,18 @@ object(ClassD)#1 (0) {
     </screen>
    </example>
    <para>
-    Nel contesto di una classe, è possibile creare un nuovo oggetto con le espressioni
-    <literal>new self</literal> e <literal>new parent</literal>.
+    In the class context, it is possible to create a new object by
+    <literal>new self</literal> and <literal>new parent</literal>.
    </para>
    <para>
-    Quando si assegna un'istanza già creata ad una nuova variabile, la nuova variabile
-    farà riferimento alla stessa istanza cui fa riferimento la variabile originale. Questo stesso
-    comportamento si ha quando vengono passate istanze ad una funzione. Si può ottenere una copia
-    di un oggetto già creato per mezzo della 
-    <link linkend="language.oop5.cloning">clonazione</link>.
+    When assigning an already created instance of a class to a new variable, the new variable
+    will access the same instance as the object that was assigned. This
+    behaviour is the same when passing instances to a function. A copy
+    of an already created object can be made by
+    <link linkend="language.oop5.cloning">cloning</link> it.
    </para>
    <example>
-    <title>Assegnazione di oggetti</title>
+    <title>Object Assignment</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -301,9 +302,9 @@ $instance = new SimpleClass();
 $assigned   =  $instance;
 $reference  =& $instance;
 
-$istance->var = '$assigned avrà questo valore';
+$instance->var = '$assigned will have this value';
 
-$instance = null; // $instance e $reference diventano null
+$instance = null; // $instance and $reference become null
 
 var_dump($instance);
 var_dump($reference);
@@ -318,39 +319,40 @@ NULL
 NULL
 object(SimpleClass)#1 (1) {
    ["var"]=>
-     string(30) "$assigned avrà questo valore"
+     string(30) "$assigned will have this value"
 }
 ]]>
     </screen>
    </example>
    <para>
-    È possibile creare istanze di un oggetto in due modi:
+    It's possible to create instances of an object in a couple of ways:
    </para>
    <example>
-    <title>Creazione di nuovi oggetti</title>
+    <title>Creating new objects</title>
     <programlisting role="php">
 <![CDATA[
 <?php
+
 class Test
 {
-    static public function getNew()
+    public static function getNew()
     {
-        return new static;
+        return new static();
     }
 }
 
-class Child extends Test
-{}
+class Child extends Test {}
 
-$obj1 = new Test();
-$obj2 = new $obj1;
+$obj1 = new Test(); // By the class name
+$obj2 = new $obj1(); // Through the variable containing an object
 var_dump($obj1 !== $obj2);
 
-$obj3 = Test::getNew();
+$obj3 = Test::getNew(); // By the class method
 var_dump($obj3 instanceof Test);
 
-$obj4 = Child::getNew();
+$obj4 = Child::getNew(); // Through a child class method
 var_dump($obj4 instanceof Child);
+
 ?>
 ]]>
     </programlisting>
@@ -365,15 +367,17 @@ bool(true)
    </example>
 
    <para>
-    È possibile accedere ad un membro di un oggetto appena creato
-    in una singola espressione:
+    It is possible to access a member of a newly created object
+    in a single expression:
    </para>
    <example>
-    <title>Accesso al membro dell'oggetto appena creato</title>
+    <title>Access member of newly created object</title>
     <programlisting role="php">
 <![CDATA[
 <?php
 echo (new DateTime())->format('Y');
+// surrounding parentheses are optional as of PHP 8.4.0
+echo new DateTime()->format('Y');
 ?>
 ]]>
     </programlisting>
@@ -387,23 +391,23 @@ echo (new DateTime())->format('Y');
 
    <note>
     <simpara>
-     Prima di PHP 7.1, gli argomenti non vengono valutati se non esiste una funzione
-     costruttore definita.
+     Prior to PHP 7.1, the arguments are not evaluated if there is no constructor
+     function defined.
     </simpara>
    </note>
   </sect2>
-
+  
   <sect2 xml:id="language.oop5.basic.properties-methods">
-   <title>Proprietà e metodi</title>
+   <title>Properties and methods</title>
    <para>
-    Le proprietà e i metodi della classe vivono in "namespace" separati, quindi è
-    possibile avere una proprietà ed un metodo con lo stesso nome. Dato che
-    sia una proprietà che un metodo hanno la stessa notazione, e la scelta se
-    verrà letta la proprietà o se verrà chiamato il metodo, dipende solo dal contesto,
-    per esempio se l'uso è un accesso ad una variabile o una chiamata ad una funzione.
+    Class properties and methods live in separate "namespaces", so it is
+    possible to have a property and a method with the same name. Referring to
+    both a property and a method has the same notation, and whether a property
+    will be accessed or a method will be called, solely depends on the context,
+    i.e. whether the usage is a variable access or a function call.
    </para>
    <example>
-    <title>Accesso alla proprietà vs. chiamata del metodo</title>
+    <title>Property access vs. method call</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -429,14 +433,14 @@ method
     </screen>
    </example>
    <para>
-    Ciò significa che chiamare una <link linkend="functions.anonymous">funzione
-    anonima</link> che è stata assegnata ad una proprietà non è direttamente
-    possibile. Per esempio, la proprietà deve essere assegnata prima ad una
-    variabile. È possibile chiamare questo tipo di proprietà direttamente
-    racchiudendola tra parentesi.
+    That means that calling an <link linkend="functions.anonymous">anonymous
+    function</link> which has been assigned to a property is not directly
+    possible. Instead the property has to be assigned to a variable first, for
+    instance. It is possible to call such a property directly
+    by enclosing it in parentheses.
    </para>
    <example>
-    <title>Chiamare una funzione anonima memorizzata in una proprietà</title>
+    <title>Calling an anonymous function stored in a property</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -464,42 +468,42 @@ echo ($obj->bar)(), PHP_EOL;
     </screen>
    </example>
   </sect2>
-  
+
   <sect2 xml:id="language.oop5.basic.extends">
    <!-- TODO Example about class constant redefinition -->
    <!-- TODO Split into it's own page? -->
    <title>extends</title>
    <para>
-    Una classe può ereditare le costanti, i metodi e le proprietà di un'altra classe 
-    utilizzando la parola chiave <literal>extends</literal> nella dichiarazione
-    della classe. Non è possibile estendere più di una classe per volta; ogni classe può
-    ereditare da una sola altra classe.
+    A class can inherit the constants, methods, and properties of another class by
+    using the keyword <literal>extends</literal> in the class
+    declaration. It is not possible to extend multiple classes; a
+    class can only inherit from one base class.
    </para>
    <para>
-    Le costanti, i metodi e le proprietà ereditate possono essere sovrascritte
-    ridichiarandole nella nuova classe con lo stesso nome definito nella classe
-    padre. Questo non sarà comunque possibile se il metodo o la costante
-    che si intende ridefinire è stato dichiarato nella classe padre come
-    <link linkend="language.oop5.final">final</link>.  Si può accedere alle proprietà
-    statiche e ai metodi ridefiniti riferendosi ad essi 
-    con <link linkend="language.oop5.paamayim-nekudotayim">parent::</link>.
+    The inherited constants, methods, and properties can be overridden by
+    redeclaring them with the same name defined in the parent
+    class. However, if the parent class has defined a method or constant
+    as <link linkend="language.oop5.final">final</link>,
+    they may not be overridden.  It is possible to access the overridden
+    methods or static properties by referencing them
+    with <link linkend="language.oop5.paamayim-nekudotayim">parent::</link>.
    </para>
    <note>
     <simpara>
-     A partire da PHP 8.1.0, le costanti possono essere dichiarate come final.
+     As of PHP 8.1.0, constants may be declared as final.
     </simpara>
    </note>
    <example>
-    <title>Ereditarietà semplice</title>
+    <title>Simple Class Inheritance</title>
     <programlisting role="php">
 <![CDATA[
 <?php
 class ExtendClass extends SimpleClass
 {
-    // Ridefinisce il metodo presente in ClasseSemplice
+    // Redefine the parent method
     function displayVar()
     {
-        echo "Classe figlia\n";
+        echo "Extending class\n";
         parent::displayVar();
     }
 }
@@ -512,29 +516,30 @@ $extended->displayVar();
     &example.outputs;
     <screen>
 <![CDATA[
-Classe figlia
-un valore di default
+Extending class
+a default value
 ]]>
     </screen>
    </example>
 
    <sect3 xml:id="language.oop.lsp">
-    <title>Regole di compatibilità della firma</title>
+    <title>Signature compatibility rules</title>
     <para>
-     Quando si sovrascrive un metodo, la sua firma deve essere compatibile con il metodo
-     padre. Altrimenti, viene emesso un errore fatale o, prima di PHP 8.0.0, viene
-     generato un errore di livello <constant>E_WARNING</constant>.
-     Una firma è compatibile se rispetta le
-     regole di <link linkend="language.oop5.variance">varianza</link>, rende
-     facoltativo un parametro obbligatorio e se i nuovi parametri sono opzionali.
-     Questo è noto come Principio di Sostituzione di Liskov, o LSP in breve.
-     I metodi <link linkend="language.oop5.decon.constructor">costruttore</link>
-     e <literal>privati</literal> sono esenti da queste regole di
-     compatibilità della firma e quindi non genereranno un errore fatale nel caso di una
-     mancata corrispondenza della firma.
+     When overriding a method, its signature must be compatible with the parent
+     method. Otherwise, a fatal error is emitted, or, prior to PHP 8.0.0, an
+     <constant>E_WARNING</constant> level error is generated.
+     A signature is compatible if it respects the
+     <link linkend="language.oop5.variance">variance</link> rules, makes a
+     mandatory parameter optional, adds only optional new parameters and
+     doesn't restrict but only relaxes the visibility.
+     This is known as the Liskov Substitution Principle, or LSP for short.
+     The <link linkend="language.oop5.decon.constructor">constructor</link>,
+     and <literal>private</literal> methods are exempt from these signature
+     compatibility rules, and thus won't emit a fatal error in case of a
+     signature mismatch.
     </para>
     <example>
-     <title>Metodi figli compatibili</title>
+     <title>Compatible child methods</title>
      <programlisting role="php">
 <![CDATA[
 <?php
@@ -542,7 +547,7 @@ un valore di default
 class Base
 {
     public function foo(int $a) {
-        echo "Valido\n";
+        echo "Valid\n";
     }
 }
 
@@ -571,18 +576,18 @@ $extended2->foo(1);
      &example.outputs;
      <screen>
 <![CDATA[
-Valido
-Valido
+Valid
+Valid
 ]]>
      </screen>
     </example>
 
     <para>
-     I seguenti esempi dimostrano che un metodo figlio che rimuove un parametro o rende obbligatorio un
-     parametro facoltativo non è compatibile con il metodo padre.
+     The following examples demonstrate that a child method which removes a parameter, or makes an optional
+     parameter mandatory, is not compatible with the parent method.
     </para>
     <example>
-     <title>Errore fatale quando un metodo figlio rimuove un parametro</title>
+     <title>Fatal error when a child method removes a parameter</title>
      <programlisting role="php">
 <![CDATA[
 <?php
@@ -590,7 +595,7 @@ Valido
 class Base
 {
     public function foo(int $a = 5) {
-        echo "Valido\n";
+        echo "Valid\n";
     }
 }
 
@@ -611,7 +616,7 @@ Fatal error: Declaration of Extend::foo() must be compatible with Base::foo(int 
      </screen>
     </example>
     <example>
-     <title>Errore fatale quando un metodo figlio rende obbligatorio un parametro facoltativo</title>
+     <title>Fatal error when a child method makes an optional parameter mandatory</title>
      <programlisting role="php">
 <![CDATA[
 <?php
@@ -619,7 +624,7 @@ Fatal error: Declaration of Extend::foo() must be compatible with Base::foo(int 
 class Base
 {
     public function foo(int $a = 5) {
-        echo "Valido\n";
+        echo "Valid\n";
     }
 }
 
@@ -642,14 +647,14 @@ Fatal error: Declaration of Extend::foo(int $a) must be compatible with Base::fo
 
     <warning>
      <para>
-      Rinominare il parametro di un metodo in una classe figlia non è un'incompatibilità
-      di firma. Tuttavia, questo è sconsigliato poiché risulterà in un
-      <classname>Errore</classname> di runtime se
-      vengono utilizzati gli
-      <link linkend="functions.named-arguments">argomenti con nome</link>.
+      Renaming a method's parameter in a child class is not a signature
+      incompatibility. However, this is discouraged as it will result in a
+      runtime <classname>Error</classname> if
+      <link linkend="functions.named-arguments">named arguments</link>
+      are used.
      </para>
      <example>
-      <title>Errore durante l'utilizzo di argomenti e parametri con nome rinominati in una classe figlia</title>
+      <title>Error when using named arguments and parameters were renamed in a child class</title>
       <programlisting role="php">
 <![CDATA[
 <?php
@@ -664,8 +669,8 @@ class B extends A {
 
 $obj = new B;
 
-// Passa i parametri in base al contratto A::test()
-$obj->test(foo: "foo", bar: "bar"); // ERRORE!
+// Pass parameters according to A::test() contract
+$obj->test(foo: "foo", bar: "bar"); // ERROR!
 ]]>
       </programlisting>
       &example.outputs.similar;
@@ -681,20 +686,20 @@ Stack trace:
     </warning>
    </sect3>
   </sect2>
-  
+
   <sect2 xml:id="language.oop5.basic.class.class">
    <title>::class</title>
 
    <para>
-    La parola chiave <literal>class</literal> è anche usata per la risoluzione
-    del nome della classe.
-    Per ottenere il nome completo di una classe <literal>ClassName</literal>
-    utilizzare <literal>ClassName::class</literal>. Questo è particolarmente utile con
-    le classi presenti nei <link linkend="language.namespaces">namespace</link>.
+    The <literal>class</literal> keyword is also used for class
+    name resolution.
+    To obtain the fully qualified name of a class <literal>ClassName</literal>
+    use <literal>ClassName::class</literal>. This is particularly useful with
+    <link linkend="language.namespaces">namespaced</link> classes.
    </para>
    <para>
     <example xml:id="language.oop5.basic.class.class.name">
-     <title>Risoluzione del nome della classe</title>
+     <title>Class name resolution</title>
      <programlisting role="php">
 <![CDATA[
 <?php
@@ -716,14 +721,14 @@ NS\ClassName
     </example>
    </para>
    <note>
-    <para>La risoluzione del nome della classe utilizzando <literal>::class</literal> è una
-     trasformazione in fase di compilazione. Ciò significa che al momento della creazione della stringa del nome
-     della classe non è ancora stato eseguito il caricamento automatico. Di conseguenza, i nomi delle classi
-     vengono espansi anche se la classe non esiste. In questo caso non viene emesso
-     alcun errore.
+    <para>The class name resolution using <literal>::class</literal> is a
+     compile time transformation. That means at the time the class name string
+     is created no autoloading has happened yet. As a consequence, class names
+     are expanded even if the class does not exist. No error is issued in
+     that case.
     </para>
     <example xml:id="language.oop5.basic.class.class.fail">
-     <title>Risoluzione del nome della classe mancante</title>
+     <title>Missing class name resolution</title>
      <programlisting role="php">
 <![CDATA[
 <?php
@@ -740,12 +745,12 @@ Does\Not\Exist
     </example>
    </note>
    <para>
-    A partire da PHP 8.0.0, la costante <literal>::class</literal> può essere utilizzata anche sugli
-    oggetti. Questa risoluzione avviene in fase di esecuzione, non in fase di compilazione. Il suo effetto è
-    lo stesso della chiamata di <function>get_class</function> sull'oggetto.
+    As of PHP 8.0.0, <literal>::class</literal> may also be used on
+    objects. This resolution happens at runtime, not compile time. Its effect is
+    the same as calling <function>get_class</function> on the object.
    </para>
    <example xml:id="language.oop5.basic.class.class.object">
-    <title>Risoluzione del nome dell'oggetto</title>
+    <title>Object name resolution</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -767,30 +772,30 @@ NS\ClassName
    </example>
   </sect2>
  <sect2 xml:id="language.oop5.basic.nullsafe">
-  <title>Metodi e proprietà nullsafe</title>
+  <title>Nullsafe methods and properties</title>
   <para>
-   A partire da PHP 8.0.0, è possibile accedere alle proprietà e ai metodi anche con
-   l'operatore "nullsafe": <literal>?-></literal>. L'operatore nullsafe
-   funziona allo stesso modo dell'accesso alla proprietà o al metodo come sopra, tranne per il fatto che se l'
-   oggetto da dereferenziare è &null; allora &null;
-   verrà restituito piuttosto che un'eccezione generata. Se la dereferenziazione fa parte di una
-   catena, il resto della catena viene saltato.
+   As of PHP 8.0.0, properties and methods may also be accessed with the
+   "nullsafe" operator instead: <literal>?-></literal>. The nullsafe operator
+   works the same as property or method access as above, except that if the
+   object being dereferenced is &null; then &null;
+   will be returned rather than an exception thrown. If the dereference is part of a
+   chain, the rest of the chain is skipped.
   </para>
   <para>
-   L'effetto è simile ad effettuare prima il wrap su ogni accesso in un controllo
-   <function>is_null</function>, ma più compatto.
+   The effect is similar to wrapping each access in an <function>is_null</function>
+   check first, but more compact.
   </para>
   <para>
    <example>
-    <title>L'Operatore Nullsafe</title>
+    <title>Nullsafe Operator</title>
     <programlisting role="php">
 <![CDATA[
 <?php
 
-// A partire da PHP 8.0.0, questa riga:
+// As of PHP 8.0.0, this line:
 $result = $repository?->getUser(5)?->name;
 
-// È equivalente al seguente blocco di codice:
+// Is equivalent to the following code block:
 if (is_null($repository)) {
     $result = null;
 } else {
@@ -808,13 +813,13 @@ if (is_null($repository)) {
   </para>
   <note>
    <para>
-    L'operatore nullsafe viene utilizzato al meglio quando null è considerato un valore possibile
-    valido e previsto per una proprietà o return di un metodo. Per indicare un errore,
-    è preferibile un'eccezione generata.
+    The nullsafe operator is best used when null is considered a valid and expected
+    possible value for a property or method return. For indicating an error,
+    a thrown exception is preferable.
    </para>
   </note>
  </sect2>
- </sect1>
+</sect1>
 
 <!-- Keep this comment at the end of the file
 Local variables:

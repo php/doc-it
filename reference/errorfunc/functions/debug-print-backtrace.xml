@@ -1,34 +1,65 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/errorfunc.xml, last change in rev 1.1 -->
-<!-- last change to 'debug-print-backtrace' in en/ tree in rev 1.1 -->
-<!-- EN-Revision: n/a Maintainer: pulici Status: ready -->
-<!-- OLD-Revision: 1.27/EN.1.1 -->
- <refentry xml:id="function.debug-print-backtrace" xmlns="http://docbook.org/ns/docbook">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+  <refentry xml:id="function.debug-print-backtrace" xmlns="http://docbook.org/ns/docbook">
    <refnamediv>
     <refname>debug_print_backtrace</refname>
     <refpurpose>
-     Stampa una backtrace
+     Prints a backtrace
     </refpurpose>
    </refnamediv>
-   <refsect1>
+  
+   <refsect1 role="description">
     &reftitle.description;
-     <methodsynopsis>
-      <type>void</type><methodname>debug_print_backtrace</methodname>
-      <void/>
-     </methodsynopsis>
+    <methodsynopsis>
+     <type>void</type><methodname>debug_print_backtrace</methodname>
+     <methodparam choice="opt"><type>int</type><parameter>options</parameter><initializer>0</initializer></methodparam>
+     <methodparam choice="opt"><type>int</type><parameter>limit</parameter><initializer>0</initializer></methodparam>
+    </methodsynopsis>
     <para>
-     <function>debug_print_backtrace</function> stampa una backtrace PHP.
-     Stampa le chiamate di funzione, i file included/required e tutto cio'
-     che viene valutato dalla funzione <function>eval</function>.
+     <function>debug_print_backtrace</function> prints a PHP backtrace. It
+     prints the function calls, <function>include</function>d/<function>require</function>d files and
+     <function>eval</function>ed stuff.
     </para>
    </refsect1>
 
-   <refsect1 role="parameters">
-    &reftitle.parameters;
-    <para>
-     Questa funzione non ha parametri.
-    </para>
-   </refsect1>
+ <refsect1 role="parameters"><!-- {{{ -->
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>options</parameter></term>
+     <listitem>
+      <para>
+       This parameter is a bitmask for the following options:
+       <table>
+        <title><function>debug_print_backtrace</function> options</title>
+        <tgroup cols="2">
+         <tbody>
+          <row>
+           <entry>DEBUG_BACKTRACE_IGNORE_ARGS</entry>
+           <entry>
+            Whether or not to omit the "args" index, and thus all the function/method arguments,
+            to save memory.
+           </entry>
+          </row>
+         </tbody>
+        </tgroup>
+       </table>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>limit</parameter></term>
+     <listitem>
+      <para>
+       This parameter can be used to limit the number of stack frames printed.
+       By default (<parameter>limit</parameter>=<literal>0</literal>) it prints all stack frames.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1><!-- }}} -->
 
    <refsect1 role="returnvalues">
     &reftitle.returnvalues;
@@ -37,13 +68,12 @@
     </para>
    </refsect1>
 
-   
    <refsect1 role="examples">
     &reftitle.examples;
     <para>
-    <example>
-     <title>Esempio di funzione <function>debug_print_backtrace</function></title>
-     <programlisting role="php">
+     <example>
+      <title><function>debug_print_backtrace</function> example</title>
+      <programlisting role="php">
 <![CDATA[
 <?php
 // include.php file
@@ -63,11 +93,13 @@ function c(){
 a();
 
 ?>
-
-
+]]>
+      </programlisting>
+      <programlisting role="php">
+<![CDATA[
 <?php
 // test.php file
-// questo e' il file che dovrebbe essere eseguito
+// this is the file you should run
 
 include 'include.php';
 ?>
@@ -76,10 +108,6 @@ include 'include.php';
      &example.outputs.similar;
      <screen>
 <![CDATA[
-#0  eval() called at [/tmp/include.php:5]
-#1  a() called at [/tmp/include.php:17]
-#2  include(/tmp/include.php) called at [/tmp/test.php:3]
-
 #0  c() called at [/tmp/include.php:10]
 #1  b() called at [/tmp/include.php:6]
 #2  a() called at [/tmp/include.php:17]

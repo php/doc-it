@@ -1,19 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: fd997f01ab64e4f03e5383e91faad816e047c08c Maintainer: pastore Status: ready -->
-<!-- CREDITS: darvina -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
 <refentry xml:id="function.get-class-vars" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>get_class_vars</refname>
-  <refpurpose>Restituisce le proprietà di default della classe</refpurpose>
+  <refpurpose>Get the default properties of the class</refpurpose>
  </refnamediv>
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>array</type><methodname>get_class_vars</methodname>
-   <methodparam><type>string</type><parameter>class_name</parameter></methodparam>
+   <methodparam><type>string</type><parameter>class</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Restituisce le proprietà di default della classe data.
+   Get the default properties of the given class.
   </para>
  </refsect1>
  <refsect1 role="parameters">
@@ -21,10 +20,10 @@
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>class_name</parameter></term>
+     <term><parameter>class</parameter></term>
      <listitem>
       <para>
-       Il nome della classe
+       The class name
       </para>
      </listitem>
     </varlistentry>
@@ -34,85 +33,44 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce un array associativo delle proprietà dichiarate e visibili
-   dall'ambito corrente, con il loro valore di default.
-   Gli elementi dell'array risultante sono nella forma di 
-   <literal>nomevariabile => valore</literal>.
-   In caso di errore, essa restituisce &false;.
-  </para>
- </refsect1>
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>5.0.3</entry>
-       <entry>
-        <function>get_class_vars</function>
-        restituirà solo le proprietà che possono essere accedute dall'ambito
-        corrente.
-       </entry>
-      </row>
-      <row>
-       <entry>5.0.2</entry>
-       <entry>
-        Chiamando <function>get_class_vars</function> verranno esposte
-        tutte le proprietà come array, a differenza dei precedenti comportamenti dove 
-        le proprietà protected e private erano prefissate con byte nul.
-       </entry>
-      </row>
-      <row>
-       <entry>5.0.1</entry>
-       <entry>
-        Chiamando <function>get_class_vars</function> verranno esposte tutte
-        le proprietà, come quando si converte un oggetto in una classe.
-       </entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </informaltable>
+   Returns an associative array of declared properties visible from the
+   current scope, with their default value.
+   The resulting array elements are in the form of 
+   <literal>varname =&gt; value</literal>.
+   In case of an error, it returns &false;.
   </para>
  </refsect1>
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title>Esempio di <function>get_class_vars</function></title>
+    <title><function>get_class_vars</function> example</title>
     <programlisting role="php">
 <![CDATA[
 <?php
 
-class myclass {
-
-    var $var1; // questa non ha valori di default...
-    var $var2 = "xyz";
-    var $var3 = 100;
+class MyClass
+{
+    public $var1; // This has no explicit default value (technically it has NULL as a default)...
+    public $var2 = "xyz";
+    public $var3 = 100;
     private $var4;
 
-    // costruttore
-    function __construct() {
-        // modifica di alcune proprietà
+    public function __construct()
+    {
+        // Change some properties
         $this->var1 = "foo";
         $this->var2 = "bar";
         return true;
     }
-
 }
 
-$my_class = new myclass();
+$my_class = new MyClass();
 
 $class_vars = get_class_vars(get_class($my_class));
 
 foreach ($class_vars as $name => $value) {
-    echo "$name : $value\n";
+    echo "{$name}: ", var_export($value, true), "\n";
 }
 
 ?>
@@ -121,19 +79,20 @@ foreach ($class_vars as $name => $value) {
     &example.outputs;
     <screen>
 <![CDATA[
-var1 :
-var2 : xyz
-var3 : 100
+var1: NULL
+var2: 'xyz'
+var3: 100
 ]]>
     </screen>
    </example>
   </para>
   <para>
    <example>
-    <title><function>get_class_vars</function> e comportamento dell'ambito</title>
+    <title><function>get_class_vars</function> and scoping behaviour</title>
     <programlisting role="php">
 <![CDATA[
 <?php
+
 function format($array)
 {
     return implode('|', array_keys($array)) . "\r\n";
@@ -153,6 +112,7 @@ class TestCase
 
 TestCase::expose();
 echo format(get_class_vars('TestCase'));
+
 ?>
 ]]>
     </programlisting>
@@ -185,7 +145,6 @@ a
   </para>
  </refsect1>
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

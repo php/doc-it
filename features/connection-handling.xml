@@ -1,72 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 96c9d88bad9a7d7d44bfb7f26c226df7ee9ddf26 Maintainer: cucinato Status: ready -->
+<!-- $Revision$ -->
  <chapter xml:id="features.connection-handling" xmlns="http://docbook.org/ns/docbook">
-  <title>Gestione della connessione</title>
+  <title>Connection handling</title>
 
   <para>
-   Internamente il PHP mantiene lo stato della connessione. Si hanno
-   3 possibili stati:
+   Internally in PHP a connection status is maintained.  There are 4
+   possible states:
    <itemizedlist>
     <listitem><simpara>0 - NORMAL</simpara></listitem>
     <listitem><simpara>1 - ABORTED</simpara></listitem>
     <listitem><simpara>2 - TIMEOUT</simpara></listitem>
+    <listitem><simpara>3 - ABORTED and TIMEOUT</simpara></listitem>
    </itemizedlist>
   </para>
 
   <simpara>
-   Quendo uno script PHP viene eseguito normalmente si trova nello stato NORMAL.
-   Se il client remoto si disconnette viene attivato il flag ABORTED.
-   La disconnessione di un client remoro è generalmente causata dalla pressione
-   del tasto STOP da parte dell'utente. Se invece si raggiunge il limite di tempo
-   imposto dal PHP (vedere <function>set_time_limit</function>) si attiva lo stato
-   TIMEOUT.</simpara>
+   When a PHP script is running normally, the NORMAL state is active.
+   If the remote client disconnects, the ABORTED state flag is
+   turned on.  A remote client disconnect is usually caused by
+   users hitting their STOP button.  If the PHP-imposed time limit (see
+   <function>set_time_limit</function>) is hit, the TIMEOUT state flag
+   is turned on.</simpara>
 
   <simpara>
-   Si può decidere se la disconnessione del client debba fare
-   interrompere lo script o meno. In certi casi è più pratico lasciare
-   finire lo script anche se non c'è più il browser remoto a ricevere
-   i dati.  Tuttavia il comportamento di default è di interrompere
-   lo script quando il client remoto si disconnette. Questo comportamento può
-   essere impostato tramite la direttiva di &php.ini; ignore_user_abort oppure tramite
-   la corrispondente direttiva <literal>php_value ignore_user_abort</literal>i
-   del file &httpd.conf; di Apache
-   oppure con la funzione <function>ignore_user_abort</function>.
-   Se non si segnala al PHP di ignorare la disconssessione dell'utente lo
-   script sarà interrotto. Unica eccezione si ha con la registrazione di una funzione
-   di chiusura utilizzando <function>register_shutdown_function</function>.
-   Con una funzione di shutdown, quando l'utente remoto preme il bottone di STOP,
-   alla prima occasione in cui lo script tenterà di produrre un output, il PHP intercetterà
-   che la connessione è interrotta e richiamerà la funzione di shutdown.
-   Questa funzione sarà richiamata anche al normale termine dello
-   script, pertanto per eseguire passi differenti in caso di disconnessione
-   del client occorre utilizzare la funzione <function>connection_aborted</function>.
-   Questa funzione restituisce &true; se la connessione è stata
-   interrotta.</simpara>
+   You can decide whether or not you want a client disconnect to cause
+   your script to be aborted.  Sometimes it is handy to always have your
+   scripts run to completion even if there is no remote browser receiving
+   the output.  The default behaviour is however for your script to be
+   aborted when the remote client disconnects.  This behaviour can be
+   set via the ignore_user_abort &php.ini; directive as well as through
+   the corresponding <literal>php_value ignore_user_abort</literal> Apache 
+   &httpd.conf; directive or
+   with the <function>ignore_user_abort</function> function.  If you do
+   not tell PHP to ignore a user abort and the user aborts, your script
+   will terminate.  The one exception is if you have registered a shutdown
+   function using <function>register_shutdown_function</function>.  With a
+   shutdown function, when the remote user hits his STOP button, the
+   next time your script tries to output something PHP will detect that
+   the connection has been aborted and the shutdown function is called.
+   This shutdown function will also get called at the end of your script
+   terminating normally, so to do something different in case of a client
+   disconnect you can use the <function>connection_aborted</function>
+   function.  This function will return &true; if the connection was
+   aborted.</simpara>
 
   <simpara>
-   Uno script può essere fermato dal timer incorporato nel PHP.
-   Per default il timeout è impostato a 30 secondi. Tale limite può essere variato
-   agendo sulla direttiva <option>max_execution_time</option> nel &php.ini; o nel corrispondente
-   parametro  <literal>php_value max_execution_time</literal> nella configurazione di Apache,
-   oppure con la funzione
-   <function>set_time_limit</function>. Quando termina il
-   tempo impostato lo script viene interrotto, se è stata prevista
-   una funzione di shutdown, questa verrà eseguita. All'interno di
-   questa funzione si può discriminare se è
-   stata attivata per lo scadere del timeout utilizzando la
-   funzione <function>connection_timeout</function>. Questa restituisce 2
-   se la funzione di shutdown è stata chiamata per lo scadere del tempo a disposizione.
+   Your script can also be terminated by the built-in script timer.
+   The default timeout is 30 seconds.  It can be changed using
+   the <option>max_execution_time</option> &php.ini; directive or the corresponding
+   <literal>php_value max_execution_time</literal> Apache &httpd.conf;
+   directive as well as with
+   the <function>set_time_limit</function> function.  When the timer
+   expires the script will be aborted and as with the above client
+   disconnect case, if a shutdown function has been registered it will
+   be called.  Within this shutdown function you can check to see if
+   a timeout caused the shutdown function to be called by calling the
+   <function>connection_status</function> function.  This function will
+   return 2 if a timeout caused the shutdown function to be called.
   </simpara>
 
   <simpara>
-   Un aspetto che occorre notare sui stati ABORTED e TIMEOUT è
-   che possono essere attivi contemporaneamente. Questo può accadere
-   se si è impostato il PHP affinchè ignori le interruzioni da parte dell'utente. Infatti il PHP
-   continua a tenere traccia della disconnessione dell'utente, ma, semplicemente, non viene
-   interrotto lo script. Quindi, quando termina il tempo, lo script sarà interrotto e verrà
-   richiamata la funzione di shutdown, se presente. In questa situazione
-   si avrà che <function>connection_status</function>
-   restituirà 3.
+   One thing to note is that both the ABORTED and the TIMEOUT states
+   can be active at the same time.  This is possible if you tell
+   PHP to ignore user aborts.  PHP will still note the fact that
+   a user may have broken the connection, but the script will keep
+   running.  If it then hits the time limit it will be aborted and
+   your shutdown function, if any, will be called.  At this point
+   you will find that <function>connection_status</function>
+   returns 3.
   </simpara>
  </chapter>
 

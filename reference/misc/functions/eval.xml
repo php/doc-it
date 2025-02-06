@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 0d66a6cf2c0cad946dd8b766ac6ea09b96989114 Maintainer: reghe Status: ready -->
+<!-- $Revision$ -->
 <refentry xml:id="function.eval" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>eval</refname>
-  <refpurpose>Esegue una stringa come codice PHP</refpurpose>
+  <refpurpose>Evaluate a string as PHP code</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
@@ -13,15 +13,25 @@
    <methodparam><type>string</type><parameter>code</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Esegue la data stringa <parameter>code</parameter> come codice PHP.
+   Evaluates the given <parameter>code</parameter> as PHP.
+  </para>
+  <para>
+   The code being evaluated inherits the
+   <link linkend="language.variables.scope">variable scope</link>
+   of the line on which the <function>eval</function> call occurs.
+   Any variables available at that line will be available for reading and
+   modification in the evaluated code.
+   However, all functions and classes defined will be defined in the global namespace.
+   In other words, the compiler considers the evaluated code as if it were a
+   separate <link linkend="function.include">included</link> file.
   </para>
   <caution>
    <para>
-    <function>eval</function> è un costrutto del linguaggio <emphasis>molto pericoloso</emphasis>
-    perché permette l'esecuzione di codice PHP arbitrario. <emphasis>Il suo uso è pertanto 
-    sconsigliato.</emphasis> Se si è certi che non esistono altre soluzioni al posto di usare
-    <function>eval</function>, fare particolare attenzione a <emphasis>non inserire codice fornito
-    dall'utente</emphasis> senza averlo preventivamente validato.
+    The <function>eval</function> language construct is <emphasis>very dangerous</emphasis>
+    because it allows execution of arbitrary PHP code. <emphasis>Its use thus is
+    discouraged.</emphasis> If you have carefully verified that there is no other option
+    than to use this construct, pay special attention <emphasis>not to pass any user
+    provided data</emphasis> into it without properly validating it beforehand.
    </para>
   </caution>
  </refsect1>
@@ -34,30 +44,30 @@
      <term><parameter>code</parameter></term>
      <listitem>
       <para>
-       Codice PHP valido da eseguire.
+       Valid PHP code to be evaluated.
       </para>
       <para>
-       Il codice non deve essere incluso nei <link linkend="language.basic-syntax.phpmode">tag
-       di apertura e chisura</link> di PHP. Ad esempio
-       <literal>'echo "Ciao!";'</literal> è corretto invece di
-       <literal>'&lt;? echo "Ciao!"; &gt;'</literal>. È comunque possibile uscire e
-       rientrare nella modalità PHP attraverso l'utilizzo dei tag PHP appropriati, ad esempio:
-       <literal>'echo "In PHP mode!"; ?&gt;In HTML mode!&lt;? echo "Back in PHP mode!";'</literal>.
+       The code must not be wrapped in opening and closing
+       <link linkend="language.basic-syntax.phpmode">PHP tags</link>, i.e.
+       <literal>'echo "Hi!";'</literal> must be passed instead of
+       <literal>'&lt;?php echo "Hi!"; ?&gt;'</literal>. It is still possible to leave and
+       re-enter PHP mode though using the appropriate PHP tags, e.g.
+       <literal>'echo "In PHP mode!"; ?&gt;In HTML mode!&lt;?php echo "Back in PHP mode!";'</literal>.
       </para>
       <para>
-       Oltre a questo, valgono tutte le regole del codice PHP. Questo include l'inserimento al termine
-       di ogni istruzione del punto e virgola.
-       <literal>'echo "Ciao!"'</literal> per esempio causerà un parse error, mentre
-       <literal>'echo "Ciao!";'</literal> funzionerà.
+       Apart from that the passed code must be valid PHP. This includes that all statements
+       must be properly terminated using a semicolon.
+       <literal>'echo "Hi!"'</literal> for example will cause a parse error, whereas
+       <literal>'echo "Hi!";'</literal> will work.
       </para>
       <para>
-       Un'istruzione <literal>return</literal> causa immediatamente la terminazione del codice
-       in corso di esecuzione dalla <function>eval</function>.
+       A <literal>return</literal> statement will immediately terminate the
+       evaluation of the code. 
       </para>
       <para>
-       L'ambito di esecuzione è ristretto a dove <function>eval</function> viene chiamata. Quindi qualsiasi
-       variabile definita o modificata all'interno di <function>eval</function> rimarrà visibile dopo
-       la sua terminazione.
+       The code will be executed in the scope of the code calling <function>eval</function>. Thus any
+       variables defined or changed in the <function>eval</function> call will remain visible after
+       it terminates.
       </para>
      </listitem>
     </varlistentry>
@@ -68,13 +78,14 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   <function>eval</function> ritorna &null; a meno che 
-   non venga richiamato <literal>return</literal> nel codice da valutare, in tal caso
-   il valore passato a <literal>return</literal> viene ritornato. Se avviene un
-   parse error nel codice valutato, <function>eval</function> ritorna
-   &false; e l'esecuzione del codice seguente continua normalmente. Non
-   è possibile catturare un parse error in <function>eval</function>
-   usando <function>set_error_handler</function>.
+   <function>eval</function> returns &null; unless 
+   <literal>return</literal> is called in the evaluated code, in which case
+   the value passed to <literal>return</literal> is returned. As of PHP 7, if there is a
+   parse error in the evaluated code, <function>eval</function> throws a <classname>ParseError</classname> exception.
+   Before PHP 7, in this case <function>eval</function> returned
+   &false; and execution of the following code continued normally. It is
+   not possible to catch a parse error in <function>eval</function>
+   using <function>set_error_handler</function>.
   </para>
  </refsect1>
 
@@ -82,7 +93,7 @@
   &reftitle.examples;
   <para>
    <example>
-    <title>Esempio di <function>eval</function> - semplice unione di testo</title>
+    <title><function>eval</function> example - simple text merge</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -114,7 +125,7 @@ This is a cup with my coffee in it.
   &tip.ob-capture;
   <note>
    <para>
-    In caso di fatal error nel codice valutato, l'intero script termina.
+    In case of a fatal error in the evaluated code, the whole script exits.
    </para>
   </note>
  </refsect1>

@@ -1,25 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 9af43469f46843451955b8926fe470a9f3d45034 Maintainer: pastore Status: ready -->
+<!-- $Revision$ -->
 <refentry xml:id="domdocument.registernodeclass" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>DOMDocument::registerNodeClass</refname>
-  <refpurpose>Registra la classe estesa utilizzata per creare il tipo di nodo di base</refpurpose>
+  <refpurpose>Register extended class used to create base node type</refpurpose>
  </refnamediv>
  <refsect1 role="description">
   &reftitle.description;
-  <methodsynopsis>
-   <modifier>public</modifier> <type>bool</type><methodname>DOMDocument::registerNodeClass</methodname>
-   <methodparam><type>string</type><parameter>baseclass</parameter></methodparam>
-   <methodparam><type>string</type><parameter>extendedclass</parameter></methodparam>
+  <methodsynopsis role="DOMDocument">
+   <modifier>public</modifier> <type>true</type><methodname>DOMDocument::registerNodeClass</methodname>
+   <methodparam><type>string</type><parameter>baseClass</parameter></methodparam>
+   <methodparam><type class="union"><type>string</type><type>null</type></type><parameter>extendedClass</parameter></methodparam>
   </methodsynopsis>
 
   <para>
-   Questo metodo consente di registrare la propria classe DOM estesa da utilizzare
-   in seguito dall'estensione DOM di PHP.
+   This method allows you to register your own extended DOM class to be used
+   afterward by the PHP DOM extension.
   </para>
   <para>
-   Questo metodo non fa parte dello standard DOM.
+   This method is not part of the DOM standard.
   </para>
+  <caution>
+   <simpara>
+    The constructor of the objects of the registered node classes is not called.
+   </simpara>
+  </caution>
  </refsect1>
 
  <refsect1 role="parameters">
@@ -27,21 +32,21 @@
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>baseclass</parameter></term>
+     <term><parameter>baseClass</parameter></term>
      <listitem>
       <para>
-       La classe DOM che si desidera estendere. Si può trovare un elenco di queste
-       classi nell'<link linkend="book.dom">introduzione al capitolo</link>.
+       The DOM class that you want to extend. You can find a list of these 
+       classes in the <link linkend="book.dom">chapter introduction</link>.
       </para>
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>extendedclass</parameter></term>
+     <term><parameter>extendedClass</parameter></term>
      <listitem>
       <para>
-       Il nome della propria classe estesa. Se viene fornito &null;, qualsiasi classe
-       registrata in precedenza che estende <parameter>baseclass</parameter>
-       verrà rimossa.
+       Your extended class name. If &null; is provided, any previously 
+       registered class extending <parameter>baseClass</parameter> will
+       be removed.
       </para>
      </listitem>
     </varlistentry>
@@ -52,15 +57,38 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   &return.success;
+   &return.true.always;
   </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.4.0</entry>
+      <entry>
+       <methodname>DOMDocument::registerNodeClass</methodname>
+       now has a tentative return of <type>true</type>.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
  </refsect1>
 
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title>Aggiunta di un nuovo metodo a DOMElement per semplificare il codice</title>
+    <title>Adding a new method to DOMElement to ease our code</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -80,7 +108,7 @@ class myDocument extends DOMDocument {
 $doc = new myDocument();
 $doc->registerNodeClass('DOMElement', 'myElement');
 
-// D'ora in poi, aggiungere un elemento ad un altro costa solo una chiamata al metodo !
+// From now on, adding an element to another costs only one method call ! 
 $root = $doc->setRoot('root');
 $child = $root->appendElement('child');
 $child->setAttribute('foo', 'bar');
@@ -101,7 +129,7 @@ echo $doc->saveXML();
   </para>
   <para>
    <example>
-    <title>Recupero di elementi come classe personalizzata</title>
+    <title>Retrieving elements as custom class</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -118,7 +146,7 @@ $doc->registerNodeClass("DOMElement", "myElement");
 $element = $doc->getElementsByTagName("child")->item(0);
 var_dump(get_class($element));
 
-// E approfitta del metodo __toString..
+// And take advantage of the __toString method..
 echo $element;
 ?>
 ]]>
@@ -134,37 +162,48 @@ text in child
   </para>
   <para>
    <example>
-    <title>Recupero del proprietario del documento</title>
+    <title>Retrieving owner document</title>
     <para>
-     Quando si crea un'istanza di un <classname>DOMDocument</classname> personalizzato, la
-     proprietà <varname>ownerDocument</varname> farà riferimento alla classe
-     istanziata, il che significa che non è necessario (e in realtà non è possibile) utilizzare
-     <function>DOMDocument::registerNodeClass</function> con
+     When instantiating a custom <classname>DOMDocument</classname> the
+     <varname>ownerDocument</varname> property will refer to the instantiated
+     class. However, if all references to that class are removed, it
+     will be destroyed and new <classname>DOMDocument</classname> will be
+     created instead. For that reason you might use
+     <function>DOMDocument::registerNodeClass</function> with
      <classname>DOMDocument</classname>
     </para>
     <programlisting role="php">
 <![CDATA[
 <?php
-class myDOMDocument extends DOMDocument {
+class MyDOMDocument extends DOMDocument {
 }
 
-class myOtherDOMDocument extends DOMDocument {
+class MyOtherDOMDocument extends DOMDocument {
 }
 
-// Crea myDOMDocument con un po' di XML
-$doc = new myDOMDocument;
+// Create MyDOMDocument with some XML
+$doc = new MyDOMDocument;
 $doc->loadXML("<root><element><child>text in child</child></element></root>");
 
 $child = $doc->getElementsByTagName("child")->item(0);
 
-// L'attuale proprietario del nodo è myDOMDocument
+// The current owner of the node is MyDOMDocument
+var_dump(get_class($child->ownerDocument));
+// MyDOMDocument is destroyed
+unset($doc);
+// And new DOMDocument instance is created
 var_dump(get_class($child->ownerDocument));
 
-// Importa un nodo da myDOMDocument
-$newdoc = new myOtherDOMDocument;
+// Import a node from MyDOMDocument
+$newdoc = new MyOtherDOMDocument;
 $child = $newdoc->importNode($child);
 
-// Il nuovo proprietario del nodo è cambiato in myOtherDOMDocument
+// Register custom DOMDocument
+$newdoc->registerNodeClass("DOMDocument", "MyOtherDOMDocument");
+
+var_dump(get_class($child->ownerDocument));
+unset($doc);
+// New MyOtherDOMDocument is created
 var_dump(get_class($child->ownerDocument));
 ?>
 ]]>
@@ -172,8 +211,50 @@ var_dump(get_class($child->ownerDocument));
     &example.outputs;
     <screen role="xml">
 <![CDATA[
-string(13) "myDOMDocument"
-string(18) "myOtherDOMDocument"
+string(13) "MyDOMDocument"
+string(11) "DOMDocument"
+string(18) "MyOtherDOMDocument"
+string(18) "MyOtherDOMDocument"
+]]>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example xml:id="domdocument.registernodeclass.example.transient">
+    <title>Custom objects are transient</title>
+    <caution>
+     <simpara>
+      Objects of the registered node classes are transient, i.e. they are
+      destroyed when they are no longer referenced from PHP code, and recreated
+      when being retrieved again. That implies that custom property values will be
+      lost after recreation.
+     </simpara>
+    </caution>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class MyDOMElement extends DOMElement
+{
+    public $myProp = 'default value';
+}
+
+$doc = new DOMDocument();
+$doc->registerNodeClass('DOMElement', 'MyDOMElement');
+
+$node = $doc->createElement('a');
+$node->myProp = 'modified value';
+$doc->appendChild($node);
+
+echo $doc->childNodes[0]->myProp, PHP_EOL;
+unset($node);
+echo $doc->childNodes[0]->myProp, PHP_EOL;
+?>]]>
+    </programlisting>
+    &example.outputs;
+    <screen role="xml">
+<![CDATA[
+modified value
+default value
 ]]>
     </screen>
    </example>
@@ -181,7 +262,6 @@ string(18) "myOtherDOMDocument"
  </refsect1>
 
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

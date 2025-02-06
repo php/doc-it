@@ -1,88 +1,187 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.strip-tags" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>strip_tags</refname>
-    <refpurpose>Rimuove i tag HTML e PHP da una stringa</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>strip_tags</methodname>
-      <methodparam><type>string</type><parameter>str</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>allowable_tags</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Questa funzione tenga di restituire una stringa priva dei tag HTML e PHP
-     partendo dalla stringa <parameter>str</parameter>. La funzione utilizza
-     la stessa macchina a stati di rimozione dei tag utilizzata per 
-     la funzione <function>fgetss</function>.
-    </para>
-    <para>
-     Si può utilizzare il secondo parametro, opzionale, per indicare
-     quale tag ignorare.
-     <note>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.strip-tags" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>strip_tags</refname>
+  <refpurpose>Strip HTML and PHP tags from a string</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>strip_tags</methodname>
+   <methodparam><type>string</type><parameter>string</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>array</type><type>string</type><type>null</type></type><parameter>allowed_tags</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   This function tries to return a string with all NULL bytes, HTML and PHP tags stripped
+   from a given <parameter>string</parameter>.  It uses the same tag stripping
+   state machine as the <function>fgetss</function> function.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>string</parameter></term>
+     <listitem>
       <para>
-       <parameter>allowable_tags</parameter> è stato aggiunto in PHP 3.0.13
-       e PHP 4.0b3. 
+       The input string.
       </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>allowed_tags</parameter></term>
+     <listitem>
       <para>
-       Dal PHP 4.3.0, sono rimossi anche i commenti HTML. Questo comportamento è da programma
-       e non può essere modificato tramite <parameter>allowable_tags</parameter>.
-      </para> 
-     </note>
-     <warning>
+       You can use the optional second parameter to specify tags which should
+       not be stripped.
+       These are either given as &string;, or as of PHP 7.4.0, as &array;.
+       Refer to the example below regarding the format of this parameter.
+      </para>
+      <note>
        <para>
-         Poiché <function>strip_tags</function> non valida il testo
-         HTML, tag parziali, o interrotti possono portare alla rimozione di
-         più testo di quanto atteso.
+        HTML comments and PHP tags are also stripped. This is hardcoded and
+        can not be changed with <parameter>allowed_tags</parameter>.
        </para>
-     </warning>
-     <warning>
-      <para>
-       Questa funzione non modifica alcun attributo sui tag che sono abilitati
-       tramite <parameter>allowable_tags</parameter>, incluso lo
-       <literal>style</literal> e l'attributo <literal>onmouseover</literal>
-       che possono essere sfruttati da utenti malevoli quando pubblicano testi che
-       saranno visualizzati da altri utenti.
-      </para>
-     </warning>
-    </para>
-    <para>
-     <example>
-      <title>Esempio di uso di <function>strip_tags</function></title>
-      <programlisting role="php">
+      </note>
+      <note>
+       <para>
+        Self-closing XHTML tags are ignored and only non-self-closing tags should be used in
+        <parameter>allowed_tags</parameter>. For example,
+        to allow both <literal>&lt;br&gt;</literal> and
+        <literal>&lt;br/&gt;</literal>, you should use:
+       </para>
+       <informalexample>
+        <programlisting role="php">
 <![CDATA[
 <?php
-$text = '<p>Test paragraph.</p><!-- Comment --> Other text';
-echo strip_tags($text);
-
-echo "\n";
-// allow <p>
-echo strip_tags($text, '<p>');
+strip_tags($input, '<br>');
 ?>
-
 ]]>
-      </programlisting>
-       &example.outputs;
-      <screen>
+        </programlisting>
+       </informalexample>
+      </note>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Returns the stripped string.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>allowed_tags</parameter> is nullable now.
+      </entry>
+     </row>
+      <row>
+       <entry>7.4.0</entry>
+       <entry>
+        The <parameter>allowed_tags</parameter> now alternatively accepts an &array;.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>strip_tags</function> example</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$text = '<p>Test paragraph.</p><!-- Comment --> <a href="#fragment">Other text</a>';
+echo strip_tags($text);
+echo "\n";
+
+// Allow <p> and <a>
+echo strip_tags($text, '<p><a>');
+
+// as of PHP 7.4.0 the line above can be written as:
+// echo strip_tags($text, ['p', 'a']);
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
 <![CDATA[
 Test paragraph. Other text
-<p>Test paragraph.</p> Other text
+<p>Test paragraph.</p> <a href="#fragment">Other text</a>
 ]]>
-      </screen>
-     </example>
-    </para>    
-    <para>
-     La funzione <function>strip_tags</function> è sicura con i contenuti binari dal PHP 5.0.0
-    </para>
-    <para>
-     Vedere anche <function>htmlspecialchars</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <warning>
+   <para>
+    This function should not be used to try to prevent XSS attacks.
+    Use more appropriate functions like <function>htmlspecialchars</function>
+    or other means depending on the context of the output.
+   </para>
+  </warning>  
+  <warning>
+   <para>
+    Because <function>strip_tags</function> does not actually validate the
+    HTML, partial or broken tags can result in the removal of more
+    text/data than expected.
+   </para>
+  </warning>
+  <warning>
+   <para>
+    This function does not modify any attributes on the tags that you allow
+    using <parameter>allowed_tags</parameter>, including the
+    <literal>style</literal> and <literal>onmouseover</literal> attributes
+    that a mischievous user may abuse when posting text that will be shown
+    to other users.
+   </para>
+  </warning>
+  <note>
+   <para>
+    Tag names within the input HTML that are greater than 1023 bytes in length
+    will be treated as though they are invalid, regardless of the
+    <parameter>allowed_tags</parameter> parameter.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>htmlspecialchars</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

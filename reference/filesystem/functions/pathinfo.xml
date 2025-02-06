@@ -1,73 +1,240 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
- <!-- CREDITS: cortesi -->   
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
 <refentry xml:id="function.pathinfo" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pathinfo</refname>
-    <refpurpose>Restituisce informazioni su un percorso di file</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>array</type><methodname>pathinfo</methodname>  
-      <methodparam><type>string</type><parameter>path</parameter></methodparam>  
-      <methodparam choice="opt"><type>int</type><parameter>options</parameter></methodparam>  
-      </methodsynopsis>  
-      <para>     
-      <function>pathinfo</function> restituisce un vettore associativo contenente
-     informazioni riguardo <parameter>path</parameter>.  Nel vettore vegono riportati i seguenti
-     elementi:
-     <literal>dirname</literal>, <literal>basename</literal>  
-     e <literal>extension</literal>. 
-     </para>  
-     <para>  Si può specificare quali elementi vengano restituiti con parametri opzionali
-     <parameter>options</parameter>. E' composto da
-     <constant>PATHINFO_DIRNAME</constant>, 
-     <constant>PATHINFO_BASENAME</constant> e 
-     <constant>PATHINFO_EXTENSION</constant>. Assume per defalut la restituzione di tutti 
-     gli elementi. 
-     </para>  
-     <para>  
-      <example>  
-       <title><function>pathinfo</function> Example</title>  
-       <programlisting role="php"> 
-       <![CDATA[ 
-       <?php 
-       $path_parts = pathinfo('/www/htdocs/index.html');
-       echo $path_parts['dirname'], "\n"; 
-       echo $path_parts['basename'], "\n"; 
-       echo $path_parts['extension'], "\n"; 
-       
-       ?> 
-       ]]>  
-                </programlisting>  
-                <para>  Produrrà: 
-                </para>  
-                <screen> 
- <![CDATA[ 
- /www/htdocs 
- index.html 
- html 
- ]]>  
-                </screen>  
-               </example>  
-              </para>  
-              <note>  
-              <para>  
-                Per informazioni su come recuperare il path corrente, leggere
-                la sezione su <link linkend="language.variables.predefined">  
-                variabili riservate predefinite</link>. 
-               </para>  
-              </note>  
-              <para>  
-                 Vedere anche <function>dirname</function>, 
-                 <function>basename</function>, 
-                 <function>parse_url</function>  
-                 e <function>realpath</function>. 
-               </para>  
-              </refsect1>  
-             </refentry>
+ <refnamediv>
+  <refname>pathinfo</refname>
+  <refpurpose>Returns information about a file path</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>array</type><type>string</type></type><methodname>pathinfo</methodname>
+   <methodparam><type>string</type><parameter>path</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>flags</parameter><initializer><constant>PATHINFO_ALL</constant></initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pathinfo</function> returns information about
+   <parameter>path</parameter>: either an associative array or a string,
+   depending on <parameter>flags</parameter>.
+  </para>
+  <note>
+   <para>
+    For information on retrieving the current path info, read
+    the section on <link linkend="language.variables.predefined">
+    predefined reserved variables</link>.
+   </para>
+  </note>
+  <note>
+   <para>
+    <function>pathinfo</function> operates naively on the input string,
+    and is not aware of the actual filesystem, or path components such
+    as "<literal>..</literal>".
+   </para>
+  </note>
+  <note>
+   <para>
+    On Windows systems only, the <literal>\</literal> character will
+    be interpreted as a directory separator. On other systems it will
+    be treated like any other character.
+   </para>
+  </note>
+  <caution>
+   <para>
+    <function>pathinfo</function> is locale aware, so for it to parse a path
+    containing multibyte characters correctly, the matching locale must be set using
+    the <function>setlocale</function> function.
+   </para>
+  </caution>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>path</parameter></term>
+     <listitem>
+      <para>
+       The path to be parsed.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>flags</parameter></term>
+     <listitem>
+      <para>
+       If present, specifies a specific element to be returned; one of
+       <constant>PATHINFO_DIRNAME</constant>,
+       <constant>PATHINFO_BASENAME</constant>,
+       <constant>PATHINFO_EXTENSION</constant> or
+       <constant>PATHINFO_FILENAME</constant>.
+      </para>
+      <para>If <parameter>flags</parameter> is not specified, returns all
+       available elements.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   If the <parameter>flags</parameter> parameter is not passed, an
+   associative <type>array</type> containing the following elements is
+   returned:
+   <literal>dirname</literal>, <literal>basename</literal>,
+   <literal>extension</literal> (if any), and <literal>filename</literal>.
+  </para>
+  <note>
+   <para>
+    If the <parameter>path</parameter> has more than one extension,
+    <constant>PATHINFO_EXTENSION</constant> returns only the last one and
+    <constant>PATHINFO_FILENAME</constant> only strips the last one.
+    (see first example below).
+   </para>
+  </note>
+  <note>
+   <para>
+    If the <parameter>path</parameter> does not have an extension, no
+    <literal>extension</literal> element will be returned
+    (see second example below).
+   </para>
+  </note>
+  <note>
+   <para>
+    If the <literal>basename</literal> of the <parameter>path</parameter> starts
+    with a dot, the following characters are interpreted as
+    <literal>extension</literal>, and the <literal>filename</literal> is empty
+    (see third example below).
+   </para>
+  </note>
+  <para>
+   If <parameter>flags</parameter> is present, returns a
+   <type>string</type> containing the requested element.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>pathinfo</function> Example</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$path_parts = pathinfo('/www/htdocs/inc/lib.inc.php');
+
+echo $path_parts['dirname'], "\n";
+echo $path_parts['basename'], "\n";
+echo $path_parts['extension'], "\n";
+echo $path_parts['filename'], "\n";
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+/www/htdocs/inc
+lib.inc.php
+php
+lib.inc
+]]>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title><function>pathinfo</function> example showing difference between null and no extension</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$path_parts = pathinfo('/path/emptyextension.');
+var_dump($path_parts['extension']);
+
+$path_parts = pathinfo('/path/noextension');
+var_dump($path_parts['extension']);
+?>
+]]>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+string(0) ""
+
+Notice: Undefined index: extension in test.php on line 6
+NULL
+]]>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title><function>pathinfo</function> example for a dot-file</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+print_r(pathinfo('/some/path/.test'));
+?>
+]]>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+Array
+(
+    [dirname] => /some/path
+    [basename] => .test
+    [extension] => test
+    [filename] =>
+)
+]]>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title><function>pathinfo</function> example with array dereferencing</title>
+    <para>
+     The <parameter>flags</parameter> parameter is not a bitmask. Only a single value
+     may be provided.  To select only a limited set of parsed values, use array
+     destructuring like so:
+    </para>
+    <programlisting role="php">
+<![CDATA[
+<?php
+['basename' => $basename, 'dirname' => $dirname] = pathinfo('/www/htdocs/inc/lib.inc.php');
+
+var_dump($basename, $dirname);
+?>
+]]>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+string(11) "lib.inc.php"
+string(15) "/www/htdocs/inc"
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>dirname</function></member>
+    <member><function>basename</function></member>
+    <member><function>parse_url</function></member>
+    <member><function>realpath</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

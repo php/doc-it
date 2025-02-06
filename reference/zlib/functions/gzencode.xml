@@ -1,29 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 3e15d2894fb35432d2a111db36fe8ba8ebc62024 Maintainer: pastore Status: ready -->
-<!-- CREDITS: cucinato -->
+<!-- $Revision$ -->
 <refentry xml:id="function.gzencode" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>gzencode</refname>
-  <refpurpose>Crea una stringa compressa con gzip</refpurpose>
+  <refpurpose>Create a gzip compressed string</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type>string</type><methodname>gzencode</methodname>
+   <type class="union"><type>string</type><type>false</type></type><methodname>gzencode</methodname>
    <methodparam><type>string</type><parameter>data</parameter></methodparam>
    <methodparam choice="opt"><type>int</type><parameter>level</parameter><initializer>-1</initializer></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>encoding_mode</parameter><initializer>FORCE_GZIP</initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>encoding</parameter><initializer><constant>ZLIB_ENCODING_GZIP</constant></initializer></methodparam>
   </methodsynopsis>
-  <para>  
-   Questa funzione restituisce una versione compressa di
-   <parameter>data</parameter> compatibile con l'output del
-   programma <command>gzip</command>.
+  <para>   
+   This function returns a compressed version of the input
+   <parameter>data</parameter> compatible with the output of the
+   <command>gzip</command> program.
   </para>
   <para>
-   Per ulteriori informazioni sul formato dei file GZIP, consultare il documento:
-   <link xlink:href="&url.rfc;1952">Specifica del formato di file GZIP
-   versione 4.3</link> (RFC 1952).
+   For more information on the GZIP file format, see the document:
+   <link xlink:href="&url.rfc;1952">GZIP file format specification
+   version 4.3</link> (RFC 1952).
   </para>
  </refsect1>
 
@@ -35,7 +34,7 @@
      <term><parameter>data</parameter></term>
      <listitem>
       <para>
-       I dati da codificare.
+       The data to encode.
       </para>
      </listitem>
     </varlistentry>
@@ -43,28 +42,23 @@
      <term><parameter>level</parameter></term>
      <listitem>
       <para>
-       Il livello di compressione. Può essere dato come 0 per nessuna compressione fino a 9
-       per la massima compressione. Se non viene fornito, il livello di compressione predefinito
-       adottato sarà quello di default della libreria zlib.
+       The level of compression. Can be given as 0 for no compression up to 9
+       for maximum compression. If not given, the default compression level will
+       be the default compression level of the zlib library.
       </para>
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>encoding_mode</parameter></term>
+     <term><parameter>encoding</parameter></term>
      <listitem>
       <para>
-       La modalità di codifica. Può essere <constant>FORCE_GZIP</constant> (il default)
-       o <constant>FORCE_DEFLATE</constant>.
+       The encoding mode. Can be <constant>FORCE_GZIP</constant> (the default)
+       or <constant>FORCE_DEFLATE</constant>. 
       </para>
       <para>
-       Prima di PHP 5.4.0, se si utilizza <constant>FORCE_DEFLATE</constant>, si ottiene
-       una stringa compressa col DEFLATE standard di zlib (comprendente gli header zlib) dopo un header
-       del file gzip ma senza il checksum crc32 finale.
-      </para>
-      <para>
-       In PHP 5.4.0 e versioni successive, <constant>FORCE_DEFLATE</constant> genera
-       un output conforme a RFC 1950, costituito da un header zlib, i dati
-       compressi col DEFLATE e un checksum Adler.
+       <constant>FORCE_DEFLATE</constant> generates
+       RFC 1950 compliant output, consisting of a zlib header, the deflated
+       data, and an Adler checksum.
       </para>
      </listitem>
     </varlistentry>
@@ -75,25 +69,23 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   La stringa codificata o &false; se si è verificato un errore.
+   The encoded string, or &false; if an error occurred.
   </para>
  </refsect1>
 
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
-   I dati risultanti contengono gli header e la struttura
-   dati appropriati per creare un file .gz standard, ad esempio:
+   The resulting data contains the appropriate headers and data
+   structure to make a standard .gz file, e.g.:
    <example>
-    <title>Creare un file gzip</title>
+    <title>Creating a gzip file</title>
     <programlisting role="php">
 <![CDATA[
 <?php
-$data = implode("", file("bigfile.txt"));
+$data = file_get_contents("bigfile.txt");
 $gzdata = gzencode($data, 9);
-$fp = fopen("bigfile.txt.gz", "w");
-fwrite($fp, $gzdata);
-fclose($fp);
+file_put_contents("bigfile.txt.gz", $gzdata);
 ?>
 ]]>
     </programlisting>
@@ -112,7 +104,7 @@ fclose($fp);
     <member><function>gzcompress</function></member>
     <member>
      <link xlink:href="&url.rfc;1950">
-      Specifica del Formato dei Dati Compressi ZLIB (RFC 1950)
+      ZLIB Compressed Data Format Specification (RFC 1950)
      </link>
     </member>
    </simplelist>
@@ -120,7 +112,6 @@ fclose($fp);
  </refsect1>
 
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,81 +1,131 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/pgsql.xml, last change in rev 1.10 -->
-<!-- last change to 'pg-fetch-row' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.70/EN.1.2 -->
-<!-- CREDITS: fabio,cortesi,denny -->
-  <refentry xml:id="function.pg-fetch-row" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_fetch_row</refname>
-    <refpurpose>Carica una tupla in un array</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>array</type><methodname>pg_fetch_row</methodname>
-      <methodparam><type>resource</type><parameter>result</parameter></methodparam>
-      <methodparam><type>int</type><parameter>tupla</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_fetch_row</function> carica un record dal
-     risultato della query associato alla risorsa identificata
-     da <parameter>result</parameter>.  La riga (record) è
-     restituia sotto form di array. Ogni campo è identificato da un indice
-     numerico, che inizia da 0.
-    </para>
-    <para> 
-     Restituisce un array che corrisponde alla riga caricata, oppure &false;
-     se non ci sono altre tuple.
-    </para>
-    <para>
-     <example>
-      <title>Postgres fetch row</title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.2 -->
+<refentry xml:id="function.pg-fetch-row" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_fetch_row</refname>
+  <refpurpose>Get a row as an enumerated array</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>array</type><type>false</type></type><methodname>pg_fetch_row</methodname>
+   <methodparam><type>PgSql\Result</type><parameter>result</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>row</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>mode</parameter><initializer><constant>PGSQL_NUM</constant></initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_fetch_row</function> fetches one row of data from
+   the result associated with the specified <parameter>result</parameter> instance.
+  </para>
+  &database.fetch-null;
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>result</parameter></term>
+     <listitem>
+      &pgsql.parameter.result;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>row</parameter></term>
+     <listitem>
+      <para>
+       Row number in result to fetch. Rows are numbered from 0 upwards. If
+       omitted or &null;, the next row is fetched.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>mode</parameter></term>
+     <listitem>
+      &pgsql.parameter.mode;
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   An <type>array</type>, indexed from 0 upwards, with each value
+   represented as a <type>string</type>.  Database <literal>NULL</literal>
+   values are returned as &null;.
+  </para>
+  <para>
+   &false; is returned if <parameter>row</parameter> exceeds the number
+   of rows in the set, there are no more rows, or on any other error.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &pgsql.changelog.result-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>pg_fetch_row</function> example</title>
+    <programlisting role="php">
 <![CDATA[
-<?php 
-$conn = pg_pconnect ("dbname=editori");
+<?php
+
+$conn = pg_pconnect("dbname=publisher");
 if (!$conn) {
-    echo "Si è verificato un errore.\n";
-    exit;
+  echo "An error occurred.\n";
+  exit;
 }
 
-$result = pg_query ($conn, "SELECT * FROM autori");
-if (!$rrisultato) {
-    echo "Si è verificato un errore.\n";
-    exit;
+$result = pg_query($conn, "SELECT author, email FROM authors");
+if (!$result) {
+  echo "An error occurred.\n";
+  exit;
 }
 
-while ($row = pg_fetch_row($risultato, $i)) {
-  for ($j=0; $j < count($row); $j++) {
-    echo "$row[$j]&nbsp;";
-  }
-
-  echo "<BR>";
-
+while ($row = pg_fetch_row($result)) {
+  echo "Author: $row[0]  E-mail: $row[1]";
+  echo "<br />\n";
 }
  
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Vedere anche
-     <function>pg_query</function>,
-     <function>pg_fetch_array</function>,
-     <function>pg_fetch_object</function> e
-     <function>pg_fetch_result</function>.
-    </para>
-    <note>
-     <para>
-      Dalla versione 4.1.0, <parameter>row</parameter> è opzionale.
-      La chiamata a <function>pg_fetch_row</function> incrementa
-      il puntatore alle tuple di 1.
-     </para>
-    </note>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_query</function></member>
+    <member><function>pg_fetch_array</function></member>
+    <member><function>pg_fetch_object</function></member>
+    <member><function>pg_fetch_result</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,61 +1,130 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/sockets.xml, last change in rev 1.4 -->
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-  <refentry xml:id="function.socket-getpeername" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>socket_getpeername</refname>
-    <refpurpose>
-     Interroga il lato remoto di un dato socket per ottenere o la combinazione host/porta
-     od un percorso Unix, in base al tipo di socket
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>socket_getpeername</methodname>
-      <methodparam><type>resource</type><parameter>socket</parameter></methodparam>
-      <methodparam><type>string</type><parameter>&amp;indirizzo</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>&amp;porta</parameter></methodparam>
-     </methodsynopsis>
-     &warn.experimental.func;
-    <para>
-     Se il socket dato è di tipo <constant>AF_INET</constant> oppure <constant>AF_INET6</constant>,
-     <function>socket_getpeername</function> restituisce l'<emphasis>indirizzo IP</emphasis>
-     remoto nella notazione appropriata (ad esempio
-     <literal>127.0.0.1</literal> oppure <literal>fe80::1</literal>) nel parametro <parameter>indirizzo</parameter>
-     e, se presente il parametro opzionale <parameter>porta</parameter>,
-     anche la porta associata.
-    </para>
-    <para>
-     Se il socket dato è di tipo <constant>AF_UNIX</constant>,
-     <function>socket_getpeername</function> restituirà un percorso Unix
-     (ad esempio <literal>/var/run/daemon.sock</literal>) nel
-     parametro <parameter>indirizzo</parameter>.
-    </para>
-    <note>
-     <simpara>
-      La funzione <function>socket_getpeername</function> non dovrebbe essere usata con socket
-      <constant>AF_UNIX</constant> creati da <function>socket_accept</function>.
-      Soltanto i socket creati con <function>socket_connect</function> o un socket
-      server primario conseguente alla chiamata di <function>socket_bind</function> restituirà
-      dei valori significativi.
-     </simpara>
-    </note>
-    <para>
-     &return.success; <function>socket_getpeername</function> può anche restituire
-     &false; se il tipo di socket non è <constant>AF_INET</constant>, <constant>AF_INET6</constant> o
-     <constant>AF_UNIX</constant>, in questo caso l'ultimo codice di errore del socket
-     <emphasis>non</emphasis> viene aggiornato.
-    </para>
-    <para>
-     Vedere anche
-     <function>socket_getsockname</function>,
-     <function>socket_last_error</function> e
-     <function>socket_strerror</function>.
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.socket-getpeername" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>socket_getpeername</refname>
+  <refpurpose>Queries the remote side of the given socket</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>socket_getpeername</methodname>
+   <methodparam><type>Socket</type><parameter>socket</parameter></methodparam>
+   <methodparam><type>string</type><parameter role="reference">address</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter role="reference">port</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Queries the remote side of the given socket which may either result in
+   host/port or in a Unix filesystem path, dependent on its type.
+  </para>
+ </refsect1>
 
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>socket</parameter></term>
+     <listitem>
+      <para>
+       A <classname>Socket</classname> instance created with <function>socket_create</function>
+       or <function>socket_accept</function>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>address</parameter></term>
+     <listitem>
+      <para>
+       If the given socket is of type <constant>AF_INET</constant> or
+       <constant>AF_INET6</constant>, <function>socket_getpeername</function>
+       will return the peers (remote) <emphasis>IP address</emphasis> in
+       appropriate notation (e.g. <literal>127.0.0.1</literal> or
+       <literal>fe80::1</literal>) in the <parameter>address</parameter>
+       parameter and, if the optional <parameter>port</parameter> parameter is
+       present, also the associated port.
+      </para>
+      <para>
+       If the given socket is of type <constant>AF_UNIX</constant>,
+       <function>socket_getpeername</function> will return the Unix filesystem
+       path (e.g. <literal>/var/run/daemon.sock</literal>) in the
+       <parameter>address</parameter> parameter.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>port</parameter></term>
+     <listitem>
+      <para>
+       If given, this will hold the port associated to
+       <parameter>address</parameter>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success; <function>socket_getpeername</function> may also return
+   &false; if the socket type is not any of <constant>AF_INET</constant>,
+   <constant>AF_INET6</constant>, or <constant>AF_UNIX</constant>, in which
+   case the last socket error code is <emphasis>not</emphasis> updated.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &sockets.changelog.socket-param;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    <function>socket_getpeername</function> should not be used with
+    <constant>AF_UNIX</constant> sockets created with <function>socket_accept</function>.
+    Only sockets created with <function>socket_connect</function> or a primary
+    server socket following a call to <function>socket_bind</function> will return
+    meaningful values.
+   </para>
+  </note>
+  <note>
+   <para>
+    For having <function>socket_getpeername</function> to return a meaningful value,
+    the socket it is applied upon must of course be one for which the concept of 
+    "peer" makes sense.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>socket_getsockname</function></member>
+    <member><function>socket_last_error</function></member>
+    <member><function>socket_strerror</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

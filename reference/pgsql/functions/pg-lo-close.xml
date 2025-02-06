@@ -1,40 +1,105 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
 <!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.2 -->
-<!-- CREDITS: fabio,cortesi,denny -->
-  <refentry xml:id="function.pg-lo-close" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_lo_close</refname>
-    <refpurpose>Chiude un large object</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>pg_lo_close</methodname>
-      <methodparam><type>resource</type><parameter>large_object</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_lo_close</function> chiude un Large
-     Object. <parameter>large_object</parameter> è una risorsa 
-     large object ottenuta attraverso <function>pg_lo_open</function>.
-    </para>
-    <para>
-     Per utilizzare l'interfaccia large object (lo), è necessario
-     includere la chiamata in un blocco di transazione.
-    </para>
-    <note>
-     <para>
-      Questa funzione si chiamava <literal>pg_loclose()</literal>.
-     </para>
-    </note>
-    <para>
-     Vedere anche <function>pg_lo_open</function>,
-     <function>pg_lo_create</function> e
-     <function>pg_lo_import</function>.
-    </para>
-   </refsect1>
-  </refentry>
+<refentry xml:id="function.pg-lo-close" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_lo_close</refname>
+  <refpurpose>Close a large object</refpurpose>
+ </refnamediv>
 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>pg_lo_close</methodname>
+   <methodparam><type>PgSql\Lob</type><parameter>lob</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_lo_close</function> closes a large object.
+  </para>
+  <para>
+   To use the large object interface, it is necessary to
+   enclose it within a transaction block.
+  </para>
+  <note>
+   <para>
+    This function used to be called <function>pg_loclose</function>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>lob</parameter></term>
+     <listitem>
+      &pgsql.parameter.lob;
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &pgsql.changelog.lob-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>pg_lo_close</function> example</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+   $database = pg_connect("dbname=jacarta");
+   pg_query($database, "begin");
+   $oid = pg_lo_create($database);
+   echo "$oid\n";
+   $handle = pg_lo_open($database, $oid, "w");
+   echo "$handle\n";
+   pg_lo_write($handle, "large object data");
+   pg_lo_close($handle);
+   pg_query($database, "commit");
+?>
+]]>
+    </programlisting>
+   </example> 
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_lo_open</function></member>
+    <member><function>pg_lo_create</function></member>
+    <member><function>pg_lo_import</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

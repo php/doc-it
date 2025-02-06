@@ -1,22 +1,212 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-  <refentry xml:id="function.posix-getrlimit" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>posix_getrlimit</refname>
-    <refpurpose>Restituisce informazioni sui limiti delle risorse del sistema</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>array</type><methodname>posix_getrlimit</methodname>
-      <void/>
-     </methodsynopsis>
-     <para>
-     &warn.undocumented.func;
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<refentry xml:id="function.posix-getrlimit" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>posix_getrlimit</refname>
+  <refpurpose>Return info about system resource limits</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>array</type><type>false</type></type><methodname>posix_getrlimit</methodname>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>resource</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>posix_getrlimit</function> returns an <type>array</type>
+   of information about the current resource's soft and hard limits.
+  </para>
+  &posix.rlimits;
+ </refsect1>
 
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>resource</parameter></term>
+     <listitem>
+      <para>
+       If &null; all resource limits will be fetched.
+       Otherwise, the only limits of the resource type provided will be returned.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Returns an associative <type>array</type> of elements for each
+   limit that is defined. Each limit has a soft and a hard limit.
+   <table>
+    <title>List of possible limits returned</title>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>Limit name</entry>
+       <entry>Limit description</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>core</entry>
+       <entry>
+        The maximum size of the core file.  When 0, not core files are
+        created.  When core files are larger than this size, they will
+        be truncated at this size.
+       </entry>
+      </row>
+      <row>
+       <entry>totalmem</entry>
+       <entry>
+        The maximum size of the memory of the process, in bytes.
+       </entry>
+      </row>
+      <row>
+       <entry>virtualmem</entry>
+       <entry>
+        The maximum size of the virtual memory for the process, in bytes.
+       </entry>
+      </row> 
+      <row>
+       <entry>data</entry>
+       <entry>
+        The maximum size of the data segment for the process, in bytes.
+       </entry>
+      </row>
+      <row>
+       <entry>stack</entry>
+       <entry>
+        The maximum size of the process stack, in bytes.
+       </entry>
+      </row>
+      <row>
+       <entry>rss</entry>
+       <entry>
+        The maximum number of virtual pages resident in RAM
+       </entry>
+      </row>
+      <row>
+       <entry>maxproc</entry>
+       <entry>
+        The maximum number of processes that can be created for the
+        real user ID of the calling process.
+       </entry>
+      </row>
+      <row>
+       <entry>memlock</entry>
+       <entry>
+        The maximum number of bytes of memory that may be locked into RAM.
+       </entry>
+      </row>
+      <row>
+       <entry>cpu</entry>
+       <entry>
+        The amount of time the process is allowed to use the CPU.
+       </entry>
+      </row>
+      <row>
+       <entry>filesize</entry>
+       <entry>
+        The maximum size of the data segment for the process, in bytes.
+       </entry>
+      </row>
+      <row>
+       <entry>openfiles</entry>
+       <entry>
+        One more than the maximum number of open file descriptors.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </table>
+   The function returns &false; on failure.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.3.0</entry>
+      <entry>
+       The optional <parameter>resource</parameter> parameter has been added.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Example use of <function>posix_getrlimit</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+$limits = posix_getrlimit();
+
+print_r($limits);
+?>
+]]>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+Array
+(
+    [soft core] => 0
+    [hard core] => unlimited
+    [soft data] => unlimited
+    [hard data] => unlimited
+    [soft stack] => 8388608
+    [hard stack] => unlimited
+    [soft totalmem] => unlimited
+    [hard totalmem] => unlimited
+    [soft rss] => unlimited
+    [hard rss] => unlimited
+    [soft maxproc] => unlimited
+    [hard maxproc] => unlimited
+    [soft memlock] => unlimited
+    [hard memlock] => unlimited
+    [soft cpu] => unlimited
+    [hard cpu] => unlimited
+    [soft filesize] => unlimited
+    [hard filesize] => unlimited
+    [soft openfiles] => 1024
+    [hard openfiles] => 1024
+)
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member>man page GETRLIMIT(2)</member>
+    <member><function>posix_setrlimit</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

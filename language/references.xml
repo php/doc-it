@@ -1,72 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: a2a141160a466ff8eb34be4c75e7701b75d689ad Maintainer: cucinato  Status: ready -->
+<!-- $Revision$ -->
  <chapter xml:id="language.references" xmlns="http://docbook.org/ns/docbook">
-  <title>Spiegazioni sui riferimenti</title>
-
+  <title>References Explained</title>
+  
   <sect1 xml:id="language.references.whatare">
-   <title>Cosa sono i riferimenti</title>
+   <title>What References Are</title>
    <simpara>
-    I riferimenti in PHP sono il mezzo per accedere ad uno stesso contenuto di variabile 
-    utilizzando diversi nomi. Non si sta parlando di puntatori come in C; per esempio,
-    non si può effettuare aritmetica dei puntatori, perché non sono
-    reali indirizzi di memoria, e così via. Vedere
-    <xref linkend="language.references.arent" /> per ulteriori
-    informazioni. Al contrario, sono alias nella tabella dei simboli. Si noti che in
-    PHP, il nome delle variabili e il loro contenuto sono cose diverse, uno stesso
-    contenuto infatti può avere nomi diversi. L'analogia più prossima è quella con
-    i nomi dei file e i file stessi in Unix - i nomi delle variabili sono come directory,
-    mentre il contenuto delle variabili è il file stesso. I riferimenti possono essere
-    pensati come hardlink del filesystem Unix.
+    References in PHP are a means to access the same variable content
+    by different names. They are not like C pointers; for instance,
+    you cannot perform pointer arithmetic using them, they are not
+    actual memory addresses, and so on. See
+    <xref linkend="language.references.arent" /> for more
+    information. Instead, they are
+    <link linkend="features.gc.refcounting-basics">symbol table</link>
+    aliases. Note that in PHP, variable name and variable content are different, so the same
+    content can have different names. The closest analogy is with
+    Unix filenames and files - variable names are directory entries,
+    while variable content is the file itself. References can be
+    likened to hardlinking in Unix filesystem.
    </simpara>
   </sect1>
 
   <sect1 xml:id="language.references.whatdo">
-   <title>Che cosa fanno i riferimenti</title>
+   <title>What References Do</title>
    <para>
-    Esistono tre operazioni principali effettuate attraverso i riferimenti:
-    <link linkend="language.references.whatdo.assign">assegnare per
-    riferimento</link>, <link linkend="language.references.whatdo.pass">passare
-    per riferimento</link>,
-    e <link linkend="language.references.whatdo.return">restituzione per
-    riferimento</link>. Questa sezione darà un'introduzione a queste
-    operazioni, con collegamenti per ulteriori informazioni.
+    There are three basic operations performed using references:
+    <link linkend="language.references.whatdo.assign">assigning by
+    reference</link>, <link linkend="language.references.whatdo.pass">passing
+    by reference</link>,
+    and <link linkend="language.references.whatdo.return">returning by
+    reference</link>. This section will give an introduction to these
+    operations, with links for further reading.
    </para>
    <sect2 xml:id="language.references.whatdo.assign">
-    <title>Assegnazione per Riferimento</title>
+    <title>Assign By Reference</title>
     <para>
-     Attraverso questa prima operazione, i riferimenti PHP permettono di
-     far sì che due variabili facciano riferimento allo stesso contenuto. Questo significa, che scrivendo:
+     In the first of these, PHP references allow you to make two
+     variables refer to the same content. Meaning, when you do:
      <informalexample>
       <programlisting role="php">
 <![CDATA[
 <?php
+
 $a =& $b;
+
 ?>
 ]]>
       </programlisting>
      </informalexample>
-     <varname>$a</varname> e <varname>$b</varname>
-     puntano allo stesso contenuto.
+     it means that <varname>$a</varname> and <varname>$b</varname>
+     point to the same content.
      <note>
       <para>
-       <varname>$a</varname> e <varname>$b</varname> sono completamente
-       uguali, ma <varname>$a</varname> non è un puntatore a
-       <varname>$b</varname> o vice versa,
-       <varname>$a</varname> e <varname>$b</varname> puntano semplicemente nello
-       stesso posto.
+       <varname>$a</varname> and <varname>$b</varname> are completely
+       equal here. <varname>$a</varname> is not pointing to
+       <varname>$b</varname> or vice versa.
+       <varname>$a</varname> and <varname>$b</varname> are pointing to the
+       same place.
       </para>
      </note>
     </para>
     <note>
      <para>
-      Se si assegna, si passa o si restituisce per riferimento una variabile non definita,
-      questa verrà creata.
+      If you assign, pass, or return an undefined variable by reference, 
+      it will get created.
       <example>
-       <title>Uso dei riferimenti con variabili non definite</title>
+       <title>Using references with undefined variables</title>
        <programlisting role="php">
 <![CDATA[
 <?php
-function foo(&$var) { }
+
+function foo(&$var) {}
 
 foo($a); // $a is "created" and assigned to null
 
@@ -74,9 +78,10 @@ $b = array();
 foo($b['b']);
 var_dump(array_key_exists('b', $b)); // bool(true)
 
-$c = new StdClass;
+$c = new stdClass();
 foo($c->d);
 var_dump(property_exists($c, 'd')); // bool(true)
+
 ?>
 ]]>
        </programlisting>
@@ -84,45 +89,45 @@ var_dump(property_exists($c, 'd')); // bool(true)
      </para>
     </note>
     <para>
-     La stessa sintassi può essere usata con funzioni che restituiscono
-     riferimenti, e con l'operatore <literal>new</literal> (a partire da PHP
-     4.0.4 e prima di PHP 5.0.0):
+     The same syntax can be used with functions that return
+     references:
      <informalexample>
       <programlisting role="php">
 <![CDATA[
 <?php
+
 $foo =& find_var($bar);
+
 ?>
 ]]>
       </programlisting>
      </informalexample>
-     Da PHP 5, <link linkend="language.oop5.basic.new">new</link>
-     restituisce automaticamente un riferimento, quindi
-     usare <literal>=&amp;</literal> in questo contesto è deprecato e
-     produce un messaggio <constant>E_DEPRECATED</constant> in PHP 5.3 e
-     successivi, e un messaggio <constant>E_STRICT</constant> nelle versioni precedenti.
-     (Tecnicamente, la differenza consiste nel fatto che, in PHP 5, le variabili object, come pure le
-     risorse, sono semplici puntatori ai veri dati dell'oggetto, quindi questi
-     riferimenti a oggetto non sono "riferimenti" nel senso usato in precedenza (alias).
-     Per maggiori informazioni, vedere <link linkend="language.oop5.references">Oggetti
-     e riferimenti</link>.
+    </para>
+    <para>
+     Using the same syntax with a function that does <emphasis>not</emphasis>
+     return by reference will give an error, as will using it with the result
+     of the <link linkend="language.oop5.basic.new">new</link> operator.
+     Although objects are passed around as pointers, these are not the same as references,
+     as explained under <link linkend="language.oop5.references">Objects and references</link>.
     </para>
     <warning>
      <para>
-      Se si assegna un riferimento ad una varibile dichiarata <literal>global</literal>
-      dall'interno di una funzione, il riferimento sarà visibile solo all'interno della funzione stessa.
-      Si può evitare tutto ciò utilizzando la matrice <varname>$GLOBALS</varname>.
+      If you assign a reference to a variable declared <literal>global</literal>
+      inside a function, the reference will be visible only inside the function.
+      You can avoid this by using the <varname>$GLOBALS</varname> array.
       <example>
-       <title>Riferimenti di varibiali globali all'interno di una funzione</title>
+       <title>Referencing global variables inside functions</title>
        <programlisting role="php">
 <![CDATA[
 <?php
+
 $var1 = "Example variable";
 $var2 = "";
 
 function global_references($use_globals)
 {
     global $var1, $var2;
+
     if (!$use_globals) {
         $var2 =& $var1; // visible only inside the function
     } else {
@@ -132,101 +137,115 @@ function global_references($use_globals)
 
 global_references(false);
 echo "var2 is set to '$var2'\n"; // var2 is set to ''
+
 global_references(true);
 echo "var2 is set to '$var2'\n"; // var2 is set to 'Example variable'
+
 ?>
 ]]>
        </programlisting>
       </example>
-      Si pensi a <literal>global $var;</literal> come ad una scorciatoia per <literal>$var
-        =&amp; $GLOBALS['var'];</literal>. Quindi assegnando altri riferimenti
-      a <literal>$var</literal> si cambia soltanto il riferimento della variabile locale.
+      Think about <literal>global $var;</literal> as a shortcut to <literal>$var
+        =&amp; $GLOBALS['var'];</literal>. Thus assigning another reference
+      to <literal>$var</literal> only changes the local variable's reference.
      </para>
     </warning>
     <note>
      <para>
-      Se si assegna un valore ad una variabile con riferimenti in una istruzione
-      &foreach;, anche la variabile a cui si fa riferimento sarà modificata.
+      If you assign a value to a variable with references in a 
+      &foreach; statement, the references are modified too.
       <example>
-       <title>Riferimenti e istruzione foreach</title>
+       <title>References and foreach statement</title>
        <programlisting role="php">
 <![CDATA[
 <?php
+
 $ref = 0;
 $row =& $ref;
+
 foreach (array(1, 2, 3) as $row) {
-    // esegue qualcosa
+    // Do something
 }
-echo $ref; // 3 - ultimo elemento dell'array
-<?
+
+echo $ref; // 3 - last element of the iterated array
+
+?>
 ]]>
        </programlisting>
       </example>
      </para>
     </note>
     <para>
-     Anche se non sono esattamente un'assegnazione per riferimento, le espressioni create
-     con il costrutto
-     <link linkend="function.array"><literal>array()</literal></link> si possono
-     comportare come tali anteponendo <literal>&amp;</literal> all'elemento
-     da aggiungere. Esempio:
+     While not being strictly an assignment by reference, expressions created
+     with the language construct
+     <link linkend="function.array"><literal>array()</literal></link> can also
+     behave as such by prefixing <literal>&amp;</literal> to the array element
+     to add. Example:
      <informalexample>
       <programlisting role="php">
 <![CDATA[
 <?php
+
 $a = 1;
 $b = array(2, 3);
+
 $arr = array(&$a, &$b[0], &$b[1]);
-$arr[0]++; $arr[1]++; $arr[2]++;
+$arr[0]++;
+$arr[1]++;
+$arr[2]++;
 /* $a == 2, $b == array(3, 4); */
+
 ?>
 ]]>
       </programlisting>
      </informalexample>
     </para>
     <para>
-     Si noti che i riferimenti all'interno degli array sono potenzialmente pericolosi.
-     Un'assegnazione normale (non per riferimento) di un riferimento nella parte destra
-     dell'espressione non treasforma in riferimento la variabile nella parte sinistra, ma i riferimenti
-     all'interno degli array sono comunque conservati in questo tipo di assegnazioni. Questo si applica
-     anche alle chiamate a funzione dove l'array è passato per valore. Esempio:
+     Note, however, that references inside arrays are potentially dangerous.
+     Doing a normal (not by reference) assignment with a reference on the
+     right side does not turn the left side into a reference, but references
+     inside arrays are preserved in these normal assignments. This also applies
+     to function calls where the array is passed by value. Example:
      <informalexample>
       <programlisting role="php">
 <![CDATA[
 <?php
-/* Assegnazione di variabili scalari */
+
+/* Assignment of scalar variables */
 $a = 1;
 $b =& $a;
 $c = $b;
-$c = 7; //$c non è un riferimento; nessun cambiamento in $a o $b
+$c = 7; // $c is not a reference; no change to $a or $b
 
-/* Assegnazione di variabili array */
+/* Assignment of array variables */
 $arr = array(1);
-$a =& $arr[0]; //$a e $arr[0] sono nello stesso insieme di riferimento
-$arr2 = $arr; //non è un'assegnazione per riferimento!
+$a =& $arr[0]; // $a and $arr[0] are in the same reference set
+$arr2 = $arr; // Not an assignment-by-reference!
 $arr2[0]++;
 /* $a == 2, $arr == array(2) */
-/* Il contenuto di $arr è modificato anche se non è un riferimento! */
+/* The contents of $arr are changed even though it's not a reference! */
+
 ?>
 ]]>
       </programlisting>
      </informalexample>
-     In altre parole, da un punto di vista dei riferimenti, il comportamento degli array è definito
-     elemento per elemento; il comportamento di ogni singolo elemento
-     è indipendente dallo stato di riferimento dell'array che lo contiene.
+     In other words, the reference behavior of arrays is defined in an
+     element-by-element basis; the reference behavior of individual elements
+     is dissociated from the reference status of the array container.
     </para>
    </sect2>
    <sect2 xml:id="language.references.whatdo.pass">
-    <title>Passaggio per Riferimento</title>
+    <title>Pass By Reference</title>
     <para>
-     Il secondo utilizzo del riferimento è il passaggio di una variabile
-     per riferimento. Questo si fa dichiarando una variabile locale di una funzione e
-     una variabile nell'ambito della chiamata del riferimento con lo stesso
-     contenuto. Esempio:
+     The second thing references do is to pass variables by
+     reference. This is done by making a local variable in a function
+     and a variable in the calling scope referencing the same
+     content. Example:
      <informalexample>
       <programlisting role="php">
 <![CDATA[
 <?php
+
 function foo(&$var)
 {
     $var++;
@@ -234,245 +253,264 @@ function foo(&$var)
 
 $a=5;
 foo($a);
+
 ?>
 ]]>
       </programlisting>
      </informalexample>
-     <varname>$a</varname> assume il valore 6. Questo accade perché
-     nella funzione <varname>foo</varname>, la variabile
-     <varname>$var</varname> si riferisce allo stesso contenuto di
-     <varname>$a</varname>. Si vedano le spiegazioni più dettagliate per <link
-     linkend="language.references.pass">passaggio per
-     riferimento</link>.
+     will make <varname>$a</varname> to be 6. This happens because in
+     the function <varname>foo</varname> the variable
+     <varname>$var</varname> refers to the same content as
+     <varname>$a</varname>. For more information on this, read
+     the <link linkend="language.references.pass">passing by
+       reference</link> section.
     </para>
    </sect2>
    <sect2 xml:id="language.references.whatdo.return">
-    <title>Restituzione per Riferimento</title>
+    <title>Return By Reference</title>
     <para>
-     Il terzo utilizzo del riferimento è il <link
-     linkend="language.references.return">ritorno per riferimento</link>.
+     The third thing references can do is <link
+     linkend="language.references.return">return by reference</link>.
     </para>
    </sect2>
   </sect1>
 
   <sect1 xml:id="language.references.arent">
-   <title>Cosa i riferimenti non sono</title>
+   <title>What References Are Not</title>
    <para>
-    Come detto prima, i riferimenti non sono puntatori. Questo significa, che
-    il seguente costrutto non fà quello che ci si aspetterebbe:
+    As said before, references are not pointers. That means, the
+    following construct won't do what you expect:
     <informalexample>
      <programlisting role="php">
 <![CDATA[
 <?php
+
 function foo(&$var)
 {
     $var =& $GLOBALS["baz"];
 }
-foo($bar); 
+
+foo($bar);
+
 ?>
 ]]>
      </programlisting>
     </informalexample>
    </para>
    <simpara>
-    Nell'esempio <varname>$var</varname> in
-    <varname>foo</varname> viene scambiato con
-    <varname>$bar</varname> nella chiamata, e poi
-    riscambiato con <varname>$GLOBALS["baz"]</varname>. Questo non è il modo
-    per collegare <varname>$bar</varname> nell'ambito della chiamata con qualcos'altro
-    usando il meccanismo di riferimento, poiché <varname>$bar</varname> non è
-    disponibile nella funzione <varname>foo</varname> (è rappresentato da
-    <varname>$var</varname>, ma <varname>$var</varname> possiede soltanto
-    il contenuto della variabile e non il nome del valore collegato nella tabella
-    dei simboli).
-    Si può utilizzare <link linkend="language.references.return">restiture i
-    riferimenti</link> per fare riferimenti a variabili selezionate dalla funzione.
+    What happens is that <varname>$var</varname> in
+    <varname>foo</varname> will be bound with
+    <varname>$bar</varname> in the caller, but then
+    re-bound with <varname>$GLOBALS["baz"]</varname>. There's no way
+    to bind <varname>$bar</varname> in the calling scope to something else
+    using the reference mechanism, since <varname>$bar</varname> is not
+    available in the function <varname>foo</varname> (it is represented by
+    <varname>$var</varname>, but <varname>$var</varname> has only
+    variable contents and not name-to-value binding in the calling
+    <link linkend="features.gc.refcounting-basics">symbol table</link>).
+    You can use <link linkend="language.references.return">returning
+    references</link> to reference variables selected by the function.
    </simpara>
   </sect1>
 
   <sect1 xml:id="language.references.pass">
-   <title>Passaggio per riferimento</title>
+   <title>Passing by Reference</title>
    <para>
-   Si può passare una variabile ad una funzione per riferimento, modificandone gli argomenti.
-   La sintassi è la seguente:
+   You can pass a variable by reference to a function so the function
+   can modify the variable. The syntax is as follows:
     <informalexample>
      <programlisting role="php">
 <![CDATA[
 <?php
+
 function foo(&$var)
 {
     $var++;
 }
 
 $a=5;
+
 foo($a);
-// $a adesso è 6
+// $a is 6 here
+
 ?>
 ]]>
      </programlisting>
     </informalexample>
     <note>
      <simpara>
-      Il simbolo del riferimento non si scrive nella chiamata della funzione, ma solo
-      nella sua definizione. La definizione della funzione basta da sola
-      per passare correttamente un argomento per riferimento. Dal PHP 5.3.0,
-      si avrà un warning indicante che "call-time pass-by-reference" (il passaggio per riferimento al momento della chiamata) è
-      deprecato quando si usa &amp; <literal>foo(&amp;$a);</literal>. 
-      Da PHP 5.4.0, il passaggio per riferimento al momento della chiamata è stato rimosso, quindi
-      usarlo provoca un errore fatale.
+      There is no reference sign on a function call - only on
+      function definitions. Function definitions alone are enough to
+      correctly pass the argument by reference.
      </simpara>
     </note>
   </para>
   <para>
-  Le seguenti cose possono essere passate per riferimento:
+  The following things can be passed by reference:
    <itemizedlist>
     <listitem>
      <simpara>
-      Variabili, es. <literal>foo($a)</literal>
-     </simpara>
-    </listitem>
-    <listitem>
-     <simpara>
-      Operatore New, es. <literal>foo(new foobar())</literal>
+      Variables, i.e. <literal>foo($a)</literal>
      </simpara>
     </listitem>
     <listitem>
      <para>
-      Riferimento restituito da una funzione, es.
+      References returned from functions, i.e.:
     <informalexample>
      <programlisting role="php">
 <![CDATA[
 <?php
+
 function foo(&$var)
 {
     $var++;
 }
+
 function &bar()
 {
     $a = 5;
     return $a;
 }
+
 foo(bar());
+
 ?>
 ]]>
      </programlisting>
     </informalexample>
-    Vedere anche le spiegazioni sulla <link
-    linkend="language.references.return">restituzione per riferimento</link>. 
+    See more about <link
+    linkend="language.references.return">returning by reference</link>. 
      </para>
     </listitem>
   </itemizedlist>
   </para>
   <para>
-  Nessun'altra espressione dovrebbe essere passata per riferimento, poiché
-  il risultato sarebbe indefinito. Per esempio, i seguenti esempi di passaggio
-  per riferimento non sono validi:
+  No other expressions should be passed by reference, as the
+  result is undefined. For example, the following examples of passing
+  by reference are invalid:
     <informalexample>
      <programlisting role="php">
 <![CDATA[
 <?php
+
 function foo(&$var)
 {
     $var++;
 }
-function bar() // Notare l'assenza di &
+
+function bar() // Note the missing &
 {
     $a = 5;
     return $a;
 }
-foo(bar()); // Produce un errore fatale da PHP 5.0.5
 
-foo($a = 5); // Expressione: non una variabile
-foo(5); // Genera un errore fatale
+foo(bar()); // Produces a notice
+
+foo($a = 5); // Expression, not variable
+foo(5); // Produces fatal error
+
+class Foobar {}
+
+foo(new Foobar()) // Produces a notice as of PHP 7.0.7
+                  // Notice: Only variables should be passed by reference
+
 ?>
 ]]>
      </programlisting>
     </informalexample>
-    Questi requisiti sono validi per PHP 4.0.4 e seguenti.
    </para>
   </sect1>
 
   <sect1 xml:id="language.references.return">
-   <title>Restituzione per riferimento</title>
+   <title>Returning References</title>
    <para>
-    La restituzione per riferimento è utile quando si vuole usare una funzione
-    per trovare quale variabile un riferimento dovrebbe limitare.
-    <emphasis>Non</emphasis> utilizzare il ritorno per riferimento per incrementare le prestazioni,
-    l'engine è capace di ottimizzare il codice per proprio conto. Restituire valori per riferimento
-    solo se si hanno validi motivi tecnici. Per
-    restituire per riferimento, si usa questa sintassi:
+    Returning by reference is useful when you want to use a function
+    to find to which variable a reference should be bound. Do
+    <emphasis>not</emphasis> use return-by-reference to increase performance.
+    The engine will automatically optimize this on its own. Only return
+    references when you have a valid technical reason to do so. To
+    return references, use this syntax:
     <informalexample>
      <programlisting role="php">
 <![CDATA[
 <?php
-class foo {
+
+class Foo
+{
     public $value = 42;
 
-    public function &getValue() {
+    public function &getValue()
+    {
         return $this->value;
     }
 }
 
-$obj = new foo;
-$myValue = &$obj->getValue(); // $myValue è un riferimento a $obj->value, che vale 42.
+$obj = new Foo();
+$myValue = &$obj->getValue(); // $myValue is a reference to $obj->value, which is 42
 $obj->value = 2;
-echo $myValue;                // stampa il nuovo valore di $obj->value, es. 2.
+echo $myValue;                // Prints the new value of $obj->value, i.e. 2
+
 ?> 
 ]]>
      </programlisting>
     </informalexample>
-    In questo esempio, la proprietà dell'oggetto restituito dalla funzione
-    <varname>getValue</varname> viene impostata, non la
-    copia, come sarebbe stato senza l'uso della sintassi del riferimento.
+    In this example, the property of the object returned by the
+    <varname>getValue</varname> function would be set, not the
+    copy, as it would be without using reference syntax.
    </para>
    <note>
     <simpara>
-     Diversamente dal passaggio di un parametro, bisogna utilizzare
-     <literal>&amp;</literal> in entrambi i posti - nella dichiarazione per indicare che
-     si vuole restituire per riferimento, e non per copia come di consueto, 
-     e per indicare nella chiamata, il collegamento del riferimento, piuttosto che l'usuale 
-     assegnazione che verrebbe fatta per <varname>$myValue</varname>.
+     Unlike parameter passing, here you have to use
+     <literal>&amp;</literal> in both places - to indicate that you
+     want to return by reference, not a copy, and to indicate that
+     reference binding, rather than usual assignment, should be done
+     for <varname>$myValue</varname>.
     </simpara>
    </note>
    <note>
     <simpara>
-     Se si tenta di restituire un valore per riferimento da una funzione con la sintassi:
-     <literal>return ($this->value);</literal> questo <emphasis>non</emphasis>
-     funzionerà poiché si sta tentando di restituire per riferimento il risultato di un'
-     <emphasis>espressione</emphasis>, e non una variabile. Da una funzione, si possono restituire
-     per riferimento solo le variabili.
-     A partire da PHP 4.4.0 e PHP 5.1.0, un
-     errore <constant>E_NOTICE</constant> è lanciato se il codice cerca di restituire
-     un'espressione dinamica o un risultato dell'operatore <literal>new</literal>.
+     If you try to return a reference from a function with the syntax:
+     <literal>return ($this->value);</literal> this will <emphasis>not</emphasis>
+     work as you are attempting to return the result of an
+     <emphasis>expression</emphasis>, and not a variable, by reference. You can
+     only return variables by reference from a function - nothing else.
     </simpara>
    </note>
    <para>
-   Per utilizzare il riferimento restituito, occorre usare l'assegnazione per riferimento:
+   To use the returned reference, you must use reference assignment:
     <informalexample>
      <programlisting role="php">
 <![CDATA[
 <?php
-function &collector() {
-  static $collection = array();
-  return $collection;
+
+function &collector()
+{
+    static $collection = array();
+    return $collection;
 }
+
 $collection = &collector();
 $collection[] = 'foo';
+
 ?> 
 ]]>
      </programlisting>
     </informalexample>
-   Al fine di passare il riferimento a un'altra funzione che richiede un riferimento
-   si può usare questa sintassi:
+   To pass the returned reference to another function expecting a reference
+   you can use this syntax:
     <informalexample>
      <programlisting role="php">
 <![CDATA[
 <?php
-function &collector() {
-  static $collection = array();
-  return $collection;
+
+function &collector()
+{
+    static $collection = array();
+    return $collection;
 }
+
 array_push(collector(), 'foo');
+
 ?> 
 ]]>
      </programlisting>
@@ -480,74 +518,70 @@ array_push(collector(), 'foo');
    </para>
    <note>
     <simpara>
-      Si noti che <literal>array_push(&amp;collector(), 'foo');</literal>
-      <emphasis>non</emphasis> funzionerà, ma creerà un errore fatale.
+      Note that <literal>array_push(&amp;collector(), 'foo');</literal> will
+      <emphasis>not</emphasis> work, it results in a fatal error.
     </simpara>
    </note>
   </sect1>
 
   <sect1 xml:id="language.references.unset">
-   <title>Cancellare riferimenti</title>
+   <title>Unsetting References</title>
    <para>
-    Quando si cancella un riferimento, si rompe il collegamento tra il
-    nome della variabile e il contenuto della variabile. Questo non significa
-    che il contenuto della variabile venga distrutto. Per esempio:
+    When you unset the reference, you just break the binding between
+    variable name and variable content. This does not mean that
+    variable content will be destroyed. For example:
     <informalexample>
      <programlisting role="php">
 <![CDATA[
 <?php
+
 $a = 1;
 $b =& $a;
 unset($a); 
+
 ?>
 ]]>
      </programlisting>
     </informalexample>
-    non cancella <varname>$b</varname>, ma solo <varname>$a</varname>. 
+    won't unset <varname>$b</varname>, just <varname>$a</varname>. 
    </para>
    <simpara>
-    Di nuovo, può essere utile pensare a questo con un'analogia col comendo Unix
-    <command>unlink</command>.
+    Again, it might be useful to think about this as analogous to the Unix
+    <command>unlink</command> call.
    </simpara>
   </sect1>
 
   <sect1 xml:id="language.references.spot">
    <title>Spotting References</title>
    <simpara>
-    Diversi costrutti in PHP sono implementati attraverso il meccanismo dei
-    riferimenti, dove ogni cosa detta precedentemente, si applica anche a
-    questi costrutti. Alcuni, come il passaggio e la
-    restituzione per riferimento, sono stati menzionati sopra, gli  
-    altri sono:
+    Many syntax constructs in PHP are implemented via referencing
+    mechanisms, so everything mentioned herein about reference binding also
+    applies to these constructs. Some constructs, like passing and
+    returning by reference, are mentioned above. Other constructs that
+    use references are:
    </simpara>
 
    <sect2 xml:id="references.global">
-    <title>Il riferimento <literal>global</literal></title>
+    <title>global References</title>
     <para>
-     Quando si dichiara una variabile come <command>global $var</command> di fatto
-     si crea un riferimento ad una variabile globale. Questo ha lo stesso significato,
-     dell'espressione:
+     When you declare a variable as <command>global $var</command> you
+     are in fact creating reference to a global variable. That means,
+     this is the same as:
      <informalexample>
       <programlisting role="php">
 <![CDATA[
 <?php
+
 $var =& $GLOBALS["var"];
+
 ?>
 ]]>
       </programlisting>
      </informalexample>
     </para>
     <simpara>
-     Questo significa, per esempio, che cancellando <varname>$var</varname>
-     non si cancella la variabile globale.
-    </simpara>
-   </sect2>
-
-   <sect2 xml:id="references.this">
-    <title><literal>$this</literal></title>
-    <simpara>
-     In un metodo di un oggetto, <varname>$this</varname> è sempre un riferimento
-     all'oggetto chiamante.
+     This also means that unsetting <varname>$var</varname>
+     won't unset the global variable.
     </simpara>
    </sect2>
   </sect1>

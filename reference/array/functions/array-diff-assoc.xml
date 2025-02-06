@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 9e0f03ac354d797d1d16c0fcc1663e5e170f2727 Maintainer: pastore Status: ready -->
-<!-- CREDITS: cucinato -->
+<!-- $Revision$ -->
 <refentry xml:id="function.array-diff-assoc" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>array_diff_assoc</refname>
-  <refpurpose>Calcola la differenza tra array con un ulteriore controllo sull'indice</refpurpose>
+  <refpurpose>Computes the difference of arrays with additional index check</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
@@ -15,9 +14,9 @@
    <methodparam rep="repeat"><type>array</type><parameter>arrays</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Confronta <parameter>array</parameter> con <parameter>arrays</parameter> e
-   restituisce la differenza. A differenza di <function>array_diff</function>, nel confronto
-   vengono utilizzate anche le chiavi dell'array.
+   Compares <parameter>array</parameter> against <parameter>arrays</parameter> and
+   returns the difference. Unlike <function>array_diff</function> the array
+   keys are also used in the comparison.
   </para>
  </refsect1>
 
@@ -30,7 +29,7 @@
      <term><parameter>array</parameter></term>
      <listitem>
       <para>
-       L'array da confrontare
+       The array to compare from
       </para>
      </listitem>
     </varlistentry>
@@ -39,7 +38,7 @@
      <term><parameter>arrays</parameter></term>
      <listitem>
       <para>
-       Gli array con cui confrontare
+       Arrays to compare against
       </para>
      </listitem>
     </varlistentry>
@@ -51,8 +50,27 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce un <type>array</type> contenente tutti i valori dell'
-   <parameter>array</parameter> che non sono presenti in nessuno degli altri array.
+   Returns an <type>array</type> containing all the values from
+   <parameter>array</parameter> that are not present in any of the other arrays.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      &array.changelog.require-only-one;
+     </tbody>
+    </tgroup>
+   </informaltable>
   </para>
  </refsect1>
 
@@ -67,19 +85,21 @@
   &reftitle.examples;
   <para>
    <example>
-    <title>Esempio di <function>array_diff_assoc</function></title>
+    <title><function>array_diff_assoc</function> example</title>
     <para>
-     In questo esempio si vede che la coppia <literal>"a" =&gt; "verde"</literal>
-     è presente in entrambi gli array e quindi non è nel risultato della
-     funzione. Invece, la coppia <literal>0 =&gt; "rosso"</literal> 
-     è nel risultato perché nel secondo argomento <literal>"red"</literal>
-     ha come chiave <literal>1</literal>. 
+     In this example the <literal>"a" =&gt; "green"</literal>
+     pair is present in both arrays and thus it is not in the output from the
+     function. Unlike this, the pair <literal>0 =&gt; "red"</literal>
+     is in the output because the key of <literal>"red"</literal> is
+     automatically assigned to <literal>0</literal> in the first array,
+     whereas it is assigned to <literal>1</literal> in the second array as the
+     key <literal>0</literal> is already taken by <literal>yellow</literal>.
     </para>
     <programlisting role="php">
 <![CDATA[
 <?php
-$array1 = array("a" => "verde", "b" => "marrone", "c" => "blu", "rosso");
-$array2 = array("a" => "verde", "giallo", "rosso");
+$array1 = array("a" => "green", "b" => "brown", "c" => "blue", "red");
+$array2 = array("a" => "green", "yellow", "red");
 $result = array_diff_assoc($array1, $array2);
 print_r($result);
 ?>
@@ -90,9 +110,9 @@ print_r($result);
 <![CDATA[
 Array
 (
-    [b] => marrone
-    [c] => blu
-    [0] => rosso
+    [b] => brown
+    [c] => blue
+    [0] => red
 )
 ]]>
     </screen>
@@ -100,12 +120,12 @@ Array
   </para>
   <para>
    <example>
-    <title>Esempio di <function>array_diff_assoc</function></title>
+    <title><function>array_diff_assoc</function> example</title>
     <para>
-     Due valori delle coppie <emphasis>chiave =&gt; valore</emphasis> sono
-     considerati uguali solo se <literal>(string) $elem1 === (string)
-     $elem2 </literal>. In altre parole c'è un controllo stringente che si accerta
-     che le rappresentazioni sotto forma di stringa siano uguali.
+     Two values from <emphasis>key =&gt; value</emphasis> pairs are
+     considered equal only if <literal>(string) $elem1 === (string)
+     $elem2 </literal>. In other words a strict check takes place so
+     the string representations must be the same.
     </para>
     <programlisting role="php">
 <![CDATA[
@@ -124,7 +144,7 @@ Array
 (
     [0] => 0
     [1] => 1
-    )
+)
 ]]>
     </screen>
    </example>
@@ -135,15 +155,15 @@ Array
   &reftitle.notes;
   <note>
    <simpara>
-    Si noti che questa funzione controlla solo una dimensione di un array
-    n-dimensionale. Ovviamente è possibile controllare le altre dimensioni usando, per esempio,
+    This function only checks one dimension of an n-dimensional
+    array. It is possible to check deeper dimensions by using, for example,
     <literal>array_diff_assoc($array1[0], $array2[0]);</literal>.
    </simpara>
   </note>
   <note>
    <simpara>
-    Assicurarsi di passare gli argomenti nell'ordine corretto quando si confrontano array
-    simili con più chiavi. Il nuovo array dovrebbe essere il primo nella lista.
+    Ensure arguments are passed in the correct order when comparing similar
+    arrays with more keys. The new array should be the first in the list.
    </simpara>
   </note>
  </refsect1>

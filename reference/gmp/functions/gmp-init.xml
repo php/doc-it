@@ -1,51 +1,139 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/gmp.xml, last change in rev 1.1 -->
-<!-- last change to 'gmp-init' in en/ tree in rev 1.1 -->
-<!-- EN-Revision: n/a Maintainer: calandra Status: ready -->
-<!-- OLD-Revision: 1.25/EN.1.1 -->
-  <refentry xml:id="function.gmp-init" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>gmp_init</refname>
-    <refpurpose>Crea un numero GMP</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>resource</type><methodname>gmp_init</methodname>
-      <methodparam><type>mixed</type><parameter>number</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Crea un numero GMP partendo da un intero o da una stringa. 
-     La stringa può essere decimale o esadecimale. Nell'ultimo caso, 
-     la stringa dovrebbe iniziare con  <literal>0x</literal>.
-    </para>
-    <para>
-     <example>
-      <title>Creare un numero GMP</title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: c75f19c74fa3b64abfafd7a35aaa652b07834a5a Maintainer: pastore Status: ready -->
+<!-- CREDITS calandra -->
+<refentry xml:id="function.gmp-init" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>gmp_init</refname>
+  <refpurpose>Crea un numero GMP</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>GMP</type><methodname>gmp_init</methodname>
+   <methodparam><type class="union"><type>int</type><type>string</type></type><parameter>num</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>base</parameter><initializer>0</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Crea un numero GMP partendo da un intero o da una stringa.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <variablelist>
+   <varlistentry>
+    <term><parameter>num</parameter></term>
+    <listitem>
+     <simpara>
+      Un intero o una stringa. La rappresentazione della stringa può essere
+      decimale, esadecimale, ottale o binaria.
+     </simpara>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><parameter>base</parameter></term>
+    <listitem>
+     <simpara>
+      La base da usare per convertire una rappresentazione <type>string</type>.
+     </simpara>
+     <simpara>
+      Una base esplicita può essere compresa tra <literal>2</literal> e <literal>62</literal>.
+      Per le basi fino a <literal>36</literal>, la differenza tra maiuscole e minuscole viene ignorata;
+      lettere maiuscole e minuscole hanno lo stesso valore.
+      Per le basi da <literal>37</literal> a <literal>62</literal>,
+      le lettere maiuscole rappresentano i valori da <literal>10</literal> a
+      <literal>35</literal> e le lettere minuscole rappresentano i valori
+      da <literal>36</literal> a <literal>61</literal>.
+     </simpara>
+     <simpara>
+      Se <parameter>base</parameter> è <literal>0</literal>, la base effettiva
+      viene determinata dai caratteri iniziali di <parameter>num</parameter>.
+      Se i primi due caratteri sono <literal>0x</literal> o <literal>0X</literal>,
+      la stringa viene interpretata come un intero esadecimale.
+      Se i primi due caratteri sono <literal>0b</literal> o <literal>0B</literal>,
+      la stringa viene interpretata come un intero binario.
+      Se i primi due caratteri sono <literal>0o</literal> o <literal>0o</literal>,
+      la stringa viene interpretata come un intero ottale.
+      Inoltre, se il primo carattere è <literal>0</literal>, la stringa
+      viene interpretata anche come un intero ottale.
+      In tutti gli altri casi, la stringa viene interpretata come un intero decimale.
+     </simpara>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &gmp.return;
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.1.0</entry>
+      <entry>
+       È stato aggiunto il supporto per i prefissi ottali espliciti <literal>0o</literal>
+       e <literal>0o</literal> per le stringhe <parameter>num</parameter>.
+       È stato anche aggiunto il supporto per l'interpretazione di tali prefissi
+       quando <parameter>base</parameter> è <literal>0</literal>.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Creazione di un numero GMP</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-    $a = gmp_init (123456);
-    $b = gmp_init ("0xFFFFDEBACDFEDF7200");
+$a = gmp_init(123456);
+$b = gmp_init("0xFFFFDEBACDFEDF7200");
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
-    <note>
-     <para>
-      Non è necessario chiamare uesta funzione se si vogliono usare
-      interi o stringhe al posto di numeri GMP nelle funzioni GMP, come
-      <function>gmp_add</function>. Se se questa conversione è possibile
-      e necessaria, gli argomenti delle funzioni vengono automaticamente
-      convertiti in numeri GMP, usando le stesse regole di 
-      <function>gmp_init</function>.
-     </para>
-    </note>
-   </refsect1>
-  </refentry>
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    Non è necessario chiamare questa funzione per usare interi o
+    stringhe al posto dei numeri GMP nelle funzioni GMP (come con
+    <function>gmp_add</function>). Gli argomenti della funzione vengono automaticamente
+    convertiti in numeri GMP, se tale conversione è possibile e necessaria, usando
+    le stesse regole di <function>gmp_init</function>.
+   </para>
+  </note>
+ </refsect1>
 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <simplelist>
+   <member><methodname>GMP::__construct</methodname></member>
+  </simplelist>
+ </refsect1>
+ 
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,219 +1,78 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
-<refentry xml:id="function.easter-date" xmlns="http://docbook.org/ns/docbook">
- <refnamediv>
-  <refname>easter_date</refname>
-  <refpurpose>Get Unix timestamp for local midnight on Easter of a given year</refpurpose>
- </refnamediv>
-
- <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <type>int</type><methodname>easter_date</methodname>
-   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>year</parameter><initializer>&null;</initializer></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>mode</parameter><initializer><constant>CAL_EASTER_DEFAULT</constant></initializer></methodparam>
-  </methodsynopsis>
-  <para>
-   Returns the Unix timestamp corresponding to midnight on Easter of
-   the given year.
-  </para>
-  <para>
-   The date of Easter Day was defined by the Council of Nicaea in
-   AD325 as the Sunday after the first full moon which falls on or
-   after the Spring Equinox.  The Equinox is assumed to always fall
-   on 21st March, so the calculation reduces to determining the date
-   of the full moon and the date of the following Sunday.  The
-   algorithm used here was introduced around the year 532 by
-   Dionysius Exiguus.  Under the Julian Calendar (for years before
-   1753) a simple 19-year cycle is used to track the phases of the
-   Moon.  Under the Gregorian Calendar (for years after 1753 -
-   devised by Clavius and Lilius, and introduced by Pope Gregory
-   XIII in October 1582, and into Britain and its then colonies in
-   September 1752) two correction factors are added to make the
-   cycle more accurate.
-  </para>
- </refsect1>
-
- <refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>year</parameter></term>
-     <listitem>
-      <para>
-       The year must be a number between 1970 and 2037 for 32-bit systems, or between 1970 and 2,000,000,000 for 64-bit systems.
-       If omitted or &null;, defaults to the current year according to the local time.
-      </para>
-     </listitem>
-    </varlistentry>  
-    <varlistentry>
-     <term><parameter>mode</parameter></term>
-     <listitem>
-      <para>
-       Allows Easter dates to be calculated based on the Julian calendar when set
-       to <constant>CAL_EASTER_ALWAYS_JULIAN</constant>. See also <link
-        linkend="calendar.constants">calendar constants</link>.
-       </para>
-     </listitem>
-    </varlistentry>  
-   </variablelist>
-  </para>
- </refsect1>
-
- <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   The easter date as a unix timestamp.
-  </para>
- </refsect1>
-
- <refsect1 role="errors">
-  &reftitle.errors;
-  <para>
-   A <classname>ValueError</classname> is thrown if the year is earlier than 1970 or later than 2037
-   when running on a 32-bit system, or later than 2,000,000,000 on a 64-bit system.
-  </para>
- </refsect1>
-
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <informaltable>
-   <tgroup cols="2">
-    <thead>
-     <row>
-      <entry>&Version;</entry>
-      <entry>&Description;</entry>
-     </row>
-    </thead>
-    <tbody>
-     <row>
-      <entry>8.3.0</entry>
-      <entry>
-       On 64-bit systems, the <parameter>year</parameter> parameter now accepts values within the range of 1970 to 2,000,000,000.
-      </entry>
-     </row>
-     <row>
-      <entry>8.0.0</entry>
-      <entry>
-       <parameter>year</parameter> is nullable now.
-      </entry>
-     </row>
-     <row>
-      <entry>8.0.0</entry>
-      <entry>
-       A <classname>ValueError</classname> is now thrown when
-       <parameter>year</parameter> is outside the allowed range.
-       Previously, an <constant>E_WARNING</constant> was raised
-       and the function returned &false;.
-      </entry>
-     </row>
-    </tbody>
-   </tgroup>
-  </informaltable>
- </refsect1>
-
- <refsect1 role="examples">
-  &reftitle.examples;
-  <para>
-   <example>
-    <title><function>easter_date</function> example</title>
-    <programlisting role="php">
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- splitted from ./it/functions/calendar.xml, last change in rev 1.1 -->
+<!-- last change to 'easter-date' in en/ tree in rev 1.2 -->
+<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
+<!-- OLD-Revision: 1.25/EN.1.2 -->
+  <refentry xml:id="function.easter-date" xmlns="http://docbook.org/ns/docbook">
+   <refnamediv>
+    <refname>easter_date</refname>
+    <refpurpose>
+     Restituisce un timestamp Unix della mezzanotte del giorno di Pasqua di un dato anno
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>easter_date</methodname>
+      <methodparam choice="opt"><type>int</type><parameter>anno</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Restituisce il timestamp Unix corrispondente alla mezzanotte del giorno di Pasqua
+     dell'anno specificato.
+    </para>
+    <para>
+     Dal <literal>PHP</literal> 4.3.0, il parametro <parameter>anno</parameter>
+     è opzionale e ha come default l'anno corrente, se
+     omesso.
+    </para>
+    <para>
+     <example>
+      <title>esempio di <function>easter_date</function></title>
+      <programlisting role="php">
 <![CDATA[
 <?php
 
-echo date("M-d-Y", easter_date(1999));        // Apr-04-1999
-echo date("M-d-Y", easter_date(2000));        // Apr-23-2000
-echo date("M-d-Y", easter_date(2001));        // Apr-15-2001
+echo date("d M Y", easter_date(1999));        // 04 Apr 1999
+echo date("d M Y", easter_date(2000));        // 23 Apr 2000
+echo date("d M Y", easter_date(2001));        // 15 Apr 2001
 
 ?>
 ]]>
-    </programlisting>
-   </example>
+      </programlisting>
+     </example>
+    </para>
+    <warning>
+     <para>
+      Questa funzione gerererà un allarme (warning) se l'anno è fuori
+      dall'escursione di validità dei timestamp UNIX (cioè prima del 1970 o dopo il 2037).
+     </para>
+    </warning>
+    <para>
+     La data della Pasqua fu definita dal Concilio di Nicea nel
+     325 d.C. come la Domenica successiva alla prima luna piena dopo
+     l'Equinozio di Primavera. Si assume che l'Equinozio cada sempre
+     il 21 Marzo, quindi il calcolo si riduce alla determinazione della data
+     della luna piena e la data della Domenica seguente.
+     L'algoritmo qui usato fu proposto attorno all'anno 532 d.C. da
+     Dionysius Exiguus (Dionigi il Piccolo). Nel Calendario Giuliano (for years before
+     1753) un semplice ciclo di 19 anni è usato per tracciare le fasi della
+     Luna. Nel Calendario Gregoriano (per gli anni dopo il 1753 -
+     ideato da Clavius e Lilius, e introdotto da Papa Gregorio
+     XIII nell'Ottobre 1582, e in Gran Bretagna e nelle sue colonie nel
+     Settembre 1752) due fattori correttivi sono aggiunti per rendere
+     più accurato il ciclo.
+    </para>
+    <para>
+     (Il codice è basato su un programma in C di Simon Kershaw,
+     &lt;webmaster at ely.anglican dot org&gt;)
+    </para>
+    <para>
+     Vedere <function>easter_days</function> per il calcolo della Pasqua
+     prima del 1970 o dopo il 2037.
+    </para>
+   </refsect1>
+  </refentry>
 
-   <example>
-    <title>Using <function>easter_date</function> with <classname>DateTime</classname></title>
-    <programlisting role="php">
-<![CDATA[
-<?php
-
-$timestamp = easter_date(2023);
-
-$datetime = new \DateTime();
-$datetime->setTimestamp($timestamp);
-
-echo $datetime->format('M-d-Y'); // Apr-09-2023
-
-?>
-]]>
-    </programlisting>
-   </example>
-  </para>
- </refsect1>
-
- <refsect1 role="notes">
-  &reftitle.notes;
-  <note>
-   <para>
-    <function>easter_date</function> relies on your system's C library time
-    functions, rather than using PHP's internal date and time functions. As a
-    consequence, <function>easter_date</function> uses the
-    <literal>TZ</literal> environment variable to determine the time zone it
-    should operate in, rather than using PHP's
-    <link linkend="ini.date.timezone">default time zone</link>, which may
-    result in unexpected behaviour when using this function in conjunction
-    with other date functions in PHP.
-   </para>
-   <para>
-    As a workaround, you can use the <function>easter_days</function> with
-    <classname>DateTime</classname> and <classname>DateInterval</classname> to
-    calculate the start of Easter in your PHP time zone as follows:
-   </para>
-   <informalexample>
-    <programlisting role="php">
-<![CDATA[
-<?php
-function get_easter_datetime($year) {
-    $base = new DateTime("$year-03-21");
-    $days = easter_days($year);
-
-    return $base->add(new DateInterval("P{$days}D"));
-}
-
-foreach (range(2012, 2015) as $year) {
-    printf("Easter in %d is on %s\n",
-           $year,
-           get_easter_datetime($year)->format('F j'));
-}
-?>
-]]>
-    </programlisting>
-    &example.outputs;
-    <screen>
-<![CDATA[
-Easter in 2012 is on April 8
-Easter in 2013 is on March 31
-Easter in 2014 is on April 20
-Easter in 2015 is on April 5
-]]>
-    </screen>
-   </informalexample>
-  </note>
- </refsect1>
-
- <refsect1 role="seealso">
-  &reftitle.seealso;
-  <para>
-   <simplelist>
-    <member>
-     <function>easter_days</function> for calculating Easter 
-     before 1970 or after 2037
-    </member>
-   </simplelist>
-  </para>
- </refsect1>
-
-</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

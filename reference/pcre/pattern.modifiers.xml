@@ -1,12 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+<!-- splitted from ./it/functions/pcre.xml, last change in rev 1.1 -->
 <article xml:id="reference.pcre.pattern.modifiers" xmlns="http://docbook.org/ns/docbook">
- <title>Pattern Modifiers</title>
- <titleabbrev>Possible modifiers in regex patterns</titleabbrev>
+ <title>Modificatori di criterio (Pattern Modifiers)</title>
+ <titleabbrev>Questo capitolo descrive i possibili modificatori applicabili ad una espressione regolare</titleabbrev>
   <para>
-   The current possible PCRE modifiers are listed below.  The names
-   in parentheses refer to internal PCRE names for these modifiers.
-   Spaces and newlines are ignored in modifiers, other characters cause error.
+   Di seguito saranno elencati i valori attualmente previsti. I nomi
+   posti tra parentesi si riferiscono ai corrispettivi nomi usati
+   internamente da PCRE.
   </para>
   <para>
    <blockquote>
@@ -15,8 +16,8 @@
       <term><emphasis>i</emphasis> (<literal>PCRE_CASELESS</literal>)</term>
       <listitem>
        <simpara>
-        If this modifier is set, letters in the pattern match both
-        upper and lower case letters.
+        Se si attiva questo modificatore, l'espressione regolare viene
+        riconosciuta senza distinguere tra le lettere maiuscole e minuscole.
        </simpara>
       </listitem>
      </varlistentry>
@@ -24,23 +25,23 @@
       <term><emphasis>m</emphasis> (<literal>PCRE_MULTILINE</literal>)</term>
       <listitem>
        <simpara>
-        By default, PCRE treats the subject string as consisting of a
-        single "line" of characters (even if it actually contains
-        several newlines). The "start of line" metacharacter (^)
-        matches only at the start of the string, while the "end of
-         line" metacharacter ($) matches only at the end of the
-        string, or before a terminating newline (unless
-        <emphasis>D</emphasis> modifier is set). This is the same as
-        Perl.
+        Per default, PCRE tratta il testo su cui fare la ricerca come
+        una "singola linea" di caratteri (anche se in realtà può
+        contenere diversi "a capo" (newline)). Il carattere di "inizio riga"
+        (^) indica solamente l'inizio del testo passato. Analogamente il
+        carattere di "fine riga" ($) indica la fine del testo o prima
+        se vi sono dei caratteri di "a capo" (a meno che
+        non sia attivato il modificatore <emphasis>D</emphasis>).
+        In questo modo si comporta anche Perl.
        </simpara>
        <simpara>
-        When this modifier is set, the "start of line" and "end of
-        line" constructs match immediately following or immediately
-        before any newline in the subject string, respectively, as
-        well as at the very start and end. This is equivalent to
-        Perl's /m modifier. If there are no "\n" characters in a
-        subject string, or no occurrences of ^ or $ in a pattern,
-        setting this modifier has no effect.
+        Invece quando viene indicato questo modificatore, "inizio riga"
+        e "fine riga" vengono identificati in base ai caratteri di "a capo"
+        presenti nel testo (rispettivamente subito dopo e subito prima di
+        questo carattere). Questo comportamento è equivalente
+        al modificatore /m di Perl. Se nel testo passato non vi sono
+        caratteri di "a capo" o non vi sono occorrenze dei caratteri
+        ^ o $ nell'espressione regolare, l'uso di questo modificatore non ha effetto.
        </simpara>
       </listitem>
      </varlistentry>
@@ -48,12 +49,12 @@
       <term><emphasis>s</emphasis> (<literal>PCRE_DOTALL</literal>)</term>
       <listitem>
        <simpara>
-        If this modifier is set, a dot metacharacter in the pattern
-        matches all characters, including newlines. Without it,
-        newlines are excluded. This modifier is equivalent to Perl's
-        /s modifier.  A negative class such as [^a] always matches a
-        newline character, independent of the setting of this
-        modifier.
+        Se si attiva questo modificatore, il carattere . usato
+        nell'espressione regolare indica tutti i possibili caratteri compreso il carattere di "a capo" (newline). Senza questo
+        modificatore il carattere "a capo" viene escluso.
+        Questo modificare è equivalente a /s di Perl. Una espressione
+        regolare contenente una forma negativa, come [^a], riconosce
+        sempre un "a capo" a prescindere da questo modificatore.
        </simpara>
       </listitem>
      </varlistentry>
@@ -61,30 +62,114 @@
       <term><emphasis>x</emphasis> (<literal>PCRE_EXTENDED</literal>)</term>
       <listitem>
        <simpara>
-        If this modifier is set, whitespace data characters in the
-        pattern are totally ignored except when escaped or inside a
-        character class, and characters between an unescaped #
-        outside a character class and the next newline character,
-        inclusive, are also ignored. This is equivalent to Perl's /x
-        modifier, and makes it possible to include commentary inside
-        complicated patterns. Note, however, that this applies only
-        to data characters. Whitespace characters may never appear
-        within special character sequences in a pattern, for example
-        within the sequence (?( which introduces a conditional
-        subpattern.
+        Se si attiva questo modificatore, verranno ignorati gli spazi
+        presenti nell'espressione regolare, tranne quelli preceduti dal
+        carattere di escape (\) o posti all'interno di una classe
+        di caratteri. Saranno, inoltre, ignorati i caratteri posti
+        tra il simbolo # (se non è preceduto dall'escape, ed è posto al
+        di fuori di una classe di caratteri) ed il successivo carattere
+        di "a capo" (newline). Questo comportamento equivale al flag /x
+        di Perl e consente di inserire dei commenti all'interno di
+        espressioni regolari complesse. Gli spazi bianchi non devono
+        mai comparire all'interno di sequenze speciali di caratteri,
+        come, ad esempio, la sequenza (?( che introduce ad un criterio condizionale.
        </simpara>
+      </listitem>
+     </varlistentry>
+     <varlistentry>
+      <term><emphasis>e</emphasis> (<literal>PREG_REPLACE_EVAL</literal>)</term>
+      <listitem>
+       <simpara>
+        Se viene specificato questo modificatore, la funzione <function>preg_replace</function>
+        attua la sostituzione dei riferimenti all'indietro nella
+        stringa di sostituzione, la interpreta come codice PHP, quindi utilizza il risultato
+        come testo da sostituire alle stringhe cercate.
+        Gli apici singoli e doppi  backslash (<literal>\</literal>) e i caratteri NULL sono
+        preceduti dal backslash nei riferimenti sostituiti.
+       </simpara>
+       <caution>
+        <para>
+         Ma funzione <function>addslashes</function> viene eseguita su ogni riferimento prima che
+         la sostituzione venga attuata. Quindi, quando il riferimento all'indietro
+         è utilizzato come una stringa tra apici, i caratteri con escape saranno convertiti
+         nella loro version letterale. Comunque i caratteri con escape che 
+         normalmente non sono tradotti manterranno il loro backslash. Questo rende
+         molto complicato l'utilizzo di questo modificatore.
+        </para>
+       </caution>
+       <caution>
+        <para>
+         Assicurarsi che <parameter>replacement</parameter> costituisca una stringa di codice PHP valido,
+         altrimenti PHP emetterà un errore alla linea che contiene
+         <function>preg_replace</function>.
+        </para>
+       </caution>
+       <caution>
+        <para>
+         L'uso di questo modificatore <emphasis>non è raccomandato</emphasis>, dal momento che può facilmente
+         introdurre delle vulnerabilità:
+        </para>
+        <informalexample>
+         <programlisting role="php">
+<![CDATA[
+<?php
+$html = $_POST['html'];
+
+// uppercase headings
+$html = preg_replace(
+    '(<h([1-6])>(.*?)</h\1>)e',
+    '"<h$1>" . strtoupper("$2") . "</h$1>"',
+    $html
+);
+]]>
+         </programlisting>
+        </informalexample>
+        <para>
+         L'esempio qui sopra può essere facilmente sfruttato passando una stringa come
+         <literal>&lt;h1&gt;{${eval($_GET[php_code])}}&lt;/h1&gt;</literal>. Questo dà
+         all'attaccante la possibiltà di eseguire codice PHP arbitrario e ciò gli permette
+         un access quasi totale al server.
+        </para>
+        <para>
+         Per evitare questo tipo di vulnerabilità, la funzione
+         <function>preg_replace_callback</function> deve essere utilizzata al suo posto:
+        </para>
+        <informalexample>
+         <programlisting role="php">
+<![CDATA[
+<?php
+$html = $_POST['html'];
+
+// uppercase headings
+$html = preg_replace_callback(
+    '(<h([1-6])>(.*?)</h\1>)',
+    function ($m) {
+        return "<h$m[1]>" . strtoupper($m[2]) . "</h$m[1]>";
+    },
+    $html
+);
+]]>
+         </programlisting>
+        </informalexample>
+       </caution>
+       <note>
+        <para>
+         Soltanto <function>preg_replace</function> utilizza questo modificatore;
+         le altre funzioni di PCRE lo ignorano.
+        </para>
+       </note>
       </listitem>
      </varlistentry>
      <varlistentry>
       <term><emphasis>A</emphasis> (<literal>PCRE_ANCHORED</literal>)</term>
       <listitem>
        <simpara>
-        If this modifier is set, the pattern is forced to be
-        "anchored", that is, it is constrained to match only at the
-        start of the string which is being searched (the "subject
-        string").  This effect can also be achieved by appropriate
-        constructs in the pattern itself, which is the only way to
-        do it in Perl.
+        Se si specifica questo modificatore, si forza un 'ancoraggio'
+        del criterio di ricerca. In pratica questo viene costretto
+        a riconoscere il testo su cui si fa la ricerca solo dall'inizio.
+        Questo effetto può essere ottenuto anche con particolari
+        costruzioni dell'espressione regolare, che rappresentano gli
+        unici modi utilizzabili in Perl per ottenere il medesimo scopo.
        </simpara>
       </listitem>
      </varlistentry>
@@ -92,13 +177,13 @@
       <term><emphasis>D</emphasis> (<literal>PCRE_DOLLAR_ENDONLY</literal>)</term>
       <listitem>
        <simpara>
-        If this modifier is set, a dollar metacharacter in the pattern
-        matches only at the end of the subject string. Without this
-        modifier, a dollar also matches immediately before the final
-        character if it is a newline (but not before any other
-        newlines).  This modifier is ignored if <emphasis>m</emphasis>
-        modifier is set. There is no equivalent to this modifier in
-        Perl.
+        L'uso di questo modificatore forza il carattere $ dell'espressione
+        regolare a indicare la fine della stringa oggetto della ricerca.
+        Senza questo modificatore il carattere $ indica la posizione subito
+        prima dell'ultimo carattere se questo è un "a capo" (ma comunque
+        non prima di ogni altro "a capo"). Questo modificatore viene ignorato
+        se è attivato il modificatore <emphasis>m</emphasis>. Non vi sono
+        flag equivalenti in Perl.
        </simpara>
       </listitem>
      </varlistentry>
@@ -106,13 +191,12 @@
       <term><emphasis>S</emphasis></term>
       <listitem>
        <simpara>
-        When a pattern is going to be used several times, it is
-        worth spending more time analyzing it in order to speed up
-        the time taken for matching. If this modifier is set, then
-        this extra analysis is performed. At present, studying a
-        pattern is useful only for non-anchored patterns that do not
-        have a single fixed starting character.
-        As of PHP 7.3.0 this flag has no effect.
+        Quando una espressione regolare è destinata ad essere utilizzata
+        diverse volte, vale la pena dedicare del tempo ad ottimizzare
+        la velocità di riconoscimento. L'uso di questo modificatore permette
+        questa analisi. Al momento lo studio della velocità è significativo
+        per i criteri di ricerca "non ancorati", cioè espressioni che non
+        hanno un carattere di partenza fisso.
        </simpara>
       </listitem>
      </varlistentry>
@@ -120,19 +204,19 @@
       <term><emphasis>U</emphasis> (<literal>PCRE_UNGREEDY</literal>)</term>
       <listitem>
        <simpara>
-        This modifier inverts the "greediness" of the quantifiers so
-        that they are not greedy by default, but become greedy if
-        followed by <literal>?</literal>. It is not compatible with Perl. It can also
-        be set by a <literal>(?U)</literal>
-        <link linkend="regexp.reference.internal-options">modifier setting within
-        the pattern</link> or by a question mark behind a quantifier (e.g.
+        Questo modificatore inverte la "golosità" delle occorrenze, in modo
+        da non essere golose per default, ma lo tornano ad essere se
+        seguiti da <literal>?</literal>. Questo flag non è compatibile con Perl.
+        Questo comportamento può anche essere settato dalla sequenza (<literal>?U</literal>)
+        <link linkend="regexp.reference.internal-options">settaggio dei modificatori
+        all'interno del criterio di ricerca</link> o da un punto di domanda vicino ad un quantificatore (es.
         <literal>.*?</literal>).
        </simpara>
        <note>
         <para>
-         It is usually not possible to match more than <link
+         Normalmente non è possibile eseguire una corrispondenza con più di <link
          linkend="ini.pcre.backtrack-limit">pcre.backtrack_limit</link>
-         characters in ungreedy mode.
+         caratteri in modalità non golosa.
         </para>
        </note>
       </listitem>
@@ -141,14 +225,14 @@
       <term><emphasis>X</emphasis> (<literal>PCRE_EXTRA</literal>)</term>
       <listitem>
        <simpara>
-        This modifier turns on additional functionality of PCRE that
-        is incompatible with Perl. Any backslash in a pattern that
-        is followed by a letter that has no special meaning causes
-        an error, thus reserving these combinations for future
-        expansion. By default, as in Perl, a backslash followed by a
-        letter with no special meaning is treated as a literal.
-        There are at present no other features controlled by this
-        modifier.
+        Questo modificatore attiva funzionalità addizionali di PCRE
+        che sono incompatibili con Perl. Ogni backslash (\) posto
+        nell'espressione regolare che non sia seguito da una lettera
+        con significato speciale causa un errore, ciò per riservare
+        queste sequenze a future espansioni. Per default, Perl
+        considera il backslash (\) seguito da una lettera priva di
+        significato speciale come un qualsiasi testo. Al momento non
+        vi sono altre caratteristiche gestite tramite questo modificatore.
        </simpara>
       </listitem>
      </varlistentry>
@@ -156,9 +240,8 @@
       <term><emphasis>J</emphasis> (<literal>PCRE_INFO_JCHANGED</literal>)</term>
       <listitem>
        <simpara>
-        The (?J) internal option setting changes the local <literal>PCRE_DUPNAMES</literal>
-        option. Allow duplicate names for subpatterns.
-        As of PHP 7.2.0 <literal>J</literal> is supported as modifier as well.
+        L'opzione di configurazione interna (?J) cambia l'opzione locale <literal>PCRE_DUPNAMES</literal>
+        Permette la duplicazione dei nomi per le sottoregole.
        </simpara>
       </listitem>
      </varlistentry>
@@ -166,40 +249,11 @@
       <term><emphasis>u</emphasis> (<literal>PCRE_UTF8</literal>)</term>
       <listitem>
        <simpara>
-        This modifier turns on additional functionality of PCRE that
-        is incompatible with Perl. Pattern and subject strings are
-        treated as UTF-8. An invalid subject will cause the preg_* function to
-        match nothing; an invalid pattern will trigger an error of
-        level E_WARNING. Five and six octet UTF-8 sequences are
-        regarded as invalid.
-       </simpara>
-      </listitem>
-     </varlistentry>
-     <varlistentry>
-      <term><emphasis>n</emphasis> (<literal>PCRE_NO_AUTO_CAPTURE</literal>)</term>
-      <listitem>
-       <simpara>
-        This modifier makes simple <code>(xyz)</code> groups non-capturing.
-        Only named groups like <code>(?&lt;name&gt;xyz)</code> are capturing.
-        This only affects which groups are capturing, it is still possible to
-        use numbered subpattern references, and the matches array will still
-        contain numbered results. Available as of PHP 8.2.0.
-       </simpara>
-      </listitem>
-     </varlistentry>
-     <varlistentry>
-      <term><emphasis>r</emphasis> (<literal>PCRE2_EXTRA_CASELESS_RESTRICT</literal>)</term>
-      <listitem>
-       <simpara>
-        When <emphasis>u</emphasis> (<literal>PCRE_UTF8</literal>) and <emphasis>i</emphasis> (<literal>PCRE_CASELESS</literal>)
-        are in effect, this modifier prevents matching across ASCII and non-ASCII characters.
-       </simpara>
-       <simpara>
-        For example, <code>preg_match('/\x{212A}/iu', "K")</code> matches the Kelvin sign <literal>K</literal> (U+212A).
-        When <emphasis>r</emphasis> is used (<code>preg_match('/\x{212A}/iur', "K")</code>), it does not match.
-       </simpara>
-       <simpara>
-        Available as of PHP 8.4.0.
+        Questo modificatore attiva funzionalità di PCRE che sono
+        incompatibili con Perl. Le stringhe di ricerca sono considerate
+        come UTF-8. Questo modificatore è disponibile dalla versione
+        4.1.0 di PHP di Unix e dalla versione 4.2.3 sulla piattaforma win32.
+        La validità UTF-8 della regola è controllata da PHP 4.3.5.
        </simpara>
       </listitem>
      </varlistentry>

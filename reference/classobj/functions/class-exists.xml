@@ -1,19 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: 53bdffa6b9f8ce5ffdaf476c9d450f7cd0d1afa2 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
 <refentry xml:id="function.class-exists" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>class_exists</refname>
-  <refpurpose>Checks if the class has been defined</refpurpose>
+  <refpurpose>Verifica se la classe è stata definita</refpurpose>
  </refnamediv>
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>bool</type><methodname>class_exists</methodname>
-   <methodparam><type>string</type><parameter>class</parameter></methodparam>
+   <methodparam><type>string</type><parameter>class_name</parameter></methodparam>
    <methodparam choice="opt"><type>bool</type><parameter>autoload</parameter><initializer>&true;</initializer></methodparam>
   </methodsynopsis>
   <para>
-   This function checks whether or not the given class has been defined.
+   Questa funzione verifica se la classe è stata definita o meno.
   </para>
  </refsect1>
  <refsect1 role="parameters">
@@ -21,10 +22,10 @@
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>class</parameter></term>
+     <term><parameter>class_name</parameter></term>
      <listitem>
       <para>
-       The class name. The name is matched in a case-insensitive manner.
+       Il nome della classe. Il nome è cercato in modo case-insensitive.
       </para>
      </listitem>
     </varlistentry>
@@ -32,8 +33,7 @@
      <term><parameter>autoload</parameter></term>
      <listitem>
       <para>
-       Whether to <link linkend="language.oop5.autoload">autoload</link>
-       if not already loaded.
+       Se chiamare o no &link.autoload; per default.
       </para>
      </listitem>
     </varlistentry>
@@ -43,19 +43,19 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns &true; if <parameter>class</parameter> is a defined class,
-   &false; otherwise.
+   Restituisce &true; se <parameter>class_name</parameter> è una classe definita,
+   &false; in caso contrario.
   </para>
  </refsect1>
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title><function>class_exists</function> example</title>
+    <title>Esempio di <function>class_exists</function></title>
     <programlisting role="php">
 <![CDATA[
 <?php
-// Check that the class exists before trying to use it
+// Verifica che la classe esista prima di provare ad usarla
 if (class_exists('MyClass')) {
     $myclass = new MyClass();
 }
@@ -65,20 +65,21 @@ if (class_exists('MyClass')) {
     </programlisting>
    </example>
    <example>
-    <title><parameter>autoload</parameter> parameter example</title>
+    <title>Esempio del parametro <parameter>autoload</parameter></title>
     <programlisting role="php">
 <![CDATA[
 <?php
-spl_autoload_register(function ($class_name) {
-    include $class_name . '.php';
+function __autoload($class)
+{
+    include($class . '.php');
 
-    // Check to see whether the include declared the class
-    if (!class_exists($class_name, false)) {
-        throw new LogicException("Unable to load class: $class_name");
+    // Verifica per vedere se l'include ha dichiarato la classe
+    if (!class_exists($class, false)) {
+        trigger_error("Unable to load class: $class", E_USER_WARNING);
     }
-});
+}
 
-if (class_exists(MyClass::class)) {
+if (class_exists('MyClass')) {
     $myclass = new MyClass();
 }
 
@@ -93,13 +94,13 @@ if (class_exists(MyClass::class)) {
   <para>
    <simplelist>
     <member><function>function_exists</function></member>
-    <member><function>enum_exists</function></member>
     <member><function>interface_exists</function></member>
     <member><function>get_declared_classes</function></member>
    </simplelist>
   </para>
  </refsect1>
 </refentry>
+
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

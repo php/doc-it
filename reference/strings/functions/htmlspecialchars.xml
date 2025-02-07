@@ -1,327 +1,104 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
-<refentry xml:id="function.htmlspecialchars" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
- <refnamediv>
-  <refname>htmlspecialchars</refname>
-  <refpurpose>Convert special characters to HTML entities</refpurpose>
- </refnamediv>
-
- <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <type>string</type><methodname>htmlspecialchars</methodname>
-   <methodparam><type>string</type><parameter>string</parameter></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>flags</parameter><initializer>ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401</initializer></methodparam>
-   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>encoding</parameter><initializer>&null;</initializer></methodparam>
-   <methodparam choice="opt"><type>bool</type><parameter>double_encode</parameter><initializer>&true;</initializer></methodparam>
-  </methodsynopsis>
-  <para>
-   Certain characters have special significance in HTML, and should
-   be represented by HTML entities if they are to preserve their
-   meanings. This function returns a string with these
-   conversions made. If you require all input substrings that have associated
-   named entities to be translated, use <function>htmlentities</function>
-   instead.
-  </para>
-  <para>
-   If the input string passed to this function and the final document share the
-   same character set, this function is sufficient to prepare input for
-   inclusion in most contexts of an HTML document. If, however, the input can
-   represent characters that are not coded in the final document character set
-   and you wish to retain those characters (as numeric or named entities),
-   both this function and <function>htmlentities</function> (which only encodes
-   substrings that have named entity equivalents) may be insufficient.
-   You may have to use <function>mb_encode_numericentity</function> instead.
-  </para>
-  <para>
-   <table>
-    <title>Performed translations</title>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>Character</entry>
-       <entry>Replacement</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry><literal>&amp;</literal> (ampersand)</entry>
-       <entry><literal>&amp;amp;</literal></entry>
-      </row>
-      <row>
-       <entry><literal>&quot;</literal> (double quote)</entry>
-       <entry><literal>&amp;quot;</literal>, unless <constant>ENT_NOQUOTES</constant> is set</entry>
-      </row>
-      <row>
-       <entry><literal>'</literal> (single quote)</entry>
-       <entry>
-        <literal>&amp;#039;</literal> (for <constant>ENT_HTML401</constant>) or <literal>&amp;apos;</literal> (for
-        <constant>ENT_XML1</constant>, <constant>ENT_XHTML</constant> or
-        <constant>ENT_HTML5</constant>), but only when
-        <constant>ENT_QUOTES</constant> is set
-       </entry>
-      </row>
-      <row>
-       <entry><literal>&lt;</literal> (less than)</entry>
-       <entry><literal>&amp;lt;</literal></entry>
-      </row>
-      <row>
-       <entry><literal>&gt;</literal> (greater than)</entry>
-       <entry><literal>&amp;gt;</literal></entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </table>
-  </para>
- </refsect1>
-
- <refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>string</parameter></term>
-     <listitem>
-      <para>
-       The <type>string</type> being converted.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>flags</parameter></term>
-     <listitem>
-      <para>
-       A bitmask of one or more of the following flags, which specify how to handle quotes,
-       invalid code unit sequences and the used document type. The default is
-       <literal>ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401</literal>.
-       <table>
-        <title>Available <parameter>flags</parameter> constants</title>
-        <tgroup cols="2">
-         <thead>
-          <row>
-           <entry>Constant Name</entry>
-           <entry>Description</entry>
-          </row>
-         </thead>
-         <tbody>
-          <row>
-           <entry><constant>ENT_COMPAT</constant></entry>
-           <entry>Will convert double-quotes and leave single-quotes alone.</entry>
-          </row>
-          <row>
-           <entry><constant>ENT_QUOTES</constant></entry>
-           <entry>Will convert both double and single quotes.</entry>
-          </row>
-          <row>
-           <entry><constant>ENT_NOQUOTES</constant></entry>
-           <entry>Will leave both double and single quotes unconverted.</entry>
-          </row>
-          <row>
-           <entry><constant>ENT_IGNORE</constant></entry>
-           <entry>
-            Silently discard invalid code unit sequences instead of returning
-            an empty string. Using this flag is discouraged as it
-            <link xlink:href="&url.delete.nonchars;">may have security implications</link>.
-           </entry>
-          </row>
-          <row>
-           <entry><constant>ENT_SUBSTITUTE</constant></entry>
-           <entry>
-            Replace invalid code unit sequences with a Unicode Replacement Character
-            U+FFFD (UTF-8) or &amp;#xFFFD; (otherwise) instead of returning an empty string.
-           </entry>
-          </row>
-          <row>
-           <entry><constant>ENT_DISALLOWED</constant></entry>
-           <entry>
-            Replace invalid code points for the given document type with a
-            Unicode Replacement Character U+FFFD (UTF-8) or &amp;#xFFFD;
-            (otherwise) instead of leaving them as is. This may be useful, for
-            instance, to ensure the well-formedness of XML documents with
-            embedded external content.
-           </entry>
-          </row>
-          <row>
-           <entry><constant>ENT_HTML401</constant></entry>
-           <entry>
-            Handle code as HTML 4.01.
-           </entry>
-          </row>
-          <row>
-           <entry><constant>ENT_XML1</constant></entry>
-           <entry>
-            Handle code as XML 1.
-           </entry>
-          </row>
-          <row>
-           <entry><constant>ENT_XHTML</constant></entry>
-           <entry>
-            Handle code as XHTML.
-           </entry>
-          </row>
-          <row>
-           <entry><constant>ENT_HTML5</constant></entry>
-           <entry>
-            Handle code as HTML 5.
-           </entry>
-          </row>
-         </tbody>
-        </tgroup>
-       </table>
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>encoding</parameter></term>
-     <listitem>
-      &strings.parameter.encoding;
-      <para>
-       For the purposes of this function, the encodings
-       <literal>ISO-8859-1</literal>, <literal>ISO-8859-15</literal>,
-       <literal>UTF-8</literal>, <literal>cp866</literal>,
-       <literal>cp1251</literal>, <literal>cp1252</literal>, and
-       <literal>KOI8-R</literal> are effectively equivalent, provided the
-       <parameter>string</parameter> itself is valid for the encoding, as
-       the characters affected by <function>htmlspecialchars</function> occupy
-       the same positions in all of these encodings.
-      </para>
-      &reference.strings.charsets;
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>double_encode</parameter></term>
-     <listitem>
-      <para>
-       When <parameter>double_encode</parameter> is turned off PHP will not
-       encode existing html entities, the default is to convert everything.
-      </para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </para>
- </refsect1>
-
- <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   The converted <type>string</type>.
-  </para>
-  <para>
-   If the input <parameter>string</parameter> contains an invalid code unit
-   sequence within the given <parameter>encoding</parameter> an empty string
-   will be returned, unless either the <constant>ENT_IGNORE</constant> or
-   <constant>ENT_SUBSTITUTE</constant> flags are set.
-  </para>
- </refsect1>
-
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <informaltable>
-   <tgroup cols="2">
-    <thead>
-     <row>
-      <entry>&Version;</entry>
-      <entry>&Description;</entry>
-     </row>
-    </thead>
-    <tbody>
-     <row>
-      <entry>8.1.0</entry>
-      <entry>
-       <parameter>flags</parameter> changed from <constant>ENT_COMPAT</constant> to <constant>ENT_QUOTES</constant> | <constant>ENT_SUBSTITUTE</constant> | <constant>ENT_HTML401</constant>.
-      </entry>
-     </row>
-    </tbody>
-   </tgroup>
-  </informaltable>
- </refsect1>
-
- <refsect1 role="examples">
-  &reftitle.examples;
-  <para>
-   <example>
-    <title><function>htmlspecialchars</function> example</title>
-    <programlisting role="php">
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
+  <refentry xml:id="function.htmlspecialchars" xmlns="http://docbook.org/ns/docbook">
+   <refnamediv>
+    <refname>htmlspecialchars</refname> 
+    <refpurpose>
+     Converte i caratteri speciali in entità HTML
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>string</type><methodname>htmlspecialchars</methodname>
+      <methodparam><type>string</type><parameter>string</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>quote_style</parameter></methodparam>
+      <methodparam choice="opt"><type>string</type><parameter>charset</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     Alcuni caratteri hanno significati particolari in HTML, e, per questo,
+     devono essere rappresentati tramite entità HTML, se devono mantenere il proprio
+     significato. Questa funzione restituisce restituisce una stringa con
+     la conversione di alcuni di questi caratteri; la conversione svolta non è
+     sempre valida nell'ambito della programmazione web. Se occorre l'utilizzo
+     di tutte le entità HTML, utilizzare
+     <function>htmlentities</function>.
+    </para>
+    <simpara>
+     Questa funzione è utile nel prevenire la presenza di marcatori
+     HTML negli input utente, tipo nei forum o nei guest book.
+     Il secondo parametro <parameter>quote_style</parameter>, opzionale,
+     indica alla funzione come comportarsi con gli apici singoli e doppi.
+     La modalità di default è, <constant>ENT_COMPAT</constant>; questa modalità è compatibile con il passato
+     e traduce solo gli apici doppi lasciando inalterati gli apici singoli.
+     Se si imposta <constant>ENT_QUOTES</constant>, entrambi i tipi di apici, singoli e doppi,
+     sono convertiti in entità e, infine, se si utilizza <constant>ENT_NOQUOTES</constant> ne gli apici singoli
+     ne gli apici doppi sono convertiti in entità.
+    </simpara>
+    <para>
+     La conversioni applicate sono:
+     <itemizedlist>
+      <listitem>
+       <simpara>
+        '&amp;' (e commerciale) diventa '&amp;amp;'
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        '&quot;' (doppio apice) diventa '&amp;quot;' con <constant>ENT_NOQUOTES</constant>
+        is not set.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        '&#039;' (singolo apice) diventa '&amp;#039;' soltanto con
+        l'impostazione di <constant>ENT_QUOTES</constant>.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        '&lt;' (minore) diventa '&amp;lt;'
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        '&gt;' (maggiore) diventa '&amp;gt;'
+       </simpara>
+      </listitem>
+     </itemizedlist>
+     <example>
+      <title>Esempio di uso di <function>htmlspecialchars</function></title>
+      <programlisting role="php">
 <![CDATA[
 <?php
 $new = htmlspecialchars("<a href='test'>Test</a>", ENT_QUOTES);
 echo $new; // &lt;a href=&#039;test&#039;&gt;Test&lt;/a&gt;
 ?>
 ]]>
-    </programlisting>
-   </example>
-  </para>
- </refsect1>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Occorre notare che questa funzione non converte null'altro oltre
+     ai caratteri elencati in precedenza. Per la conversione di tutte le entità
+     fare riferimento a <function>htmlentities</function>. Il secondo parametro
+     è stato inserito in PHP 3.0.17 e 4.0.3. 
+    </para>
+    <para>
+     Il terzo parametro <parameter>charset</parameter> indica quale set di caratteri utilizzare
+     nella conversione. Il set di caratteri di default è ISO-8859-1. Questo terzo
+     parametro è stato aggiunto in PHP 4.1.0.
+    </para>
+    &reference.strings.charsets;
+    <para>
+     Vedere anche <function>get_html_translation_table</function>,
+     <function>strip_tags</function>,
+     <function>htmlentities</function> e <function>nl2br</function>.
+    </para>
+   </refsect1>
+  </refentry>
 
- <refsect1 role="notes">
-  &reftitle.notes;
-  <note>
-   <para>
-    Note that this function does not translate anything beyond what
-    is listed above. For full entity translation, see
-    <function>htmlentities</function>.
-   </para>
-  </note>
-  <note>
-   <para>
-    In case of an ambiguous <parameter>flags</parameter> value, the following rules apply:
-   </para>
-   <para>
-    <itemizedlist>
-     <listitem>
-      <simpara>
-       When neither of <constant>ENT_COMPAT</constant>, <constant>ENT_QUOTES</constant>,
-       <constant>ENT_NOQUOTES</constant> is present, the default is <constant>ENT_NOQUOTES</constant>.
-      </simpara>
-     </listitem>
-     <listitem>
-      <simpara>
-       When more than one of <constant>ENT_COMPAT</constant>, <constant>ENT_QUOTES</constant>,
-       <constant>ENT_NOQUOTES</constant> is present, <constant>ENT_QUOTES</constant> takes the
-       highest precedence, followed by <constant>ENT_COMPAT</constant>.
-      </simpara>
-     </listitem>
-     <listitem>
-      <simpara>
-       When neither of <constant>ENT_HTML401</constant>, <constant>ENT_HTML5</constant>,
-       <constant>ENT_XHTML</constant>, <constant>ENT_XML1</constant> is present, the default is
-       <constant>ENT_HTML401</constant>.
-      </simpara>
-     </listitem>
-     <listitem>
-      <simpara>
-       When more than one of <constant>ENT_HTML401</constant>, <constant>ENT_HTML5</constant>,
-       <constant>ENT_XHTML</constant>, <constant>ENT_XML1</constant> is present,
-       <constant>ENT_HTML5</constant> takes the highest precedence,
-       followed by <constant>ENT_XHTML</constant>, <constant>ENT_XML1</constant> and <constant>ENT_HTML401</constant>.
-      </simpara>
-     </listitem>
-     <listitem>
-      <simpara>
-       When more than one of <constant>ENT_DISALLOWED</constant>, <constant>ENT_IGNORE</constant>,
-       <constant>ENT_SUBSTITUTE</constant> are present, <constant>ENT_IGNORE</constant> takes the
-       highest precedence, followed by <constant>ENT_SUBSTITUTE</constant>.
-      </simpara>
-     </listitem>
-    </itemizedlist>
-   </para>
-  </note>
- </refsect1>
-
- <refsect1 role="seealso">
-  &reftitle.seealso;
-  <para>
-   <simplelist>
-    <member><function>get_html_translation_table</function></member>
-    <member><function>htmlspecialchars_decode</function></member>
-    <member><function>strip_tags</function></member>
-    <member><function>htmlentities</function></member>
-    <member><function>nl2br</function></member>
-   </simplelist>
-  </para>
- </refsect1>
-
-</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

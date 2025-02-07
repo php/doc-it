@@ -1,29 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<!-- EN-Revision: 5acb71cfab3b71a44b752afaabdfa785f1776c20 Maintainer: cucinato Status: ready -->
 <refentry xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://docbook.org/ns/docbook" xml:id="function.print">
  <refnamediv>
   <refname>print</refname>
-  <refpurpose>Output a string</refpurpose>
+  <refpurpose>Visualizza una stringa</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>int</type><methodname>print</methodname>
-   <methodparam><type>string</type><parameter>expression</parameter></methodparam>
+   <methodparam><type>string</type><parameter>arg</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Outputs <parameter>expression</parameter>.
+   Visualizza <parameter>arg</parameter>. 
   </para>
   <para>
-   <literal>print</literal> is not a function but a language construct.
-   Its argument is the expression following the <literal>print</literal> keyword,
-   and is not delimited by parentheses.
+   In realtà <literal>print</literal> non è una funzione (è un
+   costrutto del linguaggio) pertanto non sono richieste le parentesi
+   per la lista degli argomenti.
   </para>
   <para>
-   The major differences to <function>echo</function> are that
-   <literal>print</literal> only accepts a single argument and always returns
-   <literal>1</literal>.
+   La sola differenza rispetto a <literal>echo</literal> è il fatto che
+   <literal>print</literal> accetta un elemento singolo.
   </para>
  </refsect1>
 
@@ -32,12 +31,10 @@
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>expression</parameter></term>
+     <term><parameter>arg</parameter></term>
      <listitem>
       <para>
-       The expression to be output. Non-string values will be coerced to strings,
-       even when <link linkend="language.types.declarations.strict">the
-       <literal>strict_types</literal> directive</link> is enabled.
+       I dati in ingresso.
       </para>
      </listitem>
     </varlistentry>
@@ -48,7 +45,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns <literal>1</literal>, always.
+   Restituisce sempre <literal>1</literal>.
   </para>
  </refsect1>
 
@@ -56,40 +53,45 @@
   &reftitle.examples;
   <para>
    <example>
-    <title><literal>print</literal> examples</title>
+    <title>Esempio di uso di <function>print</function></title>
     <programlisting role="php">
 <![CDATA[
 <?php
-print "print does not require parentheses.";
+print("Ciao Mondo");
 
-// No newline or space is added; the below outputs "helloworld" all on one line
-print "hello";
-print "world";
+print "print() funziona anche senza parentesi.";
 
-print "This string spans
-multiple lines. The newlines will be
-output as well";
+print "Questo print() si
+ripartisce su più linee. Anche i ritorni a capo
+sono visualizzati";
 
-print "This string spans\nmultiple lines. The newlines will be\noutput as well.";
+print "Questo print() si\nripartisce su più linee. Anche i ritorni a capo\nsono visualizzati.";
 
-// The argument can be any expression which produces a string
-$foo = "example";
-print "foo is $foo"; // foo is example
+print "l'escape dei caratteri si fa \"in questo modo\".";
 
-$fruits = ["lemon", "orange", "banana"];
-print implode(" and ", $fruits); // lemon and orange and banana
+// Si possono usare variabili all'interno di istruzioni print
+$foo = "foobar";
+$bar = "barbaz";
 
-// Non-string expressions are coerced to string, even if declare(strict_types=1) is used
-print 6 * 7; // 42
+print "foo è $foo"; // foo è foobar
 
-// Because print has a return value, it can be used in expressions
-// The following outputs "hello world"
-if ( print "hello" ) {
-    echo " world";
-}
+// Si possono usare le matrici
+$bar = array("chiave" => "foo");
 
-// The following outputs "true"
-( 1 === 1 ) ? print 'true' : print 'false';
+print "questo è {$bar['chiave']} !"; // questo è foo !
+
+// Utilizzando l'apice singolo sarà visualizzato il nome della variabile e non il contenuto
+print 'foo è $foo'; // foo è $foo
+
+// Se non si usa altri caratteri, si può semplicemente visualizzare il contenuto della variabile
+print $foo;          // foobar
+
+print <<<END
+Questo esempio usa la sintassi "here document" per visualizzare
+linee multiple con interpolazione delle $variabili. Si noti
+che il terminatore deve apparire su una
+riga con solo un punto e virgola e senza spazi!
+END;
 ?>
 ]]>
     </programlisting>
@@ -99,80 +101,6 @@ if ( print "hello" ) {
 
  <refsect1 role="notes">
   &reftitle.notes;
-
-  <note>
-   <title>Using with parentheses</title>
-   <para>
-    Surrounding the argument to <literal>print</literal> with parentheses will not
-    raise a syntax error, and produces syntax which looks like a normal
-    function call. However, this can be misleading, because the parentheses are actually
-    part of the expression being output, not part of the <literal>print</literal>
-    syntax itself.
-
-    <informalexample>
-     <programlisting role="php">
-<![CDATA[
-<?php
-print "hello";
-// outputs "hello"
-
-print("hello");
-// also outputs "hello", because ("hello") is a valid expression
-
-print(1 + 2) * 3;
-// outputs "9"; the parentheses cause 1+2 to be evaluated first, then 3*3
-// the print statement sees the whole expression as one argument
-
-if ( print("hello") && false ) {
-    print " - inside if";
-}
-else {
-    print " - inside else";
-}
-// outputs " - inside if"
-// the expression ("hello") && false is first evaluated, giving false
-// this is coerced to the empty string "" and printed
-// the print construct then returns 1, so code in the if block is run
-?>
-]]>
-     </programlisting>
-    </informalexample>
-   </para>
-
-   <para>
-    When using <literal>print</literal> in a larger expression, placing both the
-    keyword and its argument in parentheses may be necessary to give the intended
-    result:
-
-    <informalexample>
-     <programlisting role="php">
-<![CDATA[
-<?php
-if ( (print "hello") && false ) {
-    print " - inside if";
-}
-else {
-    print " - inside else";
-}
-// outputs "hello - inside else"
-// unlike the previous example, the expression (print "hello") is evaluated first
-// after outputting "hello", print returns 1
-// since 1 && false is false, code in the else block is run
-
-print "hello " && print "world";
-// outputs "world1"; print "world" is evaluated first,
-// then the expression "hello " && 1 is passed to the left-hand print
-
-(print "hello ") && (print "world");
-// outputs "hello world"; the parentheses force the print expressions
-// to be evaluated before the &&
-?>
-]]>
-     </programlisting>
-    </informalexample>
-   </para>
-  </note>
-
   &note.language-construct;
  </refsect1>
 
@@ -183,7 +111,7 @@ print "hello " && print "world";
     <member><function>echo</function></member>
     <member><function>printf</function></member>
     <member><function>flush</function></member>
-    <member><link linkend="language.types.string">Ways to specify literal strings</link></member>
+    <member><link linkend="language.types.string.syntax.heredoc">sintassi Heredoc</link></member>
    </simplelist>
   </para>
  </refsect1>

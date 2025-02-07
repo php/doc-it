@@ -1,177 +1,83 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
-<refentry xml:id="function.array-diff" xmlns="http://docbook.org/ns/docbook">
- <refnamediv>
-  <refname>array_diff</refname>
-  <refpurpose>Computes the difference of arrays</refpurpose>
- </refnamediv>
-
- <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <type>array</type><methodname>array_diff</methodname>
-   <methodparam><type>array</type><parameter>array</parameter></methodparam>
-   <methodparam rep="repeat"><type>array</type><parameter>arrays</parameter></methodparam>
-  </methodsynopsis>
-  <para>
-   Compares <parameter>array</parameter> against one or more other arrays and
-   returns the values in <parameter>array</parameter> that are not present in
-   any of the other arrays.
-  </para>
- </refsect1>
-
- <refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>array</parameter></term>
-     <listitem>
-      <para>
-       The array to compare from
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>arrays</parameter></term>
-     <listitem>
-      <para>
-       Arrays to compare against
-      </para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </para>
- </refsect1>
-
- <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Returns an <type>array</type> containing all the entries from
-   <parameter>array</parameter> that are not present in any of the other arrays.
-   Keys in the <parameter>array</parameter> array are preserved.
-  </para>
- </refsect1>
-
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      &array.changelog.require-only-one;
-     </tbody>
-    </tgroup>
-   </informaltable>
-  </para>
- </refsect1>
-
- <refsect1 role="examples">
-  &reftitle.examples;
-  <para>
-   <example>
-    <title><function>array_diff</function> example</title>
-    <programlisting role="php">
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- splitted from ./it/functions/array.xml, last change in rev 1.11 -->
+<!-- last change to 'array-diff' in en/ tree in rev 1.14 -->
+<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
+<!-- OLD-Revision: 1.173/EN.1.14 -->
+  <refentry xml:id="function.array-diff" xmlns="http://docbook.org/ns/docbook">
+   <refnamediv>
+    <refname>array_diff</refname>
+    <refpurpose>Calcola la differenza di due o più array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>array</type><methodname>array_diff</methodname>
+      <methodparam><type>array</type><parameter>array1</parameter></methodparam>
+      <methodparam><type>array</type><parameter>array2</parameter></methodparam>
+      <methodparam choice="opt"><type>array</type><parameter> ...</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     <function>array_diff</function> restituisce un array
+     contenente tutti i valori di <parameter>array1</parameter>
+     che non sono presenti in alcuno degli altri array.
+     Si noti che le associazioni con le chiavi vengono mantenute.
+    </para>
+    <para>
+     <example>
+      <title>Esempio di <function>array_diff</function></title>
+      <programlisting role="php">
 <![CDATA[
 <?php
-$array1 = array("a" => "green", "red", "blue", "red");
-$array2 = array("b" => "green", "yellow", "red");
-$result = array_diff($array1, $array2);
+$array1 = array("a" => "verde", "rosso", "blu", "rosso");
+$array2 = array("b" => "verde", "giallo", "rosso");
+$risultato = array_diff($array1, $array2);
 
 print_r($result);
 ?>
 ]]>
-    </programlisting>
-    <para>
-     Multiple occurrences in <varname>$array1</varname> are all
-     treated the same way. This will output :
-    </para>
-    <screen>
+      </programlisting>
+      <para>
+       Occorrenze multiple in $array1 sono tutte trattate nello stesso modo.
+       Questo codice mostrerà:
+      </para>
+      <screen>
 <![CDATA[
 Array
 (
-    [1] => blue
+    [1] => blu
 )
 ]]>
-    </screen>
-   </example>
-  </para>
-
-  <para>
-   <example>
-    <title><function>array_diff</function> example with non-matching types</title>
-    <para>
-     Two elements are considered equal if and only if
-     <literal>(string) $elem1 === (string) $elem2</literal>. That is,
-     when the <link linkend="language.types.string.casting">string representation</link> is the same.
+      </screen>
+     </example>
     </para>
-    <programlisting role="php">
-     <![CDATA[
-<?php
-// This will generate a Notice that an array cannot be cast to a string.
-$source = [1, 2, 3, 4];
-$filter = [3, 4, [5], 6];
-$result = array_diff($source, $filter);
-
-// Whereas this is fine, since the objects can cast to a string.
-class S {
-  private $v;
-
-  public function __construct(string $v) {
-    $this->v = $v;
-  }
-
-  public function __toString() {
-    return $this->v;
-  }
-}
-
-$source = [new S('a'), new S('b'), new S('c')];
-$filter = [new S('b'), new S('c'), new S('d')];
-
-$result = array_diff($source, $filter);
-
-// $result now contains one instance of S('a');
-?>
-]]>
-    </programlisting>
+    <note>
+     <simpara>
+      Due elementi sono considerati uguali se e solo se
+      <literal>(string) $elem1 === (string) $elem2</literal>. Ovvero:
+      quando la rappresentazione sotto forma di stringa è la stessa.
+      <!-- TODO: un esempio... -->
+     </simpara>
+    </note>
+    <note>
+     <simpara>
+      Si noti che questa funzione controlla solo una dimensione di un array
+      n-dimensionale. Ovviamente è possibile controllare le altre dimensioni usando
+      <literal>array_diff($array1[0], $array2[0]);</literal>.
+     </simpara>
+    </note>
+    <warning>
+     <simpara>
+      Questa funzione era errata nel PHP 4.0.4!
+      <!-- TODO: when exactly was this broken?... -->
+     </simpara>
+    </warning>
     <para>
-     To use an alternate comparison function, see <function>array_udiff</function>.
+     Vedere anche <function>array_diff_assoc</function>,
+     <function>array_intersect</function> e
+     <function>array_intersect_assoc</function>.
     </para>
-   </example>
-  </para>
- </refsect1>
-
- <refsect1 role="notes">
-  &reftitle.notes;
-  <note>
-   <para>
-    This function only checks one dimension of a n-dimensional
-    array. Of course you can check deeper dimensions by using
-    <literal>array_diff($array1[0], $array2[0]);</literal>.
-   </para>
-  </note>
- </refsect1>
-
- <refsect1 role="seealso">
-  &reftitle.seealso;
-  <para>
-   <simplelist>
-    <member><function>array_diff_assoc</function></member>
-    <member><function>array_udiff</function></member>
-    <member><function>array_intersect</function></member>
-    <member><function>array_intersect_assoc</function></member>
-   </simplelist>
-  </para>
- </refsect1>
-
-</refentry>
+   </refsect1>
+  </refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

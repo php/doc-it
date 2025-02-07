@@ -1,30 +1,31 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: fa6e196973e45c0013c0801e01697757f4b98426 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
 <appendix xml:id="errorfunc.examples" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  &reftitle.examples;
   <para>
-   Below we can see an example of using the error handling capabilities in
-   PHP. We define an error handling function which logs the information into
-   a file (using an XML format), and e-mails the developer if a critical
-   error in the logic happens.
+   Di seguito sarà illustrato un esempio di utilizzo delle procedure di gestione dell'errore in PHP.
+   Qui si definisce una funzione di gestione dell'errore che registra le informazioni in
+   un file (in formato XML) e invia tramite e-mail allo sviluppare dei messaggi
+   in caso di errori critici nella logica.
    <example>
-    <title>Using error handling in a script</title>
+    <title>Esempio dell'utilizzo della gestione degli errori in uno script</title>
     <programlisting role="php">
 <![CDATA[
 <?php
-// we will do our own error handling
+// attiveremo la nostra gestione degli errori
 error_reporting(0);
 
-// user defined error handling function
+// funzione personalizzata di gestione dell'errore
 function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars) 
 {
-    // timestamp for the error entry
+    // timestamp per la registrazione dell'errore
     $dt = date("Y-m-d H:i:s (T)");
-
-    // define an assoc array of error string
-    // in reality the only entries we should
-    // consider are E_WARNING, E_NOTICE, E_USER_ERROR,
-    // E_USER_WARNING and E_USER_NOTICE
+    
+    // definisce un array associativo con i messaggi di errore
+    // in realtà i soli campi che saranno
+    // considerati sono E_WARNING, E_NOTICE, E_USER_ERROR,
+    // E_USER_WARNING e E_USER_NOTICE
     $errortype = array (
                 E_ERROR              => 'Error',
                 E_WARNING            => 'Warning',
@@ -40,7 +41,7 @@ function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars)
                 E_STRICT             => 'Runtime Notice',
                 E_RECOVERABLE_ERROR  => 'Catchable Fatal Error'
                 );
-    // set of errors for which a var trace will be saved
+    // indica gli errori per i quali verrà salvata la trace delle variabili
     $user_errors = array(E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE);
     
     $err = "<errorentry>\n";
@@ -56,10 +57,10 @@ function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars)
     }
     $err .= "</errorentry>\n\n";
     
-    // for testing
+    // per testare
     // echo $err;
 
-    // save to the error log, and e-mail me if there is a critical user error
+    // salva nel log degli errori e invia un e-mail se c'è un errore dell'utente critico
     error_log($err, 3, "/usr/local/php4/error.log");
     if ($errno == E_USER_ERROR) {
         mail("phpdev@example.com", "Critical User Error", $err);
@@ -99,21 +100,21 @@ function distance($vect1, $vect2)
 
 $old_error_handler = set_error_handler("userErrorHandler");
 
-// undefined constant, generates a warning
+// costante non definita, genera un warning
 $t = I_AM_NOT_DEFINED;
 
-// define some "vectors"
+// definisce alcuni "array"
 $a = array(2, 3, "foo");
 $b = array(5.5, 4.3, -1.6);
 $c = array(1, -3);
 
-// generate a user error
+// genera un errore dell'utente
 $t1 = distance($c, $b) . "\n";
 
-// generate another user error
+// genera un altro errore dell'utente
 $t2 = distance($b, "i am not an array") . "\n";
 
-// generate a warning
+// genera un warning
 $t3 = distance($a, $b) . "\n";
 
 ?>

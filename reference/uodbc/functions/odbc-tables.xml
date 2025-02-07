@@ -1,59 +1,60 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: 96c9d88bad9a7d7d44bfb7f26c226df7ee9ddf26 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
 <refentry xml:id="function.odbc-tables" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>odbc_tables</refname>
-  <refpurpose>Get the list of table names stored in a specific data source</refpurpose>
+  <refpurpose>Restituisce l'elenco delle tabelle presenti in una specifica sorgente di dati</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type class="union"><type>Odbc\Result</type><type>false</type></type><methodname>odbc_tables</methodname>
-   <methodparam><type>Odbc\Connection</type><parameter>odbc</parameter></methodparam>
-   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>catalog</parameter><initializer>&null;</initializer></methodparam>
-   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>schema</parameter><initializer>&null;</initializer></methodparam>
-   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>table</parameter><initializer>&null;</initializer></methodparam>
-   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>types</parameter><initializer>&null;</initializer></methodparam>
+   <type>resource</type><methodname>odbc_tables</methodname>
+   <methodparam><type>resource</type><parameter>connection_id</parameter></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>qualifier</parameter></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>owner</parameter></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>name</parameter></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>types</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Lists all tables in the requested range.
+   Restituisce tutte le tabelle nel range richiesto.
   </para>
   <para>
-   To support enumeration of qualifiers, owners, and table types,
-   the following special semantics for the
-   <parameter>catalog</parameter>, <parameter>schema</parameter>,
-   <parameter>table</parameter>, and
-   <parameter>table_type</parameter> are available:
+   Per supportare l'enumerazione dei qualificatori, dei proprietari, e dei tipi di tabella,
+   è disponibile la seguente semantica speciale per i
+   <parameter>qualifier</parameter>, <parameter>owner</parameter>,
+   <parameter>name</parameter>, and
+   <parameter>table_type</parameter>:
    <itemizedlist>
     <listitem>
      <simpara>
-      If <parameter>catalog</parameter> is a single percent
-      character (%) and <parameter>schema</parameter> and
-      <parameter>table</parameter> are empty strings, then the result
-      set contains a list of valid qualifiers for the data
-      source. (All columns except the TABLE_QUALIFIER column contain
-      NULLs.)
+      Se <parameter>qualifier</parameter> è un carattere di
+      percentuale (%) e <parameter>owner</parameter> e
+      <parameter>name</parameter> sono stringhe vuote, allora il set di
+      risultati contiene una lista di qualificatori validi per la sorgente
+      dati. (Tutte le colonne eccetto la colonna TABLE_QUALIFIER contengono
+      dei valori NULL.)
      </simpara>
     </listitem>
     <listitem>
      <simpara>
-      If <parameter>schema</parameter> is a single percent character
-      (%) and <parameter>catalog</parameter> and
-      <parameter>table</parameter> are empty strings, then the result
-      set contains a list of valid owners for the data source. (All
-      columns except the TABLE_OWNER column contain
-      NULLs.)
+      Se <parameter>owner</parameter> è un carattere di percentuale
+      (%) e <parameter>qualifier</parameter> e
+      <parameter>name</parameter> sono stringhe vuote, allora il set di
+      risultati contiene una lista di proprietari validi per la sorgente dati. (Tutte
+      le colonne eccetto la colonna TABLE_OWNER contengono
+      dei valori NULL.)
      </simpara>
     </listitem>
     <listitem>
      <simpara>
-      If <parameter>table_type</parameter> is a single percent
-      character (%) and <parameter>catalog</parameter>,
-      <parameter>schema</parameter> and <parameter>table</parameter>
-      are empty strings, then the result set contains a list of
-      valid table types for the data source. (All columns except the
-      TABLE_TYPE column contain NULLs.)
+      Se <parameter>table_type</parameter> è un carattere di
+      percentuale (%) e <parameter>qualifier</parameter>,
+      <parameter>owner</parameter> e <parameter>name</parameter>
+      sono stringhe vuote, allora il set di risultati contiene una lista di
+      tipi della tabella validi per la sorgente dati. (Tutte le colonne eccetto la
+      colonna TABLE_TYPE contengono dei valori NULL.)
      </simpara>
     </listitem>
    </itemizedlist>
@@ -65,34 +66,34 @@
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>odbc</parameter></term>
+     <term><parameter>connection_id</parameter></term>
      <listitem>
       &odbc.connection.id;
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>catalog</parameter></term>
+     <term><parameter>qualifier</parameter></term>
      <listitem>
       <para>
-       &odbc.parameter.catalog;
+       Il qualificatore.
       </para>
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>schema</parameter></term>
+     <term><parameter>owner</parameter></term>
      <listitem>
       <para>
-       &odbc.parameter.schema;
-       &odbc.parameter.search;
+       Il proprietario. Accetta dei pattern di ricerca ('%' per trovare zero o più
+       caratteri e '_' per trovare un carattere singolo).
       </para>
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>table</parameter></term>
+     <term><parameter>name</parameter></term>
      <listitem>
       <para>
-       The name.
-       &odbc.parameter.search;
+       Il nome. Accetta dei pattern di ricerca ('%' per trovare zero o più
+       caratteri e '_' per trovare un carattere singolo).
       </para>
      </listitem>
     </varlistentry>
@@ -100,13 +101,13 @@
      <term><parameter>types</parameter></term>
      <listitem>
       <para>
-       If <parameter>table_type</parameter> is not an empty string, it
-       must contain a list of comma-separated values for the types of
-       interest; each value may be enclosed in single quotes (<literal>'</literal>) or
-       unquoted. For example, <literal>'TABLE','VIEW'</literal> or <literal>TABLE, VIEW</literal>.  If the
-       data source does not support a specified table type,
-       <function>odbc_tables</function> does not return any results for
-       that type.
+       Se <parameter>table_type</parameter> non è una stringa vuota, esso
+       dovrà contenere una lista di valori separati da virgola per i tipi di
+       interesse; ogni valore potrebbe essere racchiuso tra virgolette singole (') o
+       meno. Per esempio, "'TABLE','VIEW'" o "TABLE, VIEW".  Se la
+       sorgente dati non supporta un tipo della tabella specificata,
+       <function>odbc_tables</function> non restituisce nessun risultato per
+       quel tipo.
       </para>
      </listitem>
     </varlistentry>
@@ -117,81 +118,23 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   &odbc.result.object-return; containing the information
-   &return.falseforfailure;.
+  Restituisce un identificatore di risultato ODBC contenente le informazioni
+  &return.falseforfailure;.
   </para>
   <para>
-   The result set has the following columns:
+   Il set di risultati ha le seguenti colonne:
    <itemizedlist>
-    <listitem><simpara><literal>TABLE_CAT</literal></simpara></listitem>
-    <listitem><simpara><literal>TABLE_SCHEM</literal></simpara></listitem>
-    <listitem><simpara><literal>TABLE_NAME</literal></simpara></listitem>
-    <listitem><simpara><literal>TABLE_TYPE</literal></simpara></listitem>
-    <listitem><simpara><literal>REMARKS</literal></simpara></listitem>
+    <listitem><simpara>TABLE_QUALIFIER</simpara></listitem>
+    <listitem><simpara>TABLE_OWNER</simpara></listitem>
+    <listitem><simpara>TABLE_NAME</simpara></listitem>
+    <listitem><simpara>TABLE_TYPE</simpara></listitem>
+    <listitem><simpara>REMARKS</simpara></listitem>
    </itemizedlist>
-   &odbc.result.driver-specific;
   </para>
   <simpara>
-   The result set is ordered by <literal>TABLE_TYPE</literal>, <literal>TABLE_CAT</literal>,
-   <literal>TABLE_SCHEM</literal> and <literal>TABLE_NAME</literal>.
+   Il set di risultati è ordinato da TABLE_TYPE, TABLE_QUALIFIER,
+   TABLE_OWNER e TABLE_NAME.
   </simpara>
- </refsect1>
-
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <informaltable>
-   <tgroup cols="2">
-    <thead>
-     <row>
-      <entry>&Version;</entry>
-      <entry>&Description;</entry>
-     </row>
-    </thead>
-    <tbody>
-     &odbc.changelog.connection-param;
-     &odbc.changelog.result-return;
-     <row>
-      <entry>8.0.0</entry>
-      <entry>
-       <parameter>schema</parameter>, <parameter>table</parameter> and <parameter>types</parameter>
-       are now nullable.
-      </entry>
-     </row>
-    </tbody>
-   </tgroup>
-  </informaltable>
- </refsect1>
-
- <refsect1 role="examples">
-  &reftitle.examples;
-  <example xml:id="odbc-tables.example.basic">
-   <title>List Tables in a Catalog</title>
-   <programlisting role="php">
-<![CDATA[
-<?php
-$conn = odbc_connect($dsn, $user, $pass);
-$tables = odbc_tables($conn, 'SalesOrders', 'dbo', '%', 'TABLE');
-while (($row = odbc_fetch_array($tables))) {
-    print_r($row);
-    break; // further rows omitted for brevity
-}
-?>
-]]>
-   </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-Array
-(
-    [TABLE_CAT] => SalesOrders
-    [TABLE_SCHEM] => dbo
-    [TABLE_NAME] => Orders
-    [TABLE_TYPE] => TABLE
-    [REMARKS] =>
-)
-]]>
-   </screen>
-  </example>
  </refsect1>
 
  <refsect1 role="seealso">
@@ -199,15 +142,12 @@ Array
   <para>
    <simplelist>
     <member><function>odbc_tableprivileges</function></member>
-    <member><function>odbc_columns</function></member>
-    <member><function>odbc_specialcolumns</function></member>
-    <member><function>odbc_statistics</function></member>
-    <member><function>odbc_procedures</function></member>
    </simplelist>
   </para>
  </refsect1>
 
 </refentry>
+
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

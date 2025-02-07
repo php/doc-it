@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<!-- EN-Revision: 96c9d88bad9a7d7d44bfb7f26c226df7ee9ddf26 Maintainer: reghe Status: ready -->
 <refentry xml:id="function.define" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>define</refname>
-  <refpurpose>Defines a named constant</refpurpose>
+  <refpurpose>Definisce una costante</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>bool</type><methodname>define</methodname>
-   <methodparam><type>string</type><parameter>constant_name</parameter></methodparam>
+   <methodparam><type>string</type><parameter>name</parameter></methodparam>
    <methodparam><type>mixed</type><parameter>value</parameter></methodparam>
-   <methodparam choice="opt"><type>bool</type><parameter>case_insensitive</parameter><initializer>&false;</initializer></methodparam>
+   <methodparam choice="opt"><type>bool</type><parameter>case_insensitive</parameter><initializer>false</initializer></methodparam>
   </methodsynopsis>
   <para>
-   Defines a named constant at runtime.
+   Definisce una costante alfanumerica durante l'esecuzione.
   </para>
  </refsect1>
 
@@ -24,56 +24,37 @@
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>constant_name</parameter></term>
+     <term><parameter>name</parameter></term>
      <listitem>
       <para>
-       The name of the constant.
+       Il nome della costante.
       </para>
-      <note>
-       <para>
-        It is possible to <function>define</function> constants with reserved or
-        even invalid names, whose value can (only) be retrieved with
-        <function>constant</function>. However, doing so is not recommended.
-       </para>
-      </note>
      </listitem>
     </varlistentry>
     <varlistentry>
      <term><parameter>value</parameter></term>
      <listitem>
       <para>
-       The value of the constant. In PHP 5, <parameter>value</parameter> must
-       be a <type>scalar</type> value (<type>int</type>,
-       <type>float</type>, <type>string</type>, <type>bool</type>, or
-       &null;). In PHP 7, <type>array</type> values are also accepted.
+       Il valore della costante; solo valori scalari e <type>null</type> sono consentiti.
+       I valori scalari comprendono <type>integer</type>, 
+       <type>float</type>, <type>string</type> o <type>boolean</type>. E' anche
+       possibile definire costanti di tipo <type>resource</type>, tuttavia non è raccomandato
+       e può causare comportamenti imprevedibili.
       </para>
-      <warning>
-       <para>
-        While it is possible to define <type>resource</type> constants, it is
-        not recommended and may cause unpredictable behavior.
-       </para>
-      </warning>
      </listitem>
     </varlistentry>
     <varlistentry>
      <term><parameter>case_insensitive</parameter></term>
      <listitem>
       <para>
-       If set to &true;, the constant will be defined case-insensitive. 
-       The default behavior is case-sensitive; i.e. 
-       <literal>CONSTANT</literal> and <literal>Constant</literal> represent
-       different values.
+       Se settato a &true;, la costante viene definita case-insensitive.
+       Il comportamento di default è case-sensitive; per esempio 
+       <literal>CONSTANT</literal> e <literal>Constant</literal> rappresentano
+       valori diversi.
       </para>
-      <warning>
-       <simpara>
-        Defining case-insensitive constants is deprecated as of PHP 7.3.0.
-        As of PHP 8.0.0, only &false; is an acceptable value, passing
-        &true; will produce a warning.
-       </simpara>
-      </warning>
       <note>
        <para>
-        Case-insensitive constants are stored as lower-case.
+        Le costanti case-insensitive vengono salvate internamente in minuscolo.
        </para>
       </note>
      </listitem>
@@ -89,100 +70,25 @@
   </para>
  </refsect1>
 
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>8.0.0</entry>
-       <entry>
-        Passing &true; to <parameter>case_insensitive</parameter> now emits an <constant>E_WARNING</constant>. Passing &false; is still allowed.
-       </entry>
-      </row>
-      <row>
-       <entry>7.3.0</entry>
-       <entry>
-        <parameter>case_insensitive</parameter> has been deprecated and will be removed in version 8.0.0.
-       </entry>
-      </row>
-      <row>
-       <entry>7.0.0</entry>
-       <entry>
-        <type>array</type> values are allowed.
-       </entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </informaltable>
-  </para>
- </refsect1>
- 
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title>Defining Constants</title>
+    <title>Definire costanti</title>
     <programlisting role="php">
 <![CDATA[
 <?php
-define("CONSTANT", "Hello world.");
-echo CONSTANT; // outputs "Hello world."
-echo Constant; // outputs "Constant" and issues a notice.
+define("CONSTANT", "Ciao Mondo!");
+echo CONSTANT; // output "Ciao Mondo!"
+echo Constant; // output "Ciao Mondo!" e genera un notice.
 
-define("GREETING", "Hello you.", true);
-echo GREETING; // outputs "Hello you."
-echo Greeting; // outputs "Hello you."
-
-// Works as of PHP 7
-define('ANIMALS', array(
-    'dog',
-    'cat',
-    'bird'
-));
-echo ANIMALS[1]; // outputs "cat"
+define("GREETING", "Ciao Mondo!", true);
+echo GREETING; // output "Ciao Mondo!"
+echo Greeting; // output "Ciao Mondo!"
 
 ?>
 ]]>
     </programlisting>
-   </example>
-  </para>
-  <para>
-   <example>
-    <title>Constants with Reserved Names</title>
-    <para>
-     This example illustrates the <emphasis>possibility</emphasis> to define a
-     constant with the same name as a
-     <link linkend="language.constants.predefined">magic constant</link>.
-     Since the resulting behavior is obviously confusing, it is not recommended
-     to do this in practise, though.
-    </para>
-    <programlisting role="php">
-<![CDATA[
-<?php
-var_dump(defined('__LINE__'));
-var_dump(define('__LINE__', 'test'));
-var_dump(constant('__LINE__'));
-var_dump(__LINE__);
-?>
-]]>
-    </programlisting>
-   &example.outputs;
-   <screen>
-<![CDATA[
-bool(false)
-bool(true)
-string(4) "test"
-int(5)
-]]>
-   </screen>
    </example>
   </para>
  </refsect1>
@@ -193,12 +99,13 @@ int(5)
    <simplelist>
     <member><function>defined</function></member>
     <member><function>constant</function></member>
-    <member>The section on <link linkend="language.constants">Constants</link></member>
+    <member>La sezione sulle <link linkend="language.constants">Costanti</link></member>
    </simplelist>
   </para>
  </refsect1>
 
 </refentry>
+
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,116 +1,101 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
-<refentry xml:id="function.rtrim" xmlns="http://docbook.org/ns/docbook">
- <refnamediv>
-  <refname>rtrim</refname>
-  <refpurpose>Strip whitespace (or other characters) from the end of a string</refpurpose>
- </refnamediv>
- 
- <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <type>string</type><methodname>rtrim</methodname>
-   <methodparam><type>string</type><parameter>string</parameter></methodparam>
-   <methodparam choice="opt"><type>string</type><parameter>characters</parameter><initializer>" \n\r\t\v\x00"</initializer></methodparam>
-  </methodsynopsis>
-  <simpara>
-   This function returns a string with whitespace (or other characters) stripped from the
-   end of <parameter>string</parameter>.
-  </simpara>
-  <simpara>
-   Without the second parameter,
-   <function>rtrim</function> will strip these characters:
-  </simpara>
-  &strings.stripped.characters;
- </refsect1>
-
- <refsect1 role="parameters">
-  &reftitle.parameters;
-  <variablelist>
-   <varlistentry>
-    <term><parameter>string</parameter></term>
-    <listitem>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+<!-- splitted from ./en/functions/strings.xml, last change in rev 1.31 -->
+  <refentry xml:id="function.rtrim" xmlns="http://docbook.org/ns/docbook">
+   <refnamediv>
+    <refname>rtrim</refname>
+    <refpurpose>
+     Rimuove gli spazi (ed altri caratteri) dalla fine della stringa
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>string</type><methodname>rtrim</methodname>
+      <methodparam><type>string</type><parameter>str</parameter></methodparam>
+      <methodparam choice="opt"><type>string</type><parameter>charlist</parameter></methodparam>
+     </methodsynopsis>
+    <note>
      <simpara>
-      The input string.
+       Il secondo parametro è stato aggiunto nella versione 4.1.0 di PHP.
      </simpara>
-    </listitem>
-   </varlistentry>
-   <varlistentry>
-    <term><parameter>characters</parameter></term>
-    <listitem>
-     &strings.parameter.characters.optional;
-    </listitem>
-   </varlistentry>
-  </variablelist>
- </refsect1>
-
- <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <simpara>
-   Returns the modified string.
-  </simpara>
- </refsect1>
-
- <refsect1 role="examples">
-  &reftitle.examples;
-  <para>
-   <example>
-    <title>Usage example of <function>rtrim</function></title>
-    <programlisting role="php">
+    </note>
+    <para>
+     Questa funzione restituisce la stringa <parameter>str</parameter> a cui sono stati rimossi gli spazi
+     finali.
+     Senza la specifica del secondo parametro
+     <function>rtrim</function> rimuoverà i seguenti caratteri:
+     <!-- sorted by importance. Printed 3 times: trim, ltrim, rtrim -->
+     <itemizedlist>
+      <listitem>
+       <simpara>
+        " " (<acronym>ASCII</acronym> <literal>32</literal> 
+        (<literal>0x20</literal>)), spazio ordinario.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        "\t" (<acronym>ASCII</acronym> <literal>9</literal> 
+        (<literal>0x09</literal>)), tab.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        "\n" (<acronym>ASCII</acronym> <literal>10</literal> 
+        (<literal>0x0A</literal>)),  newline (line feed).
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        "\r" (<acronym>ASCII</acronym> <literal>13</literal> 
+        (<literal>0x0D</literal>)), carriage return.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        "\0" (<acronym>ASCII</acronym> <literal>0</literal> 
+        (<literal>0x00</literal>)), il byte <literal>NUL</literal>.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara> <!-- not \v, since not supported by PHP -->
+        "\x0B" (<acronym>ASCII</acronym> <literal>11</literal> 
+        (<literal>0x0B</literal>)), il tab verticale.
+       </simpara>
+      </listitem>
+     </itemizedlist>
+    </para>
+    <para>
+     Si può anche specificare i caratteri che si desidera rimuovere, indicandoli
+     nel parametro <parameter>charlist</parameter>.
+     Quest'ultimo è costituito da un semplice elenco di caratteri da rimuovere. Con
+     <literal>..</literal> si può specificare un range di caratteri.
+    </para>
+    <example>
+     <title>Esempio di uso di <function>rtrim</function></title>
+     <programlisting role="php">
 <![CDATA[
 <?php
 
 $text = "\t\tThese are a few words :) ...  ";
-$binary = "\x09Example string\x0A";
-$hello  = "Hello World";
-var_dump($text, $binary, $hello);
-
-print "\n";
-
 $trimmed = rtrim($text);
-var_dump($trimmed);
-
+// $trimmed = "\t\tThese are a few words :) ..."
 $trimmed = rtrim($text, " \t.");
-var_dump($trimmed);
-
-$trimmed = rtrim($hello, "Hdle");
-var_dump($trimmed);
-
-// trim the ASCII control characters at the end of $binary
-// (from 0 to 31 inclusive)
+// $trimmed = "\t\tThese are a few words :)"
 $clean = rtrim($binary, "\x00..\x1F");
-var_dump($clean);
+// rimuove i caratteri di controllo ASCII dalla fine di $binary 
+// (from 0 to 31 inclusive)
 
 ?>
 ]]>
-    </programlisting>
-    &example.outputs;
-    <screen>
-<![CDATA[
-string(32) "        These are a few words :) ...  "
-string(16) "    Example string
-"
-string(11) "Hello World"
+     </programlisting>
+    </example>
+    <para>
+     Vedere anche <function>trim</function> e <function>ltrim</function>.
+    </para>
+   </refsect1>
+  </refentry>
 
-string(30) "        These are a few words :) ..."
-string(26) "        These are a few words :)"
-string(9) "Hello Wor"
-string(15) "    Example string"
-]]>
-    </screen>
-   </example>   
-  </para>
- </refsect1>
-
- <refsect1 role="seealso">
-  &reftitle.seealso;
-  <simplelist>
-   <member><function>trim</function></member>
-   <member><function>ltrim</function></member>
-  </simplelist>
- </refsect1>
-
-</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

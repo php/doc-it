@@ -1,121 +1,56 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
-<refentry xml:id="function.socket-connect" xmlns="http://docbook.org/ns/docbook">
- <refnamediv>
-  <refname>socket_connect</refname>
-  <refpurpose>Initiates a connection on a socket</refpurpose>
- </refnamediv>
- 
- <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <type>bool</type><methodname>socket_connect</methodname>
-   <methodparam><type>Socket</type><parameter>socket</parameter></methodparam>
-   <methodparam><type>string</type><parameter>address</parameter></methodparam>
-   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>port</parameter><initializer>&null;</initializer></methodparam>
-  </methodsynopsis>
-  <para>
-   Initiate a connection to <parameter>address</parameter> using the <classname>Socket</classname> instance
-   <parameter>socket</parameter>, which must be <classname>Socket</classname>
-   instance created with <function>socket_create</function>.
-  </para>
- </refsect1>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- splitted from ./it/functions/sockets.xml, last change in rev 1.4 -->
+<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+  <refentry xml:id="function.socket-connect" xmlns="http://docbook.org/ns/docbook">
+   <refnamediv>
+    <refname>socket_connect</refname>
+    <refpurpose>Inizia una connessione su un socket</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>bool</type><methodname>socket_connect</methodname>
+      <methodparam><type>resource</type><parameter>socket</parameter></methodparam>
+      <methodparam><type>string</type><parameter>indirizzo</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>porta</parameter></methodparam>
+     </methodsynopsis>
+     &warn.experimental.func;
+    <para>
+     Apre una connessione usando la risorsa di tipo socket 
+     <parameter>socket</parameter>, la quale deve essere una risorsa
+     di socket valida generata da <function>socket_create</function>.
+    </para>
+    <para>
+     Il parametro <parameter>indirizzo</parameter> può essere sia
+     un classico indirizzo IP (ad esempio 
+     <literal>127.0.0.1</literal>), se il socket appartiene alla famiglia
+     <constant>AF_INET</constant>, sia il percorso di un socket
+     nel dominio Unix, se il socket appartiene alla famiglia
+     <constant>AF_UNIX</constant>.
+    </para>
+    <para>
+     Il parametro <parameter>porta</parameter>, utilizzato soltanto
+     con le connessioni tramite un socket di tipo <constant>AF_INET</constant>, 
+     indica quale porta sul server remoto si debba utilizzare
+     per eseguire la connessione.
+    </para>
+    <para>
+     &return.success; Il codice di errore può essere recuperato con
+     <function>socket_last_error</function>. Questo codice può essere passato 
+     alla funzione <function>socket_strerror</function>
+     per ottenere una descrizione dell'errore.
+    </para>
+    <para>
+     Vedere anche
+     <function>socket_bind</function>,
+     <function>socket_listen</function>,
+     <function>socket_create</function>,
+     <function>socket_last_error</function> e
+     <function>socket_strerror</function>.
+    </para>
+   </refsect1>
+  </refentry>
 
- <refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>socket</parameter></term>
-     <listitem>
-      <para>
-       A <classname>Socket</classname> instance created with
-       <function>socket_create</function>.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>address</parameter></term>
-     <listitem>
-      <para>
-       The <parameter>address</parameter> parameter is either an IPv4 address
-       in dotted-quad notation (e.g. <literal>127.0.0.1</literal>) if 
-       <parameter>socket</parameter> is <constant>AF_INET</constant>, a valid 
-       IPv6 address (e.g. <literal>::1</literal>) if IPv6 support is enabled and 
-       <parameter>socket</parameter> is <constant>AF_INET6</constant>
-       or the pathname of a Unix domain socket, if the socket family is
-       <constant>AF_UNIX</constant>.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>port</parameter></term>
-     <listitem>
-      <para>
-       The <parameter>port</parameter> parameter is only used and is mandatory
-       when connecting to an <constant>AF_INET</constant> or an 
-       <constant>AF_INET6</constant> socket, and designates
-       the port on the remote host to which a connection should be made.
-      </para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </para>
- </refsect1>
-
- <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   &return.success; The error code can be retrieved with
-   <function>socket_last_error</function>. This code may be passed to
-   <function>socket_strerror</function> to get a textual explanation of the
-   error.
-  </para>
-  <note>
-   <para>
-    If the socket is non-blocking then this function returns &false; with an
-    error <literal>Operation now in progress</literal>.
-   </para>
-  </note>
- </refsect1>
-
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <informaltable>
-   <tgroup cols="2">
-    <thead>
-     <row>
-      <entry>&Version;</entry>
-      <entry>&Description;</entry>
-     </row>
-    </thead>
-    <tbody>
-     &sockets.changelog.socket-param;
-     <row>
-      <entry>8.0.0</entry>
-      <entry>
-       <parameter>port</parameter> is nullable now.
-      </entry>
-     </row>
-    </tbody>
-   </tgroup>
-  </informaltable>
- </refsect1>
-
- <refsect1 role="seealso">
-  &reftitle.seealso;
-  <para>
-   <simplelist>
-    <member><function>socket_bind</function></member>
-    <member><function>socket_listen</function></member>
-    <member><function>socket_create</function></member>
-    <member><function>socket_last_error</function></member>
-    <member><function>socket_strerror</function></member>
-   </simplelist>
-  </para>
- </refsect1>
-
-</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,461 +1,217 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
-<refentry xml:id="function.preg-match-all" xmlns="http://docbook.org/ns/docbook">
- <refnamediv>
-  <refname>preg_match_all</refname>
-  <refpurpose>Perform a global regular expression match</refpurpose>
- </refnamediv>
-
- <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <type class="union"><type>int</type><type>false</type></type><methodname>preg_match_all</methodname>
-   <methodparam><type>string</type><parameter>pattern</parameter></methodparam>
-   <methodparam><type>string</type><parameter>subject</parameter></methodparam>
-   <methodparam choice="opt"><type>array</type><parameter role="reference">matches</parameter><initializer>&null;</initializer></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>flags</parameter><initializer>0</initializer></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>offset</parameter><initializer>0</initializer></methodparam>
-  </methodsynopsis>
-  <para>
-   Searches <parameter>subject</parameter> for all matches to the regular
-   expression given in <parameter>pattern</parameter> and puts them in
-   <parameter>matches</parameter> in the order specified by
-   <parameter>flags</parameter>.
-  </para>
-  <para>
-   After the first match is found, the subsequent searches  are continued
-   on from end of the last match.
-  </para>
- </refsect1>
-
- <refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>pattern</parameter></term>
-     <listitem>
-      <para>
-       The pattern to search for, as a string.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>subject</parameter></term>
-     <listitem>
-      <para>
-       The input string.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>matches</parameter></term>
-     <listitem>
-      <para>
-       Array of all matches in multi-dimensional array ordered according to
-       <parameter>flags</parameter>.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>flags</parameter></term>
-     <listitem>
-      <para>
-       Can be a combination of the following flags (note that it doesn't make
-       sense to use <constant>PREG_PATTERN_ORDER</constant> together with
-       <constant>PREG_SET_ORDER</constant>):
-       <variablelist>
-        <varlistentry>
-         <term><constant>PREG_PATTERN_ORDER</constant></term>
-         <listitem>
-          <para>
-           Orders results so that <varname>$matches[0]</varname> is an array of full
-           pattern matches, <varname>$matches[1]</varname> is an array of strings matched by
-           the first parenthesized subpattern, and so on.
-          </para>
-          <para>
-           <informalexample>
-            <programlisting role="php">
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- splitted from ./it/functions/pcre.xml, last change in rev 1.1 -->
+<!-- last change to 'preg-match-all' in en/ tree in rev 1.2 -->
+<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+<!-- OLD-Revision: 1.78/EN.1.2 -->
+  <refentry xml:id="function.preg-match-all" xmlns="http://docbook.org/ns/docbook">
+   <refnamediv>
+    <refname>preg_match_all</refname>
+    <refpurpose>Esegue un riconoscimento globale con le espressioni regolari</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int </type><methodname>preg_match_all</methodname>
+      <methodparam><type>string </type><parameter>espressione_regolare</parameter></methodparam>
+      <methodparam><type>string </type><parameter>testo</parameter></methodparam>
+      <methodparam><type>array</type><parameter>&amp;TestiRiconosciuti</parameter></methodparam>
+      <methodparam choice="opt"><type>int </type><parameter>flags</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>offset</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     La funzione ricerca tutte le espressioni regolari passate nel parametro <parameter>espressione_regolare</parameter> all'interno
+     della stringa <parameter>testo</parameter>. I testi riconosciuti sono posti all'interno
+     della matrice <parameter>TestiRiconosciuti</parameter>, nell'ordine specificato da
+     <parameter>flags</parameter>.
+    </para>
+    <para>
+     Dopo avere riconosciuto il primo segmento di testo, le ricerche seguenti
+     saranno effettuate a partire dall'ultima ricerca specificata.
+    </para>
+    <para>
+     Il parametro <parameter>flags</parameter> può essere la combinazione dei seguenti flag
+     (da notare che non ha senso utilizzare
+     <constant>PREG_PATTERN_ORDER</constant> in unione a
+     <constant>PREG_SET_ORDER</constant>):
+     <variablelist>
+      <varlistentry>
+       <term>PREG_PATTERN_ORDER</term>
+       <listitem>
+        <para>
+         I testi riconosciuti saranno organizzati in modo tale da avere
+         in $TestiRiconosciuti[0] la matrice di tutti i testi riconosciuti,
+         in $TestiRiconosciuti[1] la matrice di tutti i testi che soddisfino
+         il primo criterio di riconoscimento posto tra parentesi tonde, in
+         $TestiRiconosciuti[2] si avranno i testi che soddisfino il secondo
+         criterio e cosi via.
+        </para>
+        <para>
+         <informalexample>
+          <programlisting role="php">
 <![CDATA[
 <?php
 preg_match_all("|<[^>]+>(.*)</[^>]+>|U",
     "<b>example: </b><div align=left>this is a test</div>",
     $out, PREG_PATTERN_ORDER);
-echo $out[0][0] . ", " . $out[0][1] . "\n";
-echo $out[1][0] . ", " . $out[1][1] . "\n";
+echo $out[0][0].", ".$out[0][1]."\n";
+echo $out[1][0].", ".$out[1][1]."\n";
 ?>
 ]]>
-            </programlisting>
-            &example.outputs;
-            <screen role="html">
+          </programlisting>
+          <para>
+           Questo esempio produrrà:
+          </para>
+          <screen role="html">
 <![CDATA[
 <b>example: </b>, <div align=left>this is a test</div>
 example: , this is a test
 ]]>
-            </screen>
-            <para>
-             So, <varname>$out[0]</varname> contains an array of strings that matched the full pattern,
-             and <varname>$out[1]</varname> contains an array of strings enclosed by tags.
-            </para>
-           </informalexample>
-          </para>
+          </screen>
           <para>
-           If the pattern contains named subpatterns, <varname>$matches</varname>
-           additionally contains entries for keys with the subpattern name.
+           Nell'esempio, $out[0] contiene la matrice di tutte le stringhe
+           che soddisfano i criteri impostati, $out[1] contiene la matrice
+           dei testi delimitati dai tag.
           </para>
-          <para>
-           If the pattern contains duplicate named subpatterns, only the rightmost
-           subpattern is stored in <varname>$matches[NAME]</varname>.
-           <informalexample>
-            <programlisting role="php">
-<![CDATA[
-<?php
-preg_match_all(
-    '/(?J)(?<match>foo)|(?<match>bar)/',
-    'foo bar',
-    $matches,
-    PREG_PATTERN_ORDER
-);
-print_r($matches['match']);
-?>
-]]>
-            </programlisting>
-            &example.outputs;
-            <screen>
-<![CDATA[
-Array
-(
-    [0] => 
-    [1] => bar
-)
-]]>
-            </screen>
-           </informalexample>
-          </para>
-         </listitem>
-        </varlistentry>
-        <varlistentry>
-         <term><constant>PREG_SET_ORDER</constant></term>
-         <listitem>
-          <para>
-           Orders results so that <varname>$matches[0]</varname> is an array of first set
-           of matches, <varname>$matches[1]</varname> is an array of second set of matches,
-           and so on.
-           <informalexample>
-            <programlisting role="php">
+         </informalexample>
+        </para>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>PREG_SET_ORDER</term>
+       <listitem>
+        <para>
+         Usando questo parametro come ordine dei riconoscimenti, si
+         avrà in $TestiRiconosciuti[0] una matrice con il primo set
+         di testi riconosciuti, in $TestiRiconosciuti[1], la matrice
+         con il secondo set di testi riconosciuti e così via.
+         <informalexample>
+          <programlisting role="php">
 <![CDATA[
 <?php
 preg_match_all("|<[^>]+>(.*)</[^>]+>|U",
     "<b>example: </b><div align=\"left\">this is a test</div>",
     $out, PREG_SET_ORDER);
-echo $out[0][0] . ", " . $out[0][1] . "\n";
-echo $out[1][0] . ", " . $out[1][1] . "\n";
+echo $out[0][0].", ".$out[0][1]."\n";
+echo $out[1][0].", ".$out[1][1]."\n";
 ?>
 ]]>
-            </programlisting>
-            &example.outputs;
-            <screen role="html">
+          </programlisting>
+         <para>
+          Questo esempio visualizzerà:
+         </para>
+         <screen role="html">
 <![CDATA[
 <b>example: </b>, example:
 <div align="left">this is a test</div>, this is a test
 ]]>
-            </screen>
-           </informalexample>
-          </para>
-         </listitem>
-        </varlistentry>
-        <varlistentry>
-         <term><constant>PREG_OFFSET_CAPTURE</constant></term>
-         <listitem>
-          <para>
-           If this flag is passed, for every occurring match the appendant string
-           offset (in bytes) will also be returned. Note that this changes the value of
-           <parameter>matches</parameter> into an array of arrays where every element is an
-           array consisting of the matched string at offset <literal>0</literal>
-           and its string offset into <parameter>subject</parameter> at offset
-           <literal>1</literal>.
-           <informalexample>
-            <programlisting role="php">
-<![CDATA[
-<?php
-preg_match_all('/(foo)(bar)(baz)/', 'foobarbaz', $matches, PREG_OFFSET_CAPTURE);
-print_r($matches);
-?>
-]]>
-            </programlisting>
-            &example.outputs;
-            <screen>
-<![CDATA[
-Array
-(
-    [0] => Array
-        (
-            [0] => Array
-                (
-                    [0] => foobarbaz
-                    [1] => 0
-                )
-
-        )
-
-    [1] => Array
-        (
-            [0] => Array
-                (
-                    [0] => foo
-                    [1] => 0
-                )
-
-        )
-
-    [2] => Array
-        (
-            [0] => Array
-                (
-                    [0] => bar
-                    [1] => 3
-                )
-
-        )
-
-    [3] => Array
-        (
-            [0] => Array
-                (
-                    [0] => baz
-                    [1] => 6
-                )
-
-        )
-
-)
-]]>
-            </screen>
-           </informalexample>
-          </para>
-         </listitem>
-        </varlistentry>
-        <varlistentry>
-         <term><constant>PREG_UNMATCHED_AS_NULL</constant></term>
-         <listitem>
-          <para>
-           If this flag is passed, unmatched subpatterns are reported as &null;;
-           otherwise they are reported as an empty <type>string</type>.
-          </para>
-         </listitem>
-        </varlistentry>  
-       </variablelist>
-      </para>
-      <para>
-       If no order flag is given, <constant>PREG_PATTERN_ORDER</constant> is
-       assumed.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>offset</parameter></term>
-     <listitem>
-      <para>
-       Normally, the search starts from the beginning of the subject string.
-       The optional parameter <parameter>offset</parameter> can be used to
-       specify the alternate place from which to start the search (in bytes).
-      </para>
-      <note>
-       <para>
-        Using <parameter>offset</parameter> is not equivalent to passing
-        <code>substr($subject, $offset)</code> to
-        <function>preg_match_all</function> in place of the subject string,
-        because <parameter>pattern</parameter> can contain assertions such as
-        <emphasis>^</emphasis>, <emphasis>$</emphasis> or
-        <emphasis>(?&lt;=x)</emphasis>. See <function>preg_match</function>
-        for examples.
-       </para>
-      </note>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </para>
- </refsect1>
-
- <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Returns the number of full pattern matches (which might be zero),&return.falseforfailure;.
-  </para>
- </refsect1>
-
- <refsect1 role="errors">
-  &reftitle.errors;
-  &pcre.pattern.warning;
- </refsect1>
-
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>7.2.0</entry>
-       <entry>
-        The <constant>PREG_UNMATCHED_AS_NULL</constant> is now supported for the
-        <parameter>$flags</parameter> parameter.
-       </entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </informaltable>
-  </para>
- </refsect1>
-
- <refsect1 role="examples">
-  &reftitle.examples;
-  <para>
-   <example>
-    <title>Getting all phone numbers out of some text.</title>
-    <programlisting role="php">
+          </screen>
+         </informalexample>
+        </para>
+        <para>
+         In questo esempio $out[0] è la matrice del primo set di testi
+         riconosciuti. Nel dettaglio $out[0][0] conterrà il testo che incrocia
+         l'intero criterio impostato, $out[0][1] conterrà il testo riconosciuto
+         tramite il prima regola di riconoscimento presente nel criterio globale.
+         Analogo discorso si può fare per $out[1]. In questo caso il ragionamento
+         verrà svolto su un secondo segmento della stringa che soddisfi le
+         condizioni poste dal criterio di riconoscimento.
+        </para>
+       </listitem>
+      </varlistentry>
+      <varlistentry>
+       <term>PREG_OFFSET_CAPTURE</term>
+       <listitem>
+        <para>
+         Se viene impostato questo flag, per ogni testo riconosciuto viene restituito
+         l'offset della stringa. Occorre notare che questo cambia il tipo di valore
+         restituito nell'array, infatti ogni elemento è, a sua volta, un'array composto dalla
+         stringa riconosciuta, all'indice <literal>0</literal>, e dall'offset della stringa nell'indice
+         <literal>1</literal>. Questa costante è disponibile a partire dalla
+         versione 4.3.0 di PHP.
+        </para>
+       </listitem>
+      </varlistentry>
+     </variablelist>
+    </para>
+    <para>
+     Qualora non si specifichi il parametro <parameter>flags</parameter>,
+     si assume per default il valore PREG_PATTERN_ORDER.
+    </para>
+    <para>
+     Normalemente la ricerca parte dall'inizio della stringa oggetto di ricerca. Con il parametro
+     opzionale <parameter>offset</parameter> si può specificare da dove cominciare
+     la ricerca. Equivale a passare <function>substr</function>($testo, $offset) alla funzione
+     <function>preg_match</function> al posto del parametro testo.
+     Il parametro <parameter>offset</parameter> è disponibile a partire dalla versione 4.3.3 di
+     PHP.
+    </para>
+    <para>
+     La funzione restituisce il numero dei riconoscimenti completi
+     svolti (che possono essere zero), oppure &false;
+     se si verificano degli errori.
+    </para>
+    <para>
+     <example>
+      <title>Esempio di come ottenere tutti i numeri di telefono da un testo.</title>
+      <programlisting role="php">
 <![CDATA[
 <?php
 preg_match_all("/\(?  (\d{3})?  \)?  (?(1)  [\-\s] ) \d{3}-\d{4}/x",
-                "Call 555-1212 or 1-800-555-1212", $phones);
+                "Call 555-1212 or 1-800-555-1212", $numeri);
 ?>
 ]]>
-    </programlisting>
-   </example>
-  </para>
-  <para>
-   <example>
-    <title>Find matching HTML tags (greedy)</title>
-    <programlisting role="php">
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     <example>
+      <title>Ricerca di tag HTML</title>
+      <programlisting role="php">
 <![CDATA[
 <?php
-// The \\2 is an example of backreferencing. This tells pcre that
-// it must match the second set of parentheses in the regular expression
-// itself, which would be the ([\w]+) in this case. The extra backslash is
-// required because the string is in double quotes.
+// Il parametro \\2 è un esempio di riferimento all'indietro. Questo dato informa la
+// libreria pcre che deve considerare il secondo set di parentesi tonde (in questo
+// caso il testo "([\w]+)"). Il backslash (\) aggiuntivo è reso obbligatorio dall'uso
+// dei doppi apici.
 $html = "<b>bold text</b><a href=howdy.html>click me</a>";
 
-preg_match_all("/(<([\w]+)[^>]*>)(.*?)(<\/\\2>)/", $html, $matches, PREG_SET_ORDER);
+preg_match_all("/(<([\w]+)[^>]*>)(.*?)(<\/\\2>)/", $html, $matches);
 
-foreach ($matches as $val) {
-    echo "matched: " . $val[0] . "\n";
-    echo "part 1: " . $val[1] . "\n";
-    echo "part 2: " . $val[2] . "\n";
-    echo "part 3: " . $val[3] . "\n";
-    echo "part 4: " . $val[4] . "\n\n";
+for ($i=0; $i< count($matches[0]); $i++) {
+   echo "intero criterio: ".$matches[0][$i]."\n";
+   echo "parte 1: " . $matches[1][$i] . "\n";
+   echo "parte 2: " . $matches[3][$i] . "\n";
+   echo "parte 3: " . $matches[4][$i] . "\n\n";
 }
 ?>
 ]]>
-    </programlisting>
-    &example.outputs;
-    <screen role="html">
+      </programlisting>
+     <para>
+      Questo esempio visualizzerà:
+     </para>
+     <screen role="html">
 <![CDATA[
-matched: <b>bold text</b>
-part 1: <b>
-part 2: b
-part 3: bold text
-part 4: </b>
+intero criterio: <b>bold text</b>
+parte 1: <b>
+parte 2: bold text
+parte 3: </b>
 
-matched: <a href=howdy.html>click me</a>
-part 1: <a href=howdy.html>
-part 2: a
-part 3: click me
-part 4: </a>
+intero criterio: <a href=howdy.html>click me</a>
+parte 1: <a href=howdy.html>
+parte 2: click me
+parte 3: </a>
 ]]>
-    </screen>
-   </example>
-  </para>
-  <para>
-   <example>
-    <title>Using named subpattern</title>
-    <programlisting role="php">
-<![CDATA[
-<?php
+     </screen>
+    </example>
+    </para>
+    <para>
+     Vedere anche <function>preg_match</function>,
+     <function>preg_replace</function>
+     e <function>preg_split</function>.
+    </para>
+   </refsect1>
+  </refentry>
 
-$str = <<<FOO
-a: 1
-b: 2
-c: 3
-FOO;
-
-preg_match_all('/(?P<name>\w+): (?P<digit>\d+)/', $str, $matches);
-
-/* Alternative */
-// preg_match_all('/(?<name>\w+): (?<digit>\d+)/', $str, $matches);
-
-print_r($matches);
-
-?>
-]]>
-    </programlisting>
-    &example.outputs;
-    <screen role="html">
-<![CDATA[
-Array
-(
-    [0] => Array
-        (
-            [0] => a: 1
-            [1] => b: 2
-            [2] => c: 3
-        )
-
-    [name] => Array
-        (
-            [0] => a
-            [1] => b
-            [2] => c
-        )
-
-    [1] => Array
-        (
-            [0] => a
-            [1] => b
-            [2] => c
-        )
-
-    [digit] => Array
-        (
-            [0] => 1
-            [1] => 2
-            [2] => 3
-        )
-
-    [2] => Array
-        (
-            [0] => 1
-            [1] => 2
-            [2] => 3
-        )
-
-)
-]]>
-    </screen>
-   </example>
-  </para>
- </refsect1>
-
- <refsect1 role="seealso">
-  &reftitle.seealso;
-  <para>
-   <simplelist>
-    <member><link linkend="pcre.pattern">PCRE Patterns</link></member>
-    <member><function>preg_quote</function></member>
-    <member><function>preg_match</function></member>
-    <member><function>preg_replace</function></member>
-    <member><function>preg_split</function></member>
-    <member><function>preg_last_error</function></member>
-   </simplelist>
-  </para>
- </refsect1>
-
-</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

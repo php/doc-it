@@ -1,106 +1,145 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
 <!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
 <refentry xml:id="function.trim" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
-  <refname>trim</refname> 
-  <refpurpose>Strip whitespace (or other characters) from the beginning and end of a string</refpurpose>
+  <refname>trim</refname>
+  <refpurpose>Rimuove gli spazi (ed altri caratteri) all'inizio e alla fine di un testo</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>string</type><methodname>trim</methodname>
-   <methodparam><type>string</type><parameter>string</parameter></methodparam>
-   <methodparam choice="opt"><type>string</type><parameter>characters</parameter><initializer>" \n\r\t\v\x00"</initializer></methodparam>
+   <methodparam><type>string</type><parameter>str</parameter></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>charlist</parameter></methodparam>
   </methodsynopsis>
-  <simpara>
-   This function returns a string with whitespace stripped from the
-   beginning and end of <parameter>string</parameter>.
-   Without the second parameter,
-   <function>trim</function> will strip these characters:
-  </simpara>
-  &strings.stripped.characters;
+  <para>
+   Questa funzione restituisce il parametro <parameter>str</parameter>
+   privo degli spazi iniziali e finali.
+   Senza la specifica del secondo parametro,
+   <function>trim</function> rimuoverà questi caratteri:
+   <!-- sorted by importance. Printed 3 times: trim, ltrim, rtrim -->
+   <itemizedlist>
+    <listitem>
+     <simpara>
+      " " (<acronym>ASCII</acronym> <literal>32</literal>
+      (<literal>0x20</literal>)), spazio.
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      "\t" (<acronym>ASCII</acronym> <literal>9</literal>
+      (<literal>0x09</literal>)), il carattere tab.
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      "\n" (<acronym>ASCII</acronym> <literal>10</literal>
+      (<literal>0x0A</literal>)),  il new line (line feed).
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      "\r" (<acronym>ASCII</acronym> <literal>13</literal>
+      (<literal>0x0D</literal>)), il carriage return.
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      "\0" (<acronym>ASCII</acronym> <literal>0</literal>
+      (<literal>0x00</literal>)),  il byte <literal>NUL</literal>.
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara> <!-- not \v, since not supported by PHP -->
+      "\x0B" (<acronym>ASCII</acronym> <literal>11</literal>
+      (<literal>0x0B</literal>)), il tab verticale.
+     </simpara>
+    </listitem>
+   </itemizedlist>
+  </para>
  </refsect1>
 
  <refsect1 role="parameters">
   &reftitle.parameters;
-  <variablelist>
-   <varlistentry>
-    <term><parameter>string</parameter></term>
-    <listitem>
-     <para>
-      The <type>string</type> that will be trimmed.
-     </para>
-    </listitem>
-   </varlistentry>
-   <varlistentry>
-    <term><parameter>characters</parameter></term>
-    <listitem>
-     &strings.parameter.characters.optional;
-    </listitem>
-   </varlistentry>
-  </variablelist>
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>str</parameter></term>
+     <listitem>
+      <para>
+       La <type>stringa</type> che deve essere troncata.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>charlist</parameter></term>
+     <listitem>
+      <para>
+       Opzionale, Si può, inoltre, specificare quali caratteri si desidera rimuovere
+       elencandoli in <parameter>charlist</parameter>.
+       Questo parametro è un semplice elenco dei caratteri da rimuovere. Con
+       <literal>..</literal> si può indicare un range di caratteri.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
  </refsect1>
 
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
-  <simpara>
-   The trimmed string.
-  </simpara>
+  <para>
+   La stringa troncata.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>4.1.0</entry>
+       <entry>
+        E' stato aggiunto il parametro opzionale <parameter>charlist</parameter>.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
  </refsect1>
 
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title>Usage example of <function>trim</function></title>
+    <title>Esempio di uso di <function>trim</function></title>
     <programlisting role="php">
 <![CDATA[
 <?php
 
-$text   = "\t\tThese are a few words :) ...  ";
-$binary = "\x09Example string\x0A";
-$hello  = "Hello World";
-var_dump($text, $binary, $hello);
+$text = "\t\tThese are a few words :) ...  ";
 
-print "\n";
+echo trim($text);           // "These are a few words :) ..."
+echo trim($text, " \t.");   // "These are a few words :)"
 
-$trimmed = trim($text);
-var_dump($trimmed);
-
-$trimmed = trim($text, " \t.");
-var_dump($trimmed);
-
-$trimmed = trim($hello, "Hdle");
-var_dump($trimmed);
-
-$trimmed = trim($hello, 'HdWr');
-var_dump($trimmed);
-
-// trim the ASCII control characters at the beginning and end of $binary
-// (from 0 to 31 inclusive)
+// rimuove i caratteri di controllo ASCII all'inizio ed alla fine di $binary
+// (da 0 a 31 compresi)
 $clean = trim($binary, "\x00..\x1F");
-var_dump($clean);
 
 ?>
 ]]>
     </programlisting>
-    &example.outputs;
-    <screen>
-<![CDATA[
-string(32) "        These are a few words :) ...  "
-string(16) "    Example string
-"
-string(11) "Hello World"
-
-string(28) "These are a few words :) ..."
-string(24) "These are a few words :)"
-string(5) "o Wor"
-string(9) "ello Worl"
-string(14) "Example string"
-]]>
-    </screen>
    </example>
   </para>
   <para>
@@ -109,9 +148,9 @@ string(14) "Example string"
     <programlisting role="php">
 <![CDATA[
 <?php
-function trim_value(&$value) 
-{ 
-    $value = trim($value); 
+function trim_value(&$value)
+{
+  $value = trim($value);
 }
 
 $fruit = array('apple','banana ', ' cranberry ');
@@ -149,29 +188,17 @@ array(3) {
   </para>
  </refsect1>
 
- <refsect1 role="notes">
-  &reftitle.notes;
-  <note>
-   <title>Possible gotcha: removing middle characters</title>
-   <para>
-    Because <function>trim</function> trims characters from the beginning and end of
-    a <type>string</type>, it may be confusing when characters are (or are not) removed from
-    the middle. <literal>trim('abc', 'bad')</literal> removes both 'a' and 'b' because it
-    trims 'a' thus moving 'b' to the beginning to also be trimmed. So, this is why it "works"
-    whereas <literal>trim('abc', 'b')</literal> seemingly does not.
-   </para>
-  </note>
- </refsect1>
-
  <refsect1 role="seealso">
   &reftitle.seealso;
-  <simplelist>
-   <member><function>ltrim</function></member>
-   <member><function>rtrim</function></member>
-   <member><function>str_replace</function></member>
-  </simplelist>
+  <para>
+   <simplelist>
+    <member><function>ltrim</function></member>
+    <member><function>rtrim</function></member>
+   </simplelist>
+  </para>
  </refsect1>
 </refentry>
+
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

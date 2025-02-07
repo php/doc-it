@@ -1,18 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: e41aab5ecacf449e51179886c17f1d41735b0234 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
 <refentry xml:id="function.get-class" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>get_class</refname>
-  <refpurpose>Returns the name of the class of an object</refpurpose>
+  <refpurpose>Restituisce il nome della classe di un oggetto</refpurpose>
  </refnamediv>
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>string</type><methodname>get_class</methodname>
-   <methodparam choice="opt"><type>object</type><parameter>object</parameter></methodparam>
+   <methodparam choice="opt"><type>object</type><parameter>object</parameter><initializer>&null;</initializer></methodparam>
   </methodsynopsis>
   <para>
-   Gets the name of the class of the given <parameter>object</parameter>.
+   Restituisce il nome della classe dell'<parameter>object</parameter> dato.
   </para>
  </refsect1>
  <refsect1 role="parameters">
@@ -23,16 +24,8 @@
      <term><parameter>object</parameter></term>
      <listitem>
       <para>
-       The tested object.
+       L'oggetto testato. Questo parametro potrebbe essere omesso quando si è dentro ad una classe.
       </para>
-      <note>
-       <simpara>
-        Explicitly passing &null; as the <parameter>object</parameter> is no
-        longer allowed as of PHP 7.2.0 and emits an <constant>E_WARNING</constant>.
-        As of PHP 8.0.0, a <classname>TypeError</classname> is emitted when
-        &null; is used.
-       </simpara>
-      </note>
      </listitem>
     </varlistentry>
    </variablelist>
@@ -41,25 +34,20 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns the name of the class of which <parameter>object</parameter> is an
-   instance.
+   Restituisce il nome della classe di cui <parameter>object</parameter> è
+   un'istanza. Restituisce &false; se <parameter>object</parameter> non è un 
+   oggetto.
   </para>
   <para>
-   If the <parameter>object</parameter> is an instance of a class which exists 
-   in a namespace, the qualified namespaced name of that class is returned.
+   Se viene omesso <parameter>object</parameter> quando è dentro una classe, viene
+   restituito il nome di quella classe.
   </para>
  </refsect1>
  <refsect1 role="errors">
   &reftitle.errors;
   <para>
-   If <function>get_class</function> is called with anything other than an
-   object, <classname>TypeError</classname> is raised. Prior to PHP 8.0.0,
-   an <constant>E_WARNING</constant> level error was raised.
-  </para>
-  <para>
-   If <function>get_class</function> is called with no arguments from outside a class,
-   an <classname>Error</classname> is thrown. Prior to PHP 8.0.0,
-   an <constant>E_WARNING</constant> level error was raised.
+   Se viene chiamata <function>get_class</function> con qualcosa di diverso da un
+   oggetto, viene sollevato un errore di livello <constant>E_WARNING</constant>.
   </para>
  </refsect1>
  <refsect1 role="changelog">
@@ -75,29 +63,11 @@
      </thead>
      <tbody>
       <row>
-       <entry>8.3.0</entry>
+       <entry>5.3.0</entry>
        <entry>
-        Calling <function>get_class</function> without an argument now emits an
-        <constant>E_DEPRECATED</constant> warning;
-        previously, calling this function inside a class returned the name of that class.
-       </entry>
-      </row>
-      <row>
-       <entry>8.0.0</entry>
-       <entry>
-        Calling this function from outside a class, without any arguments,
-        will now throw an <classname>Error</classname>.
-        Previously, an <constant>E_WARNING</constant> was raised
-        and the function returned &false;.
-       </entry>
-      </row>
-      <row>
-       <entry>7.2.0</entry>
-       <entry>
-        Prior to this version the default value for <parameter>object</parameter>
-        was &null; and it had the same effect as not passing any value. Now
-        &null; has been removed as the default value for <parameter>object</parameter>,
-        and is no longer a valid input.
+        &null; è diventato il valore di default per <parameter>object</parameter>,
+        quindi passare &null; a <parameter>object</parameter> ora ha lo stesso
+        risultato di non passare nessun valore.
        </entry>
       </row>
      </tbody>
@@ -109,7 +79,7 @@
   &reftitle.examples;
   <para>
    <example>
-    <title>Using <function>get_class</function></title>
+    <title>Utilizzo di <function>get_class</function></title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -121,13 +91,13 @@ class foo {
     }
 }
 
-// create an object
+// crea un oggetto
 $bar = new foo();
 
-// external call
+// chiamata esterna
 echo "Its name is " , get_class($bar) , "\n";
 
-// internal call
+// chiamata interna
 $bar->name();
 
 ?>
@@ -142,7 +112,7 @@ My name is foo
     </screen>
    </example>
    <example>
-    <title>Using <function>get_class</function> in superclass</title>
+    <title>Utilizzo di <function>get_class</function> nella superclasse</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -171,34 +141,6 @@ string(3) "bar"
 ]]>
     </screen>
    </example>
-   <example>
-    <title>Using <function>get_class</function> with namespaced classes</title>
-    <programlisting role="php">
-<![CDATA[
-<?php
-
-namespace Foo\Bar;
-
-class Baz {
-    public function __construct()
-    {
-
-    }
-}
-
-$baz = new \Foo\Bar\Baz;
-
-var_dump(get_class($baz));
-?>
-]]>
-    </programlisting>
-    &example.outputs;
-    <screen>
-<![CDATA[
-string(11) "Foo\Bar\Baz"
-]]>
-    </screen>
-   </example>
   </para>
  </refsect1>
  <refsect1 role="seealso">
@@ -208,7 +150,6 @@ string(11) "Foo\Bar\Baz"
     <member><function>get_called_class</function></member>
     <member><function>get_parent_class</function></member>
     <member><function>gettype</function></member>
-    <member><function>get_debug_type</function></member>
     <member><function>is_subclass_of</function></member>
    </simplelist>
   </para>

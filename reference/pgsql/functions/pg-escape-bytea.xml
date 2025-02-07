@@ -1,126 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
-<!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.61 -->
-<refentry xml:id='function.pg-escape-bytea' xmlns="http://docbook.org/ns/docbook">
- <refnamediv>
-  <refname>pg_escape_bytea</refname>
-  <refpurpose>
-   Escape a string for insertion into a bytea field
-  </refpurpose>
- </refnamediv>
-
- <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <type>string</type><methodname>pg_escape_bytea</methodname>
-   <methodparam choice="opt"><type>PgSql\Connection</type><parameter>connection</parameter></methodparam>
-   <methodparam><type>string</type><parameter>data</parameter></methodparam>
-  </methodsynopsis>
-  <para>
-   <function>pg_escape_bytea</function> escapes string for
-   bytea datatype.  It returns escaped string.
-  </para>
-  <note>
-   <para>
-    When you <literal>SELECT</literal> a bytea type, PostgreSQL returns octal byte values
-    prefixed with '\' (e.g. \032). Users are supposed to convert back to
-    binary format manually.
-   </para>
-   <para>
-    This function requires PostgreSQL 7.2 or later. With PostgreSQL
-    7.2.0 and 7.2.1, bytea values must be cast when you enable
-    multi-byte support. i.e. <literal>INSERT INTO test_table (image)
-    VALUES ('$image_escaped'::bytea);</literal> PostgreSQL 7.2.2 or
-    later does not need a cast. The exception is when the client and backend
-    character encoding does not match, and there may be multi-byte
-    stream error. User must then cast to bytea to avoid this error.
-   </para>
-  </note>
- </refsect1>
-
-<refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>connection</parameter></term>
-     <listitem>
-      &pgsql.parameter.connection-with-unspecified-default;
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>data</parameter></term>
-     <listitem>
-      <para>
-       A <type>string</type> containing text or binary data to be inserted into a bytea
-       column.
-      </para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </para>
- </refsect1>
-
- <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   A <type>string</type> containing the escaped data.
-  </para>
- </refsect1>
-
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <informaltable>
-   <tgroup cols="2">
-    <thead>
-     <row>
-      <entry>&Version;</entry>
-      <entry>&Description;</entry>
-     </row>
-    </thead>
-    <tbody>
-     &pgsql.changelog.connection-object;
-    </tbody>
-   </tgroup>
-  </informaltable>
- </refsect1>
-
- <refsect1 role="examples">
-  &reftitle.examples;
-  <para>
-   <example>
-    <title><function>pg_escape_bytea</function> example</title>
-    <programlisting role="php">
-<![CDATA[
-<?php 
-  // Connect to the database
-  $dbconn = pg_connect('dbname=foo');
-  
-  // Read in a binary file
-  $data = file_get_contents('image1.jpg');
-  
-  // Escape the binary data
-  $escaped = pg_escape_bytea($data);
-  
-  // Insert it into the database
-  pg_query("INSERT INTO gallery (name, data) VALUES ('Pine trees', '{$escaped}')");
-?>
-]]>
-    </programlisting>
-   </example>
-  </para>
- </refsect1>
- 
- <refsect1 role="seealso">
-  &reftitle.seealso;
-  <para>
-   <simplelist>
-    <member><function>pg_unescape_bytea</function></member>
-    <member><function>pg_escape_string</function></member>
-   </simplelist>
-  </para>
- </refsect1>
-</refentry>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- splitted from ./it/functions/pgsql.xml, last change in rev 1.16 -->
+<!-- last change to 'pg-escape-bytea' in en/ tree in rev 1.61 -->
+<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
+<!-- OLD-Revision: 1.70/EN.1.61 -->
+<!-- CREDITS: fabio,cortesi,denny -->
+  <refentry xml:id='function.pg-escape-bytea' xmlns="http://docbook.org/ns/docbook">
+   <refnamediv>
+    <refname>pg_escape_bytea</refname>
+    <refpurpose>
+     Aggiunge le sequenze di escape ai dati binari nel tipo bytea
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>string</type><methodname>pg_escape_bytea</methodname>
+      <methodparam><type>string</type><parameter>dati</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     <function>pg_escape_bytea</function> aggiunge le sequenze di escape
+     nei dati di tipo bytea.  Restituisce una stringa con le sequenze.
+    </para>
+    <note>
+     <para>
+      Quando si esegue una SELECT su un tipo bytea, PostgreSQL restituisce dei byte formattati in ottale 
+      e con il prefisso \ (es. \032). Agli utenti è lasciato il compito di convertire questi valori 
+      in formato binario.
+     </para>
+     <para>
+      Questa funzione richiede una versione di PostgreSQL pari o superiore alla 7.2. Con PostgreSQL
+      7.2.0 e 7.2.1, il tipo bytea richiede un cast quando si abilita
+      il supporto multi-byte. Es. <literal>INSERT INTO tabella (immagine)
+      VALUES ('$immagine_con_escape'::bytea);</literal> PostgreSQL 7.2.2 e
+     successivi non necessitano del cast. L'eccezione è che quando le codifiche di carattere
+     del client e del backend non corrispondono, ci possono essere errori
+     del flusso multi-byte. L'utente deve effettuare un cast a bytea per evitare questo errore.
+     </para>
+     <para>
+      Le nuove versioni di PostgreSQL avranno il supporto per la funzione di unescape. Il supporto per
+      la funzione unescape verrà aggiunto non appena disponibile.
+     </para>
+    </note>
+    <para>
+     See also <function>pg_escape_string</function>
+    </para>
+   </refsect1>
+  </refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

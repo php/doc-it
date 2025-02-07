@@ -1,74 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<!-- EN-Revision: 6b09bb638aa64d1fad5f4a630a8da9a2692ce733 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
  <chapter xml:id="language.basic-syntax" xmlns="http://docbook.org/ns/docbook">
-  <title>Basic syntax</title>
+  <title>Sintassi Fondamentale</title>
   <sect1 xml:id="language.basic-syntax.phptags">
-   <title>PHP tags</title>
+   <title>Tag PHP</title>
    <para>
-    When PHP parses a file, it looks for opening and closing tags, which are
-    <literal>&lt;?php</literal> and <literal>?&gt;</literal> which tell PHP to
-    start and stop interpreting the code between them. Parsing in this manner
-    allows PHP to be embedded in all sorts of different documents, as
-    everything outside of a pair of opening and closing tags is ignored by the
-    PHP parser.
+    Quando PHP inizia a esaminare un file, cerca i tag di apertura e di chiusura, che sono
+    <literal>&lt;?php</literal> e <literal>?&gt;</literal>, i quali indicano a PHP
+    dove iniziare e terminare l'interpretazione del codice. Questa tecnica
+    permette a PHP di essere incorporato in tutte le tipologie di documenti, poiché
+    ogni cosa esterna ai tag di apertura e di chiusura viene ignorata dal
+    parser PHP.
    </para>
 
    <para>
-    PHP includes a short echo tag <literal>&lt;?=</literal> which is a
-    short-hand to the more verbose <code>&lt;?php echo</code>.
+    PHP include un tag echo abbreviato <literal>&lt;?=</literal> che è una
+    scorciatoia al più verboso <code>&lt;?php echo</code>.
    </para>
 
    <para>
     <example>
-     <title>PHP Opening and Closing Tags</title>
+     <title>Tag di Apertura e Chiusura di PHP</title>
      <programlisting role="php">
 <![CDATA[
-1.  <?php echo 'if you want to serve PHP code in XHTML or XML documents,
-                use these tags'; ?>
+1.  <?php echo 'se vuoi servire codice PHP in documenti XHTML o XML,
+                usa questi tag'; ?>
 
-2.  You can use the short echo tag to <?= 'print this string' ?>.
-    It's equivalent to <?php echo 'print this string' ?>.
+2.  Puoi usare il tag echo abbreviato per <?= 'stampare questa stringa' ?>.
+    È equivalente a <?php echo 'stampare questa stringa' ?>.
 
-3.  <? echo 'this code is within short tags, but will only work '.
-            'if short_open_tag is enabled'; ?>
+3.  <? echo 'questo codice è all\'interno di tag abbreviati, ma funzionerà solo '.
+            'se short_open_tag è abilitato'; ?>
 ]]>
      </programlisting>
     </example>
    </para>
 
    <para>
-    Short tags (example three) are available by default but can be disabled
-    either via the <link linkend="ini.short-open-tag">short_open_tag</link>
-    &php.ini; configuration file directive, or are disabled by default if
-    PHP is built with the <option>--disable-short-tags</option> configuration.
+    I tag brevi (esempio tre) sono disponibili per impostazione predefinita ma possono essere disabilitati
+    tramite la direttiva <link linkend="ini.short-open-tag">short_open_tag</link>
+    del file di configurazione &php.ini;, o sono disabilitati per impostazione predefinita se
+    PHP è compilato con la configurazione <option>--disable-short-tags</option>.
    </para>
    <para>
     <note>
      <para>
-      As short tags can be disabled it is recommended to only use the normal
-      tags (<code>&lt;?php ?&gt;</code> and <code>&lt;?= ?&gt;</code>) to
-      maximise compatibility.
+      Poiché i tag brevi possono essere disabilitati, si consiglia di utilizzare solo i tag
+      normali (<code>&lt;?php? ?&gt;</code> e <code>&lt;?= ?&gt;</code>) per
+      massimizzare la compatibilità.
      </para>
     </note>
    </para>
 
    <para>
-    If a file contains only PHP code, it is preferable to omit the PHP closing tag
-    at the end of the file. This prevents accidental whitespace or new lines
-    being added after the PHP closing tag, which may cause unwanted effects
-    because PHP will start output buffering when there is no intention from
-    the programmer to send any output at that point in the script.
+    Se un file contiene solo codice PHP, è consigliato di omettere il tag di chiusura di PHP
+    alla fine del file. Questo evita che vengano aggiunti spazi o ritorni a capo
+    dopo il tag di chiusura di PHP, che può creare effetti indesiderati
+    poiché PHP comincerà a processare l'output quando in realtà non c'è intenzione da parte
+    dello sviluppatore di inviare dell'output in quella parte dello script.
     <informalexample>
      <programlisting role="php">
 <![CDATA[
 <?php
 echo "Hello world";
 
-// ... more code
+// ... altro codice
 
 echo "Last statement";
 
-// the script ends here with no PHP closing tag
+// lo script finisce qui senza tag di chiusura
 ]]>
      </programlisting>
     </informalexample>
@@ -76,165 +77,165 @@ echo "Last statement";
   </sect1>
 
   <sect1 xml:id="language.basic-syntax.phpmode">
-   <title>Escaping from HTML</title>
+   <title>Uscita dal modo HTML</title>
    <para>
-    Everything outside of a pair of opening and closing tags is ignored by the
-    PHP parser which allows PHP files to have mixed content. This allows PHP
-    to be embedded in HTML documents, for example to create templates.
+    Tutto ciò che esiste fuori dai tag di apertura e chiusura è ignorato
+    dall'analizzatore PHP, il che permette di avere contenuto misto nei file PHP. Questo permette a PHP
+    di essere incluso nei documenti HTML, per esempio per creare modelli.
     <informalexample>
      <programlisting role="php">
 <![CDATA[
-<p>This is going to be ignored by PHP and displayed by the browser.</p>
-<?php echo 'While this is going to be parsed.'; ?>
-<p>This will also be ignored by PHP and displayed by the browser.</p>
+<p>Questo sarà ignorato dea PHP e verrà visualizzato nel browser.</p>
+<?php echo 'Questo invece sarà interpretato.'; ?>
+<p>Pure questo sarà ignorato dea PHP e verrà visualizzato nel browser.</p>
 ]]>
      </programlisting>
     </informalexample>
-    This works as expected, because when the PHP interpreter hits the ?&gt; closing
-    tags, it simply starts outputting whatever it finds (except for the
-    immediately following newline - see
-    <link linkend="language.basic-syntax.instruction-separation">instruction separation</link>)
-    until it hits another opening tag unless in the middle of a conditional
-    statement in which case the interpreter will determine the outcome of the
-    conditional before making a decision of what to skip over.
-    See the next example.
+    Questo codice si comporta come desiderato, perché quando l'interprete PHP incontra il tag di chiusura
+    ?&gt;, comincia semplicemente a visualizzare tutto ciò che trova (tranne che per la
+    nuova riga immediatamente successiva - vedere
+    l'<link linkend="language.basic-syntax.instruction-separation">istruzione di separazione</link>)
+    finché non incontra un altro tag di apertura, a meno che non si trovi in una istruzione
+    condizionale, nel qual caso l'interprete determinerà il risultato della
+    condizione prima di prendere una decisione su cosa ignorare.
+    Vedere l'esempio seguente.
    </para>
    <para>
-    Using structures with conditions
+    Utilizzo di strutture con condizioni
     <example>
-     <title>Advanced escaping using conditions</title>
-     <programlisting role="php">
+    <title>Escape avanzato con le condizioni</title>
+    <programlisting role="php">
 <![CDATA[
 <?php if ($expression == true): ?>
-  This will show if the expression is true.
+  Questo sarà viualizzato se l'espressione $expression è vera.
 <?php else: ?>
-  Otherwise this will show.
+  Altrimenti verrà visualizzata questa linea.
 <?php endif; ?>
 ]]>
      </programlisting>
     </example>
-    In this example PHP will skip the blocks where the condition is not met, even
-    though they are outside of the PHP open/close tags; PHP skips them according
-    to the condition since the PHP interpreter will jump over blocks contained
-    within a condition that is not met.
+    In questo esempio PHP ignorerà i blocchi di codice in cui la condizione non è verificata, anche
+    se sono fuori dai tag di apertura/chiusura; PHP li ignora a seconda
+    della condizione dal momento che l'interprete PHP scavalca i blocchi contenuti
+    in una condizione non verificata.
    </para>
    <para>
-    For outputting large blocks of text, dropping out of PHP parsing mode is
-    generally more efficient than sending all of the text through
-    <function>echo</function> or <function>print</function>.
+    Nella visualizzazione di grossi blocchi di testo uscire dalla
+    modalità di parsing del codice PHP è generalmente più efficiente che inviare il tutto
+    tramite <function>echo</function> o <function>print</function>.
    </para>
    <para>
     <note>
      <para>
-      If PHP is embeded within XML or XHTML the normal PHP
-      <code>&lt;?php ?&gt;</code> must be used to remain compliant
-      with the standards.
+      Se PHP è incorporato in XML o XHTML, devono essere utilizzati
+      i normali tag PHP <code>&lt;?php ?&gt;</code> per rimanere conformi
+      agli standard.
      </para>
     </note>
    </para>
   </sect1>
 
   <sect1 xml:id="language.basic-syntax.instruction-separation">
-   <title>Instruction separation</title>
+   <title>Separazione delle istruzioni</title>
    <para>
-    As in C or Perl, PHP requires instructions to be terminated
-    with a semicolon at the end of each statement. The closing tag
-    of a block of PHP code automatically implies a semicolon; you
-    do not need to have a semicolon terminating the last line of a
-    PHP block. The closing tag for the block will include the immediately
-    trailing newline if one is present.
-   </para>
+    Come in C od in Perl, il PHP richiede che le istruzioni siano chiuse
+    dal punto e virgola al termine di ogni istruzione. I tag di chiusura
+    di un blocco di codice PHP implicano in automatico il punto e virgola;
+    non occorre, pertanto, inserire il punto e virgola per chiudere l'ultima riga
+    di un blocco PHP. Il tag di chiusura del blocco include il newline
+    immediatamente seguente, se presente.
+    </para>
 
    <para>
     <example>
-     <title>Example showing the closing tag encompassing the trailing newline</title>
+     <title>Esempio che mostra il tag di chiusura che racchiude una nuova riga</title>
      <programlisting role="php">
 <![CDATA[
-<?php echo "Some text"; ?>
-No newline
-<?= "But newline now" ?>
+<?php echo "Un po' di testo"; ?>
+Nessuna nuova riga
+<?= "Ma nuova riga ora" ?>
 ]]>
      </programlisting>
      &example.outputs;
      <screen>
 <![CDATA[
-Some textNo newline
-But newline now
+Un po' di testoNessuna nuova riga
+Ma nuova riga ora
 ]]>
      </screen>
     </example>
    </para>
 
    <para>
-    Examples of entering and exiting the PHP parser:
+    Esempi di accesso ed uscita dal parser PHP:
 
     <informalexample>
      <programlisting role="php">
 <![CDATA[
 <?php
-    echo 'This is a test';
+    echo 'Questo è un test';
 ?>
 
-<?php echo 'This is a test' ?>
+<?php echo 'Questo è un test' ?>
 
-<?php echo 'We omitted the last closing tag';
+<?php echo 'Qui è stato omesso il tag di chiusura';
 ]]>
      </programlisting>
     </informalexample>
     <note>
      <para>
-      The closing tag of a PHP block at the end of a file is optional,
-      and in some cases omitting it is helpful when using <function>include</function>
-      or <function>require</function>, so unwanted whitespace will
-      not occur at the end of files, and you will still be able to add
-      headers to the response later. It is also handy if you use output
-      buffering, and would not like to see added unwanted whitespace
-      at the end of the parts generated by the included files.
+      Il tag di chiusura di un blocco PHP alla fine di un file è opzionale,
+      ed in alcuni casi è utile ometterlo quando si utilizzano
+      le funzioni <function>include</function> o <function>require</function>, in modo che spazi indesiderati
+      non vengano generati alla fine dei file, e quindi sia ancora possibile aggiungere
+      intestazioni alla risposta HTTP. È utile anche quando si usa l'output
+      buffering, e non si vogliono avere spazi indesiderati
+      alla fine delle parti generate dai file inclusi.
      </para>
     </note>
    </para>
   </sect1>
   <sect1 xml:id="language.basic-syntax.comments">
-   <title>Comments</title>
+   <title>Commenti</title>
    <para>
-    PHP supports 'C', 'C++' and Unix shell-style (Perl style) comments. For example:
+    PHP supporta i commenti dei linguaggi 'C', 'C++' e stile shell (stile Perl) di Unix. Per esempio:
 
     <informalexample>
      <programlisting role="php">
 <![CDATA[
 <?php
-    echo 'This is a test'; // This is a one-line c++ style comment
-    /* This is a multi line comment
-       yet another line of comment */
-    echo 'This is yet another test';
-    echo 'One Final Test'; # This is a one-line shell-style comment
+    echo 'Questo è un test'; // Questo è un commento su una linea nella stile c++ 
+    /* Questo è un commento su più linee
+       ancora un'altra linea di commento */
+    echo 'Questo è un altro test';
+    echo 'Un ultimo test'; # Questo è un commento stile shell Unix 
 ?>
 ]]>
      </programlisting>
     </informalexample>
    </para>
    <simpara>
-    The "one-line" comment styles only comment to the end of
-    the line or the current block of PHP code, whichever comes first.
-    This means that HTML code after <literal>// ... ?&gt;</literal>
-    or <literal># ...  ?&gt;</literal> WILL be printed:
-    ?&gt; breaks out of PHP mode and returns to HTML mode, and
-    <literal>//</literal> or <literal>#</literal> cannot influence that.
+    Lo stile di commento su "una linea", attualmente commenta solo fino alla fine della linea
+    o del blocco corrente di codice PHP.
+    Questo significa che l'eventuale codice HTML posto dopo <literal>// ... ?&gt;</literal>
+    o <literal># ...  ?&gt;</literal> sarà stampato:
+    ?&gt; esce dalla modalità PHP e ritorna in modalità HTML, e quindi
+    <literal>//</literal> non può influenzare quest'ultima.
    </simpara>
    <para>
     <informalexample>
      <programlisting role="php">
 <![CDATA[
-<h1>This is an <?php # echo 'simple';?> example</h1>
-<p>The header above will say 'This is an  example'.</p>
+<h1>Questo è un <?# echo 'semplice';?> esempio.</h1>
+<p>L'intestazione qui sopra dirà 'Questo è un esempio'.</p>
 ]]>
      </programlisting>
     </informalexample>
    </para>
    <simpara>
-    'C' style comments end at the first <literal>*/</literal> encountered.
-    Make sure you don't nest 'C' style comments. It is easy to make this
-    mistake if you are trying to comment out a large block of code.
+    I commenti in stile C terminano alla prima occorrenza di <literal>*/</literal>.
+    Occorre fare attenzione nel non annidare i commenti di stile C, situazione che si presenta
+    quando si commentano larghi blocchi di codice.
    </simpara>
    <para>
     <informalexample>
@@ -242,7 +243,7 @@ But newline now
 <![CDATA[
 <?php
  /*
-    echo 'This is a test'; /* This comment will cause a problem */
+    echo 'Questo è un test'; /* Questo commento causerà dei problemi */
  */
 ?>
 ]]>

@@ -1,155 +1,103 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
-<refentry xml:id="function.pg-fetch-array" xmlns="http://docbook.org/ns/docbook">
- <refnamediv>
-  <refname>pg_fetch_array</refname>
-  <refpurpose>Fetch a row as an array</refpurpose>
- </refnamediv>
-
- <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <type class="union"><type>array</type><type>false</type></type><methodname>pg_fetch_array</methodname>
-   <methodparam><type>PgSql\Result</type><parameter>result</parameter></methodparam>
-   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>row</parameter><initializer>&null;</initializer></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>mode</parameter><initializer><constant>PGSQL_BOTH</constant></initializer></methodparam>
-  </methodsynopsis>
-  <para>
-   <function>pg_fetch_array</function> returns an array that
-   corresponds to the fetched row (record).
-  </para>
-  <para>
-   <function>pg_fetch_array</function> is an extended version of
-   <function>pg_fetch_row</function>.  In addition to storing the
-   data in the numeric indices (field number) to the result array, it
-   can also store the data using associative indices (field name).
-   It stores both indices by default.
-  </para>
-  &database.fetch-null;
-  <para>
-   <function>pg_fetch_array</function> is NOT significantly
-   slower than using <function>pg_fetch_row</function>, and
-   is significantly easier to use.
-  </para>
- </refsect1>
-
- <refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>result</parameter></term>
-     <listitem>
-      &pgsql.parameter.result;
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>row</parameter></term>
-     <listitem>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- splitted from ./it/functions/pgsql.xml, last change in rev 1.10 -->
+<!-- last change to 'pg-fetch-array' in en/ tree in rev 1.2 -->
+<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
+<!-- OLD-Revision: 1.70/EN.1.2 -->
+<!-- CREDITS: fabio,cortesi,denny -->
+  <refentry xml:id="function.pg-fetch-array" xmlns="http://docbook.org/ns/docbook">
+   <refnamediv>
+    <refname>pg_fetch_array</refname>
+    <refpurpose>Carica una tupla in un array</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>array</type><methodname>pg_fetch_array</methodname>
+      <methodparam><type>resource</type><parameter>result</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>tupla</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>tipo_risultato</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     <function>pg_fetch_array</function> restituisce un array che
+     corrisponde alla riga caricata (tuple/record). Restituisce
+     &false; se non ci sono più righe.
+    </para>
+    <para>
+     <function>pg_fetch_array</function> è una versione estesa di
+     <function>pg_fetch_row</function>.  Oltre a salvare i
+     dati in un array con indici numerici, 
+     li salva pure in un array associativo, utilizzando i nomi dei campi
+     come chiave.
+    </para>
+    <para>
+     <parameter>tupla</parameter> è il numero della riga (record) che deve
+     essere caricata. La prima riga è la 0.
+    </para>
+    <para>
+     <parameter>tipo_risultato</parameter> è un parametro opzionale che controlla
+     come il risultato viene restituito.
+     <parameter>result_type</parameter> è una costante e può assumere i
+     seguenti valori: <constant>PGSQL_ASSOC</constant>,
+     <constant>PGSQL_NUM</constant>, e <constant>PGSQL_BOTH</constant>.
+     <function>pg_fetch_array</function> restituisce un array associativo
+     con il nome del campo come chiave con <constant>PGSQL_ASSOC</constant>, oppure l'indice del campo
+     con <constant>PGSQL_NUM</constant> o entrambi con
+     <constant>PGSQL_BOTH</constant>. Il default è <constant>PGSQL_BOTH</constant>.
+     <note>
       <para>
-       Row number in result to fetch. Rows are numbered from 0 upwards. If
-       omitted or &null;, the next row is fetched.
+       <parameter>tipo_risultato</parameter> è stato aggiunto nel PHP 4.0.
       </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>mode</parameter></term>
-     <listitem>
-      &pgsql.parameter.mode;
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </para>
- </refsect1>
-
- <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   An <type>array</type> indexed numerically (beginning with 0) or
-   associatively (indexed by field name), or both.
-   Each value in the <type>array</type> is represented as a 
-   <type>string</type>.  Database <literal>NULL</literal>
-   values are returned as &null;.
-  </para>
-  <para>
-   &false; is returned if <parameter>row</parameter> exceeds the number
-   of rows in the set, there are no more rows, or on any other error.
-   Fetching from the result of a query other than SELECT will also return &false;.
-  </para>
- </refsect1>
-
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <informaltable>
-   <tgroup cols="2">
-    <thead>
-     <row>
-      <entry>&Version;</entry>
-      <entry>&Description;</entry>
-     </row>
-    </thead>
-    <tbody>
-     &pgsql.changelog.result-object;
-    </tbody>
-   </tgroup>
-  </informaltable>
- </refsect1>
-
- <refsect1 role="examples">
-  &reftitle.examples;
-  <para>
-   <example>
-    <title><function>pg_fetch_array</function> example</title>
-    <programlisting role="php">
+     </note>
+    </para>
+    <para>
+     <function>pg_fetch_array</function> NON è più
+     lento di <function>pg_fetch_row</function>, inoltre
+     è più facile da usare.
+    </para>
+    <para>
+     <example>
+      <title>PostgreSQL fetch array</title>
+      <programlisting role="php">
 <![CDATA[
 <?php 
-
-$conn = pg_pconnect("dbname=publisher");
+$conn = pg_pconnect ("dbname=editori");
 if (!$conn) {
-  echo "An error occurred.\n";
-  exit;
+    echo "Si è verificato un errore.\n";
+    exit;
 }
 
-$result = pg_query($conn, "SELECT author, email FROM authors");
-if (!$result) {
-  echo "An error occurred.\n";
-  exit;
+$risultato = pg_query ($conn, "SELECT * FROM autori");
+if (!$risultato) {
+    echo "Si è verificato un errore.\n";
+    exit;
 }
 
-$arr = pg_fetch_array($result, 0, PGSQL_NUM);
-echo $arr[0] . " <- Row 1 Author\n";
-echo $arr[1] . " <- Row 1 E-mail\n";
+$arr = pg_fetch_array ($risultato, 0, PGSQL_NUM);
+echo $arr[0] . " <- array\n";
 
-// The row parameter is optional; NULL can be passed instead,
-// to pass a result_type.  Successive calls to pg_fetch_array
-// will return the next row.
-$arr = pg_fetch_array($result, NULL, PGSQL_ASSOC);
-echo $arr["author"] . " <- Row 2 Author\n";
-echo $arr["email"] . " <- Row 2 E-mail\n";
-
-$arr = pg_fetch_array($result);
-echo $arr["author"] . " <- Row 3 Author\n";
-echo $arr[1] . " <- Row 3 E-mail\n";
-
+$arr = pg_fetch_array ($risultato, 1, PGSQL_ASSOC);
+echo $arr["autore"] . " <- array\n";
 ?>
 ]]>
-    </programlisting>
-   </example>
-  </para>
- </refsect1>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Vedere anche
+     <function>pg_fetch_row</function>,
+    <function>pg_fetch_object</function> e
+    <function>pg_fetch_result</function>.
+   </para>
+    <note>
+     <para>
+      Dalla versione 4.1.0, <parameter>tupla</parameter> è opzionale.
+      La chiamata a <function>pg_fetch_array</function> incrementa
+      di 1 il puntatore alle tuple.
+     </para>
+    </note>
+   </refsect1>
+  </refentry>
 
- <refsect1 role="seealso">
-  &reftitle.seealso;
-  <para>
-   <simplelist>
-    <member><function>pg_fetch_row</function></member>
-    <member><function>pg_fetch_object</function></member>
-    <member><function>pg_fetch_result</function></member>
-   </simplelist>
-  </para>
- </refsect1>
-
-</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

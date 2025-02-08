@@ -1,183 +1,90 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
-<refentry xml:id="function.shmop-open" xmlns="http://docbook.org/ns/docbook">
- <refnamediv>
-  <refname>shmop_open</refname>
-  <refpurpose>Create or open shared memory block</refpurpose>
- </refnamediv>
- <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <type class="union"><type>Shmop</type><type>false</type></type><methodname>shmop_open</methodname>
-   <methodparam><type>int</type><parameter>key</parameter></methodparam>
-   <methodparam><type>string</type><parameter>mode</parameter></methodparam>
-   <methodparam><type>int</type><parameter>permissions</parameter></methodparam>
-   <methodparam><type>int</type><parameter>size</parameter></methodparam>
-  </methodsynopsis>
-  <para>
-   <function>shmop_open</function> can create or open a shared memory block.
-  </para>
- </refsect1>
- <refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>key</parameter></term>
-     <listitem>
-      <para>
-       System's id for the shared memory block.
-       Can be passed as a decimal or hex.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>mode</parameter></term>
-     <listitem>
-      <para>
-       The flags that you can use:
-       <itemizedlist>
-        <listitem>
-         <simpara>
-          "a" for access (sets SHM_RDONLY for shmat)
-          use this flag when you need to open an existing shared memory
-          segment for read only
-         </simpara>
-        </listitem>
-        <listitem>
-         <simpara>
-          "c" for create (sets IPC_CREATE)
-          use this flag when you need to create a new shared memory segment
-          or if a segment with the same key exists, try to open it for read
-          and write
-         </simpara>
-        </listitem>
-        <listitem>
-         <simpara>
-          "w" for read &amp; write access
-          use this flag when you need to read and write to a shared memory
-          segment, use this flag in most cases.
-         </simpara>
-        </listitem>
-        <listitem>
-         <simpara>
-          "n" create a new memory segment (sets IPC_CREATE|IPC_EXCL)
-          use this flag when you want to create a new shared memory segment
-          but if one already exists with the same flag, fail. This is useful
-          for security purposes, using this you can prevent race condition
-          exploits.
-         </simpara>
-        </listitem>
-       </itemizedlist>
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>permissions</parameter></term>
-     <listitem>
-      <para>
-       The permissions that you wish to assign to your memory segment, those
-       are the same as permission for a file. Permissions need to be passed
-       in octal form, like for example <literal>0644</literal>
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>size</parameter></term>
-     <listitem>
-      <para>
-       The size of the shared memory block you wish to create in bytes
-      </para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-   <note>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+  <refentry xml:id="function.shmop-open" xmlns="http://docbook.org/ns/docbook">
+   <refnamediv>
+    <refname>shmop_open</refname>
+    <refpurpose>Crea oppure apre un segmento di memoria condivisa</refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>int</type><methodname>shmop_open</methodname>
+      <methodparam><type>int</type><parameter>key</parameter></methodparam>
+      <methodparam><type>string</type><parameter>flags</parameter></methodparam>
+      <methodparam><type>int</type><parameter>mode</parameter></methodparam>
+      <methodparam><type>int</type><parameter>size</parameter></methodparam>
+     </methodsynopsis>
     <para>
-     Note: the 3rd and 4th should be entered as 0 if you are opening an
-     existing memory segment.
+     La funzione <function>shmop_open</function> può creare oppure aprire un segmento di memoria condivisa.
     </para>
-   </note>
-  </para>
- </refsect1>
- <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   On success <function>shmop_open</function> will return a <classname>Shmop</classname> instance that you can
-   use to access the shared memory segment you've created. &false; is
-   returned on failure.
-  </para>
- </refsect1>
-
- <refsect1 role="errors">
-  &reftitle.errors;
-  <para>
-   If <parameter>mode</parameter> is invalid, or <parameter>size</parameter> is less than or equal to zero,
-   a <classname>ValueError</classname> is thrown.
-   On other failures, <constant>E_WARNING</constant> is emitted.
-  </para>
- </refsect1>
-
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <informaltable>
-   <tgroup cols="2">
-    <thead>
-     <row>
-      <entry>&Version;</entry>
-      <entry>&Description;</entry>
-     </row>
-    </thead>
-    <tbody>
-     <row>
-      <entry>8.0.0</entry>
-      <entry>
-       On success, this function returns an <classname>Shmop</classname> instance now;
-       previously, a <type>resource</type> was returned.
-      </entry>
-     </row>
-     <row>
-      <entry>8.0.0</entry>
-      <entry>
-       If <parameter>mode</parameter> is invalid, or <parameter>size</parameter> is less than or equal to zero,
-       a <classname>ValueError</classname> is thrown; previously <constant>E_WARNING</constant> was emitted instead,
-       and the function returned &false;.
-      </entry>
-     </row>
-    </tbody>
-   </tgroup>
-  </informaltable>
- </refsect1>
-
- <refsect1 role="examples">
-  &reftitle.examples;
-  <para>
-   <example>
-    <title>Create a new shared memory block</title>
-    <programlisting role="php">
+    <para>
+     La funzione <function>shmop_open</function> utilizza 4 parametri: key, indica l'identificativo
+     di sistema per il segmento di memoria condivisa, questo parametro può essere passato
+     come numero decimale o esadecimale. Il secondo parametro è un flag che può assumere i seguenti valori:
+     <itemizedlist>
+      <listitem>
+       <simpara>
+        "a" per accesso (SHM_RDONLY per shmat),
+        usare questo flag quando occorre aprire un segmento di memoria
+        condivisa esistente in sola lettura
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        "c" per creazione (IPC_CREATE),
+        usare questo flag quando si ha la necessità di creare un nuovo segmento di memoria condivisa oppure,
+        se esiste già un segmento con la medesima chiave, tentare di aprirlo in lettura
+        e scrittura
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        "w" per accesso in lettura &amp; scrittura,
+        usare questo flag quando si deve accedere al segmento di memoria condivisa in lettura e scrittura,
+        nella maggior parte dei casi si usa questo flag.
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        "n" per creare un nuovo segmento (IPC_CREATE|IPC_EXCL),
+        usare questo flag quando si vuole creare un nuovo segmento di memoria condivisa, ma,
+        se già ne esiste uno con il medesimo flag, la funzione fallisce. Ciò è utile per motivi di sicurezza,
+        infatti questo permette di evitare problemi di concorrenza.
+       </simpara>
+      </listitem>
+     </itemizedlist>
+      Il terzo parametro, mode, indica i permessi che si desidera assegnare
+      al segmento di memoria, questi sono i medesimi permessi utilizzati per
+      un file. Occorre passare i permessi in forma ottale, ad esempio 0644.
+      L'ultimo parametro è la dimensione in bytes del blocco di memoria condivisa che si
+      desidera creare.
+     <note><simpara>
+      Il terzo ed il quarto parametro dovrebbero essere a 0 se si sta aprendo
+      un segmento di memoria esistene. Se la funzione <function>shmop_open</function> ha 
+      successo, sarà restituito un id da usarsi per accedere al segmento di memoria
+      condivisa appena creato.
+     </simpara></note>
+    </para>
+    <para>
+     <example>
+      <title>Creazione di un nuovo blocco di memoria condivisa</title>
+      <programlisting role="php">
 <![CDATA[
 <?php
 $shm_key = ftok(__FILE__, 't');
 $shm_id = shmop_open($shm_key, "c", 0644, 100);
 ?>
 ]]>
-    </programlisting>
-   </example>
-  </para>
-  <para>
-   This example opened a shared memory block with a system id returned by
-   <function>ftok</function>.
-  </para>
- </refsect1>
- <refsect1 role="seealso">
-  &reftitle.seealso;
-  <para>
-   <simplelist>
-    <member><function>shmop_close</function></member>
-    <member><function>shmop_delete</function></member>
-   </simplelist>
-  </para>
- </refsect1>
-</refentry>
+      </programlisting>
+     </example>
+    </para>
+    <para>
+     Questo esempio apre un blocco di memoria condivisa con id di sistema
+     restituito da <function>ftok</function>.
+    </para>
+   </refsect1>
+  </refentry>
+
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

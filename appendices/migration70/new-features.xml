@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 1422d543bf028003a543fd1ce920c6a301a93a51 Maintainer: Manuel dG Status: ready -->
+<!-- EN-Revision: 2166824858a40ea664c558f2930b63b8f4fd89c6 Maintainer: pastore Status: ready -->
 
 <sect1 xml:id="migration70.new-features" xmlns:xlink="http://www.w3.org/1999/xlink">
  <title>Nuove funzionalità</title>
 
  <sect2 xml:id="migration70.new-features.scalar-type-declarations">
-  <title>Dichiarazione di tipi di dati scalari</title>
+  <title>Dichiarazioni di tipi scalari</title>
 
   <para>
    Le
-   <link linkend="language.types.declarations">dichiarazioni di tipo</link>
-   sono disponibili in due versioni: coercive (default) e strict. I seguenti tipi
-   per i parametri possono ora essere forzati ( coercive o strict): stringhe
-    (<type>string</type>), interi (<literal>int</literal>), reali in virgola mobile
-     (<type>float</type>), e booleani (<literal>bool</literal>). Estendono i precedenti tipi
-    introdotti da PHP 5: classi, interfacce,
+   <link linkend="language.types.declarations">dichiarazioni di tipi</link> scalari
+   sono disponibili in due versioni: coercitivo (predefinito) e rigoroso. I seguenti tipi
+   per i parametri possono ora essere forzati (o coercitivo o rigoroso): stringhe
+    (<type>string</type>), interi (<literal>int</literal>), numeri con virgola
+    mobile (<type>float</type>), e booleani (<literal>bool</literal>). Questi
+    aumentano gli altri tipi introdotti in PHP 5: nomi delle classi, interfacce,
     <type>array</type> e <type>callable</type>.
   </para>
 
@@ -22,7 +22,7 @@
    <programlisting role="php">
 <![CDATA[
 <?php
-//Modalita coercive  
+// Modalità coercitiva
 function sumOfInts(int ...$ints)
 {
     return array_sum($ints);
@@ -44,15 +44,16 @@ int(9)
    nella parte superiore del file. Questo significa che la severità della tipizzazione per i valori scalari è
    configurata su una base per-file. Questa direttiva interessa non solo le dichiarazioni
    di tipi di parametri, ma anche il tipo di ritorno di una funzione (vedere
-   <link linkend="language.types.declarations">dichiarazione dei tipi di ritorno</link>,
-   le funzioni integrate, e le funzioni delle estesioni.
+   <link linkend="language.types.declarations">dichiarazioni dei tipi di ritorno</link>,
+   le funzioni interne di PHP, e le funzioni delle estensioni
+   caricate.
   </para>
 
   <para>
-   È possibile trovare la documentazione completa ed esempi di dichiarazioni 
-   di tipo scalare in
-   <link linkend="language.types.declarations">dichiarazione del tipo</link>.
-   
+   La documentazione completa e gli esempi sulle dichiarazioni dei tipi scalari si possono trovare
+   nel riferimento 
+   <link linkend="language.types.declarations">dichiarazione del
+   tipo</link>.
   </para>
  </sect2>
 
@@ -136,8 +137,8 @@ $username = $_GET['user'] ?? $_POST['user'] ?? 'nobody';
    </programlisting>
   </informalexample>
 
-  <!-- TODO: we don't need further details here, but this still has to be
-       added to the operator precedence table -->
+  <!-- TODO: non necessitiamo ulteriori dettagli qui, ma questo deve ancora essere
+       aggiunto alla tabella di precedenza degli operatori -->
  </sect2>
 
  <sect2 xml:id="migration70.new-features.spaceship-op">
@@ -171,8 +172,8 @@ echo "b" <=> "a"; // 1
    </programlisting>
   </informalexample>
 
-  <!-- TODO: we don't need further details here, but this still has to be
-       added to the operator precedence table -->
+  <!-- TODO: non necessitiamo ulteriori dettagli qui, ma questo deve ancora essere
+       aggiunto alla tabella di precedenza degli operatori -->
  </sect2>
 
  <sect2 xml:id="migration70.new-features.define-array">
@@ -194,7 +195,7 @@ define('ANIMALS', [
     'bird'
 ]);
 
-echo ANIMALS[1]; // outputs "cat"
+echo ANIMALS[1]; // visualizza "cat"
 ?>
 ]]>
    </programlisting>
@@ -260,26 +261,17 @@ object(class@anonymous)#2 (0) {
   <title>Sintassi dell'escape del codepoint Unicode</title>
 
   <para>
-   Questo ha come input un codepoint Unicode in formato esadecimale, e restituisce quel
+   Questo ha come input un codepoint Unicode in una forma esadecimale, e restituisce quel
    codepoint in UTF-8 in una stringa con doppi apici oppure un heredoc. Qualsiasi codepoint
-   valido è accettato, con gli 0 iniziali opzionali.
+   valido è accettato, con gli iniziali 0 opzionali.
   </para>
 
   <informalexample>
    <programlisting role="php">
 <![CDATA[
-<?php
-
-echo "\u{aa}", PHP_EOL;
-echo "\u{0000aa}", PHP_EOL;
-
-echo "\u{9999}", PHP_EOL;
-
-echo <<<EOT
-\u{01f418}
-EOT;
-
-?>
+echo "\u{aa}";
+echo "\u{0000aa}";
+echo "\u{9999}";
 ]]>
    </programlisting>
    &example.outputs;
@@ -309,7 +301,7 @@ class A {private $x = 1;}
 
 // Codice prima di PHP 7
 $getX = function() {return $this->x;};
-$getXCB = $getX->bindTo(new A, 'A'); // intermediate closure
+$getXCB = $getX->bindTo(new A, 'A'); // closure intermedia
 echo $getXCB();
 
 // Codice PHP 7+
@@ -327,7 +319,7 @@ echo $getX->call(new A);
   </informalexample>
  </sect2>
  <sect2 xml:id="migration70.new-features.filtered-unserialize">
-  <title>Filtered <function>unserialize</function></title>
+  <title><function>unserialize</function> filtrata</title>
 
   <para>
    Questa funzionalità cerca di fornire una miglior sicurezza quando si deserializzano oggetti su
@@ -340,13 +332,13 @@ echo $getX->call(new A);
 <![CDATA[
 <?php
 
-// converts all objects into __PHP_Incomplete_Class object
+// converte tutti gli oggetti in oggetti __PHP_Incomplete_Class
 $data = unserialize($foo, ["allowed_classes" => false]);
 
-// converts all objects into __PHP_Incomplete_Class object except those of MyClass and MyClass2
+// converte tutti gli oggetti in oggetti __PHP_Incomplete_Class eccetto quelli di MyClass e MyClass2
 $data = unserialize($foo, ["allowed_classes" => ["MyClass", "MyClass2"]]);
 
-// default behaviour (same as omitting the second argument) that accepts all classes
+// comportamento predefinito (lo stesso che si ha omettendo il secondo argomento) che accetta tutte le classi
 $data = unserialize($foo, ["allowed_classes" => true]);
 ]]>
    </programlisting>
@@ -357,9 +349,9 @@ $data = unserialize($foo, ["allowed_classes" => true]);
   <title><classname>IntlChar</classname></title>
 
   <para>
-   The new <classname>IntlChar</classname> class seeks to expose additional
-   ICU functionality. The class itself defines a number of static methods and
-   constants that can be used to manipulate unicode characters.
+   La nuova classe <classname>IntlChar</classname> cerca di esporre funzionalità ICU
+   addizionali. La classe stessa definisce un numero di metodi statici e
+   costanti che possono essere usati per manipolare i caratteri unicode.
   </para>
 
   <informalexample>
@@ -388,19 +380,20 @@ bool(true)
  </sect2>
 
  <sect2 xml:id="migration70.new-features.expectations">
-  <title>Expectations</title>
+  <title>Aspettative</title>
 
   <para>
-   Expectations sono retrocompatibili con la funzione <function>assert</function>.  
-   Permettono asserzioni a costo zero nel codice di produzione, e
-   danno la possibilità di lanciare eccezioni personalizzte quando l'asserzione fallisce.
+   Le <link linkend="function.assert.expectations">aspetattive</link> sono dei
+   miglioramenti retrocompatibili alla vecchia funzione
+   <function>assert</function>. Permettono asserzioni a costo zero nel codice di produzione, e
+   forniscono la possibilità di lanciare eccezioni personalizzate quando l'asserzione fallisce.
   </para>
 
   <para>
-   Mentre le vecchie API continuano ad essere mantenute per compatibilità,
+   Mentre la vecchia API continua ad essere mantenuta per compatibilità,
    <function>assert</function> è ora un costrutto del linguaggio, consentendo al primo
    parametro di essere un'espressione piuttosto che solo una <type>string</type> da essere
-   valutata o un valore <type>bool</type> da essere testato.  
+   valutata o un valore <type>bool</type> da essere testato.
   </para>
 
   <informalexample>
@@ -426,7 +419,7 @@ Fatal error: Uncaught CustomError: Qualche messaggio di errore
   <para>
    Tutti i dettagli su questa funzione, incluso come configurarla sia in
    ambienti di sviluppo che di produzione, possono essere trovati nella
-   sezione aspettative
+   <link linkend="function.assert.expectations">sezione aspettative</link>
    del riferimento <function>assert</function>.
   </para>
  </sect2>
@@ -467,15 +460,16 @@ use const some\namespace\{ConstA, ConstB, ConstC};
  </sect2>
 
  <sect2 xml:id="migration70.new-features.generator-return-expressions">
-  <title>Generator che restituisce un'Expressions</title>
+  <title>Generatore di espressioni di ritorno</title>
 
   <para>
-   Questa caratteristica si basa sulle funzionalità del Generator introdotte in PHP 5.5.
-   Attraverso <literal>return</literal> all'interno di un
-   Generator restituisce un'espressione (il ritorno per
-   referenza non è permesso). Questa espressione può essere recuperato usando il nuovo
-   metodo <literal>Generator::getReturn()</literal>, una volta che il generatore ha finito di effettuare lo yield dei valori.
-   </para>
+   Questa caratteristica si basa sulle funzionalità del generatore introdotte in PHP 5.5.
+   Si abilita per un'istruzione <literal>return</literal> per essere usata all'interno di un
+   generatore per abilitare per una espressione final per essere restituita (il ritorno per
+   referenza non è permesso). Questo valore può essere preso usando il nuovo
+   metodo <literal>Generator::getReturn()</literal>, che può solo essere usato
+   una volta che il generatore ha finito di effettuare lo yield dei valori.
+  </para>
 
   <informalexample>
    <programlisting role="php">
@@ -507,32 +501,26 @@ echo $gen->getReturn(), PHP_EOL;
   </informalexample>
 
   <para>
-   Essere in grado di restituire in modo esplicito un valore costante da un Generator è un'abilità
-    utile da avere a portata di mano
-
-   Questo perché consente la restituzione di un valore finale
-   da un generatore (forse da qualche forma di calcolo della coroutine) che può essere
-   specificamente gestito dal codice client che esegue il generatore. Questo è lontano
-   più semplice che forzare il codice cliente a verificare innanzitutto se il valore final
-   valore è stato ceduto e, in tal caso, gestire quel valore in modo specifico. 
+   Essere in grado di restituire esplicitamente un valore final da un generatore è un'abilità
+   comoda da avere. Questo perchè abilita per un valore final da essere restituito
+   da un generatore (forse da qualche forma di routine di computazione) che può essere
+   specificamente gestito dal codice client eseguendo il generatore. Questo è molto più
+   semplice rispetto a forzare il codice del client a controllare prima che il valore
+   final sia stato yieldato, e in quel caso, gestire il valore specificamente.
   </para>
  </sect2>
  <sect2 xml:id="migration70.new-features.generator-delegation">
-  <title>Delegazione a un'altro Generator</title>
+  <title>Delegazione del generatore</title>
 
   <para>
-   I Generator possono ora delegare a un altro Generator,Oggetto <classname>Traversable</classname>
-    o <type>array</type> In automatico, senza bisogno di scrivere 
-   boilerplate all'esterno del Generator utilizzando il construtto &yield.from;. 
-
-   Generators can now delegate to another generator,
-   <classname>Traversable</classname> object or <type>array</type>
-   automatically, without needing to write boilerplate in the outermost
-   generator by using the &yield.from; construct.
+   I generatori possono ora delegare ad un altro generatore,
+   oggetti <classname>Traversable</classname> o <type>array</type>
+   automaticamente, senza la necessita di scrivere boilerplate nel generatore
+   più esterno usando il costrutto &yield.from;.
   </para>
 
   <informalexample>
-   <programlisting role="php"> 
+   <programlisting role="php">
 <![CDATA[
 <?php
 function gen()
@@ -572,7 +560,7 @@ foreach (gen() as $val)
 
   <para>
    La nuova funzione <function>intdiv</function> esegue una divisione intera
-   tra i suoi operandi e ne restituisce il risultato intero.
+   dei suoi operandi e la restituisce.
   </para>
 
   <informalexample>
@@ -596,24 +584,24 @@ int(3)
   <title>Opzioni di sessione</title>
 
   <para>
-   <function>session_start</function> ora accetta un'<type>array</type> di
-   opzioni che modificano le 
-   <link linkend="session.configuration">direttive di configurazione di sessione</link>
-   normalmente impostate in php.ini.
-  </para> 
-
-  <para>
-   Queste opzioni sono state inoltre estese per supportare
-   <link linkend="ini.session.lazy-write">session.lazy_write</link>, che è
-   attivo di default e fa in modo che PHP possa sovrascrivere qualsiasi file di sessione se i
-   dati di sessione sono cambiati, e <literal>read_and_close</literal>, che è
-   un'opzione che può essere passata a <function>session_start</function> per
-   indicare che i dati della sessione dovrebbero essere letti e quindi la sessione dev'essere immediatamente
-    chiusa senza cambiamenti.
+   <function>session_start</function> ora accetta un <type>array</type> di
+   opzioni che sovrascrivono le
+   <link linkend="session.configuration">direttive di configurazione della sessione</link>
+   normalmente impostate nel php.ini.
   </para>
 
   <para>
-   Per esempio, per impostare
+   Queste opzioni sono state inoltre ampliate per supportare
+   <link linkend="ini.session.lazy-write">session.lazy_write</link>, che è
+   attivo di default e fa in modo che PHP possa solo sovrascrivere qualsiasi file di sessione se i
+   dati di sessione sono cambiati, e <literal>read_and_close</literal>, che è
+   un'opzione che può solo essere passata a <function>session_start</function> per
+   indicare che i dati di sessione dovrebbero essere letti e quindi che la sessione deve
+   essere immediatamente chiusa senza cambiamenti.
+  </para>
+
+  <para>
+   Per esempio, impostare
    <link linkend="ini.session.cache-limiter">session.cache_limiter</link> a
    <literal>private</literal> e chiudere immediatamente la sessione dopo averla
    letta:
@@ -637,11 +625,11 @@ session_start([
   <title><function>preg_replace_callback_array</function></title>
 
   <para>
-   La nuova funzione <function>preg_replace_callback_array</function> permette
-   di scrivere il codice in maniera più pulita di quando si usava la funzione
+   La nuova funzione <function>preg_replace_callback_array</function> abilita
+   il codice per essere scritto in maniera più pulita quando si usa la funzione
    <function>preg_replace_callback</function>. Prima di PHP 7,
-   infatti le callback avevano bisogno di essere eseguite con espressioni regolari richiedevano che
-   venissero concatenate con altre funzioni di callback e quindi il codice venisse riempito da un sacco di derivazioni.
+   le callback che avevano bisogno di essere eseguite per espressioni regolari richiedevano che
+   la funzione di callback venisse sporcata con un sacco di ramificazione.
   </para>
 
   <para>
@@ -656,7 +644,7 @@ session_start([
 
   <para>
    Due nuove funzioni sono state aggiunte per generare interi e stringhe
-   crittograficamente sicuri di tipo cross-platform:
+   crittograficamente sicuri in modo cross-platform:
    <function>random_bytes</function> e <function>random_int</function>.
   </para>
  </sect2>
@@ -669,8 +657,8 @@ session_start([
 
   <para>
    Precedentemente, non era garantito che <function>list</function> operasse
-   correttamente con gli oggetti con l'implementazione di <classname>ArrayAccess</classname>.
-   Questo problema è stato risolto.
+   correttamente con gli oggetti che implementavano <classname>ArrayAccess</classname>.
+   Questo è stato risolto.
   </para>
  </sect2>
  

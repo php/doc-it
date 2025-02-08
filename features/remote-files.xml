@@ -1,41 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<!-- EN-Revision: 84b8fca68fc762fefe85acde180a38b2e77a28b9 Maintainer: cucinato Status: ready -->
  <chapter xml:id="features.remote-files" xmlns="http://docbook.org/ns/docbook">
-  <title>Using remote files</title>
+  <title>Utilizzo di file remoti</title>
 
   <para>
-   As long as <option>allow_url_fopen</option> is enabled in
-   &php.ini;, you can use <acronym>HTTP</acronym> and <acronym>FTP</acronym> 
-   URLs with most of the functions
-   that take a filename as a parameter.  In addition, URLs can be
-   used with the <function>include</function>,
-   <function>include_once</function>, <function>require</function> and
-   <function>require_once</function> statements 
-   (<option>allow_url_include</option> must be enabled for these).
-   See <xref linkend="wrappers"/> for more information about the protocols
-   supported by PHP.
+   Se <parameter>allow_url_fopen</parameter> è abilitato in 
+   &php.ini;, si possono usare le URL <acronym>HTTP</acronym> e <acronym>FTP</acronym> 
+   con la maggior parte delle funzioni che 
+   richiedono nomi di file come parametri. Ioltre, le URL possono essere
+   usate con i comandi <function>include</function>,
+   <function>include_once</function>, <function>require</function>e 
+   <function>require_once</function> (da PHP 5.2.0,
+   <option>allow_url_include</option> deve essere abilitata per questo scopo).
+   Vedere <xref linkend="wrappers"/> per maggiori dettagli sui protocolli supportati dal
+   PHP.
+  </para>
+  <note>
+   <para>
+   In PHP 4.0.3 e precedenti, al fine di poter utilizzare gli URL wrapper, occorreva 
+   specificare l'opzione di configurazione 
+   <option>--enable-url-fopen-wrapper</option>.
+   </para>
+  </note>
+  <para>
+   <note>
+    <para>
+     Al momento, le versioni Windows di PHP precedenti la 4.3, non supportano
+     l'accesso remoto ai file con le seguenti funzioni:
+     <function>include</function>, <function>include_once</function>,
+     <function>require</function> e <function>require_once</function>
+     e le funzioni imagecreatefromXXX del modulo
+     <xref linkend="ref.image"/>.
+    </para>
+   </note>
   </para>
   <para>
-   For example, you can use this to open a file on a remote web server,
-   parse the output for the data you want, and then use that data in a
-   database query, or simply to output it in a style matching the rest
-   of your website.
+   Per esempio, si può usare per aprire un file da un web server remoto,
+   elaborare i dati presi da remoto, e usarli per effetuare delle query,
+   o semplicemente visualizzarli con lo stile 
+   del proprio sito web.
   </para>
   <para>
    <example>
-    <title>Getting the title of a remote page</title>
+    <title>Leggere il titolo di una pagina web remota</title>
     <programlisting role="php">
 <![CDATA[
 <?php
 $file = fopen ("http://www.example.com/", "r");
 if (!$file) {
-    echo "<p>Unable to open remote file.\n";
+    echo "<p>Impossibile aprire il file remoto.\n";
     exit;
 }
 while (!feof ($file)) {
-    $line = fgets ($file, 1024);
-    /* This only works if the title and its tags are on one line */
-    if (preg_match ("@\<title\>(.*)\</title\>@i", $line, $out)) {
+    $linea = fgets ($file, 1024);
+    /* Funziona solo se title e i relativi tag sono sulla medesima riga */
+    if (eregi ("<title>(.*)</title>", $linea, $out)) {
         $title = $out[1];
         break;
     }
@@ -47,31 +66,31 @@ fclose($file);
    </example>
   </para>
   <para>
-   You can also write to files on an FTP server (provided that you
-   have connected as a user with the correct access rights). You
-   can only create new files using this method; if you try to overwrite
-   a file that already exists, the <function>fopen</function> call will
-   fail.
+   Si può anche scrivere in un file remoto via FTP (se l'utente con cui ci
+   si connette ha le autorizzazioni necessarie). Si possono solamente 
+   creare nuovi file usando questo metodo, se si prova a 
+   sovrascrivere un file che già esiste, <function>fopen</function> non avrà 
+   successo.
   </para>
   <para>
-   To connect as a user other than 'anonymous', you need to specify
-   the username (and possibly password) within the URL, such as
-   '<literal>ftp://user:password@ftp.example.com/path/to/file</literal>'.
-   (You can use the same sort of syntax to access files via
-   <acronym>HTTP</acronym> when they require Basic authentication.)
+   Per connettersi con un utenti diversi da 'anonymous' si ha bisogno di specificare lo username
+   (e la relativa password) assieme all'URL, in questo modo:
+   'ftp://user:password@ftp.example.com/directory/del/file'. (Si può usare lo stesso 
+   tipo di sintassi per accedere a file via <acronym>HTTP</acronym> quando 
+   richiedono autenticazione Basic).
   </para>
   <para>
    <example>
-    <title>Storing data on a remote server</title>
+    <title>Salvataggio di dati su server remoto</title>
     <programlisting role="php">
 <![CDATA[
 <?php
 $file = fopen ("ftp://ftp.example.com/incoming/outputfile", "w");
 if (!$file) {
-    echo "<p>Unable to open remote file for writing.\n";
+    echo "<p>Impossibile aprire il file remoto in scrittura.\n";
     exit;
 }
-/* Write the data here. */
+/* Scrive i dati qui. */
 fwrite ($file, $_SERVER['HTTP_USER_AGENT'] . "\n");
 fclose ($file);
 ?>
@@ -82,11 +101,11 @@ fclose ($file);
   <para>
    <note>
     <para>
-     You might get the idea from the example above that you can use
-     this technique to write to a remote log file. Unfortunately
-     that would not work because the <function>fopen</function> call will
-     fail if the remote file already exists. To do distributed logging
-     like that, you should take a look at <function>syslog</function>.
+    Dall'esempio precedente ci si può fare un'idea di come usare questa
+    tecnica per effettuare dei log in remoto, ma come già accennato, con 
+    questo sitema non è possibile scrivere con <function>fopen</function> 
+    su file già esistenti. Per fare una procedura di log distribuito è 
+    più indicata la funzione <function>syslog</function>.
     </para> 
    </note>
   </para>

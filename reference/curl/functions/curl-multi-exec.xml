@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: b7f8c11e56ff1c57a2993e2ed7e5c5ace18637fd Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina,fernando -->
 <refentry xml:id="function.curl-multi-exec" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>curl_multi_exec</refname>
-  <refpurpose>Run the sub-connections of the current cURL handle</refpurpose>
+  <refpurpose>Esegue la sotto-connessione dell'handle cURL corrente</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
@@ -14,8 +15,8 @@
    <methodparam><type>int</type><parameter role="reference">still_running</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Processes each of the handles in the stack.  This method can be called whether or not a handle
-   needs to read or write data.
+   Processa ogni handle nello stack.  Questo metodo può essere chiamato anche quando un handle
+   necessita di leggere o scrivere dati.
   </para> 
  </refsect1>
 
@@ -28,7 +29,7 @@
      <term><parameter>still_running</parameter></term>
      <listitem>
       <para>
-       A reference to a flag to tell whether the operations are still running.
+       Un riferimento ad un flag per dire se le operazioni sono ancora in esecuzione.
       </para>
      </listitem>
     </varlistentry>
@@ -39,17 +40,17 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   A cURL code defined in the cURL <link linkend="curl.constants">Predefined Constants</link>.
+   Un codice cURL definito nelle <link linkend="curl.constants">Costanti Predefinite</link> di cURL.
   </para>
   <note>
    <para>
-    This only returns errors regarding the whole multi stack. There might still have 
-    occurred problems on individual transfers even when this function returns 
+    Questa funzione restituisce solo errori riguardanti l'intero stack multiplo. Potrebbero essersi
+    verificati problemi su singoli trasferimenti anche quando questa funzione restituisce
     <constant>CURLM_OK</constant>.
    </para>
   </note>
  </refsect1>
- 
+
  <refsect1 role="changelog">
   &reftitle.changelog;
   <informaltable>
@@ -66,68 +67,48 @@
    </tgroup>
   </informaltable>
  </refsect1>
-
+ 
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title><function>curl_multi_exec</function> example</title>
+    <title>Esempio di <function>curl_multi_exec</function></title>
     <para>
-     This example will create curl handles for a list of URLs, add them to a multi
-     handle, and process them asynchronously.
+     Questo esempio creerà due handle cURL, li aggiungerà ad un handle
+     multiplo, e poi li eseguirà in modo asincrono.
     </para>
     <programlisting role="php">
 <![CDATA[
 <?php
+// crea entrambe le risorse cURL
+$ch1 = curl_init();
+$ch2 = curl_init();
 
-$urls = [
-    "https://www.php.net/",
-    "https://www.example.com/",
-];
+// imposta l'URL ed altre opzioni appropriate
+curl_setopt($ch1, CURLOPT_URL, "http://example.com/");
+curl_setopt($ch1, CURLOPT_HEADER, 0);
+curl_setopt($ch2, CURLOPT_URL, "http://www.php.net/");
+curl_setopt($ch2, CURLOPT_HEADER, 0);
 
+//crea l'handle cURL multiplo
 $mh = curl_multi_init();
-$map = new WeakMap();
 
-foreach ($urls as $url) {
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_multi_add_handle($mh, $ch);
-    $map[$ch] = $url;
-}
+//aggiunge i due handle
+curl_multi_add_handle($mh,$ch1);
+curl_multi_add_handle($mh,$ch2);
 
+//esegue i gestori multiplo
 do {
-    $status = curl_multi_exec($mh, $unfinishedHandles);
-    if ($status !== CURLM_OK) {
-        throw new \Exception(curl_multi_strerror(curl_multi_errno($mh)));
+    $status = curl_multi_exec($mh, $active);
+    if ($active) {
+        // Wait a short time for more activity
+        curl_multi_select($mh);
     }
+} while ($active && $status == CURLM_OK);
 
-    while (($info = curl_multi_info_read($mh)) !== false) {
-        if ($info['msg'] === CURLMSG_DONE) {
-            $handle = $info['handle'];
-            curl_multi_remove_handle($mh, $handle);
-            $url = $map[$handle];
-
-            if ($info['result'] === CURLE_OK) {
-                $statusCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-
-                echo "Request to {$url} finished with HTTP status {$statusCode}:", PHP_EOL;
-                echo curl_multi_getcontent($handle);
-                echo PHP_EOL, PHP_EOL;
-            } else {
-                echo "Request to {$url} failed with error: ", PHP_EOL;
-                echo curl_strerror($info['result']);
-                echo PHP_EOL, PHP_EOL;
-            }
-        }
-    }
-
-    if ($unfinishedHandles) {
-        if (($updatedHandles = curl_multi_select($mh)) === -1) {
-            throw new \Exception(curl_multi_strerror(curl_multi_errno($mh)));
-        }
-    }
-} while ($unfinishedHandles);
-
+//chiude gli handle
+curl_multi_remove_handle($mh, $ch1);
+curl_multi_remove_handle($mh, $ch2);
 curl_multi_close($mh);
 
 ?>

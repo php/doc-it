@@ -1,158 +1,62 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
-<refentry xml:id="function.msg-send" xmlns="http://docbook.org/ns/docbook">
- <refnamediv>
-  <refname>msg_send</refname>
-  <refpurpose>Send a message to a message queue</refpurpose>
- </refnamediv>
- 
- <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <type>bool</type><methodname>msg_send</methodname>
-   <methodparam><type>SysvMessageQueue</type><parameter>queue</parameter></methodparam>
-   <methodparam><type>int</type><parameter>message_type</parameter></methodparam>
-   <methodparam><type class="union"><type>string</type><type>int</type><type>float</type><type>bool</type></type><parameter>message</parameter></methodparam>
-   <methodparam choice="opt"><type>bool</type><parameter>serialize</parameter><initializer>&true;</initializer></methodparam>
-   <methodparam choice="opt"><type>bool</type><parameter>blocking</parameter><initializer>&true;</initializer></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter role="reference">error_code</parameter><initializer>&null;</initializer></methodparam>
-  </methodsynopsis>
-  <para>
-   <function>msg_send</function> sends a <parameter>message</parameter> of type
-   <parameter>message_type</parameter> (which MUST be greater than 0) to
-   the message queue specified by <parameter>queue</parameter>.
-  </para>
- </refsect1>
-
- <refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>queue</parameter></term>
-     <listitem>
-      <para>
-       The message queue.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>message_type</parameter></term>
-     <listitem>
-      <para>
-       The type of the message (MUST be greater than 0)
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>message</parameter></term>
-     <listitem>
-      <para>
-       The body of the message.
-      </para>
-      <note>
-       <para>
-        If <parameter>serialize</parameter> set to &false; is supplied,
-        MUST be of type: <type>string</type>, <type>int</type>, <type>float</type> 
-        or <type>bool</type>. In other case a warning will be issued.
-       </para>
-      </note>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>serialize</parameter></term>
-     <listitem>
-      <para>
-       The optional <parameter>serialize</parameter> controls how the
-       <parameter>message</parameter> is sent.  <parameter>serialize</parameter>
-       defaults to &true; which means that the <parameter>message</parameter> is
-       serialized using the same mechanism as the session module before being
-       sent to the queue.  This allows complex arrays and objects to be sent to
-       other PHP scripts, or if you are using the WDDX serializer, to any WDDX
-       compatible client.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>blocking</parameter></term>
-     <listitem>
-      <para>
-       If the message is too large to fit in the queue, your script will wait
-       until another process reads messages from the queue and frees enough
-       space for your message to be sent.
-       This is called blocking; you can prevent blocking by setting the
-       optional <parameter>blocking</parameter> parameter to &false;, in which
-       case <function>msg_send</function> will immediately return &false; if the
-       message is too big for the queue, and set the optional
-       <parameter>error_code</parameter> to <constant>MSG_EAGAIN</constant>,
-       indicating that you should try to send your message again a little
-       later on.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>error_code</parameter></term>
-     <listitem>
-      <para>
-       If the function fails, the optional errorcode will be set to the value of the system errno variable.
-      </para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </para>
- </refsect1>
-
- <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   &return.success;
-  </para>
-  <para>
-   Upon successful completion the message queue data structure is updated as
-   follows: <parameter>msg_lspid</parameter> is set to the process-ID of the
-   calling process, <parameter>msg_qnum</parameter> is incremented by 1 and
-   <parameter>msg_stime</parameter> is set to the current time.
-  </para>
- </refsect1>
-
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>8.0.0</entry>
-       <entry>
-        <parameter>queue</parameter> expects a <classname>SysvMessageQueue</classname>
-        instance now; previously, a <type>resource</type> was expected.
-       </entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </informaltable>
-  </para>
- </refsect1>
- 
- <refsect1 role="seealso">
-  &reftitle.seealso;
-  <para>
-   <simplelist>
-    <member><function>msg_remove_queue</function></member>
-    <member><function>msg_receive</function></member>
-    <member><function>msg_stat_queue</function></member>
-    <member><function>msg_set_queue</function></member>
-   </simplelist>
-  </para>
- </refsect1>  
-
-</refentry>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+  <refentry xml:id="function.msg-send" xmlns="http://docbook.org/ns/docbook">
+   <refnamediv>
+    <refname>msg_send</refname>
+    <refpurpose>
+     Invia un messaggio ad una coda di messaggi
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+    <methodsynopsis>
+     <type>bool</type><methodname>msg_send</methodname>
+     <methodparam><type>resource</type><parameter>coda</parameter></methodparam>
+     <methodparam><type>int</type><parameter>tipo_messaggio</parameter></methodparam>
+     <methodparam><type>mixed</type><parameter>messaggio</parameter></methodparam>
+     <methodparam choice="opt"><type>bool</type><parameter>serialize</parameter></methodparam>
+     <methodparam choice="opt"><type>bool</type><parameter>blocco</parameter></methodparam>
+     <methodparam choice="opt"><type>int</type><parameter role="reference">codice_errore</parameter></methodparam>
+    </methodsynopsis>
+    <para>
+     La funzione <function>msg_send</function> invia il <parameter>messaggio</parameter> di tipo
+     <parameter>tipo_messaggio</parameter> (che DEVE essere maggiore di 0) ad una
+     coda di messaggi indicata in <parameter>coda</parameter>.
+    </para>
+    <para>
+     Se il messaggio è troppo grande per essere contenuto nella coda, lo script attenderà
+     fino a quando un'altro processo, leggendo i messaggi dalla coda, non libera lo spazio
+     necessario per il messaggio da inviare.
+     Questo viene detto blocco; si può prevenire il blocco indicando
+     nel parametro opzionale <parameter>blocco</parameter> il valore &false;, in questo
+     caso <function>msg_send</function> restituirà immediatamente &false; se il messaggio
+     è troppo grande per la coda, e impostando il parametro opzionale
+     <parameter>codice_errore</parameter> a EAGAIN, si indica di ritentare
+     l'invio del messaggio dopo poco tempo.
+    </para>
+    <para>
+     Il parametro opzionale <parameter>serialize</parameter> controlla come inviare 
+     il <parameter>messaggio</parameter>.  <parameter>serialize</parameter>, quando
+     è impostato al valore di default &true;, indica che il <parameter>messaggio</parameter>,
+     prima di essere inviato alla coda, deve essere serializzato utilizzando 
+     il medesimo meccanismo del modulo delle sessioni. Questo permette ad array complessi o
+     ad oggetti di essere inviati ad altri script PHP, oppure, se si sta usando il modulo di serializzazione di WDDX,
+     di essere inviati a client compatibili con WDDX.
+    </para>
+    <para>
+     Una volta eseguito con successo l'invio, la struttura dati della coda dei messaggi viene aggiornata
+     come segue: <parameter>msg_lspid</parameter> viene impostato all'ID di processo del 
+     processo chiamante, <parameter>msg_qnum</parameter> viene incrementato di 1 e
+     <parameter>msg_stime</parameter> viene impostato all'ora corrente.
+    </para>
+    <para>
+     Vedere anche: <function>msg_remove_queue</function>,
+     <function>msg_receive</function>,
+     <function>msg_stat_queue</function> e
+     <function>msg_set_queue</function>.
+    </para>
+   </refsect1>
+  </refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

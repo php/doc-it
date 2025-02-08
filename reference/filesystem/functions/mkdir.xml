@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<!-- EN-Revision: dec1f8445ab2af7fbafef012fb7907ab2cd349b5 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi,fernando -->   
 <refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.mkdir">
  <refnamediv>
   <refname>mkdir</refname>
-  <refpurpose>Makes directory</refpurpose>
+  <refpurpose>Crea una directory</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>bool</type><methodname>mkdir</methodname>
-   <methodparam><type>string</type><parameter>directory</parameter></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>permissions</parameter><initializer>0777</initializer></methodparam>
+   <methodparam><type>string</type><parameter>pathname</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>mode</parameter><initializer>0777</initializer></methodparam>
    <methodparam choice="opt"><type>bool</type><parameter>recursive</parameter><initializer>&false;</initializer></methodparam>
-   <methodparam choice="opt"><type class="union"><type>resource</type><type>null</type></type><parameter>context</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type>resource</type><parameter>context</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Attempts to create the directory specified by <parameter>directory</parameter>.
+   Tenta di creare la directory specificata da pathname. 
   </para>
  </refsect1>
 
@@ -25,31 +26,30 @@
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>directory</parameter></term>
+     <term><parameter>pathname</parameter></term>
      <listitem>
       <para>
-       The directory path.
-       &tip.fopen-wrapper;
+       Il percorso della directory.
       </para>
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>permissions</parameter></term>
+     <term><parameter>mode</parameter></term>
      <listitem>
       <para>
-       The permissions are 0777 by default, which means the widest possible
-       access. For more information on permissions, read the details
-       on the <function>chmod</function> page.
+       Il parametro mode viene impostato a 0777 per default, ciò significa dare i maggiori
+       accessi possibili. Per ulteriori informazioni sui valori di mode, leggere i dettagli
+       sulla pagina di <function>chmod</function>.
       </para>
       <note>
        <para>
-        <parameter>permissions</parameter> is ignored on Windows.
+        <parameter>mode</parameter> viene ignorato su Windows.
        </para>
       </note>
       <para>
-       Note that you probably want to specify the <parameter>permissions</parameter> as an octal number,
-       which means it should have a leading zero. The <parameter>permissions</parameter> is also modified
-       by the current umask, which you can change using
+       Nota che probabilmente si vuole specificare mode come un ottale,
+       per cui deve iniziare con uno zero. La modalità è anche modificata
+       dall'umask corrente, che può essere cambiato usando
        <function>umask</function>.
       </para>
      </listitem>
@@ -58,8 +58,8 @@
      <term><parameter>recursive</parameter></term>
      <listitem>
       <para>
-       If &true;, then any parent directories to the <parameter>directory</parameter> specified will
-       also be created, with the same permissions.
+       Consente la creazione di directory nidificate specificate in 
+       <parameter>pathname</parameter>.
       </para>
      </listitem>
     </varlistentry>
@@ -78,33 +78,13 @@
   <para>
    &return.success;
   </para>
-  <note>
-   <para>
-    If the directory to be created already exists, that is considered an error
-    and &false; will still be returned.  Use <function>is_dir</function> or
-    <function>file_exists</function> to check if the directory already exists
-    before trying to create it.
-   </para>
-  </note>
- </refsect1>
-
- <refsect1 role="errors">
-  &reftitle.errors;
-  <para>
-   Emits an <constant>E_WARNING</constant> level error if the directory
-   already exists.
-  </para>
-  <para>
-   Emits an <constant>E_WARNING</constant> level error if the relevant
-   permissions prevent creating the directory.
-  </para>
  </refsect1>
 
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title><function>mkdir</function> example</title>
+    <title>Esempio di <function>mkdir</function></title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -116,18 +96,18 @@ mkdir("/path/to/my/dir", 0700);
   </para>
   <para>
    <example>
-    <title><function>mkdir</function> using the <parameter>recursive</parameter> parameter</title>
+    <title><function>mkdir</function> usando il parametro <parameter>recursive</parameter></title>
     <programlisting role="php">
 <![CDATA[
 <?php
-// Desired directory structure
+// Struttura delle cartelle desiderata
 $structure = './depth1/depth2/depth3/';
 
-// To create the nested structure, the $recursive parameter 
-// to mkdir() must be specified.
+// Per creare la struttura nidificata, deve essere specificato
+// il parametro $recursive nella mkdir()
 
 if (!mkdir($structure, 0777, true)) {
-    die('Failed to create directories...');
+    die('Failed to create folders...');
 }
 
 // ...
@@ -138,13 +118,24 @@ if (!mkdir($structure, 0777, true)) {
   </para>
  </refsect1>
 
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <para>
+   Emette un errore di livello <constant>E_WARNING</constant> se la directory
+   esiste già.
+  </para>
+  <para>
+   Emette un errore di livello <constant>E_WARNING</constant> se le autorizzazioni
+   pertinenti impediscono la creazione della directory.
+  </para>
+ </refsect1>
+
  <refsect1 role="seealso">
   &reftitle.seealso;
   <para>
    <simplelist>
     <member><function>is_dir</function></member>    
     <member><function>rmdir</function></member>
-    <member><function>umask</function></member>
    </simplelist>
   </para>
  </refsect1>

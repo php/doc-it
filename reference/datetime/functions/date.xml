@@ -1,11 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: 0466dd93f73635c728c6c4707aaf5876692f1ef3 Maintainer: pastore Status: ready -->
+<!-- CREDITS: curcio_it -->
 <refentry xml:id="function.date" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>date</refname>
-  <refpurpose>Format a Unix timestamp</refpurpose>
+  <refpurpose>Formatta un timestamp Unix</refpurpose>
  </refnamediv>
-
+  
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
@@ -14,17 +15,17 @@
    <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>timestamp</parameter><initializer>&null;</initializer></methodparam>
   </methodsynopsis>
   <para>
-   Returns a string formatted according to the given format string using the
-   given integer <parameter>timestamp</parameter> (Unix timestamp) or the current time
-   if no timestamp is given. In other words, <parameter>timestamp</parameter>
-   is optional and defaults to the value of <function>time</function>.
+   Restituisce una stringa formattata in accordo con il formato della stringa data usando
+   l'intero <parameter>timestamp</parameter> dato (timestamp Unix) o l'orario corrente
+   se nessun timestamp è dato. In altre parole, <parameter>timestamp</parameter>
+   è opzionale e di default prende il valore di <function>time</function>.
   </para>
   <warning>
    <para>
-    Unix timestamps do not handle timezones. Use the
-    <classname>DateTimeImmutable</classname> class, and its
-    <methodname>DateTimeInterface::format</methodname> formatting method to
-    format date/time information with a timezone attached.
+    I timestamp Unix non gestiscono i fusi orari. Utilizzare la
+    classe <classname>DateTimeImmutable</classname>, e i suoi
+    metodi di formattazione <methodname>DateTimeInterface::format</methodname> per
+    formattare le informazioni data/ora con un fuso orario allegato.
    </para>
   </warning>
  </refsect1>
@@ -36,17 +37,8 @@
     <term><parameter>format</parameter></term>
     <listitem>
      <para>
-      Format accepted by <methodname>DateTimeInterface::format</methodname>.
+      Formato accettato da <methodname>DateTimeInterface::format</methodname>.
      </para>
-      <note>
-       <simpara>
-        <function>date</function> will always generate
-        <literal>000000</literal> as microseconds since it takes an <type>int</type>
-        parameter, whereas <methodname>DateTimeInterface::format</methodname> does
-        support microseconds if an object of type
-        <interfacename>DateTimeInterface</interfacename> was created with microseconds.
-       </simpara>
-      </note>
     </listitem>
    </varlistentry>
 
@@ -58,7 +50,9 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns a formatted date string.
+   Restituisce una stringa data formattata. Se viene utilizzato un valore non numerico per 
+   <parameter>timestamp</parameter>, viene restituito &false; e viene 
+   emesso un errore di livello <constant>E_WARNING</constant>.
   </para>
  </refsect1>
 
@@ -84,7 +78,7 @@
       <row>
        <entry>8.0.0</entry>
        <entry>
-        <parameter>timestamp</parameter> is nullable now.
+        <parameter>timestamp</parameter> ora è nullable.
        </entry>
       </row>
      </tbody>
@@ -97,28 +91,28 @@
   &reftitle.examples;
   <para>
    <example>
-    <title><function>date</function> examples</title>
+    <title>Esempi di <function>date</function></title>
     <programlisting role="php">
 <![CDATA[
 <?php
-// set the default timezone to use.
+// imposta il fuso orario di default da utilizzare.
 date_default_timezone_set('UTC');
 
 
-// Prints something like: Monday
+// Stampa qualcosa di simile a: Monday
 echo date("l");
 
-// Prints something like: Monday 8th of August 2005 03:12:46 PM
+// Stampa qualcosa di simile a: Monday 8th of August 2005 03:12:46 PM
 echo date('l jS \of F Y h:i:s A');
 
-// Prints: July 1, 2000 is on a Saturday
+// Stampa: July 1, 2000 is on a Saturday
 echo "July 1, 2000 is on a " . date("l", mktime(0, 0, 0, 7, 1, 2000));
 
-/* use the constants in the format parameter */
-// prints something like: Wed, 25 Sep 2013 15:28:57 -0700
+/* usa le costanti nel parametro format */
+// stampa qualcosa di simile a: Wed, 25 Sep 2013 15:28:57 -0700
 echo date(DATE_RFC2822);
 
-// prints something like: 2000-07-01T00:00:00+00:00
+// stampa qualcosa di simile a: 2000-07-01T00:00:00+00:00
 echo date(DATE_ATOM, mktime(0, 0, 0, 7, 1, 2000));
 ?>
 ]]>
@@ -126,16 +120,16 @@ echo date(DATE_ATOM, mktime(0, 0, 0, 7, 1, 2000));
    </example>
   </para>
   <para>
-   You can prevent a recognized character in the format string from being
-   expanded by escaping it with a preceding backslash. If the character with
-   a backslash is already a special sequence, you may need to also escape
-   the backslash.
+   È possibile evitare che un carattere riconosciuto nella stringa formato venga
+   espanso effettuando l'escape di esso anteponendo un backslash. Se il carattere con
+   un backslash è già una sequenza speciale, potrebbe essere necessario effettuare l'escape anche
+   del backslash.
    <example>
-    <title>Escaping characters in <function>date</function></title>
+    <title>Effettuare l'escape dei caratteri in <function>date</function></title>
     <programlisting role="php">
 <![CDATA[
 <?php
-// prints something like: Wednesday the 15th
+// stampa qualcosa di simile a: Wednesday the 15th
 echo date('l \t\h\e jS');
 ?>
 ]]>
@@ -143,11 +137,11 @@ echo date('l \t\h\e jS');
    </example>
   </para>
   <para>
-   It is possible to use <function>date</function> and
-   <function>mktime</function> together to find dates in the future
-   or the past.
+   È possibile utilizzare insieme <function>date</function> e
+   <function>mktime</function> per trovare date nel futuro
+   o nel passato.
    <example>
-    <title><function>date</function> and <function>mktime</function> example</title>
+    <title>Esempio di <function>date</function> e di <function>mktime</function></title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -160,26 +154,26 @@ $nextyear  = mktime(0, 0, 0, date("m"),   date("d"),   date("Y")+1);
    </example>
    <note>
     <para>
-     This can be more reliable than simply adding or subtracting the number
-     of seconds in a day or month to a timestamp because of daylight saving
-     time.
+     Questo può essere più affidabile rispetto che semplicemente aggiungere o sottrarre il numero
+     di secondi in un giorno o in un mese ad un timestamp a causa dell'ora
+     legale.
     </para>
    </note>
   </para>
   <para>
-   Some examples of <function>date</function> formatting. Note that
-   you should escape any other characters, as any which currently
-   have a special meaning will produce undesirable results, and
-   other characters may be assigned meaning in future PHP versions.
-   When escaping, be sure to use single quotes to prevent characters
-   like \n from becoming newlines.
+   Alcuni esempi della formattazione <function>date</function>. Notare che
+   si dovrebbe effettuare l'escape di qualsiasi altro carattere, come tutti quelli che
+   attualmente hanno un significato speciale produrranno risultati indesiderati, e
+   ad altri caratteri potrebbe essere assegnato un significato nelle versioni future di PHP.
+   Quando si effettua l'escape, assicurarsi di usare gli apici singoli in modo da evitare che i caratteri
+   come \n divengano nuove linee.
    <example>
-    <title><function>date</function> Formatting</title>
+    <title>Formattazione di <function>date</function></title>
     <programlisting role="php">
 <![CDATA[
 <?php
-// Assuming today is March 10th, 2001, 5:16:18 pm, and that we are in the
-// Mountain Standard Time (MST) Time Zone
+// Assumendo che oggi sia Il 10 Marzo, 2001, 5:16:18 pm, e che noi siamo nel
+// Fuso Orario Mountain Standard Time (MST)
 
 $today = date("F j, Y, g:i a");                 // March 10, 2001, 5:16 pm
 $today = date("m.d.y");                         // 03.10.01
@@ -197,9 +191,9 @@ $today = date("Y-m-d H:i:s");                   // 2001-03-10 17:16:18 (the MySQ
    </example>
   </para>
   <para>
-   To format dates in other languages,
-   <methodname>IntlDateFormatter::format</methodname>
-   can be used instead of <function>date</function>.
+   Per formattare le date in altri lingue,
+   può essere utilizzata <methodname>IntlDateFormatter::format</methodname>
+   al posto di <function>date</function>.
   </para>
  </refsect1>
 
@@ -207,16 +201,16 @@ $today = date("Y-m-d H:i:s");                   // 2001-03-10 17:16:18 (the MySQ
   &reftitle.notes;
   <note>
    <para>
-    To generate a timestamp from a string representation of the date, you
-    may be able to use <function>strtotime</function>. Additionally, some
-    databases have functions to convert their date formats into timestamps
-    (such as MySQL's <link xlink:href="&url.mysql.docs.date;">UNIX_TIMESTAMP</link>
-    function).
+    Per generare un timestamp da una stringa che rappresenta la data, si
+    può essere in grado di utilizzare <function>strtotime</function>. Inoltre, alcuni
+    database hanno delle funzioni per convertire i loro formati data in timestamp
+    (come la funzione <link xlink:href="&url.mysql.docs.date;">UNIX_TIMESTAMP</link>
+    di MySQL).
    </para>
   </note>
   <tip>
    <para>
-    Timestamp of the start of the request is available in
+    Il timestamp dell'inizio della richiesta è disponibile in
     <varname>$_SERVER['REQUEST_TIME']</varname>.
    </para>
   </tip>
@@ -235,7 +229,7 @@ $today = date("Y-m-d H:i:s");                   // 2001-03-10 17:16:18 (the MySQ
     <member><function>mktime</function></member>
     <member><methodname>IntlDateFormatter::format</methodname></member>
     <member><function>time</function></member>
-    <member><link linkend="datetimeinterface.constants.types">Predefined DateTime Constants</link></member>
+    <member><link linkend="datetimeinterface.constants.types">Costanti di DateTime Predefinite</link></member>
    </simplelist>
   </para>
  </refsect1>

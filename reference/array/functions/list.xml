@@ -1,55 +1,62 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
 <refentry xml:id="function.list" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>list</refname>
-  <refpurpose>Assign variables as if they were an array</refpurpose>
+  <refpurpose>Assegna valori a delle variabili come se fossero un array</refpurpose>
  </refnamediv>
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>array</type><methodname>list</methodname>
-   <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
-   <methodparam rep="repeat" choice="opt"><type>mixed</type><parameter>vars</parameter></methodparam>
+   <methodparam><type>mixed</type><parameter>var1</parameter></methodparam>
+   <methodparam rep="repeat" choice="opt"><type>mixed</type><parameter>...</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Like <function>array</function>, this is not really a function,
-   but a language construct. <function>list</function> is used to
-   assign a list of variables in one operation.
-   Strings can not be unpacked and <function>list</function> expressions 
-   can not be completely empty.
+   Come <function>array</function>, questa non è in realtà una funzione,
+   bensì un costrutto del linguaggio.  <function>list</function> è usata per
+   assegnare valori ad una lista di variabili in una sola operazione.
   </para>
   <note>
    <para>
-    Before PHP 7.1.0, <function>list</function> only worked on numerical arrays and assumes
-    the numerical indices start at 0.
+    <function>list</function> funziona solo su array numerici e si aspetta
+    che gli indici numerici partano da 0.
    </para>
   </note>
-  <para>
-   As of PHP 7.1.0, <function>list</function> can also contain explicit keys, allowing for the
-   destructuring of arrays with non-integer or non-sequential keys. For more details on
-   array destructuring, see the <link linkend="language.types.array.syntax.destructuring">array destructuring section</link>.
-  </para>
+  <warning>
+   <para>
+    In PHP 5, <function>list</function> assegna i valori partendo dal
+    parametro più a destra. In PHP 7, <function>list</function> comincia dal
+    parametro più a sinistra.
+   </para>
+   <para>
+    Se si stanno usando variabili semplici, non ci si deve preoccupare di questo comportamento. Ma
+    se si stanno usando array con indici ci si aspetta che l'ordine degli
+    indici nell'array sia lo stesso scritto nella funzione <function>list</function>
+    da sinitra a destra; non è il caso in PHP 5, dal momento che sono assegnati
+    in ordine inverso.
+   </para>
+   <para>
+    In generale, è sconsigliato fare affidamento su uno specifico ordine
+    di operazioni, dal momento che questo può cambiare in futuro.
+   </para>
+  </warning>
+  <warning>
+   <para>
+    La modifica dell'array durante l'esecuzione di <function>list</function> (es.
+    usando <literal>list($a, $b) = $b</literal> ha un comportamento indefinito.
+   </para>
+  </warning>
  </refsect1>
  <refsect1 role="parameters">
   &reftitle.parameters;
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>var</parameter></term>
+     <term><parameter>var1</parameter></term>
      <listitem>
       <para>
-       A variable.
-      </para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>vars</parameter></term>
-     <listitem>
-      <para>
-       Further variables.
+       Una variabile.
       </para>
      </listitem>
     </varlistentry>
@@ -59,7 +66,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns the assigned array.
+   Restituisce l'array assegnato.
   </para>
  </refsect1>
  <refsect1 role="changelog">
@@ -75,16 +82,29 @@
      </thead>
      <tbody>
       <row>
-       <entry>7.3.0</entry>
+       <entry>7.0.0</entry>
        <entry>
-        Support for reference assignments in array destructuring was added.
+        <link linkend="migration70.incompatible.variable-handling.list.order">
+         L'ordine di esecuzione delle operazioni di assegnazione è
+         cambiato.
+        </link>
        </entry>
       </row>
       <row>
-       <entry>7.1.0</entry>
+       <entry>7.0.0</entry>
        <entry>
-        It is now possible to specify keys in <function>list</function>. This
-        enables destructuring of arrays with non-integer or non-sequential keys.
+        <link linkend="migration70.incompatible.variable-handling.list.empty">
+         Le espressioni <function>list</function> non possono più essere completamente
+         vuote.
+        </link>
+       </entry>
+      </row>
+      <row>
+       <entry>7.0.0</entry>
+       <entry>
+        <link linkend="migration70.incompatible.variable-handling.list.string">
+         Le stringhe non possono più essere spacchettate.
+        </link>
        </entry>
       </row>
      </tbody>
@@ -96,51 +116,63 @@
   &reftitle.examples;
   <para>
    <example>
-    <title><function>list</function> examples</title>
+    <title>esempio di <function>list</function></title>
     <programlisting role="php">
 <![CDATA[
 <?php
 
-$info = array('coffee', 'brown', 'caffeine');
+$info = array('caffè', 'scuro', 'caffeina');
 
-// Listing all the variables
-list($drink, $color, $power) = $info;
-echo "$drink is $color and $power makes it special.\n";
+// assegna a tutte le variabili
+list($bevanda, $colore, $componente) = $info;
+echo "Il $bevanda è $colore e la $componente lo rende speciale.\n";
 
-// Listing some of them
-list($drink, , $power) = $info;
-echo "$drink has $power.\n";
+// assegna solo in parte
+list($bevanda, , $componente) = $info;
+echo "Il $bevanda ha la $componente.\n";
 
-// Or let's skip to only the third one
-list( , , $power) = $info;
-echo "I need $power!\n";
+// oppure assegnamo solo l'ultima variabile
+list( , , $componente) = $info;
+echo"Ho voglia di $componente!\n";
 
-// list() doesn't work with strings
+// list() non funziona con le stringhe
 list($bar) = "abcde";
 var_dump($bar); // NULL
 ?>
 ]]>
-    </programlisting>
-   </example>
+   </programlisting>
+  </example>
   </para>
   <para>
    <example>
-    <title>An example use of <function>list</function></title>
+    <title>Esempio di uso di <function>list</function></title>
     <programlisting role="php">
 <![CDATA[
+<table>
+ <tr>
+  <th>Nome dell'impiegato</th>
+  <th>Stipendio</th>
+ </tr>
+
 <?php
-$result = $pdo->query("SELECT id, name FROM employees");
-while (list($id, $name) = $result->fetch(PDO::FETCH_NUM)) {
-    echo "id: $id, name: $name\n";
+$risultato = $pdo_query("SELECT id, nome, stipendio FROM impiegati");
+while (list($id, $nome, $stipendio) = $result->fetch(PDO::FETCH_NUM)) {
+    echo (" <tr>\n".
+          "  <td><a href=\"info.php?id=$id\">$nome</a></td>\n".
+          "  <td>$stipendio</td>\n".
+          " </tr>\n");
 }
+
 ?>
+
+</table>
 ]]>
-    </programlisting>
-   </example>
+   </programlisting>
+  </example>
   </para>
   <para>
    <example>
-    <title>Using nested <function>list</function></title>
+    <title>Utilizzare <function>list</function> annidate</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -151,22 +183,70 @@ var_dump($a, $b, $c);
 
 ?>
 ]]>
-    </programlisting>
-    <screen>
+   </programlisting>
+   <screen>
 <![CDATA[
 int(1)
 int(2)
 int(3)
 ]]>
-    </screen>
-   </example>
+   </screen>
+  </example>
   </para>
   <para>
    <example>
-    <title><function>list</function> and order of index definitions</title>
+    <title>Utilizzo di <function>list</function> con gli indici</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+$info = array('caffè', 'nero', 'caffeina');
+
+list($a[0], $a[1], $a[2]) = $info;
+
+var_dump($a);
+
+?>
+]]>
+   </programlisting>
+   <para>
+    Restituisce il seguente risultato (si noti l'ordine degli elementi rispetto
+    all'ordine con cui sono stati scritti nella sintassi di <function>list</function>).
+   </para>
+   &example.outputs.7;
+   <screen>
+<![CDATA[
+array(3) {
+  [2]=>
+  string(8) "caffeina"
+  [1]=>
+  string(4) "nero"
+  [0]=>
+  string(5) "caffè"
+}
+]]>
+   </screen>
+   &example.outputs.5;
+  <screen>
+<![CDATA[
+array(3) {
+  [2]=>
+  string(8) "caffeine"
+  [1]=>
+  string(5) "brown"
+  [0]=>
+  string(6) "coffee"
+}
+]]>
+    </screen>
+  </example>
+  </para>
+  <para>
+   <example>
+    <title><function>list</function> e ordine delle definizioni dell'indice</title>
     <simpara>
-     The order in which the indices of the array to be consumed by
-     <function>list</function> are defined is irrelevant.
+     L'ordine con il quale sono definiti gli indici dell'array da consumare da parte di 
+     <function>list</function> è irrilevante.
     </simpara>
     <programlisting role="php">
 <![CDATA[
@@ -178,8 +258,8 @@ var_dump($foo, $x, $y, $z);
 ]]>
     </programlisting>
     <para>
-     Gives the following output (note the order of the elements compared in
-     which order they were written in the <function>list</function> syntax):
+     Restituisce il seguente risultato (si noti l'ordine degli elementi in rapporto a
+     quello con cui sono scritti nella sintassi di <function>list</function>):
     </para>
     <screen>
 <![CDATA[
@@ -196,41 +276,6 @@ array(4) {
 string(1) "c"
 string(1) "d"
 string(1) "a"
-]]>
-    </screen>
-   </example>
-  </para>
-  <para>
-   <example>
-    <title><function>list</function> with keys</title>
-    <simpara>
-     As of PHP 7.1.0 <function>list</function> can now also contain
-     explicit keys, which can be given as arbitrary expressions.
-     Mixing of integer and string keys is allowed; however, elements
-     with and without keys cannot be mixed.
-    </simpara>
-    <programlisting role="php">
-<![CDATA[
-<?php
-$data = [
-    ["id" => 1, "name" => 'Tom'],
-    ["id" => 2, "name" => 'Fred'],
-];
-foreach ($data as ["id" => $id, "name" => $name]) {
-    echo "id: $id, name: $name\n";
-}
-echo PHP_EOL;
-list(1 => $second, 3 => $fourth) = [1, 2, 3, 4];
-echo "$second, $fourth\n";
-]]>
-    </programlisting>
-    &example.outputs;
-    <screen>
-<![CDATA[
-id: 1, name: Tom
-id: 2, name: Fred
-
-2, 4
 ]]>
     </screen>
    </example>

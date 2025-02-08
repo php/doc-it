@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<!-- EN-Revision: 96c9d88bad9a7d7d44bfb7f26c226df7ee9ddf26 Maintainer: cucinato Status: ready -->
 <refentry xml:id="function.serialize" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>serialize</refname>
-  <refpurpose>Generates a storable representation of a value</refpurpose>
+  <refpurpose>Genera una versione archiviabile del valore</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
@@ -13,15 +13,15 @@
     <methodparam><type>mixed</type><parameter>value</parameter></methodparam>
    </methodsynopsis>
   <para>
-   Generates a storable representation of a value.
+   Genera una versione archiviabile di un valore
   </para>
   <para>
-   This is useful for storing or passing PHP values around without
-   losing their type and structure.
+   Questo è utile per archiviare o passare valori a PHP senza
+   perderne il tipo e la struttura.
   </para>
   <para>
-   To make the serialized string into a PHP value again, use
-   <function>unserialize</function>.  
+   Per ottenere il valore dalla stringa serializzata, utilizzare
+   la funzione <function>unserialize</function>.
   </para>
  </refsect1>
 
@@ -33,27 +33,26 @@
      <term><parameter>value</parameter></term>
      <listitem>
       <para>
-       The value to be serialized. <function>serialize</function>
-       handles all types, except the <type>resource</type>-type and some <type>object</type>s (see note below).
-       You can even <function>serialize</function> arrays that contain
-       references to itself. Circular references inside the array/object you 
-       are serializing will also be stored. Any other 
-       reference will be lost.
+       Il valore da serializzare. <function>serialize</function>
+       gestisce tutti i tipi di variabili tranne il tipo <type>resource</type>.
+       Possono essere elaborati da <function>serialize</function> array che
+       contengano riferimenti a se stessi. Saranno archiviati anche i riferimenti
+       circolari negli array/object. Ogni altro 
+       riferimento verrà perso.
       </para>
       <para>
-       When serializing objects, PHP will attempt to call the member functions
-       <link linkend="object.serialize">__serialize()</link> or
-       <link linkend="object.sleep">__sleep()</link> prior to serialization.
-       This is to allow the object to do any last minute clean-up, etc. prior 
-       to being serialized. Likewise, when the object is restored using 
-       <function>unserialize</function> the <link linkend="object.unserialize">__unserialize()</link> or
-       <link linkend="object.wakeup">__wakeup()</link> member function is called.
+       Quando si esegue la serializzazione di oggetti, PHP cerca di eseguire la funzione
+       <link linkend="language.oop5.magic">__sleep</link> prima di cominciare la serializzazione. 
+       Questo permette all'oggetto di eseguire le ultime operazioni di chiusura prima 
+       di essere serializzato. Analogamente, quando l'oggetto viene ripristinato usando 
+       <function>unserialize</function> viene chiamata la funzione membro <link
+       linkend="language.oop5.magic">__wakeup</link>.
       </para>
       <note>
        <para>
-       Object's private members have the class name prepended to the member
-       name; protected members have a '*' prepended to the member name.
-       These prepended values have null bytes on either side.
+       I membri privati dell'oggetto avranno il nome della classe preposto al nome del
+       membro; i membri protetti avranno un '*' preposto al nome del membro.
+       Questi valori preposti sono delimitati da byte null.
        </para>
       </note>
      </listitem>
@@ -65,14 +64,8 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns a string containing a byte-stream representation of 
-   <parameter>value</parameter> that can be stored anywhere.
-  </para>
-  <para>
-   Note that this is a binary string which may include null bytes, and needs
-   to be stored and handled as such. For example,
-   <function>serialize</function> output should generally be stored in a BLOB
-   field in a database, rather than a CHAR or TEXT field.
+   Restituisce una stringa contenente un flusso di bytes rappresentante
+   <parameter>value</parameter> che può essere archiviato ovunque.
   </para>
  </refsect1>
 
@@ -80,13 +73,13 @@
   &reftitle.examples;
   <para>
    <example>
-    <title><function>serialize</function> example</title>
+    <title>Esempio di <function>serialize</function></title>
     <programlisting role="php">
 <![CDATA[
 <?php
-// $session_data contains a multi-dimensional array with session
-// information for the current user.  We use serialize() to store
-// it in a database at the end of the request.
+// L'array multi-dimensionale $session_data contiene le informazioni della sessione
+// per l'utente. Si userà serialize() per memorizzare le informazioni
+// all'interno di un database alla fine della richiesta..
 
 $conn = odbc_connect("webdb", "php", "chicken");
 $stmt = odbc_prepare($conn,
@@ -95,8 +88,8 @@ $sqldata = array (serialize($session_data), $_SERVER['PHP_AUTH_USER']);
 if (!odbc_execute($stmt, $sqldata)) {
     $stmt = odbc_prepare($conn,
      "INSERT INTO sessions (id, data) VALUES(?, ?)");
-    if (!odbc_execute($stmt, array_reverse($sqldata))) {
-        /* Something went wrong.. */
+    if (!odbc_execute($stmt, $sqldata)) {
+        /* Qualcosa non ha funzionato... */
     }
 }
 ?>
@@ -106,27 +99,37 @@ if (!odbc_execute($stmt, $sqldata)) {
   </para>
  </refsect1>
 
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>4.0.7</entry>
+       <entry>
+        Il processo di serializzazione degli oggetti è stato corretto.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
  <refsect1 role="notes">
   &reftitle.notes;
   <note>
    <para>
-    Note that many built-in PHP objects cannot be serialized. However, those with 
-    this ability either implement the <interfacename>Serializable</interfacename> interface or the 
-    magic <link linkend="object.serialize">__serialize()</link>/<link linkend="object.unserialize">__unserialize()</link>
-    or <link linkend="object.sleep">__sleep()</link>/<link linkend="object.wakeup">__wakeup()</link> methods. If an
-    internal class does not fulfill any of those requirements, it cannot reliably be 
-    serialized.
-   </para>
-   <para>
-    There are some historical exceptions to the above rule, where some internal objects 
-    could be serialized without implementing the interface or exposing the methods.
+    It is not possible to serialize PHP built-in objects.
    </para>
   </note>
-  <warning>
-   <para>
-    When <function>serialize</function> serializes objects, the leading backslash is not included in the class name of namespaced classes for maximum compatibility.
-   </para>
-  </warning>
  </refsect1>
 
  <refsect1 role="seealso">
@@ -134,13 +137,7 @@ if (!odbc_execute($stmt, $sqldata)) {
   <para>
    <simplelist>
     <member><function>unserialize</function></member>
-    <member><function>var_export</function></member>
-    <member><function>json_encode</function></member>
     <member><link linkend="language.oop5.serialization">Serializing Objects</link></member>
-    <member><link linkend="object.sleep">__sleep()</link></member>
-    <member><link linkend="object.wakeup">__wakeup()</link></member>
-    <member><link linkend="object.serialize">__serialize()</link></member>
-    <member><link linkend="object.unserialize">__unserialize()</link></member>
    </simplelist>
   </para>
  </refsect1>

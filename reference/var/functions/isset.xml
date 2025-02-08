@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EN-Revision: a44a1e0b7918846659a3c91013855d2c3d674fb9 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
 <refentry xml:id="function.isset" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>isset</refname>
-  <refpurpose>Determine if a variable is declared and is different than &null;</refpurpose>
+  <refpurpose>Verifica se una variabile è definita e non è &null;</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
@@ -11,27 +12,21 @@
   <methodsynopsis>
    <type>bool</type><methodname>isset</methodname>
    <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
-   <methodparam rep="repeat"><type>mixed</type><parameter>vars</parameter></methodparam>
+   <methodparam choice="opt"><type>mixed</type><parameter>...</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Determine if a variable is considered set,
-   this means if a variable is declared and is different than &null;.
+   Verifica se una variabile è definita e non è &null;.
   </para>
   <para>
-   If a variable has been unset with the <function>unset</function>
-   function, it is no longer considered to be set.
+   Se una variabile è stata distrutta con <function>unset</function>, essa non sarà
+   più definita. <function>isset</function> restituirà &false; se si testa
+   una variabile che è stata impostata a &null;. Da notare anche che un byte null
+   (<literal>"\0"</literal>) non è equivalente alla costante &null; di PHP.
   </para>
   <para>
-   <function>isset</function> will return &false; when checking a
-   variable that has been assigned to &null;.
-   Also note that a null character (<literal>"\0"</literal>) is not
-   equivalent to the PHP &null; constant.
-  </para>
-  <para>
-   If multiple parameters are supplied then <function>isset</function>
-   will return &true; only if all of the parameters are considered set.
-   Evaluation goes from left to right and stops as soon as an unset
-   variable is encountered.
+   Se vengono forniti parametri multipli allora <function>isset</function>
+   restituirà &true; solo se tutti i parametri sono definiti. La valuazione va da
+   sinistra verso destra e si ferma appena si incontra una variabile non definita.
   </para>
  </refsect1>
 
@@ -43,15 +38,15 @@
      <term><parameter>var</parameter></term>
      <listitem>
       <para>
-       The variable to be checked.
+       La variabile da controllare.
       </para>
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>vars</parameter></term>
+     <term><parameter>...</parameter></term>
      <listitem>
       <para>
-       Further variables.
+       Un'altra variabile ...
       </para>
      </listitem>
     </varlistentry>
@@ -62,8 +57,34 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns &true; if <parameter>var</parameter> exists and has
-   any value other than &null;. &false; otherwise.
+   Restituisce &true; se <parameter>var</parameter> esiste e ha un valore diverso
+   da &null;, &false; in caso contrario.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>5.4.0</entry>
+       <entry>
+        <para>
+         Il controllo su offset di stringhe non numerici ora restituisce &false;.
+        </para>
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
   </para>
  </refsect1>
 
@@ -71,20 +92,20 @@
   &reftitle.examples;
   <para>
    <example>
-    <title><function>isset</function> Examples</title>
+    <title>Esempi di <function>isset</function></title>
     <programlisting role="php">
 <![CDATA[
 <?php
 
 $var = '';
 
-// This will evaluate to TRUE so the text will be printed.
+// Questo verrà valutato come TRUE quindi il testo sarà stampato.
 if (isset($var)) {
     echo "This var is set so I will print.";
 }
 
-// In the next examples we'll use var_dump to output
-// the return value of isset().
+// Nei prossimi esempi si userà var_dump per stampare
+// il valore di ritorno di isset().
 
 $a = "test";
 $b = "anothertest";
@@ -106,7 +127,7 @@ var_dump(isset($foo));   // FALSE
    </example>
   </para>
   <para>
-   This also work for elements in arrays:
+   Questo funziona anche per gli elementi negli array:
    <informalexample>
     <programlisting role="php">
 <![CDATA[
@@ -118,8 +139,8 @@ var_dump(isset($a['test']));            // TRUE
 var_dump(isset($a['foo']));             // FALSE
 var_dump(isset($a['hello']));           // FALSE
 
-// The key 'hello' equals NULL so is considered unset
-// If you want to check for NULL key values then try: 
+// La chiave 'hello' è uguale a NULL e quindi è considerata indefinita
+// Se si vogliono controllare i valori delle chiavi NULL allora si deve provare: 
 var_dump(array_key_exists('hello', $a)); // TRUE
 
 // Checking deeper array values
@@ -133,7 +154,11 @@ var_dump(isset($a['cake']['a']['b']));  // FALSE
    </informalexample>
   </para>
   <example>
-   <title><function>isset</function> on String Offsets</title>
+   <title><function>isset</function> su Offset di Stringhe</title>
+   <para>
+    PHP 5.4 ha cambiato il comportamtento di <function>isset</function>
+    quando vengono passati offset ti stringhe.
+   </para>
    <programlisting role="php">
 <![CDATA[
 <?php
@@ -147,7 +172,18 @@ var_dump(isset($expected_array_got_string['0 Mostel']));
 ?>
 ]]>
    </programlisting>
-   &example.outputs;
+   &example.outputs.53;
+   <screen>
+<![CDATA[
+bool(true)
+bool(true)
+bool(true)
+bool(true)
+bool(true)
+bool(true)
+]]>
+   </screen>
+   &example.outputs.54;
    <screen>
 <![CDATA[
 bool(false)
@@ -165,18 +201,18 @@ bool(false)
   &reftitle.notes;
   <warning>
    <para>
-    <function>isset</function> only works with variables as passing anything
-    else will result in a parse error.  For checking if 
-    <link linkend="language.constants">constants</link> are set use the 
-    <function>defined</function> function.
+    <function>isset</function> funziona solo con variabili, quindi passare qualsiasi
+    altra cosa risulterà in un errore di analisi.  Per controllare se
+    le <link linkend="language.constants">costanti</link> sono definite, usare la 
+    funzione <function>defined</function>.
    </para>
   </warning>
   &note.language-construct;
   <note>
    <para>
-    When using <function>isset</function> on inaccessible object properties,
-    the <link linkend="object.isset">__isset()</link>
-    overloading method will be called, if declared.
+    Quando si usa <function>isset</function> su proprietà di oggetti inaccessibili
+    il metodo di overloading <link linkend="object.isset">__isset()</link>
+    verrà richiamato, se dichiarato.
    </para>
   </note>
  </refsect1>
@@ -189,10 +225,10 @@ bool(false)
     <member><link linkend="object.isset">__isset()</link></member>
     <member><function>unset</function></member>
     <member><function>defined</function></member>
-    <member><link linkend="types.comparisons">the type comparison tables</link></member>
+    <member><link linkend="types.comparisons">le tabelle di comparazione dei tipi</link></member>
     <member><function>array_key_exists</function></member>
     <member><function>is_null</function></member>
-    <member>the error control <link linkend="language.operators.errorcontrol">@</link> operator</member>
+    <member>l'operatore <link linkend="language.operators.errorcontrol">@</link> di controllo degli errori</member>
    </simplelist>
   </para>
  </refsect1>

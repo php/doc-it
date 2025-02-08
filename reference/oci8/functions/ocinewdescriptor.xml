@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- splitted from ./it/functions/oci8.xml, last change in rev 1.1 -->
+<!-- last change to 'ocinewdescriptor' in en/ tree in rev 1.2 -->
+<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
+<!-- OLD-Revision: 1.45/EN.1.2 -->
+  <refentry xml:id="function.ocinewdescriptor" xmlns="http://docbook.org/ns/docbook">
+   <refnamediv>
+    <refname>ocinewdescriptor</refname>
+    <refpurpose>
+     Inizializza un nuovo descrittore LOB/FILE vuoto
+    </refpurpose>
+   </refnamediv>
+   <refsect1>
+    <title>Descrizione</title>
+     <methodsynopsis>
+      <type>string</type><methodname>ocinewdescriptor</methodname>
+      <methodparam><type>int</type><parameter>connection</parameter></methodparam>
+      <methodparam choice="opt"><type>int</type><parameter>type</parameter></methodparam>
+     </methodsynopsis>
+    <para>
+     <function>ocinewdescriptor</function> alloca memoria per accogliere
+     descrittori o locatori LOB. I valori validi per il parametro
+     <parameter>type</parameter> sono <constant>OCI_D_FILE</constant>,
+     <constant>OCI_D_LOB</constant> e <constant>OCI_D_ROWID</constant>.
+     Per i descrittori LOB, i metodi load, save, e savefile sono
+     associati al descrittore, per i BFILE esiste solo il
+     metodo load. Vedere i suggerimenti nel secondo esempio.
+    </para>
+    <example>
+     <title>esempio di <function>ocinewdescriptor</function></title>
+     <programlisting>
+<![CDATA[
+<?php
+    /* Questo codice deve essere richiamato da un form HTML.
+     * Richiede che $user, $password, $table, $where, e $commitsize
+     * siano passati dalla form.  Il codice quindi cancella
+     * le tuple selezionate usando ROWID ed esegue un commit ogni
+     * $commitsize righe. (Usare con attenzione, non si può fare rollback)
+     */
+    $conn = OCILogon($user, $password);
+    $stmt = OCIParse($conn,"select rowid from $table $where");
+    $rowid = OCINewDescriptor($conn,OCI_D_ROWID);
+    OCIDefineByName($stmt,"ROWID",&$rowid);
+    OCIExecute($stmt);
+    while ( OCIFetch($stmt) ) {
+       $nrows = OCIRowCount($stmt);
+       $delete = OCIParse($conn,"delete from $table where ROWID = :rid");
+       OCIBindByName($delete,":rid",&$rowid,-1,OCI_B_ROWID);
+       OCIExecute($delete);
+       print "$nrows\n";
+       if ( ($nrows % $commitsize) == 0 ) {
+           OCICommit($conn);
+       }
+    }
+    $nrows = OCIRowCount($stmt);
+    print "$nrows deleted...\n";
+    OCIFreeStatement($stmt);
+    OCILogoff($conn);
+?>
+]]>
+     </programlisting>
+     <programlisting>
+<![CDATA[
+<?php
+    /* Questo codice dimostra l'upload di file verso campi LOB.
+     * Il form usato per questo esempio è del tipo seguente:
+     * <form action="upload.php" method="post" enctype="multipart/form-data">
+     * <input type="file" name="lob_upload">
+     * ...
+     */
+  if(!isset($lob_upload) || $lob_upload == 'none'){
+?>
+<form action="upload.php" method="post" enctype="multipart/form-data">
+Upload file: <input type="file" name="lob_upload"><br>
+<input type="submit" value="Upload"> - <input type="reset">
+</form>
+<?php
+} else {
+
+     // $lob_upload contiene il nome del file temporaneo
+
+     // vedere anche la sezione delle funzionalita' di upload dei file,
+     // se si vogliono usare gli upload sicuri
+
+     $conn = OCILogon($user, $password);
+     $lob = OCINewDescriptor($conn, OCI_D_LOB);
+     $stmt = OCIParse($conn,"insert into $table (id, the_blob)
+               values(my_seq.NEXTVAL, EMPTY_BLOB()) returning the_blob into :the_blob");
+     OCIBindByName($stmt, ':the_blob', &$lob, -1, OCI_B_BLOB);
+     OCIExecute($stmt, OCI_DEFAULT);
+     if($lob->savefile($lob_upload)){
+        OCICommit($conn);
+        echo "Blob successfully uploaded\n";
+     }else{
+        echo "Couldn't upload Blob\n";
+     }
+     OCIFreeDesc($lob);
+     OCIFreeStatement($stmt);
+     OCILogoff($conn);
+  }
+?>
+]]>
+     </programlisting>
+    </example>
+    <example>
+     <title>OCINewDescriptor</title>
+     <programlisting>
+<![CDATA[
+<?php
+    /* Chiamata di una stored procedure PL/SQLs che contiene clobs come parametri
+    * di input (PHP 4 >= 4.0.6).
+    * La signature della stored prodedure PL/SQL d'esempio è:
+     *
+     * PROCEDURE save_data
+     *   Argument Name                  Type                    In/Out Default?
+     *   ------------------------------ ----------------------- ------ --------
+     *   KEY                            NUMBER(38)              IN
+     *   DATA                           CLOB                    IN
+     *
+     */
+
+    $conn = OCILogon($user, $password);
+    $stmt = OCIParse($conn, "begin save_data(:key, :data); end;");
+    $clob = OCINewDescriptor($conn, OCI_D_LOB);
+    OCIBindByName($stmt, ':key', $key);
+    OCIBindByName($stmt, ':data', $clob, -1, OCI_B_CLOB);
+    $clob->WriteTemporary($data);
+    OCIExecute($stmt, OCI_DEFAULT);
+    OCICommit($conn);
+    $clob->close();
+    $clob->free();
+    OCIFreeStatement($stmt);
+?>
+]]>
+     </programlisting>
+    </example>
+   </refsect1>
+  </refentry>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

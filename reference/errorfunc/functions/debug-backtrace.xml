@@ -1,47 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 201dc3748c7a94e788d470c697f017d2149c6736 Maintainer: cucinato Status: ready -->
+<!-- EN-Revision: e203b12d7964aa7c729e1f7c26fcbf357fc9fb63 Maintainer: Manuel deG Status: ready -->
 <refentry xml:id="function.debug-backtrace" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>debug_backtrace</refname>
   <refpurpose>Genera un backtrace</refpurpose>
  </refnamediv>
-
+ 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>array</type><methodname>debug_backtrace</methodname>
-   <methodparam choice="opt"><type>bool</type><parameter>provide_object</parameter><initializer>true</initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>options</parameter><initializer><constant>DEBUG_BACKTRACE_PROVIDE_OBJECT</constant></initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>limit</parameter><initializer>0</initializer></methodparam>
   </methodsynopsis>
   <para>
-   <function>debug_backtrace</function> genera un backtrace PHP.
+   <function>debug_backtrace</function> genera un PHP backtrace.
   </para>
- </refsect1>
-
+ </refsect1> 
+ 
  <refsect1 role="parameters"><!-- {{{ -->
   &reftitle.parameters;
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>provide_object</parameter></term>
+     <term><parameter>options</parameter></term>
      <listitem>
       <para>
-       Abilita o meno la popolazione dell'indice "object".
+       Questo parametro è una bitmask per le seguenti opzioni:
+       <table>
+        <title><function>debug_backtrace</function> options</title>
+        <tgroup cols="2">
+         <tbody>
+          <row>
+           <entry>DEBUG_BACKTRACE_PROVIDE_OBJECT</entry>
+           <entry>
+            Indica se popolare o meno l'"oggetto" index.
+            Whether or not to populate the "object" index.
+           </entry>
+          </row>
+          <row>
+           <entry>DEBUG_BACKTRACE_IGNORE_ARGS</entry>
+           <entry>
+            Indica se omettere o meno gli indici di "args" e quindi tutti gli argomenti
+            della funzione/metodo, per risparmiare memoria.          
+           </entry>
+          </row>
+         </tbody>
+        </tgroup>
+       </table>
+       <note>
+        <para>
+         Ci sono quattro possibilità:
+         <table>
+          <title><function>debug_backtrace</function> options</title>
+          <tgroup cols="2">
+           <tbody>
+            <row>
+             <entry><code>debug_backtrace()</code></entry>
+             <entry morerows="2" valign="middle">
+              Popola entrambi gli indici
+             </entry>
+            </row>
+            <row>
+             <entry><code>debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT)</code></entry>
+            </row>
+            <row>
+             <entry><code>debug_backtrace(1)</code></entry>
+            </row>
+            <row>
+             <entry><code>debug_backtrace(0)</code></entry>
+             <entry valign="middle">
+              Omette l'index <literal>"object"</literal> e  popola l'index <literal>"args"</literal>.
+             </entry>
+            </row>
+            <row>
+             <entry><code>debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)</code></entry>
+             <entry morerows="1" valign="middle">
+              Omits index <literal>"object"</literal> <emphasis>and</emphasis> index <literal>"args"</literal>.
+             </entry>
+            </row>
+            <row>
+             <entry><code>debug_backtrace(2)</code></entry>
+            </row>
+            <row>
+             <entry><code>debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT|DEBUG_BACKTRACE_IGNORE_ARGS)</code></entry>
+             <entry morerows="1" valign="middle">
+              Popola l'index <literal>"object"</literal> <emphasis> e </emphasis> omette l'index <literal>"args"</literal>.
+             </entry>
+            </row>
+            <row>
+             <entry><code>debug_backtrace(3)</code></entry>
+            </row>
+           </tbody>
+          </tgroup>
+         </table>
+        </para>
+       </note>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>limit</parameter></term>
+     <listitem>
+      <para>
+       Questo parametro può essere utilizzato per limitare il numero di stack frame restituiti. 
+       Per default (<parameter>limit</parameter>=<literal>0</literal>) restituisce tutti gli stack frame.      
       </para>
      </listitem>
     </varlistentry>
    </variablelist>
   </para>
  </refsect1><!-- }}} -->
-
+ 
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce un <type>array</type> associativo. Gli elementi che possono essere restituiti
-   sono elencati nella seguente tabella:
+   Restituisce un array associativo <type>array</type>. I possibili elementi
+   ritornati sono i seguenti:
   </para>
   <para>
    <table>
-    <title>Elementi restituibili dalla funzione <function>debug_backtrace</function></title>
+    <title>I possibili elementi ritornati sono: <function>debug_backtrace</function></title>
     <tgroup cols="3">
      <thead>
       <row>
@@ -55,15 +134,15 @@
        <entry>function</entry>
        <entry><type>string</type></entry>
        <entry>
-        Il nome della funzione corrente. Vedere anche
+        Il nome della funzione corrente. Vedi anche
         <link linkend="language.constants.predefined">__FUNCTION__</link>.
        </entry>
       </row>
       <row>
        <entry>line</entry>
-       <entry><type>integer</type></entry>
+       <entry><type>int</type></entry>
        <entry>
-        Il numero della linea corrente. Vedere anche
+        Il numero della linea corrente. Vedi anche
         <link linkend="language.constants.predefined">__LINE__</link>.
        </entry>
       </row>
@@ -71,7 +150,7 @@
        <entry>file</entry>
        <entry><type>string</type></entry>
        <entry>
-        Il nome del file corrente. Vedere anche
+        Il nome del file corrente. Vedi anche
         <link linkend="language.constants.predefined">__FILE__</link>.
        </entry>
       </row>
@@ -79,7 +158,7 @@
        <entry>class</entry>
        <entry><type>string</type></entry>
        <entry>
-        Il nome della <link linkend="language.oop5">class</link> corrente. Vedere anche
+        Il nome della <link linkend="language.oop5">classe</link>  corrente name.  Vedi anche
         <link linkend="language.constants.predefined">__CLASS__</link>
        </entry>
       </row>
@@ -94,16 +173,20 @@
        <entry>type</entry>
        <entry><type>string</type></entry>
        <entry>
-        Il tipo di chiamata corrente. Se chiamata di metodo, viene restituito "->" is returned. Se chiamata
-        di metodo statico, viene restituito "::". Se chiamata di funzione, non viene restituito niente.
+        Il tipo di chiamata corrente. Se è una chiamata ad un metodo, viene restituito
+         "-&gt;". Se è una chiamata al metodo statica, viene restituito "::".
+         Se è una chiamata ad una funzione, non viene restituito nulla.
        </entry>
       </row>
       <row>
        <entry>args</entry>
        <entry><type>array</type></entry>
        <entry>
-        Se all'interno di una funzione, elenca gli argomenti della funzione.
-        Se all'interno di un file incluso, elenca i nomi del file incluso.
+        Se dentro una funzione, elenca una lista con gli argomenti della funzione,
+        se all'interno di un file che è stato incluso, elenca i nomi dei file inclusi.  
+
+        Se all'interno di una funzione, elenca gli argomenti della funzione. Se all'interno
+        di un file incluso, elenca i nomi dei file inclusi.
        </entry>
       </row>
      </tbody>
@@ -112,41 +195,11 @@
   </para>
  </refsect1>
 
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>5.2.5</entry>
-       <entry>
-        Aggiunto il parametro opzionale <parameter>provide_object</parameter>.
-       </entry>
-      </row>
-      <row>
-       <entry>5.1.1</entry>
-       <entry>
-        Aggiunto l'<type>object</type> corrente come possibile elemento di ritorno.
-       </entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </informaltable>
-  </para>
- </refsect1>
-
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title><function>debug_backtrace</function> example</title>
+    <title><function>debug_backtrace</function> esempio</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -168,8 +221,8 @@ include_once '/tmp/a.php';
 ]]>
     </programlisting>
     <para>
-     Dà risultati simili ai seguenti quando si esegue
-    <filename>/tmp/b.php</filename>:
+     Fornisce Risultati simili al seguente esempio quando si esegue
+     <filename>/tmp/b.php</filename>:
     </para>
     <screen>
 <![CDATA[
@@ -201,7 +254,7 @@ array(4) {
    </example>
   </para>
  </refsect1>
-
+ 
  <refsect1 role="seealso">
   &reftitle.seealso;
   <para>

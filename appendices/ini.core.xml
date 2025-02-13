@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 3e08a8aae657492bdcdc7c550099ddf072042fa9 Maintainer: pastore Status: ready -->   
+<!-- EN-Revision: 90787fda14dcb0976a9738423e6c6013c037d048 Maintainer: pastore Status: ready -->   
 <!-- CREDITS: cucinato -->
  <section xml:id="ini.core" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
   <title>Descrizione dei parametri core  di &php.ini;</title>
@@ -116,6 +116,12 @@
         <entry><constant>INI_ALL</constant> con restrizioni</entry>
         <entry></entry>
        </row>
+       <row>
+        <entry><link linkend="ini.zend.exception-string-param-max-len">zend.exception_string_param_max_len</link></entry>
+        <entry>"15"</entry>
+        <entry><constant>INI_ALL</constant></entry>
+        <entry>Disponibile a partire da PHP 8.0.0.</entry>
+       </row>
       </tbody>
      </tgroup>
     </table>
@@ -196,19 +202,23 @@
        <type>string</type>
       </term>
       <listitem>
-       <para>
-        Questa direttiva permette di disabilitare alcune funzioni. Riceve 
-        una lista di nomi di funzione separati da virgole.
-       </para>
-       <para>
+       <simpara>
+        Questa direttiva permette di disabilitare alcune funzioni.
+        Riceve una lista di nomi di funzione separati da virgole.
+        A partire da PHP 8.0.0, disabilitare una funzione ne rimuove la definizione
+        consentendo allo spazio utente di ridefinirla.
+        Prima di PHP 8.0.0, disabilitare una funzione impediva semplicemente di invocare la funzione.
+       </simpara>
+       <simpara>
         Solo <link linkend="functions.internal">le funzioni interne</link> possono
-        essere disattivate usando questa direttiva. Le <link linkend="functions.user-defined">funzioni definite dall'utente</link>
+        essere disattivate usando questa direttiva.
+        Le <link linkend="functions.user-defined">funzioni definite dall'utente</link>
         non sono interessate.
-       </para>
-       <para>
-        Questa direttiva deve essere impostata in &php.ini; pertanto non
-        può essere usata in &httpd.conf;.
-       </para>
+       </simpara>
+       <simpara>
+        Questa direttiva deve essere impostata in &php.ini;.
+        Può essere impostata in &httpd.conf;.
+       </simpara>
       </listitem>
      </varlistentry>
      
@@ -218,13 +228,18 @@
        <type>string</type>
       </term>
       <listitem>
+       <para>
+        Questa direttiva permette di disabilitare alcune classi.
+        Riceve una lista di nomi di classi separati da virgole.
+        Disabilitare una classe impedisce semplicemente di istanziarla.
+       </para>
+       <para>
+        Solo le classi interne possono essere disabilitate usando questa direttiva.
+        Le classi definite dall'utente non sono interessate.
+       </para>
        <simpara>
-        Questa direttiva permette di disabilitare alcune classi. Riceve
-        una lista di nomi di classi separati da virgole.
-       </simpara>
-       <simpara>
-        Questa direttiva deve essere impostata in &php.ini; pertanto non
-        può essere usata in &httpd.conf;.
+        Questa direttiva deve essere impostata in &php.ini;.
+        Può essere impostata in &httpd.conf;.
        </simpara>
        </listitem>
      </varlistentry>
@@ -255,6 +270,19 @@
       </listitem>
      </varlistentry>
 
+     <varlistentry xml:id="ini.zend.exception-string-param-max-len">
+      <term>
+       <parameter>zend.exception_string_param_max_len</parameter>
+       <type>int</type>
+      </term>
+      <listitem>
+       <simpara>
+        La lunghezza massima degli argomenti delle funzioni stringa nelle stack trace in formato stringa.  
+        Deve essere compresa tra <literal>"0"</literal> e <literal>"1000000"</literal>.
+       </simpara>
+      </listitem>
+     </varlistentry>
+
      <varlistentry xml:id="ini.hard-timeout">
       <term>
        <parameter>hard_timeout</parameter>
@@ -262,6 +290,19 @@
       </term>
       <listitem>
        <para>
+        Quando il timeout impostato in <link linkend="ini.max-execution-time">max_execution_time</link>
+        è stato raggiunto, il runtime di PHP rilascerà le risorse in modo ordinato. Se
+        qualcosa si blocca mentre ciò accade, il timeout rigido verrà conteggiato
+        per il numero di secondi impostato. Quando il timeout rigido viene raggiunto, PHP
+        terminerà in modo anomalo. Se impostato su 0, il timeout rigido non verrà mai attivato.
+      </para>
+      <para>
+       Quando PHP si interrompe a causa di un timeout rigido, apparirà qualcosa del genere:
+       <screen>
+<![CDATA[
+Fatal error: Maximum execution time of 30+2 seconds exceeded (terminated) in Unknown on line 0
+]]>
+       </screen>
        </para>
       </listitem>
      </varlistentry>
@@ -309,7 +350,7 @@
         con ISO-8859-1, devono essere usati sia zend.multibyte che zend.script_encoding.
        </para>
        <para>
-        Le stringhe letterali verrano traslitterate da zend.script_enconding a
+        Le stringhe letterali verrano traslitterate da zend.script_encoding a
         mbstring.internal_encoding, come se
         fosse stata chiamata <function>mb_convert_encoding</function>.
        </para>
@@ -551,7 +592,7 @@
         <entry><link linkend="ini.enable-post-data-reading">enable_post_data_reading</link></entry>
         <entry>"1"</entry>
         <entry><constant>INI_PERDIR</constant></entry>
-        <entry>Disponibile da PHP 5.4.0</entry>
+        <entry></entry>
        </row>
        <row>
         <entry><link linkend="ini.post-max-size">post_max_size</link></entry>
@@ -962,12 +1003,6 @@
      
     </variablelist>
    </para>
-   <para>
-    Vedere anche: <link linkend="ini.magic-quotes-gpc">magic_quotes_gpc</link>,
-    <link linkend="ini.magic-quotes-runtime">magic_quotes_runtime</link>
-    e
-    magic_quotes_sybase.
-   </para>
   </section>
   
   <section xml:id="ini.sect.path-directory">
@@ -1186,9 +1221,7 @@ include_path = ".:${USER}/pear/php"
       <listitem>
        <para>
         Limita i file che possono essere acceduti da PHP ad uno specifico
-        albero di cartelle, contenenti il file stesso.  Questo parametro
-        <emphasis>NON È</emphasis> modificato dallo stato del Safe Mode
-        (On o Off).
+        albero di cartelle, contenenti il file stesso.
        </para>
        <para>
         Quando uno script tenta di accedere al filesystem, per esempio,
@@ -1232,7 +1265,7 @@ include_path = ".:${USER}/pear/php"
         L'impostazione di default è quella di permettere l'apertura di tutti i file.
        </para>
        <note>
-        <para>
+        <simpara>
          open_basedir può essere ristretto a run-time. Ciò significa
          che se open_basedir è impostato a <literal>/www/</literal> in &php.ini;
          uno script può ulteriormente restringere la configurazione a
@@ -1240,7 +1273,12 @@ include_path = ".:${USER}/pear/php"
          <function>ini_set</function>. Quando si elencano più cartelle, si
          può usare la costante <constant>PATH_SEPARATOR</constant> come separatore
          indipendentemente dal sistema operativo.
-        </para>
+        </simpara>
+        <simpara>
+         A partire da PHP 8.3.0, <option>open_basedir</option> non accetta più
+         percorsi contenenti la directory padre (<literal>..</literal>) quando
+         impostato durante l'esecuzione utilizzando <function>ini_set</function>.
+        </simpara>
        </note>
        <note>
         <para>
@@ -1248,6 +1286,12 @@ include_path = ".:${USER}/pear/php"
          a <literal>0</literal> e quindi <emphasis>disabiliterà</emphasis> la cache di realpath.
         </para>
        </note>
+       <caution>
+        <para>
+         <literal>open_basedir</literal> è solo una rete di sicurezza aggiuntiva, che non è in alcun modo
+         completa e quindi non può essere considerata affidabile quando è richiesta sicurezza.
+        </para>
+       </caution>
       </listitem>
      </varlistentry>
      
@@ -1312,8 +1356,8 @@ include_path = ".:${USER}/pear/php"
       </term>
       <listitem>
        <para>
-        Directory in cui il PHP cerca i moduli caricabili 
-        dinamicamente. Vedere anche: <link linkend="ini.enable-dl">enable_dl</link>,
+        Directory in cui PHP cerca i moduli caricabili 
+        dinamicamente. Si consiglia di specificare un percorso assoluto. Vedere anche: <link linkend="ini.enable-dl">enable_dl</link>,
         e <function>dl</function>.
        </para>
       </listitem>
@@ -1455,15 +1499,15 @@ include_path = ".:${USER}/pear/php"
      <varlistentry xml:id="ini.cgi.rfc2616-headers">
       <term>
        <parameter>cgi.rfc2616_headers</parameter>
-       <type>int</type>
+       <type>bool</type>
       </term>
       <listitem>
       <para>
         Indica al PHP quale tipo di intestazione utilizzare quando si inviano risposte HTTP.
-        Se impostato a 0, il PHP invia un'intestazione <link xlink:href="&url.rfc;3875">RFC 3875</link>
+        Se è disabilitato, PHP invia un'intestazione <link xlink:href="&url.rfc;3875">RFC 3875</link>
         "Status:", che è supportata da Apache ed altri server web. Quando il parametro
-        è impostato a 1, il PHP invia una intestazione conforme alle specifiche indicate in <link xlink:href="&url.rfc;2616">RFC 2616</link>
-        .
+        è abilitato, PHP invia una intestazione conforme alle specifiche indicate in
+        <link xlink:href="&url.rfc;2616">RFC 2616</link>.
        </para>
        <para>
         Se questa opzione è abilitata, e si sta eseguendo PHP in un ambiente CGI (es. PHP-FPM)
@@ -1472,7 +1516,7 @@ include_path = ".:${USER}/pear/php"
         si deve usare header("Status: 404 Not Found");
        </para>
        <para>
-        Lasciare il parametro a 0 a meno che non si sappia cosa si sta facendo.
+        Lasciare il parametro disabilitato a meno che non si sappia cosa si stia facendo.
        </para>
       </listitem>
      </varlistentry>
@@ -1480,7 +1524,7 @@ include_path = ".:${USER}/pear/php"
      <varlistentry xml:id="ini.fastcgi.impersonate">
       <term>
        <parameter>fastcgi.impersonate</parameter>
-       <type>string</type>
+       <type>bool</type>
       </term>
       <listitem>
        <para>
@@ -1488,7 +1532,7 @@ include_path = ".:${USER}/pear/php"
         il contesto di sicurezza del client chiamante. Questo permette a IIS di definire
         un contesto di sicurezza in cui fare girare la richiesta. Attualmente mod_fastcgi di Apache
         non supporta questa caratteristica (17/03/2002).
-        Impostare a 1 se si utilizza IIS. Il default è zero.
+        Abilitarlo se si utilizza IIS. Il valore predefinito è disabilitato.
        </para>
       </listitem>
      </varlistentry>
@@ -1558,7 +1602,7 @@ include_path = ".:${USER}/pear/php"
        <row>
         <entry><link linkend="ini.max-file-uploads">max_file_uploads</link></entry>
         <entry>20</entry>
-        <entry><constant>INI_SYSTEM</constant></entry>
+        <entry><constant>INI_PERDIR</constant></entry>
         <entry></entry>
        </row>
       </tbody>
@@ -1616,6 +1660,9 @@ include_path = ".:${USER}/pear/php"
        <para>
         La dimensione massima di un file inviato.
        </para>
+       <para>
+        <link linkend="ini.post-max-size">post_max_size</link> deve essere maggiore di questo valore.
+       </para>
        
        &ini.shorthandbytes;
        
@@ -1630,7 +1677,7 @@ include_path = ".:${USER}/pear/php"
       <listitem>
        <para>
         Il numero massimo di file che si possono caricare in upload simultaneamente.
-        A partire da PHP 5.3.4, i campi upload lasciati vuoti durante l'invio non
+        I campi upload lasciati vuoti durante l'invio non
         sono presi in conto da questo limite.
        </para>
       </listitem>

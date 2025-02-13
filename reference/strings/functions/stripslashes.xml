@@ -1,58 +1,82 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.stripslashes" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>stripslashes</refname>
-    <refpurpose>
-     Rimuove gli slash aggiunti con <function>addslashes</function>
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>stripslashes</methodname>
-      <methodparam><type>string</type><parameter>str</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Rimuove i backslash da una stringa.
-     (<literal>\'</literal> diventa <literal>'</literal> e così via.)
-     I doppi backslash (<literal>\\</literal>) sono ridotti ad un singolo
-     backslash (<literal>\</literal>). 
-    </para>
-    <para>
-     Un esempio di uso di <function>stripslashes</function> è dato dall'opzione PHP
-     <link linkend="ini.magic-quotes-gpc">magic_quotes_gpc</link>
-     che, quando è impostata a <literal>on</literal> (come è per default), e non siinseriscono
-     questi dati in una procedura (tipo in un database) che richiede il carattere di escape.
-     Ad esempio, se si visualizza dati da un form 
-     HTML.
-    </para>
-    <para>
-     <example>
-      <title>Esempio di uso di <function>stripslashes</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 8cdc6621f9826d04abc3e50438c010804d7e8683 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.stripslashes" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>stripslashes</refname>
+  <refpurpose>Rimuove i caratteri di escape da una stringa su cui si è effettuato l'escape</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>stripslashes</methodname>
+   <methodparam><type>string</type><parameter>string</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Rimuove i caratteri di escape da una stringa su cui si è effettuato l'escape.
+  </para>
+  <para>
+   <function>stripslashes</function> può essere utilizzata se non si inserisce
+   questo dato in un posto (come un database) che richiede l'escape dei caratteri.
+   Per esempio, se si sta semplicemente visualizzando i dati direttamente da un modulo HTML.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>string</parameter></term>
+     <listitem>
+      <para>
+       La stringa di input.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce una stringa con i caratteri di escape (backslash) rimossi.
+   (<literal>\'</literal> diventa <literal>'</literal> e così via.)
+   I doppi backslash (<literal>\\</literal>) vengono trasformati in un singolo
+   backslash (<literal>\</literal>).
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Un esempio di <function>stripslashes</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$str = "Is your name O\'reilly?";
+$str = "Il tuo nome è O\'reilly?";
 
-// Outputs: Is your name O'reilly?
+// Output: Il tuo nome è O'reilly?
 echo stripslashes($str);
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <note>
-     <para>
-      La funzione <function>stripslashes</function> non è ricorsiva Se si desidera utilizzare
-      questa funzione su una matrice multi-dimensionale, occorre utilizzare una funzione ricorsiva.
-     </para>
-    </note>
-    <para>
-     <example>
-      <title>Esempio di utilizzo di <function>stripslashes</function> su una matrice</title>
-      <programlisting role="php">
+    </programlisting>
+   </example>
+  </para>
+  <note>
+   <para>
+    <function>stripslashes</function> non è ricorsiva. Se desideri applicare
+    questa funzione a un array multidimensionale, è necessario usare una funzione
+    ricorsiva.
+   </para>
+  </note>
+  <para>
+   <example>
+    <title>Utilizzo di <function>stripslashes</function> su un array</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 function stripslashes_deep($value)
@@ -60,21 +84,21 @@ function stripslashes_deep($value)
     $value = is_array($value) ?
                 array_map('stripslashes_deep', $value) :
                 stripslashes($value);
- 
+
     return $value;
 }
- 
-// Example
+
+// Esempio
 $array = array("f\\'oo", "b\\'ar", array("fo\\'o", "b\\'ar"));
 $array = stripslashes_deep($array);
- 
+
 // Output
 print_r($array);
 ?>
 ]]>
-      </programlisting>
-      &example.outputs;
-      <screen>
+    </programlisting>
+    &example.outputs;
+    <screen>
 <![CDATA[
 Array
 (
@@ -85,22 +109,25 @@ Array
             [0] => fo'o
             [1] => b'ar
         )
- 
+
 )
 ]]>
-      </screen>
-     </example>
-    </para>
-    <para>
-     Per maggiori dettagli su "magic quotes", vedere <function>get_magic_quotes_gpc</function>.
-    </para>
-    <simpara>
-     Vedere anche <function>addslashes</function> e
-     <function>get_magic_quotes_gpc</function>.
-    </simpara>
-   </refsect1>
-  </refentry>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>addslashes</function></member>
+    <member><function>get_magic_quotes_gpc</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

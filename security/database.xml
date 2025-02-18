@@ -241,7 +241,7 @@ $result = odbc_exec($conn, $query);
      </example>
      La parte statica della query può essere combinata con un'altra - The static part of the query can be combined with another
      <literal>SELECT</literal>dichiarazione che rivela tutte le password: - statement which reveals all passwords:
-     <informalexample><!--XXX tradotto ricontrollare-->
+     <informalexample>
       <programlisting role="sql">
 <![CDATA[
 '
@@ -251,11 +251,16 @@ union select '1', concat(uname||'-'||passwd) as name, '1971-01-01', '0' from use
       </programlisting>
      </informalexample>
     </para>
-    <para><!--XXX tradurre-->
+    <para>
+     Lo sono anche le istruzioni <literal>UPDATE</literal> e <literal>INSERT</literal>
+     suscettibili a tali attacchi.
+
      <literal>UPDATE</literal> and <literal>INSERT</literal> statements are also
      susceptible to such attacks.
      <example>
      <title>
+      Dalla reimpostazione di una password... all'acquisizione di più privilegi (qualsiasi server di database)
+
       From resetting a password ... to gaining more privileges (any database server)
      </title>
       <programlisting role="php">
@@ -266,11 +271,19 @@ $query = "UPDATE usertable SET pwd='$pwd' WHERE uid='$uid';";
 ]]>
       </programlisting>
      </example>
+
+     Se un utente malintenzionato invia il valore
+     <literal>' o uid like'%admin%</literal> in <varname>$uid</varname> in
+     cambia la password dell'amministratore o imposta semplicemente <varname>$pwd</varname> su
+     <literal>hehehe', trust=100, admin='yes</literal> per ottenere di più 
+     privilegi, la query verrà distorta:
+
      If a malicious user submits the value
      <literal>' or uid like'%admin%</literal> to <varname>$uid</varname> to
      change the admin's password, or simply sets <varname>$pwd</varname> to
      <literal>hehehe', trusted=100, admin='yes</literal> to gain more 
      privileges, then the query will be twisted:
+
      <informalexample>
       <programlisting role="php">
 <![CDATA[
@@ -289,6 +302,18 @@ $query = "UPDATE usertable SET pwd='hehehe', trusted=100, admin='yes' WHERE
      </informalexample>
     </para>
     <simpara>
+     Mentre resta ovvio che un malintenzionato debba possederne almeno alcuni
+     conoscenza dell'architettura del database per condurre un'attività di successo
+     attacco, ottenere queste informazioni è spesso molto semplice. Per esempio,
+     il codice può far parte di un software open source ed essere disponibile al pubblico.
+     Tali informazioni potranno anche essere divulgate
+     tramite codice closed-source, anche se codificato, offuscato o compilato,
+     e anche dal proprio codice attraverso la visualizzazione di messaggi di errore.
+     Altri metodi includono l'uso di nomi di tabelle e colonne tipici.  Per
+     ad esempio, un modulo di accesso che utilizza una tabella "utenti" con nomi di colonne
+     "id", "nome utente" e "password".
+
+
      While it remains obvious that an attacker must possess at least some
      knowledge of the database architecture to conduct a successful
      attack, obtaining this information is often very simple. For example,
@@ -302,11 +327,16 @@ $query = "UPDATE usertable SET pwd='hehehe', trusted=100, admin='yes' WHERE
     </simpara>
     <para>
      <example>
-     <title>Attacking the database host operating system (MSSQL Server)</title>
-      <simpara>
-       A frightening example of how operating system-level commands can be
-       accessed on some database hosts.
-      </simpara>
+
+      <title>Attacking the database host operating system (MSSQL Server) -- Attaccare il sistema operativo host del database (MSSQL Server)</title>
+       <simpara>
+        Un esempio spaventoso di come possono essere i comandi a livello di sistema operativo
+        accessibile su alcuni host di database.
+
+        A frightening example of how operating system-level commands can be
+        accessed on some database hosts.
+       </simpara>
+
       <programlisting role="php">
 <![CDATA[
 <?php
@@ -318,6 +348,11 @@ $result = mssql_query($query);
 ]]>
       </programlisting>
      </example>
+     Se l'attaccante invia il valore
+     <literal>a%' exec master..xp_cmdshell 'net user test testpass /ADD' --</literal>
+     a <varname>$prod</varname>, quindi <varname>$query</varname> sarà:
+
+
      If attacker submits the value
      <literal>a%' exec master..xp_cmdshell 'net user test testpass /ADD' --</literal>
      to <varname>$prod</varname>, then the <varname>$query</varname> will be:
@@ -335,6 +370,14 @@ $result = mssql_query($query);
 ]]>
       </programlisting>
      </informalexample>
+     MSSQL Server esegue le istruzioni SQL nel batch incluso un comando
+     per aggiungere un nuovo utente al database degli account locali. Se questa applicazione
+     erano in esecuzione come <literal>sa</literal> e il servizio MSSQLSERVER lo era
+     in esecuzione con privilegi sufficienti, l'utente malintenzionato ora avrebbe un file
+     account con cui accedere a questa macchina.
+
+
+
      MSSQL Server executes the SQL statements in the batch including a command
      to add a new user to the local accounts database. If this application
      were running as <literal>sa</literal> and the MSSQLSERVER service was
@@ -343,16 +386,20 @@ $result = mssql_query($query);
     </para>
     <note>
      <para>
+      Alcuni esempi sopra riportati sono legati a un server di database specifico, ma it
+      non significa che un attacco simile sia impossibile contro altri prodotti.
+      Il tuo server database potrebbe essere altrettanto vulnerabile in un altro modo.
+
       Some examples above are tied to a specific database server, but it
       does not mean that a similar attack is impossible against other products.
-      Your database server may be similarly vulnerable in another manner.
+      Your database server may be similarly vulnerable in another manner. 
      </para>
     </note>
     <para>
      <mediaobject>
-      <alt>A funny example of the issues regarding SQL injection</alt>
+      <alt>A funny example of the issues regarding SQL injection - A funny example of the issues regarding SQL injection</alt>
       <imageobject>
-       <imagedata fileref="en/security/figures/xkcd-bobby-tables.png" format="PNG"/>
+       <imagedata fileref="it/security/figures/xkcd-bobby-tables.png" format="PNG"/>
       </imageobject>
       <caption>
        <simpara>
@@ -363,8 +410,18 @@ $result = mssql_query($query);
     </para>
 
     <sect2 xml:id="security.database.avoiding">
-     <title>Avoidance Techniques</title>
+     <title>Avoidance Techniques - Tecniche di evitamento</title>
      <para>
+      Il modo consigliato per evitare l'iniezione SQL è associare tutti i dati 
+      tramite istruzioni preparate. L'utilizzo di query parametrizzate non è 
+      sufficiente per evitare completamente l'iniezione SQL, ma è il modo più 
+      semplice e sicuro per fornire input alle istruzioni SQL. Tutti i letterali
+      di dati dinamici nelle clausole <literal>WHERE</literal>,
+     <literal>SET</literal> e <literal>VALUES</literal> devono essere sostituiti
+      con segnaposto. I dati effettivi verranno associati durante l'esecuzione e 
+      inviati separatamente dal comando SQL.
+
+
       The recommended way to avoid SQL injection is by binding all data via
       prepared statements. Using parameterized queries isn't enough to entirely
       avoid SQL injection, but it is the easiest and safest way to provide input
@@ -374,6 +431,10 @@ $result = mssql_query($query);
       execution and sent separately from the SQL command.
      </para>
      <para>
+      Il binding dei parametri può essere utilizzato solo per i dati. Altre 
+      parti dinamiche della query SQL devono essere filtrate in base a un elenco
+      noto di valori consentiti.
+      
       Parameter binding can only be used for data. Other dynamic parts of the
       SQL query must be filtered against a known list of allowed values.
      </para>
@@ -406,6 +467,14 @@ $stmt->execute(["%{$productId}%"]);
      </simpara>
 
      <simpara>
+      <simpara>
+       Gli attacchi di iniezione SQL si basano principalmente sullo sfruttamento del codice non scritto
+       con la sicurezza in mente. Non fidarti mai di nessun input, specialmente
+       dal lato client, anche se proviene da una casella di selezione,
+       un campo di input nascosto o un cookie. Il primo esempio mostra che una query così
+       semplice può causare disastri.
+   
+
       SQL injection attacks are mainly based on exploiting the code not being written
       with security in mind. Never trust any input, especially
       from the client side, even though it comes from a select box,
@@ -414,16 +483,29 @@ $stmt->execute(["%{$productId}%"]);
      </simpara>
 
      <para>
+      Una strategia di difesa in profondità comporta diverse buone pratiche di codifica:
+
       A defense-in-depth strategy involves several good coding practices:
       <itemizedlist>
        <listitem>
         <simpara>
+         Non connettersi mai al database come superutente o come proprietario del database. Utilizzare sempre utenti personalizzati con privilegi minimi.
+
          Never connect to the database as a superuser or as the database owner.
          Use always customized users with minimal privileges.
         </simpara>
        </listitem>
        <listitem>
         <simpara>
+         Controlla se l'input fornito ha il tipo di dati previsto. <acronym>PHP</acronym> ha
+         una vasta gamma di funzioni di convalida dell'input, da quelle più semplici
+         che si trovano in <link linkend="ref.var">Funzioni variabili</link> e
+         in <link linkend="ref.ctype">Funzioni tipo carattere</link>
+         (ad esempio <function>is_numeric</function>, <function>ctype_digit</function>
+         rispettivamente) e oltre al
+         supporto per <link linkend="ref.pcre">Espressioni regolari compatibili con Perl</link>.
+
+
          Check if the given input has the expected data type. <acronym>PHP</acronym> has
          a wide range of input validating functions, from the simplest ones
          found in <link linkend="ref.var">Variable Functions</link> and
@@ -436,6 +518,11 @@ $stmt->execute(["%{$productId}%"]);
        </listitem>
        <listitem>
         <simpara>
+         Se l'applicazione prevede un input numerico, prendi in considerazione la verifica dei dati
+         con <function>ctype_digit</function>, modifica silenziosamente il suo tipo
+         usando <function>settype</function> o usa la sua rappresentazione numerica
+         con <function>sprintf</function>.
+
          If the application expects numerical input, consider verifying data
          with <function>ctype_digit</function>, silently change its type
          using <function>settype</function>, or use its numeric representation
@@ -444,6 +531,16 @@ $stmt->execute(["%{$productId}%"]);
        </listitem>
        <listitem>
         <simpara>
+         Se il livello del database non supporta variabili di binding, allora
+         cita ogni valore non numerico fornito dall'utente che viene passato al
+         database con la funzione di escape della stringa specifica del database (ad esempio
+         <function>mysql_real_escape_string</function>,
+         <function>sqlite_escape_string</function>, ecc.).
+         Le funzioni generiche come <function>addslashes</function> sono utili solo
+         in un ambiente molto specifico (ad esempio MySQL in un set di caratteri a singolo byte
+         con <varname>NO_BACKSLASH_ESCAPES</varname> disabilitato), quindi è
+         meglio evitarle.
+
          If the database layer doesn't support binding variables then
          quote each non-numeric user-supplied value that is passed to the
          database with the database-specific string escape function (e.g.
@@ -457,6 +554,11 @@ $stmt->execute(["%{$productId}%"]);
        </listitem>
        <listitem>
         <simpara>
+         Non stampare informazioni specifiche del database, in particolare
+         sullo schema, con mezzi leciti o illeciti. Vedere anche <link
+         linkend="security.errors">Segnalazione degli errori</link> e <link
+         linkend="ref.errorfunc">Funzioni di gestione e registrazione degli errori</link>.
+
          Do not print out any database-specific information, especially
          about the schema, by fair means or foul. See also <link
          linkend="security.errors">Error Reporting</link> and <link
@@ -467,12 +569,18 @@ $stmt->execute(["%{$productId}%"]);
      </para>
 
      <simpara>
+      Oltre a ciò, puoi trarre vantaggio dalla registrazione delle query all'interno del tuo script
+      o dal database stesso, se supporta la registrazione. Ovviamente, la registrazione non è in grado
+      di prevenire alcun tentativo dannoso, ma può essere utile risalire a quale
+      applicazione è stata aggirata. Il registro non è utile di per sé, ma
+      attraverso le informazioni che contiene. Più dettagli sono generalmente meglio di meno.
+
       Besides these, you benefit from logging queries either within your script
       or by the database itself, if it supports logging. Obviously, the logging is unable
       to prevent any harmful attempt, but it can be helpful to trace back which
       application has been circumvented. The log is not useful by itself but
       through the information it contains. More detail is generally better than less.
-     </simpara>
+     </simpara><!--XXX traduzione da sistemare -->
     </sect2>
    </sect1>
   </chapter>

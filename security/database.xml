@@ -114,7 +114,7 @@
       l'algoritmo più potente attualmente disponibile e <function>password_verify</function>
       controlla se la password fornita corrisponde all'hash memorizzato nel database.
      </simpara>
-     <example><!--XXX tradotto ricontrollare-->
+     <example>
       <title>Campo per l'Hash della password</title>
       <programlisting role="php">
 <![CDATA[
@@ -147,33 +147,22 @@ if ($row && password_verify($password, $row['pwd'])) {
     <title>SQL Injection</title>
     <simpara>
      L'SQL injection è una tecnica dove un utente malintenzionato sfrutta i difetti del
-     codice dell'applicazione responsabile della creazione di query SQL dinamiche.
+     codice responsabile della creazione di query SQL dinamiche.
      L'aggressore può accedere a sezioni privilegiate dell'applicazione,
      recuperare tutte le informazioni dal database, manomettere i dati esistenti,
      o addirittura eseguire comandi pericolosi a livello di sistema sul database
      ospite(host). La vulnerabilità si verifica quando gli sviluppatori concatenano o
-     interpolano input(dati) arbitrari nelle loro istruzioni SQL.
-
-     SQL injection is a technique where an attacker exploits flaws in
-     application code responsible for building dynamic SQL queries.
-     The attacker can gain access to privileged sections of the application,
-     retrieve all information from the database, tamper with existing data,
-     or even execute dangerous system-level commands on the database
-     host. The vulnerability occurs when developers concatenate or
-     interpolate arbitrary input in their SQL statements.
+     interpolano dati arbitrari nelle loro istruzioni SQL.
     </simpara>
     <para>
      <example>
       <title>
-       Dividere il set di risultati in pagine ... e creare superutenti<!--XXX tradurre-->
+       Dividere il set di risultati in pagine ... e creare superutenti
        (PostgreSQL)
       </title>
       <simpara>
-       Nell'esempio seguente, l'input dell'utente viene interpolato (binding) direttamente nel
-       Query SQL che consente all'aggressore di ottenere un account superutente nel database.
-
-       In the following example, user input is directly interpolated into the
-       SQL query allowing the attacker to gain a superuser account in the database.
+       Nell'esempio seguente, l'input dell'utente viene interpolato (binding) direttamente nella
+       Query SQL che consente all'aggressore di ottenere un account superuser(amministratore) nel database.
       </simpara>
       <programlisting role="php">
 <![CDATA[
@@ -187,10 +176,10 @@ $result = pg_query($conn, $query);
 ]]>
       </programlisting>
      </example>
-      Normal users click on the 'next', 'prev' links where the <varname>$offset</varname>
-      is encoded into the <acronym>URL</acronym>. The script expects that the incoming
-      <varname>$offset</varname> is a number. However, what if someone tries to
-      break in by appending the following to the <acronym>URL</acronym>
+      Di solito gli utenti usano i collegamenti "next", "previous" dove <varname>$offset</varname>
+      viene passato nell'<acronym>URL</acronym>. Lo script si aspetta che l'<varname>$offset</varname> 
+      sia un numero. Tuttavia, cosa succede se qualcuno prova a craccarlo
+      aggiungendo quanto segue all'<acronym>URL</acronym>?
       <informalexample>
        <programlisting role="sql">
 <![CDATA[
@@ -202,35 +191,27 @@ insert into pg_shadow(usename,usesysid,usesuper,usecatupd,passwd)
 ]]>
        </programlisting>
       </informalexample>
-      Se ciò dovesse accadere, lo script presenterebbe un accesso da superutente all'aggressore.
-      Tieni presente che <literal>0;</literal> fornisce un offset valido a
-      query originale e per terminarla.
-
-      If it happened, the script would present a superuser access to the attacker.
-      Note that <literal>0;</literal> is to supply a valid offset to the
-      original query and to terminate it.
+      Se ciò dovesse accadere, lo script fornirebbe un accesso d'amministratore all'aggressore.
+      Tieni presente che <literal>0;</literal> fornirebbe un offset valido alla query originale 
+      e la terminerebbe.
     </para>
     <note>
      <para>
-      È una tecnica comune forzare il parser SQL a ignorare il resto del file
-      query scritta dallo sviluppatore con <literal>--</literal> che è il
-      segno di commento in SQL.
-
-      It is a common technique to force the SQL parser to ignore the rest of the
-      query written by the developer with <literal>--</literal> which is the
-      comment sign in SQL.
+      È una tecnica comune per forzare il parser SQL a ignorare il resto del file
+      una query scritta dallo sviluppatore con <literal>--</literal> che introduce
+      i commenti in SQL.
      </para>
     </note>
     <para>
-     Un modo fattibile per ottenere password è aggirare le pagine dei risultati di ricerca.
+     Un modo possibile per ottenere le password è analizzare le pagine dei risultati di ricerca.
      L'unica cosa che l'attaccante deve fare è vedere se sono presenti variabili inviate
-     utilizzato nelle istruzioni SQL che non vengono gestite correttamente. Questi filtri possono essere impostati
+     utilizzate nelle istruzioni SQL che non vengono gestite correttamente. Questi filtri possono essere impostati
      comunemente in una forma precedente per personalizzare <literal>WHERE, ORDER BY,
      Clausole LIMIT</literal> e <literal>OFFSET</literal> in <literal>SELECT</literal>
      dichiarazioni. Se il tuo database supporta il costrutto <literal>UNION</literal>,
      l'aggressore potrebbe tentare di aggiungere un'intera query a quella originale da elencare
-     password da una tabella arbitraria. Si consiglia vivamente di conservare solo
-     proteggere gli hash delle password anziché le password stesse.
+     password da una tabella arbitraria. Si consiglia vivamente di salvare sole le secure hash delle password 
+     anziché le password stesse.
 
 
      A feasible way to gain passwords is to circumvent your search result pages.
@@ -260,7 +241,7 @@ $result = odbc_exec($conn, $query);
      </example>
      La parte statica della query può essere combinata con un'altra - The static part of the query can be combined with another
      <literal>SELECT</literal>dichiarazione che rivela tutte le password: - statement which reveals all passwords:
-     <informalexample>
+     <informalexample><!--XXX tradotto ricontrollare-->
       <programlisting role="sql">
 <![CDATA[
 '
@@ -270,7 +251,7 @@ union select '1', concat(uname||'-'||passwd) as name, '1971-01-01', '0' from use
       </programlisting>
      </informalexample>
     </para>
-    <para>
+    <para><!--XXX tradurre-->
      <literal>UPDATE</literal> and <literal>INSERT</literal> statements are also
      susceptible to such attacks.
      <example>

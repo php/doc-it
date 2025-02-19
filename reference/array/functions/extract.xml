@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 4a7ddddc27271967b616ad3400cfbe2a9b48212b Maintainer: pastore Status: ready -->
+<!-- EN-Revision: d58ee8eaaa7f716c51f66f5f1058ab3c42376d98 Maintainer: Manuel dG Status: ready -->
 <!-- CREDITS: cucinato -->
 <refentry xml:id="function.extract" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
-  <refname>extract</refname>
-  <refpurpose>Importa le variabili nella tabella dei simboli corrente da un array</refpurpose>
+  <refname>extract</refname>  
+  <refpurpose>Restituisce delle variabili a partire da un array </refpurpose>
  </refnamediv>
  <refsect1 role="description">
   &reftitle.description;
@@ -15,7 +15,8 @@
    <methodparam choice="opt"><type>string</type><parameter>prefix</parameter><initializer>""</initializer></methodparam>
   </methodsynopsis>
   <para>
-   Importa le variabili nella tabella dei simboli corrente da un array.
+   Importa variabili da un array nella 
+   <link linkend="features.gc.refcounting-basics">symbol table</link>.
   </para>
   <para>
    Controlla ogni chiave per vedere se ha un nome di variabile valido.
@@ -43,7 +44,7 @@
        parametri <parameter>flags</parameter> e <parameter>prefix</parameter>.
       </para>
       <para>
-       È necessario utilizzare un array associativo; un array indicizzato numericamente
+       È necessario utilizzare un array associativo; un array indicizzato di tipo numerico
        non produrrà risultati a meno che non si utilizzi <constant>EXTR_PREFIX_ALL</constant> o
        <constant>EXTR_PREFIX_INVALID</constant>.
       </para>
@@ -61,7 +62,7 @@
          <term><constant>EXTR_OVERWRITE</constant></term>
          <listitem>
           <simpara>
-           In caso di collisione, sovrascrivi la variabile esistente.
+           In caso di collisione, la variabile esistente viene sovrascritta.
           </simpara>
          </listitem>
         </varlistentry>
@@ -69,7 +70,7 @@
          <term><constant>EXTR_SKIP</constant></term>
          <listitem>
           <simpara>
-           In caso di collisione, non sovrascrivere la variabile
+           In caso di collisione, non sovrascrive la variabile
            esistente.
           </simpara>
          </listitem>
@@ -77,7 +78,7 @@
         <varlistentry>
          <term><constant>EXTR_PREFIX_SAME</constant></term>
          <listitem>
-          <simpara>In caso di collisione, anteporre al nome della variabile il prefisso
+          <simpara>In caso di collisione, antepone al nome della variabile il prefisso
            <parameter>prefix</parameter>.
           </simpara>
          </listitem>
@@ -86,7 +87,7 @@
          <term><constant>EXTR_PREFIX_ALL</constant></term>
          <listitem>
           <simpara>
-           Prefissa tutti i nomi delle variabili con
+           Antepone a tutti i nomi delle variabili
            <parameter>prefix</parameter>.
           </simpara>
          </listitem>
@@ -96,7 +97,7 @@
          <listitem>
           <simpara>
            Aggiunge il prefisso <parameter>prefix</parameter> solo ai nomi di variabili
-           non valide/numeriche.
+           non validi/numerici.          
           </simpara>
          </listitem>
         </varlistentry>
@@ -116,18 +117,18 @@
          <term><constant>EXTR_PREFIX_IF_EXISTS</constant></term>
          <listitem>
           <simpara>
-           Crea nomi di variabili con prefisso solo se la versione senza prefisso
-           della stessa variabile esiste nella tabella dei simboli corrente.
+           Crea nomi di variabili con prefisso solo se la versione originale
+           della variabile esiste nella tabella dei simboli corrente.
           </simpara>
          </listitem>
         </varlistentry>
         <varlistentry>
          <term><constant>EXTR_REFS</constant></term>
          <listitem>
-          <simpara>
-           Estrae le variabili come riferimenti. Ciò significa effettivamente che i
-           valori delle variabili importate fanno ancora riferimento ai valori del
-           parametro <parameter>array</parameter>. Si può usare questo flag
+          <simpara>           
+           Estrae le variabili per riferimento. Ciò significa effettivamente che i
+           valori delle variabili importate fanno ancora riferimento ai valori 
+           dell'<parameter>array</parameter>. Si può usare questo flag
            da solo o combinarlo con qualsiasi altro flag utilizzando l'OR dei
            <parameter>flags</parameter>.
           </simpara>
@@ -136,8 +137,8 @@
        </variablelist>
       </para>
       <para>
-       Se <parameter>flags</parameter> non è specificato, si
-       presume che sia <constant>EXTR_OVERWRITE</constant>.
+       Se <parameter>flags</parameter> non è specificato, 
+       il valore di default è <constant>EXTR_OVERWRITE</constant>.
       </para>
      </listitem>
     </varlistentry>
@@ -145,12 +146,12 @@
      <term><parameter>prefix</parameter></term>
      <listitem>
       <para>
-       Notare che <parameter>prefix</parameter> è richiesto solo se
-       <parameter>flags</parameter> è <constant>EXTR_PREFIX_SAME</constant>,
+       Notare che <parameter>prefix</parameter> è richiesto solo se sono attivi i
+       <parameter>flags</parameter>  <constant>EXTR_PREFIX_SAME</constant>,
        <constant>EXTR_PREFIX_ALL</constant>, <constant>EXTR_PREFIX_INVALID</constant>
        o <constant>EXTR_PREFIX_IF_EXISTS</constant>. Se
        il risultato con prefisso non è un nome di variabile valido, non viene
-       importato nella tabella dei simboli. I prefissi vengono separati automaticamente dalla
+       importato nella tabella dei simboli. I prefissi vengono automaticamente separati dalla
        chiave dell'array da un carattere underscore.
       </para>
      </listitem>
@@ -182,11 +183,14 @@
 /* Si supponga che $var_array sia un array restituito da
    wddx_deserialize */
 
-$size = "grande";
-$array_variabili = array("color" => "blu",
-                         "size"  => "media",
-                         "shape" => "sfera");
-extract($array_variabili, EXTR_PREFIX_SAME, "wddx");
+$size = "large";
+$var_array = array(
+    "color" => "blue",
+    "size"  => "medium",
+    "shape" => "sphere"
+);
+
+extract($var_array, EXTR_PREFIX_SAME, "wddx");
 
 echo "$color, $size, $shape, $wddx_size\n";
 
@@ -196,17 +200,26 @@ echo "$color, $size, $shape, $wddx_size\n";
     &example.outputs;
     <screen>
 <![CDATA[
-blu, grande, sfera, media
+blue, large, sphere, medium
 ]]>
     </screen>
     <para>
+      The <varname>$size</varname> wasn't overwritten because we specified
+     <constant>EXTR_PREFIX_SAME</constant>, which resulted in
+     <varname>$wddx_size</varname> being created.  If <constant>EXTR_SKIP</constant> was
+     specified, then <varname>$wddx_size</varname> wouldn't even have been created.
+     <constant>EXTR_OVERWRITE</constant> would have caused <varname>$size</varname> to have
+     value "medium", and <constant>EXTR_PREFIX_ALL</constant> would result in new variables
+     being named <varname>$wddx_color</varname>,
+     <varname>$wddx_size</varname>, and
+
      <varname>$size</varname> non è stato sovrascritto perché abbiamo specificato
      <constant>EXTR_PREFIX_SAME</constant>, che ha portato alla
      creazione di <varname>$wddx_size</varname>. Se fosse stato specificato
-     <constant>EXTR_SKIP</constant>, allora <varname>$wddx_size</varname> non sarebbe nemmeno stato creato.
+     <constant>EXTR_SKIP</constant>, allora <varname>$wddx_size</varname> non sarebbe stato creato.
      <constant>EXTR_OVERWRITE</constant> avrebbe fatto sì che <varname>$size</varname> avesse
-     il valore "medio" e <constant>EXTR_PREFIX_ALL</constant> avrebbe comportato nuove variabili
-     con nomi <varname>$wddx_color</varname>,
+     il valore "medio" <constant>EXTR_PREFIX_ALL</constant> e avrebbe comportato
+     che le nuove variabili verrebbero chiamante <varname>$wddx_color</varname>,
      <varname>$wddx_size</varname> e
      <varname>$wddx_shape</varname>.
     </para>
@@ -220,10 +233,10 @@ blu, grande, sfera, media
     Non utilizzare <function>extract</function> su dati non attendibili, come
     l'input dell'utente
     (per esempio <varname>$_GET</varname>, <varname>$_FILES</varname>, ecc.).
-    In tal caso, assicurarsi di utilizzare uno dei valori di <parameter>flags</parameter>
-    che non sovrascrivono come
-    <constant>EXTR_SKIP</constant> e tenere presente che si dovrebbe estrarre
-    nello stesso ordine definito in
+    Se o fai, assicurati di usare uno dei <parameter>flags</parameter>
+    che non sovrascrivono le variabili come
+    <constant>EXTR_SKIP</constant> e fare in modo di estrarre
+    nello stesso ordine definito di come è stato definito in 
     <link linkend="ini.variables-order">variables_order</link> all'interno del
     <link linkend="ini">&php.ini;</link>.
    </para>

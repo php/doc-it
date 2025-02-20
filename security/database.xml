@@ -71,7 +71,7 @@
     </simpara><!-- XXX 1 controllo (livelli ruoli)-->
    </sect1>
 
-   <sect1 xml:id="security.database.storage">
+   <sect1 xml:id="security.database.storage"> <!-- tradurlo o lasciarlo in Inglese? -->
     <title>Modello d'archiviazione crittografato - Encrypted Storage Model</title>
     <simpara>
      SSL/SSH protegge i dati che viaggiano dal client al server: SSL/SSH
@@ -106,15 +106,15 @@
       invece della password stessa.
      </simpara>
      <simpara>
-      Le funzioni per <link linkend="ref.password">password</link>
-      possono fornire un modo conveniente per eseguire l'hashing dei dati sensibili e lavorare con questi hash.
+      Le funzioni per le <link linkend="ref.password">password</link>
+      possono fornire un modo semplice per eseguire l'hashing dei dati sensibili e lavorare con questi hash.
      </simpara>
      <simpara>
       <function>password_hash</function> viene utilizzato per eseguire l'hashing di una determinata stringa utilizzando
       l'algoritmo più potente attualmente disponibile e <function>password_verify</function>
       controlla se la password fornita corrisponde all'hash memorizzato nel database.
      </simpara>
-     <example>
+     <example> 
       <title>Campo per l'Hash della password</title>
       <programlisting role="php">
 <![CDATA[
@@ -150,19 +150,19 @@ if ($row && password_verify($password, $row['pwd'])) {
      codice responsabile della creazione di query SQL dinamiche.
      L'aggressore può accedere a sezioni privilegiate dell'applicazione,
      recuperare tutte le informazioni dal database, manomettere i dati esistenti,
-     o addirittura eseguire comandi pericolosi a livello di sistema sul database
+     o addirittura eseguire comandi pericolosi a livello di sistema sul database <!-- sarebbe macchina host-->
      ospite(host). La vulnerabilità si verifica quando gli sviluppatori concatenano o
      interpolano dati arbitrari nelle loro istruzioni SQL.
     </simpara>
     <para>
      <example>
-      <title>
-       Dividere il set di risultati in pagine ... e creare superutenti
+      <title> <!-- XXX 1 controllo -->
+       Dividere il set di risultati in pagine ... e creare superutenti <!-- amministratori -->
        (PostgreSQL)
       </title>
       <simpara>
-       Nell'esempio seguente, l'input dell'utente viene interpolato (binding) direttamente nella
-       Query SQL che consente all'aggressore di ottenere un account superuser(amministratore) nel database.
+       Nell'esempio seguente, l'input dell'utente viene interpolato <!--binding--> direttamente nella
+       Query SQL che consente all'aggressore di ottenere un account superuser <!--amministratore--> nel database.
       </simpara>
       <programlisting role="php">
 <![CDATA[
@@ -176,7 +176,7 @@ $result = pg_query($conn, $query);
 ]]>
       </programlisting>
      </example>
-      Di solito gli utenti usano i collegamenti "next", "previous" dove <varname>$offset</varname>
+      Di solito gli utenti usano i collegamenti "next", "previous" dove l'<varname>$offset</varname>
       viene passato nell'<acronym>URL</acronym>. Lo script si aspetta che l'<varname>$offset</varname> 
       sia un numero. Tuttavia, cosa succede se qualcuno prova a craccarlo
       aggiungendo quanto segue all'<acronym>URL</acronym>?
@@ -192,13 +192,13 @@ insert into pg_shadow(usename,usesysid,usesuper,usecatupd,passwd)
        </programlisting>
       </informalexample>
       Se ciò dovesse accadere, lo script fornirebbe un accesso d'amministratore all'aggressore.
-      Tieni presente che <literal>0;</literal> fornirebbe un offset valido alla query originale 
+      Tieni presente che <literal>0;</literal> fornisce un offset valido alla query originale 
       e la terminerebbe.
     </para>
     <note>
      <para>
-      È una tecnica comune per forzare il parser SQL a ignorare il resto del file
-      una query scritta dallo sviluppatore con <literal>--</literal> che introduce
+      È una tecnica comune per forzare il parser SQL a ignorare il resto del file <!--della richiesta-->
+      con una query scritta dal programmatore con <literal>--</literal> che introduce <!-- con \-\- inserisce i commenti in sql -->
       i commenti in SQL.
      </para>
     </note>
@@ -206,11 +206,11 @@ insert into pg_shadow(usename,usesysid,usesuper,usecatupd,passwd)
      Un modo possibile per ottenere le password è analizzare le pagine dei risultati di ricerca.
      L'unica cosa che l'attaccante deve fare è vedere se sono presenti variabili inviate
      utilizzate nelle istruzioni SQL che non vengono gestite correttamente. Questi filtri possono essere impostati
-     comunemente in una forma precedente per personalizzare <literal>WHERE, ORDER BY,
+     comunemente in una forma personalizzata di <literal>WHERE, ORDER BY,
      Clausole LIMIT</literal> e <literal>OFFSET</literal> in <literal>SELECT</literal>
      dichiarazioni. Se il tuo database supporta il costrutto <literal>UNION</literal>,
-     l'aggressore potrebbe tentare di aggiungere un'intera query a quella originale da elencare
-     password da una tabella arbitraria. Si consiglia vivamente di salvare sole le secure hash delle password 
+     l'aggressore potrebbe tentare di aggiungere un'intera query a quella originale da elencare <!-- in modo da -->
+     password da una tabella arbitraria. <!-- è fortemente consigliato salvare/inserire solola chiave hash -->Si consiglia vivamente di salvare sole le secure hash delle password 
      anziché le password stesse.
 
 
@@ -224,9 +224,7 @@ insert into pg_shadow(usename,usesysid,usesuper,usecatupd,passwd)
      passwords from an arbitrary table. It is strongly recommended to store only
      secure hashes of passwords instead of the passwords themselves.
      <example>
-      <title>
-       Elenco degli articoli... e alcune password (può essere usato su qualunque server di database).
-      </title>
+      <title>Elencare gli articoli... e alcune password (può essere usato su qualunque database server).</title>
       <programlisting role="php">
 <![CDATA[
 <?php
@@ -239,8 +237,8 @@ $result = odbc_exec($conn, $query);
 ]]>
       </programlisting>
      </example>
-     La parte statica della query può essere combinata con un'altra - The static part of the query can be combined with another
-     <literal>SELECT</literal>dichiarazione che rivela tutte le password: - statement which reveals all passwords:
+     La parte statica della query può essere combinata con un'altra <!-- The static part of the query can be combined with another-->
+     <literal>SELECT</literal>dichiarazione che rivela tutte le password: <!-- statement which reveals all passwords:-->
      <informalexample>
       <programlisting role="sql">
 <![CDATA[
@@ -252,17 +250,14 @@ union select '1', concat(uname||'-'||passwd) as name, '1971-01-01', '0' from use
      </informalexample>
     </para>
     <para>
-     Lo sono anche le istruzioni <literal>UPDATE</literal> e <literal>INSERT</literal>
+     Anche le istruzioni <literal>UPDATE</literal> e <literal>INSERT</literal> sono
      suscettibili a tali attacchi.
 
-     <literal>UPDATE</literal> and <literal>INSERT</literal> statements are also
-     susceptible to such attacks.
+     <!--<literal>UPDATE</literal> and <literal>INSERT</literal> statements are also
+     susceptible to such attacks.-->
      <example>
-     <title>
-      Dalla reimpostazione di una password... all'acquisizione di più privilegi (qualsiasi server di database)
-
-      From resetting a password ... to gaining more privileges (any database server)
-     </title>
+     <title>Dalla reimpostazione di una password... all'acquisizione di più privilegi (qualsiasi database server)</title>
+      <!--From resetting a password ... to gaining more privileges (any database server)-->
       <programlisting role="php">
 <![CDATA[
 <?php
@@ -272,10 +267,10 @@ $query = "UPDATE usertable SET pwd='$pwd' WHERE uid='$uid';";
       </programlisting>
      </example>
 
-     Se un utente malintenzionato invia il valore
-     <literal>' o uid like'%admin%</literal> in <varname>$uid</varname> in
+     Se un utente malintenzionato invia il valore <!-- XXX da rivedere -->
+     <literal>' or uid like '%admin%</literal> in <varname>$uid</varname> in
      cambia la password dell'amministratore o imposta semplicemente <varname>$pwd</varname> su
-     <literal>hehehe', trust=100, admin='yes</literal> per ottenere di più 
+     <literal>hehehe', trusted=100, admin='yes</literal> per ottenere di più 
      privilegi, la query verrà distorta:
 
      If a malicious user submits the value

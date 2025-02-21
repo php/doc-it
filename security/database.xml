@@ -266,19 +266,11 @@ $query = "UPDATE usertable SET pwd='$pwd' WHERE uid='$uid';";
 ]]>
       </programlisting>
      </example>
-
-     Se un utente malintenzionato invia il valore <!-- XXX da rivedere -->
-     <literal>' or uid like '%admin%</literal> in <varname>$uid</varname> in
-     cambia la password dell'amministratore o imposta semplicemente <varname>$pwd</varname> su
-     <literal>hehehe', trusted=100, admin='yes</literal> per ottenere di più 
-     privilegi, la query verrà distorta:
-
-     If a malicious user submits the value
-     <literal>' or uid like'%admin%</literal> to <varname>$uid</varname> to
-     change the admin's password, or simply sets <varname>$pwd</varname> to
-     <literal>hehehe', trusted=100, admin='yes</literal> to gain more 
-     privileges, then the query will be twisted:
-
+     Se un utente malintenzionato invia la stringa <!-- XXX da rivedere -->
+     <literal>' or uid like '%admin%</literal> in <varname>$uid</varname> per
+     cambiare la password dell'amministratore oppure impostare la variabile <varname>$pwd</varname> semplicemente con
+     <literal>hehehe', trusted=100, admin='yes</literal> per ottenere  
+     privilegi più elevati, la query verrà corrotta:
      <informalexample>
       <programlisting role="php">
 <![CDATA[
@@ -296,40 +288,25 @@ $query = "UPDATE usertable SET pwd='hehehe', trusted=100, admin='yes' WHERE
       </programlisting>
      </informalexample>
     </para>
-    <simpara>
-     Mentre resta ovvio che un malintenzionato debba possederne almeno alcuni
-     conoscenza dell'architettura del database per condurre un'attività di successo
-     attacco, ottenere queste informazioni è spesso molto semplice. Per esempio,
+    <simpara> <!--XXX tradurre-->
+     Mentre è scontato che un malintenzionato debba possederne almeno alcune nozioni 
+     dell'architettura del database per condurre un'attacco riuscito <!-- a buon fine - riuscire -->, 
+     è spesso molto semplice ottenere queste informazioni . Per esempio,
      il codice può far parte di un software open source ed essere disponibile al pubblico.
      Tali informazioni potranno anche essere divulgate
-     tramite codice closed-source, anche se codificato, offuscato o compilato,
-     e anche dal proprio codice attraverso la visualizzazione di messaggi di errore.
+     tramite codice closed-source, anche se è codificato, offuscato o compilato -
+     e anche tramite il proprio codice attraverso la visualizzazione di messaggi di errore
      Altri metodi includono l'uso di nomi di tabelle e colonne tipici.  Per
-     ad esempio, un modulo di accesso che utilizza una tabella "utenti" con nomi di colonne
-     "id", "nome utente" e "password".
-
-
-     While it remains obvious that an attacker must possess at least some
-     knowledge of the database architecture to conduct a successful
-     attack, obtaining this information is often very simple. For example,
-     the code may be part of an open-source software and be publicly available.
-     This information may also be divulged
-     by closed-source code - even if it's encoded, obfuscated, or compiled -
-     and even by your own code through the display of error messages.
-     Other methods include the use of typical table and column names.  For
-     example, a login form that uses a 'users' table with column names
-     'id', 'username', and 'password'.
+     ad esempio, un modulo d'accesso che utilizza una tabella "utenti" con nomi di colonne
+     "id", "username" e "password".
     </simpara>
     <para>
      <example>
 
-      <title>Attacking the database host operating system (MSSQL Server) -- Attaccare il sistema operativo host del database (MSSQL Server)</title>
+      <title>Attaccare il sistema operativo host del database (MSSQL Server)</title>
        <simpara>
-        Un esempio spaventoso di come possono essere i comandi a livello di sistema operativo
-        accessibile su alcuni host di database.
-
-        A frightening example of how operating system-level commands can be
-        accessed on some database hosts.
+        Un preoccupante esempio di come è possibile accedere ai comandi a livello di sistema operativo
+        da parte di alcuni database su host.
        </simpara>
 
       <programlisting role="php">
@@ -343,14 +320,9 @@ $result = mssql_query($query);
 ]]>
       </programlisting>
      </example>
-     Se l'attaccante invia il valore
+     Se l'attaccante invia la stringa 
      <literal>a%' exec master..xp_cmdshell 'net user test testpass /ADD' --</literal>
      a <varname>$prod</varname>, quindi <varname>$query</varname> sarà:
-
-
-     If attacker submits the value
-     <literal>a%' exec master..xp_cmdshell 'net user test testpass /ADD' --</literal>
-     to <varname>$prod</varname>, then the <varname>$query</varname> will be:
      <informalexample>
       <programlisting role="php">
 <![CDATA[
@@ -367,32 +339,20 @@ $result = mssql_query($query);
      </informalexample>
      MSSQL Server esegue le istruzioni SQL nel batch incluso un comando
      per aggiungere un nuovo utente al database degli account locali. Se questa applicazione
-     erano in esecuzione come <literal>sa</literal> e il servizio MSSQLSERVER lo era
-     in esecuzione con privilegi sufficienti, l'utente malintenzionato ora avrebbe un file
-     account con cui accedere a questa macchina.
-
-
-
-     MSSQL Server executes the SQL statements in the batch including a command
-     to add a new user to the local accounts database. If this application
-     were running as <literal>sa</literal> and the MSSQLSERVER service was
-     running with sufficient privileges, the attacker would now have an
-     account with which to access this machine.
+     era in esecuzione come <literal>sa</literal> e il servizio MSSQLSERVER era
+     in esecuzione con privilegi sufficienti, l'utente malintenzionato ora avrebbe un'account
+     con cui accedere a questa macchina.
     </para>
     <note>
      <para>
-      Alcuni esempi sopra riportati sono legati a un server di database specifico, ma it
-      non significa che un attacco simile sia impossibile contro altri prodotti.
-      Il tuo server database potrebbe essere altrettanto vulnerabile in un altro modo.
-
-      Some examples above are tied to a specific database server, but it
-      does not mean that a similar attack is impossible against other products.
-      Your database server may be similarly vulnerable in another manner. 
+      Alcuni esempi sopra riportati sono legati ad uno specifico database , ma
+      non significa che un attacco simile sia impossibile verso altri prodotti.
+      Il tuo database potrebbe essere altrettanto vulnerabile in un altri modi.
      </para>
     </note>
     <para>
      <mediaobject>
-      <alt>A funny example of the issues regarding SQL injection - A funny example of the issues regarding SQL injection</alt>
+      <alt>Un esempio divertente dei problemi riguardanti SQL injection</alt>
       <imageobject>
        <imagedata fileref="it/security/figures/xkcd-bobby-tables.png" format="PNG"/>
       </imageobject>
@@ -405,9 +365,9 @@ $result = mssql_query($query);
     </para>
 
     <sect2 xml:id="security.database.avoiding">
-     <title>Avoidance Techniques - Tecniche di evitamento</title>
+     <title>Tecniche di elusione</title><!-- evasione - elusione  -->
      <para>
-      Il modo consigliato per evitare l'iniezione SQL è associare tutti i dati 
+      Il modo consigliato per evitare l'SQL injection è associare tutti i dati 
       tramite istruzioni preparate. L'utilizzo di query parametrizzate non è 
       sufficiente per evitare completamente l'iniezione SQL, ma è il modo più 
       semplice e sicuro per fornire input alle istruzioni SQL. Tutti i letterali
@@ -415,25 +375,13 @@ $result = mssql_query($query);
      <literal>SET</literal> e <literal>VALUES</literal> devono essere sostituiti
       con segnaposto. I dati effettivi verranno associati durante l'esecuzione e 
       inviati separatamente dal comando SQL.
-
-
-      The recommended way to avoid SQL injection is by binding all data via
-      prepared statements. Using parameterized queries isn't enough to entirely
-      avoid SQL injection, but it is the easiest and safest way to provide input
-      to SQL statements. All dynamic data literals in <literal>WHERE</literal>,
-      <literal>SET</literal>, and <literal>VALUES</literal> clauses must be
-      replaced with placeholders. The actual data will be bound during the
-      execution and sent separately from the SQL command.
      </para>
 
      <para>
       Il binding dei parametri può essere utilizzato solo per i dati. Altre 
       parti dinamiche della query SQL devono essere filtrate in base a un elenco
       noto di valori consentiti.
-      
-      Parameter binding can only be used for data. Other dynamic parts of the
-      SQL query must be filtered against a known list of allowed values.
-     </para>
+     </para><!-- XXX tradotto da rivedere-->
      <para>
       <example>
       <title>Avoiding SQL injection by using PDO prepared statements</title>

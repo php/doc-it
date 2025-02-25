@@ -16,7 +16,7 @@
     eseguire una query, recuperare il risultato e quindi chiudere la connessione.
     Oggigiorno, il linguaggio più utilizzato per questo tipo di interazione è 
     l'SQL (Structured Query Language). Di seguito viene mostrato come un'aggressore può <link
-    linkend="security.database.sql-injection">manometterelo con una query SQL</link>.
+    linkend="security.database.sql-injection">manometterlo con una query SQL</link>.
    </simpara>
    <simpara>
     Da come si può immaginare, <acronym>PHP</acronym> non può proteggere da solo il database. 
@@ -31,7 +31,7 @@
    </simpara>
 
    <sect1 xml:id="security.database.design"> 
-    <title>Progetazione del database</title>
+    <title>Progettazione del database</title>
      <simpara>
       Il primo passo è quello di creare il database, a meno che non si voglia utilizzarne uno
       di terze parti. Una volta creato il database, viene assegnato un proprietario, 
@@ -41,7 +41,7 @@
      </simpara>
      <simpara>
       Le applicazioni non dovrebbero mai connettersi al database come proprietario o 
-      amministratore, poichè questi utenti possono eseguire qualsiasi query a piacimento, 
+      amministratore, poiché questi utenti possono eseguire qualsiasi query a piacimento, 
       ad esempio, potrebbero modificare lo schema (ad esempio eliminando le tabelle) o potrebbero 
       eliminare l'intero contenuto.
      </simpara>
@@ -207,11 +207,11 @@ insert into pg_shadow(usename,usesysid,usesuper,usecatupd,passwd)
      Un modo possibile per ottenere le password è analizzare le pagine dei risultati di ricerca.
      L'unica cosa che l'attaccante deve fare è vedere se sono presenti variabili inviate
      utilizzate nelle istruzioni SQL che non vengono gestite correttamente. Questi filtri di solito possono essere impostati
-     in un form usato precedentemente e personalizzarlo usando le clausule <literal>WHERE, ORDER BY,
+     in un form usato precedentemente e personalizzarlo usando le clausole <literal>WHERE, ORDER BY,
      LIMIT</literal> e <literal>OFFSET</literal> nell'istruzione <literal>SELECT</literal>. 
      Se il database supporta il costrutto <literal>UNION</literal>,
      l'aggressore potrebbe tentare di aggiungere un'intera query a quella originale per far elencare <!-- in modo da -->
-     le password da una tabella arbitraria. <!-- è fortemente consigliato salvare/inserire solola chiave hash -->Si consiglia vivamente di salvare sole le secure hash delle password 
+     le password da una tabella arbitraria. <!-- è fortemente consigliato salvare/inserire solo la chiave hash -->Si consiglia vivamente di salvare sole le secure hash delle password 
      anziché le password stesse.
      <example> <!-- XXX controllo -->
       <title>Elencare gli articoli... e alcune password (può essere usato su qualunque database server).</title>
@@ -228,7 +228,7 @@ $result = odbc_exec($conn, $query);
       </programlisting>
      </example>
      La parte statica della query può essere combinata con un'altra <literal>SELECT</literal>
-     che rivela tutte le password: <!-- statement which reveals all passwords:-->
+     per rivelare tutte le password: <!-- statement which reveals all passwords:-->
      <informalexample>
       <programlisting role="sql">
 <![CDATA[
@@ -242,12 +242,8 @@ union select '1', concat(uname||'-'||passwd) as name, '1971-01-01', '0' from use
     <para>
      Anche le istruzioni <literal>UPDATE</literal> e <literal>INSERT</literal> sono
      suscettibili a tali attacchi.
-
-     <!--<literal>UPDATE</literal> and <literal>INSERT</literal> statements are also
-     susceptible to such attacks.-->
      <example>
-     <title>Dalla reimpostazione di una password... all'acquisizione di più privilegi (qualsiasi database server)</title>
-      <!--From resetting a password ... to gaining more privileges (any database server)-->
+     <title>Dalla reimpostazione di una password... all'acquisizione di più privilegi (per qualsiasi database server)</title>
       <programlisting role="php">
 <![CDATA[
 <?php
@@ -257,10 +253,11 @@ $query = "UPDATE usertable SET pwd='$pwd' WHERE uid='$uid';";
       </programlisting>
      </example>
      Se un utente malintenzionato invia la stringa <!-- XXX da rivedere -->
-     <literal>' or uid like '%admin%</literal> in <varname>$uid</varname> per
-     cambiare la password dell'amministratore oppure impostare la variabile <varname>$pwd</varname> semplicemente con
+     per cambiare la password dell'amministratore
+     <literal>' or uid like '%admin%</literal> in <varname>$uid</varname>
+      oppure impostare la variabile <varname>$pwd</varname> semplicemente con
      <literal>hehehe', trusted=100, admin='yes</literal> per ottenere  
-     privilegi più elevati, la query verrà corrotta:
+     privilegi più elevati, la query verrà aggirata: <!-- crackata inquinata corrotta -->
      <informalexample>
       <programlisting role="php">
 <![CDATA[
@@ -278,9 +275,9 @@ $query = "UPDATE usertable SET pwd='hehehe', trusted=100, admin='yes' WHERE
       </programlisting>
      </informalexample>
     </para>
-    <simpara> <!--XXX tradurre-->
+    <simpara> 
      Mentre è scontato che un malintenzionato debba possederne almeno alcune nozioni 
-     dell'architettura del database per condurre un'attacco riuscito <!-- a buon fine - riuscire -->, 
+     dell'architettura del database per condurre un'attacco ben riuscito <!-- a buon fine - riuscire -->, 
      è spesso molto semplice ottenere queste informazioni. Per esempio,
      il codice può far parte di un software open source ed essere disponibile al pubblico.
      Tali informazioni potranno anche essere divulgate
@@ -357,13 +354,13 @@ $result = mssql_query($query);
     <sect2 xml:id="security.database.avoiding">
      <title>Tecniche di elusione</title><!-- evasione - elusione  -->
      <para><!-- XXX poco chiaro-->
-      Il modo consigliato per evitare l'SQL injection è associare tutti i dati 
-      tramite istruzioni preparate. L'utilizzo di query parametrizzate non è 
-      sufficiente per evitare completamente l'iniezione SQL, ma è il modo più 
-      semplice e sicuro per fornire input alle istruzioni SQL. Tutti i letterali
+      Un modo consigliato per evitare l'SQL injection è associare tutti i dati 
+      usando <!-- istruzioni preparate-->prepared-statements. L'utilizzo di query parametrizzate non è 
+      sufficiente per evitare completamente l'injection SQL, ma è il modo più 
+      semplice e sicuro per fornire l'input alle istruzioni SQL. Tutti i letterali
       di dati dinamici nelle clausole <literal>WHERE</literal>,
      <literal>SET</literal> e <literal>VALUES</literal> devono essere sostituiti
-      con segnaposto. I dati effettivi verranno associati durante l'esecuzione e 
+      con un segnaposto. I dati effettivi verranno trasposti<!--bindings trasposti trasposizione interpolazione--> durante l'esecuzione e 
       inviati separatamente dal comando SQL.
      </para>
 
@@ -371,20 +368,20 @@ $result = mssql_query($query);
       Il binding dei parametri può essere utilizzato solo per i dati. Altre 
       parti dinamiche della query SQL devono essere filtrate in base a un elenco
       noto di valori consentiti.
-     </para><!-- XXX tradotto da rivedere-->
+     </para><!-- XXX tradotto poco chiaro -->
      <para>
       <example>
-      <title> Eludere un'SQL injection usando PDO prepared Statement - Avoiding SQL injection by using PDO prepared statements</title>
+      <title> Eludere un'SQL injection usando PDO prepared Statement</title>
        <programlisting role="php">
 <![CDATA[
 <?php
 
-// The dynamic SQL part is validated against expected values
+// La parte SQL dinamica viene convalidata in base ai valori previsti 
 $sortingOrder = $_GET['sortingOrder'] === 'DESC' ? 'DESC' : 'ASC';
 $productId = $_GET['productId'];
-// The SQL is prepared with a placeholder
+// Il codice SQL viene trasposto con un placeholder
 $stmt = $pdo->prepare("SELECT * FROM products WHERE id LIKE ? ORDER BY price {$sortingOrder}");
-// The value is provided with LIKE wildcards
+// Il valore è reso disponibile usando LIKE
 $stmt->execute(["%{$productId}%"]);
 
 ?>

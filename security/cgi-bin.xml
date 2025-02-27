@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- $Revision$ -->
 <!-- EN-Revision: 87d3bf2e9ea7da5abbeca3e60ea7cf7abfa6f7f3 Maintainer: ManueldG Status: ready -->
+<!-- Reviewed: no -->
 <!-- splitted from ./index.xml, last change in rev 1.66 -->
   <chapter xml:id="security.cgi-bin" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
    <title>PHP installato come binario CGI</title>
@@ -8,13 +9,13 @@
    <sect1 xml:id="security.cgi-bin.attacks">
     <title>Possibili attacchi</title>
     <simpara>
-     L'utilizzo di PHP come binario <acronym>CGI</acronym> è un'opzione che ne permette l'uso se per qualche
-     motivo non lo si voglia integrare come modulo del server (come Apache)
-     sia per utilizzarlo con diversi tipi di wrapper <acronym>CGI</acronym> che per creare
-     con <command>chroot</command> e <command>setuid</command> ambienti
-     sicuri per gli script. Questa configurazione di solito prevede l'installazione
-     del'eseguibile <command>php</command> nella directory del server web
-     <filename class="directory">cgi-bin</filename>.
+     L'utilizzo di PHP come binario <acronym>CGI</acronym> è un'opzione che ne
+     permette l'uso se per qualche motivo non lo si voglia integrare come 
+     modulo del server (come Apache) sia per utilizzarlo con diversi tipi 
+     di wrapper <acronym>CGI</acronym> che per creare con <command>chroot</command>
+     e <command>setuid</command> ambienti sicuri per gli script. Questa configurazione
+     di solito prevede l'installazione del'eseguibile <command>php</command> 
+     nella directory del server web <filename class="directory">cgi-bin</filename>.
      L'informativa CERT <link xlink:href="&url.cert;">CA-96.11</link> sconsiglia
      di posizionare interpreti in <filename class="directory">cgi-bin</filename>. 
      Invece il binario <command>php</command> può essere utilizzato in modo autonomo,
@@ -27,14 +28,15 @@
        role="url">http://my.host/cgi-bin/php?/etc/passwd</filename>
       </simpara>
       <simpara>
-        Le informazioni di una query ovvero la parte dell'URL dopo il punto interrogativo (<literal>?</literal>) vengono
-        passate come argomenti dalla riga di comando dall'interfaccia CGI all'interprete. 
-        Di solito gli interpreti aprono ed eseguono il file
-        specificato specificato nel primo argomento della riga di comando.
+        Le informazioni di una query ovvero la parte dell'URL dopo il punto
+        interrogativo (<literal>?</literal>) vengono passate come argomenti
+        dalla riga di comando dall'interfaccia CGI all'interprete. Di solito
+        gli interpreti aprono ed eseguono il file specificato specificato
+        nel primo argomento della riga di comando.
       </simpara>
       <simpara>
-       Quando PHP viene invocato come binario CGI, <command>php</command> non interpreta
-       gli argomenti della riga di comando.
+       Quando PHP viene invocato come binario CGI, <command>php</command> 
+       non interpreta gli argomenti della riga di comando.
       </simpara>
      </listitem>
      <listitem>
@@ -48,11 +50,11 @@
        convenzionalmente usate per specificare il nome dello script da
        aprire e interpretare dal programma <acronym>CGI</acronym>.
        Solitamente alcune direttive nella configurazione del server web (Apache:
-       <literal>Action</literal>) sono usate per reindirizzare le richieste di documenti come
-       <filename
-       role="url">http://my.host/secret/script.php</filename> all'interprete PHP. Con questa configurazione, 
-       il server web prima controlla i permessi di accesso alla directory <filename
-       role="uri">/secret</filename>, e poi crea la richiesta che viene reindirizzata a <filename
+       <literal>Action</literal>) sono usate per reindirizzare le richieste di
+       documenti come <filename role="url">http://my.host/secret/script.php</filename> all'interprete PHP.
+       Con questa configurazione, il server web prima controlla i permessi
+       di accesso alla directory <filename role="uri">/secret</filename>,
+       e poi crea la richiesta che viene reindirizzata a <filename
        role="url">http://my.host/cgi-bin/php/secret/script.php</filename>.
        Purtroppo, se la richiesta è fatta originariamente in questo modo, 
        il server web non esegue alcun controllo di accesso al file <filename
@@ -79,7 +81,30 @@
     <title>1° Caso :solo files pubblici elaborati</title>
 
     <simpara>
-     Se il tuo server non ha alcun contenuto e non è protetto
+     <!--
+      Nel caso in cui il server in questione non contenga alcun contenuto soggetto a limitazioni,
+     di accesso basato su password o IP, le suddette opzioni di configurazione non si rendono necessarie.
+     Tali opzioni di configurazione non sono necessarie se il server web non consente l'accesso a contenuti non limitati da password o IP.
+     reindirizzamenti, o non è in grado di gestire tali richieste, tali opzioni di configurazione non sono rilevanti.
+     comunicare al binario PHP che la richiesta è una richiesta di reindirizzamento.
+     In tal caso, è possibile attivare l'opzione.
+     <link linkend="ini.cgi.force-redirect">cgi.force_redirect</link>.
+     ini.Si consiglia, in ogni caso, di verificare che gli script PHP in uso siano configurati in modo appropriato.
+     
+     
+né direttamente tramite la chiamata al file.
+     role="php">http://my.host/cgi-bin/php/dir/script.php</filename>
+     né tramite reindirizzamento.
+     role="php">http://my.host/dir/script.php</filename>.
+    
+    
+     
+Il reindirizzamento può essere configurato in Apache utilizzando la sintassi <literal>AddHandler</literal> e
+     (vedi sotto).
+    
+ 
+     -->
+     Se il tuo server non ha alcun contenuto che e non è protetto
      da password o un controllo d'accesso basato su IP, non c'è bisogno di
      questa configurazione. Se il tuo server web non ti consente
      di effettuare reindirizzamenti, o non hai un modo per

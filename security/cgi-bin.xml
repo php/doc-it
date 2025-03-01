@@ -3,16 +3,17 @@
 <!-- EN-Revision: 87d3bf2e9ea7da5abbeca3e60ea7cf7abfa6f7f3 Maintainer: ManueldG Status: ready -->
 <!-- Reviewed: no -->
 <!-- splitted from ./index.xml, last change in rev 1.66 -->
+
   <chapter xml:id="security.cgi-bin" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
    <title>PHP installato come binario CGI</title>
 
    <sect1 xml:id="security.cgi-bin.attacks">
     <title>Possibili attacchi</title>
     <simpara>
-     L'utilizzo di PHP come binario <acronym>CGI</acronym> è un'opzione che ne
-     permette l'uso nel caso non lo si voglia integrare come modulo del server
-     (come Apache) sia per utilizzarlo con diversi tipi di wrapper <acronym>CGI</acronym>
-     che per creare con <command>chroot</command> e <command>setuid</command>
+     Usare di PHP come binario <acronym>CGI</acronym> è un'opzione che
+     permette di evitare di integrarlo come modulo del server
+     (come Apache) oppure per utilizzarlo con diversi tipi di wrapper <acronym>CGI</acronym>
+     o per creare con <command>chroot</command> e <command>setuid</command>
      ambienti sicuri per gli script. Questa configurazione di solito prevede
      l'installazione dell'eseguibile <command>php</command> nella directory 
      del server web <filename class="directory">cgi-bin</filename>.
@@ -28,9 +29,8 @@
        role="url">http://my.host/cgi-bin/php?/etc/passwd</filename>
       </simpara>
       <simpara>
-        Le informazioni di una query ovvero la parte dell'URL dopo il punto
-        interrogativo (<literal>?</literal>) vengono passate come argomenti
-        dalla riga di comando dall'interfaccia CGI all'interprete. Di solito
+        Le informazioni contenute nell'URL dopo il punto interogativa (<literal>?</literal>)
+        vengono passate come argomenti dalla riga di comando  all'interprete tramite interfaccia CGI. Di solito
         gli interpreti aprono ed eseguono il file specificato nel primo 
         argomento della riga di comando.
       </simpara>
@@ -40,6 +40,25 @@
       </simpara>
      </listitem>
      <listitem>
+<!-- traduzione alternativa
+  L'accesso ai file di sistema è consentito tramite l'URL http://my.host/cgi-bin/php?/etc/passwd.
+  Le informazioni della query, posizionate dopo il punto interrogativo (?), vengono trasmesse come
+   argomenti della riga di comando all'interprete tramite l'interfaccia CGI.In genere, gli 
+   interpreti aprono e eseguono il file specificato come primo argomento della riga di comando. 
+   Tuttavia, quando viene invocato come binario CGI, php si rifiuta di interpretare gli argomenti della riga di comando.
+    L'accesso a un documento web sul server è possibile tramite l'URL http://my.host/cgi-bin/php/secret/doc.html.La 
+    parte successiva al nome del binario PHP, /secret/doc.html, viene convenzionalmente utilizzata per specificare 
+    il nome del file che deve essere aperto e interpretato dal programma CGI. Di consueto, alcune direttive di 
+    configurazione del server web (Apache: Action) vengono impiegate per reindirizzare le richieste di documenti 
+    come http://my.host/secret/script.php all'interprete PHP.Con questa configurazione, il server web verifica
+    preliminarmente i permessi di accesso alla directory /secret e successivamente genera la richiesta 
+    reindirizzata http://my.host/cgi-bin/php/secret/script.php. Tuttavia, se la richiesta viene originariamente
+    fornita in questa forma, il server web non esegue alcun controllo di accesso per il file /secret/script.php, 
+    ma solo per il file /cgi-bin/php.Di conseguenza, qualsiasi utente con accesso a /cgi-bin/php può ottenere
+    l'accesso a qualsiasi documento protetto sul server web. Tuttavia, è possibile utilizzare le direttive 
+    di configurazione del runtime cgi.force_redirect, doc_root e user_dir in PHP per prevenire tale attacco, 
+    a condizione che l'albero dei documenti del server contenga directory con restrizioni di accesso. 
+-->
       <simpara>
        Accesso a qualsiasi documento web sul server:<filename
        role="url">http://my.host/cgi-bin/php/secret/doc.html</filename> 

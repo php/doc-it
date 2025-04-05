@@ -17,8 +17,14 @@ jobs:
         with:
           path: 'it'
 
-      - name: Build docs
+      - name: Clone doc-en and doc-base
         run: |
           git clone --depth=1 https://github.com/php/doc-base.git doc-base
-          git clone --depth=1 https://github.com/php/doc-en.git en
-          php doc-base/configure.php --enable-xml-details --disable-libxml-check --redirect-stderr-to-stdout --with-lang=it
+          git clone https://github.com/php/doc-en.git en
+      - name: configure.php
+        run: php doc-base/configure.php --enable-xml-details --disable-libxml-check --redirect-stderr-to-stdout --with-lang=it
+      - name: Checks
+        run: |
+          php doc-base/scripts/broken.php it
+          php doc-base/scripts/translation/qaxml-attributes.php --urgent
+          php doc-base/scripts/translation/qaxml-entities.php --urgent

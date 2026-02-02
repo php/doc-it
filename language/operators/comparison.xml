@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 52407313885d27a4e891e08dd2e2481bcc39e244 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
+<sect1 xml:id="language.operators.comparison">
+ <title>Operatori di confronto</title>
+ <simpara>
+  Gli operatori di confronto, come suggerisce il loro nome, permettono di confrontare
+  due valori. Può essere interessante vedere la
+  <link linkend="types.comparisons">tabella di raffronto dei tipi</link>,
+  dato che mostra esempi di vari confronti tra i tipi di variabili.
+ </simpara>
+ <table>
+  <title>Operatori di confronto</title>
+  <tgroup cols="3">
+   <thead>
+    <row>
+     <entry>Esempio</entry>
+     <entry>Nome</entry>
+     <entry>Risultato</entry>
+    </row>
+   </thead>
+   <tbody>
+    <row>
+     <entry>$a == $b</entry>
+     <entry>Uguale</entry>
+     <entry>&true; se <varname>$a</varname> è uguale a <varname>$b</varname> dopo la manipolazione dei tipi.</entry>
+    </row>
+    <row>
+     <entry>$a === $b</entry>
+     <entry>Identico</entry>
+     <entry>
+      &true; se <varname>$a</varname> è uguale a <varname>$b</varname>, ed sono dello stesso
+      tipo.
+     </entry>
+    </row>
+    <row>
+     <entry>$a != $b</entry>
+     <entry>Diversi</entry>
+     <entry>&true; se <varname>$a</varname> è diverso da <varname>$b</varname> dopo la manipolazione dei tipi.</entry>
+    </row>
+    <row>
+     <entry>$a &lt;&gt; $b</entry>
+     <entry>Diversi</entry>
+     <entry>&true; se <varname>$a</varname> è diverso da <varname>$b</varname> dopo la manipolazione dei tipi.</entry>
+    </row>
+    <row>
+     <entry>$a !== $b</entry>
+     <entry>Non identici</entry>
+     <entry>
+      &true; se <varname>$a</varname> è diverso da <varname>$b</varname>, o se non sono dello stesso
+      tipo.
+     </entry>
+    </row>
+    <row>
+     <entry>$a &lt; $b</entry>
+     <entry>Minore</entry>
+     <entry>&true; se <varname>$a</varname> è strettamente minore di <varname>$b</varname>.</entry>
+    </row>
+    <row>
+     <entry>$a &gt; $b</entry>
+     <entry>Maggiore</entry>
+     <entry>&true; se <varname>$a</varname> è strettamente maggiore di <varname>$b</varname>.</entry>
+    </row>
+    <row>
+     <entry>$a &lt;= $b</entry>
+     <entry>Minore o uguale</entry>
+     <entry>&true; se <varname>$a</varname> è minore o uguale a <varname>$b</varname>.</entry>
+    </row>
+    <row>
+     <entry>$a &gt;= $b</entry>
+     <entry>Maggiore o uguale</entry>
+     <entry>&true; se <varname>$a</varname> è maggiore o uguale a <varname>$b</varname>.</entry>
+    </row>
+    <row>
+     <entry>$a &lt;=&gt; $b</entry>
+     <entry>Spaceship</entry>
+     <entry>
+      Un <type>int</type> minore di, uguale a, o maggiore di zero quando
+      <varname>$a</varname> è minore di, uguale a, o maggiore di
+      <varname>$b</varname>.
+     </entry>
+    </row>
+   </tbody>
+  </tgroup>
+ </table>
+ <para>
+  Se entrambi gli operandi sono
+  <link linkend="language.types.numeric-strings">stringhe numeriche</link>
+  o un operando è un numero e l'altro è una
+  <link linkend="language.types.numeric-strings">stringa numerica</link>,
+  quindi il confronto viene eseguito numericamente.
+  Queste regole si applicano anche all'
+  istruzione <link linkend="control-structures.switch">switch</link>.
+  La conversione del tipo non ha luogo quando il confronto è
+  <literal>===</literal> o <literal>!==</literal> poiché implica
+  il confronto del tipo e del valore.
+ </para>
+ 
+ <warning>
+  <para>
+   Prima di PHP 8.0.0, se una <type>stringa</type> veniva confrontata con un numero
+   o una stringa numerica, la <type>stringa</type> veniva convertita in un
+   numero prima di eseguire il confronto. Questo può portare a risultati
+   sorprendenti, come si può vedere con il seguente esempio:
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+var_dump(0 == "a");
+var_dump("1" == "01");
+var_dump("10" == "1e1");
+var_dump(100 == "1e2");
+
+switch ("a") {
+case 0:
+  echo "0";
+  break;
+case "a":
+  echo "a";
+  break;
+}
+?>
+]]>
+    </programlisting>
+    &example.outputs.7;
+    <screen>
+<![CDATA[
+bool(true)
+bool(true)
+bool(true)
+bool(true)
+0
+]]>
+    </screen>
+    &example.outputs.8;
+    <screen>
+<![CDATA[
+bool(false)
+bool(true)
+bool(true)
+bool(true)
+a
+]]>
+    </screen>      
+   </informalexample>
+  </para>
+ </warning>
+
+ <para>
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php  
+// Interi
+echo 1 <=> 1; // 0
+echo 1 <=> 2; // -1
+echo 2 <=> 1; // 1
+ 
+// Numeri float
+echo 1.5 <=> 1.5; // 0
+echo 1.5 <=> 2.5; // -1
+echo 2.5 <=> 1.5; // 1
+ 
+// Stringhe
+echo "a" <=> "a"; // 0
+echo "a" <=> "b"; // -1
+echo "b" <=> "a"; // 1
+ 
+echo "a" <=> "aa"; // -1
+echo "zz" <=> "aa"; // 1
+ 
+// Array
+echo [] <=> []; // 0
+echo [1, 2, 3] <=> [1, 2, 3]; // 0
+echo [1, 2, 3] <=> []; // 1
+echo [1, 2, 3] <=> [1, 2, 1]; // 1
+echo [1, 2, 3] <=> [1, 2, 4]; // -1
+ 
+// Oggetti
+$a = (object) ["a" => "b"]; 
+$b = (object) ["a" => "b"]; 
+echo $a <=> $b; // 0
+ 
+$a = (object) ["a" => "b"]; 
+$b = (object) ["a" => "c"]; 
+echo $a <=> $b; // -1
+ 
+$a = (object) ["a" => "c"]; 
+$b = (object) ["a" => "b"]; 
+echo $a <=> $b; // 1
+ 
+// non vengono confrontati solo i valori; le chiavi devono corrispondere
+$a = (object) ["a" => "b"]; 
+$b = (object) ["b" => "b"]; 
+echo $a <=> $b; // 1
+
+?>
+]]>
+    
+   </programlisting>
+  </informalexample>
+ </para>
+
+ <para>
+  Se i tipi di operandi utilizzati differiscono, il confronto viene svolto
+  nell'ordine indicato della seguente tabella.
+ </para>
+ <table xml:id="language.operators.comparison.types">
+  <title>Confronti con differenti tipi</title>
+  <tgroup cols="3">
+   <thead>
+    <row>
+     <entry>Tipo dell'operando 1</entry>
+     <entry>Tipo dell'operando 2</entry>
+     <entry>Risultato</entry>
+    </row>
+   </thead>
+   <tbody>
+    <row>
+     <entry><type>null</type> oppure <type>string</type></entry>
+     <entry><type>string</type></entry>
+     <entry>Si converte &null; in "", confronto numerico o lessicale</entry>
+    </row>
+    <row>
+     <entry><type>bool</type> oppure <type>null</type></entry>
+     <entry>qualsiasi</entry>
+     <entry>Converte entrambi i lati in <type>bool</type>, &false; &lt; &true;</entry>
+    </row>
+    <row>
+     <entry><type>object</type></entry>
+     <entry><type>object</type></entry>
+     <entry>Le classi predefinite possono avere la propria funzione di confronto, classi differenti
+      non sono confrontabili, per la stessa classe vedere <link
+      linkend="language.oop5.object-comparison">Confronto di Oggetti</link>.
+     </entry>
+    </row>
+    <row>
+     <entry><type>string</type>, <type>resource</type>, <type>int</type> oppure <type>float</type></entry>
+     <entry><type>string</type>, <type>resource</type>, <type>int</type> oppure <type>float</type></entry>
+     <entry>Stringhe e risorse sono converti in numeri, confronto matematico</entry>
+    </row>
+    <row>
+     <entry><type>array</type></entry>
+     <entry><type>array</type></entry>
+     <entry>La matrice con meno membri è più piccola, se la chiave dell'operando 1 non si
+      trova nell'operando 2 allora le matrici non si possono confrontare, in altri casi
+      il confronto avviene valore per valore (vedere l'esempio seguente)</entry>
+    </row>
+    <row>
+     <entry><type>object</type></entry>
+     <entry>qualsiasi</entry>
+     <entry><type>object</type> è sempre più grande</entry>
+    </row>
+    <row>
+     <entry><type>array</type></entry>
+     <entry>qualsiasi</entry>
+     <entry><type>array</type> è sempre più grande</entry>
+    </row>
+   </tbody>
+  </tgroup>
+ </table>
+ 
+ <para>
+  <example>
+   <title>Confronto Boolean/null</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+// Bool e null sono confrontati sempre come bool
+var_dump(1 == TRUE);  // TRUE - uguale a (bool)1 == TRUE
+var_dump(0 == FALSE); // TRUE - uguale a (bool)0 == FALSE
+var_dump(100 < TRUE); // FALSE - uguale a (bool)100 < TRUE
+var_dump(-10 < FALSE);// FALSE - uguale a (bool)-10 < FALSE
+var_dump(min(-100, -10, NULL, 10, 100)); // NULL - (bool)NULL < (bool)-100 è FALSE < TRUE
+?>
+]]>
+   </programlisting>
+  </example>
+ </para>
+
+ <para>
+  <example>
+   <title>Trascrizione del confronto standard tra matrici</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+// Gli array vengono confrontati in questo modo con gli operatori di confronto standard e con l'operatore spaceship.
+function standard_array_compare($op1, $op2)
+{
+  if (count($op1) < count($op2)) {
+      return -1; // $op1 < $op2
+  } elseif (count($op1) > count($op2)) {
+      return 1; // $op1 > $op2
+  }
+  foreach ($op1 as $key => $val) {
+      if (!array_key_exists($key, $op2)) {
+          return 1;
+      } elseif ($val < $op2[$key]) {
+          return -1;
+      } elseif ($val > $op2[$key]) {
+          return 1;
+      }
+  }
+  return 0; // $op1 == $op2
+}
+?>
+]]>
+   </programlisting>
+  </example>
+ </para>
+
+ <warning>
+  <title>Confronto di numeri in virgola mobile</title>
+
+  <para>
+   A causa del modo in cui i <type>float</type> sono rappresentati internamente al PHP, non
+   si dovrebbe esaminare l'eguaglianza di due <type>float</type>.
+  </para>
+
+  <para>
+   Per maggior informazioni, fare riferimento alla documentazione del tipo <type>float</type>.
+  </para>
+ </warning>
+
+ <note>
+  <simpara>
+   Tenere presente che la manipolazione dei tipi di PHP non è sempre ovvia quando si confrontano valori di tipi diversi,
+   in particolare confrontando &integer; con &boolean; o &integer; con &string;. È quindi generalmente
+   consigliabile utilizzare confronti <literal>===</literal> e <literal>!==</literal> piuttosto che
+   <literal>==</literal> e <literal>!=</literal> nella maggior parte dei casi.
+  </simpara>
+ </note>
+
+ <sect2 xml:id="language.operators.comparison.incomparable">
+  <title>Incomparable Values</title>
+  <simpara>
+   Mentre il confronto di identità (<literal>===</literal> e <literal>!==</literal>)
+   può essere applicato a valori arbitrari, gli altri operatori di confronto dovrebbero essere applicati
+   solo a valori comparabili. Il risultato del confronto di valori incomparabili non
+   è definito e non dovrebbe essere considerato attendibile.
+  </simpara>
+ </sect2>
+
+ <sect2 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>strcasecmp</function></member>
+    <member><function>strcmp</function></member>
+    <member><link linkend="language.operators.array">Operatori degli array</link></member>
+    <member><link linkend="language.types">Tipi</link></member>
+   </simplelist>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="language.operators.comparison.ternary">
+  <title>Operatore ternario</title>
+  <para>
+   Un altro operatore condizionale è l'operatore ternario "?:".
+   <example>
+    <title>Assegnazione di un valore di default</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// Esempio di utilizzo dell'operatore ternario
+$action = (empty($_POST['action'])) ? 'default' : $_POST['action'];
+
+// La riga precedente è simile a
+if (empty($_POST['action'])) {
+  $action = 'default';
+} else {
+  $action = $_POST['action'];
+}
+?>
+]]>
+    </programlisting>
+   </example>
+   L'espressione <literal>(espressione1) ? (espressione2) : (espressione3)</literal>
+   vale <replaceable>espressione2</replaceable> se
+   <replaceable>espressione1</replaceable> è &true;, e
+   <replaceable>espressione3</replaceable> se
+   <replaceable>espressione1</replaceable> è &false;.
+  </para>
+  <para>
+   È possibile tralasciare l'elemento centrale dell'operatore ternario.
+   L'espressione <literal>espressione1 ?: espressione3</literal> viene valutata
+   al risultato di <replaceable>espressione1</replaceable> se <replaceable>espressione1</replaceable>
+   viene valutata &true;, e <replaceable>espressione3</replaceable> in caso contrario.
+   <replaceable>espressione1</replaceable> viene valutata solo una volta.
+  </para>
+  <note>
+   <simpara>
+    Si noti che l'operatore ternario è un'espressione, e non viene valutato
+    come variabile, ma come risultato di un'espressione. Questo
+    è importante da sapere nel caso si desideri restituire una variabile per riferimento.
+    La riga <literal>return $var == 42 ? $a : $b;</literal> in una funzione
+    che restituisce per riferimento non funzionerà e genererà un
+    avvertimento.
+   </simpara>
+  </note>
+  <note>
+   <para>
+    Si raccomanda di evitare di "sovrapporre" espressioni ternarie.
+    Il comportamento di PHP quando si utilizza più di un operatore ternario senza parentesi all'interno di una singola
+    espressione non è ovvio rispetto ad altri linguaggi.
+    In effetti, prima di PHP 8.0.0, le espressioni ternarie venivano valutate associative a sinistra,
+    anziché associative a destra come la maggior parte degli altri linguaggi di programmazione.
+    Fare affidamento sull'associatività di sinistra è deprecato a partire da PHP 7.4.0.
+    A partire da PHP 8.0.0, l'operatore ternario non è associativo.
+    <example>
+     <title>Comportamento ternario non ovvio</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+// a prima vista, questa istruzione dovrebbe restituire 'true'
+echo (true ? 'true' : false ? 't' : 'f');
+
+// invece, l'output effettivo di quanto sopra è 't' prima di PHP 8.0.0
+// questo perché le espressioni ternarie sono associative a sinistra
+
+// quanti segue è una versione più chiara dello stesso codice
+echo ((true ? 'true' : false) ? 't' : 'f');
+
+// qui, si può notare che la prima espressione viene valutata come "true", che
+// a sua volta diventa (bool)true, e quindi restituisce il ramo true della
+// seconda espressione ternaria.
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </note>
+  <note>
+   <para>
+    Il concatenamento di ternari brevi (<literal>?:</literal>), tuttavia, è stabile e si comporta in modo ragionevole.
+    Verrà valutato al primo argomento valutato come valore non falso. Si noti che i valori non
+    definiti genereranno comunque un avviso.
+    <example>
+     <title>Concatenamento ternario breve</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+echo 0 ?: 1 ?: 2 ?: 3, PHP_EOL; //1
+echo 0 ?: 0 ?: 2 ?: 3, PHP_EOL; //2
+echo 0 ?: 0 ?: 0 ?: 3, PHP_EOL; //3
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </note>
+ </sect2>
+ 
+ <sect2 xml:id="language.operators.comparison.coalesce">
+  <title>L'operatore Null Coalescing</title>
+  <para>
+   Un altro utile operatore abbreviato è il "??" (o null coalescing).
+   <example>
+    <title>Assegnazione di un valore predefinito</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// Esempio di utilizzo per: Operatore Null Coalesce
+$action = $_POST['action'] ?? 'default';
+
+// Quello sopra è identico a questa istruzione if/else
+if (isset($_POST['action'])) {
+  $action = $_POST['action'];
+} else {
+  $action = 'default';
+}
+?>
+]]>
+    </programlisting>
+   </example>
+   L'espressione <literal>(expr1) ?? (expr2)</literal> viene valutata a
+   <replaceable>expr2</replaceable> se <replaceable>expr1</replaceable> è
+   &null;, e <replaceable>expr1</replaceable> in caso contrario.
+  </para>
+  <para>
+   In particolare, questo operatore non emette un avviso o un avvertimento se il valore del lato
+   sinistro non esiste, proprio come <function>isset</function>. Questo è particolarmente
+   utile sulle chiavi degli array.
+  </para>
+  <note>
+   <simpara>
+    Si prega di notare che l'operatore null coalescing è un'espressione, e che essa
+    non viene valutata ad una variabile, ma al risultato di un'espressione. Questo
+    è importante da sapere nel caso in cui si volesse restituire una variabile per riferimento.
+    L'istruzione <literal>return $foo ?? $bar;</literal> in una funzione
+    che restituisce un riferimento quindi non funzionerà e verrà emesso un
+    avviso.
+   </simpara>
+  </note>
+  <note>
+   <para>
+    L'operatore null coalescing ha una precedenza bassa. Ciò significa che se lo si mescola
+    con altri operatori (come la concatenazione di stringhe o gli operatori aritmetici)
+    saranno probabilmente necessarie parentesi.
+   </para>
+   <programlisting role="php">
+<![CDATA[
+<?php
+// Genera un avviso che $name non è definito.
+print 'Mr. ' . $name ?? 'Anonymous';
+
+// Stampa "Mr. Anonymous"
+print 'Mr. ' . ($name ?? 'Anonymous');
+?>
+]]>
+   </programlisting>
+  </note>
+  <note>
+   <para>
+    Si prega di notare che l'operatore null coalescing permette semplici nidificazioni:
+    <example>
+     <title>Operatore null coalescing nidificato</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+$foo = null;
+$bar = null;
+$baz = 1;
+$qux = 2;
+
+echo $foo ?? $bar ?? $baz ?? $qux; // stampa 1
+
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </note>
+ </sect2> 
+</sect1>

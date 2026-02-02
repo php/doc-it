@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 52407313885d27a4e891e08dd2e2481bcc39e244 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
+<sect1 xml:id="language.operators.errorcontrol">
+ <title>Operatori di controllo errori</title>
+ <simpara>
+  PHP supporta un operatore di controllo dell'errore: il carattere at (<literal>@</literal>).
+  Quando viene anteposto ad una espressione in PHP, qualunque messaggio di errore che possa
+  essere generato da quella espressione sarà soppresso.
+ </simpara>
+ <para>
+  Se è stata assegnata una funzione personalizzata di gestione degli errori con
+  <function>set_error_handler</function> questa verrà comunque chiamata, anche se
+  la diagnostica è stata soppressa.
+ </para>
+
+ <warning>
+  <para>
+   Prima di PHP 8.0.0, la funzione <function>error_reporting</function> chiamata all'interno del gestore di errori personalizzato
+   restituiva sempre <literal>0</literal> se l'errore veniva soppresso dall'operatore <literal>@</literal>.
+   A partire da PHP 8.0.0, restituisce il valore <literal>E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_PARSE</literal>.
+  </para>
+ </warning>
+ 
+ <simpara>
+  Qualsiasi messaggio di errore generato dall'espressione è disponibile nell'elemento
+  <literal>"message"</literal> dell'array restituito da <function>error_get_last</function>.
+  Il risultato di quella funzione cambierà ad ogni errore, quindi deve essere controllato in anticipo.
+ </simpara>
+ <para>
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+/* Errore di file intenzionale */
+$my_file = @file ('file_inesistente') or
+  die ("Apertura del file fallita: l'errore è stato '" . error_get_last()['message'] . "'");
+
+// questo funziona per qualsiasi espressione, non solo funzioni:
+$value = @$cache[$key];
+// non verrà generata una notifica se l'indice $key non esiste.
+
+?>
+]]>
+   </programlisting>
+  </informalexample>
+ </para>
+ <note>
+  <simpara>
+   L'operatore <literal>@</literal> funziona solo sulle 
+   <link linkend="language.expressions">espressioni</link>.
+   Una semplice regola è: se si può ottenere il valore di qualcosa,
+   allora si può anteporre ad esso l'operatore <literal>@</literal>.
+   Per esempio, si può anteporre a variabili, chiamate di funzioni,
+   determinate chiamate di costrutti di linguaggio (per esempio <function>include</function>),
+   e così via.
+   Non si può anteporre a definizioni di funzioni o classi,
+   o strutture condizionali come <literal>if</literal> e
+   <literal>foreach</literal>, e così via.
+  </simpara>
+ </note>
+ <warning>
+  <para>
+   Prima di PHP 8.0.0, era possibile per l'operatore <literal>@</literal>
+   disabilitare gli errori critici che interrompevano l'esecuzione dello script.
+   Ad esempio, anteporre <literal>@</literal> ad una chiamata di una funzione
+   che non esiste, non essendo disponibile o digitata in modo errato, causerebbe
+   il termine dello script senza alcuna indicazione sul perché.
+  </para>
+ </warning>
+
+ <sect2 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>error_reporting</function></member>
+    <member><link linkend="ref.errorfunc">Funzioni di Gestione degli Errori e Logging</link></member>
+   </simplelist>
+  </para>
+ </sect2>
+</sect1>

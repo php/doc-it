@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 52407313885d27a4e891e08dd2e2481bcc39e244 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
+<sect1 xml:id="language.operators.assignment">
+ <title>Operatori di assegnazione</title>
+ <simpara>
+  L'operatore di base dell'assegnazione è "=". Il primo impulso può
+  essere quello di pensare che corrisponda a "uguale a". Invece questo operatore significa che
+  l'operando a sinistra assume il valore dell'espressione a
+  destra (cioè, "assegna il valore a").
+ </simpara>
+ <para>
+  Il valore di un'espressione di assegnazione è il valore assegnato. Ovvero
+  il valore di "$a = 3" è 3. Questo permette di fare qualche
+  trucchetto:
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+$a = ($b = 4) + 5; // $a è uguale a 9 ora, e $b è stato impostato a 4.
+
+?>
+]]>
+   </programlisting>
+  </informalexample>
+ </para>
+ <para>
+  In aggiunta all'operatore di base dell'assegnazione, ci sono gli "operatori
+  combinati" per tutta <link linkend="language.operators">l'aritmetica binaria</link>
+  e gli operatori di stringa
+  che consentono di usare un valore in un'espressione e poi impostare il suo
+  valore al risultato di quell'espressione. Per esempio:
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+$a = 3;
+$a += 5; // imposta $a a 8, corrispondente a: $a = $a + 5;
+$b = "Ciao ";
+$b .= "come va?"; // imposta $b a "Ciao come va?", proprio come $b = $b . "come va?";
+
+?>
+]]>
+   </programlisting>
+  </informalexample>
+ </para>
+ <para>
+  Si noti che l'assegnazione copia la variabile originale nella nuova
+  (assegnazione per valore), così i cambiamenti della prima non si verificheranno nell'
+  altra. Ciò può anche avere rilevanza se si ha bisogno di copiare
+  un grande array in un ciclo molto stretto. 
+ </para>
+ <para>
+  Un'eccezione al comportamento standard dell'assegnazione per valore avviene
+  con gli<type>object</type>, che sono assegnati per riferimento.
+  Gli oggetti possono essere copiati esplicitamente attraverso la keyword <link
+  linkend="language.oop5.cloning">clone</link>.
+ </para>
+
+ <sect2 xml:id="language.operators.assignment.reference">
+  <title>Assegnazione per referimento</title>
+  <para>
+   L'assegnazione per riferimento è pure supportato, usando la sintassi
+   "<computeroutput>$var = &amp;$othervar;</computeroutput>.
+   'Assegnazione per riferimento' significa che entrambe le variabili finiscono con il puntare agli
+   stessi dati, e nulla è copiato.
+  </para>
+  <para>
+   <example>
+    <title>Assegnare per riferimento</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$a = 3;
+$b = &$a; // $b è un riferimento ad $a
+
+print "$a\n"; // stampa 3
+print "$b\n"; // stampa 3
+
+$a = 4; // modifica $a
+
+print "$a\n"; // stampa 4
+print "$b\n"; // stampa ugualmente 4, dal momento che $b è un riferimento ad $a, che è
+            // stata modificata
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   L'operatore <link linkend="language.oop5.basic.new">new</link>
+   restituisce automaticamente un riferimento, quindi assegnare il risultato di
+   <link linkend="language.oop5.basic.new">new</link> per riferimento è un errore.
+  </para>
+  <para>
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class C {}
+
+$o = &new C;
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+Parse error: syntax error, unexpected 'new' (T_NEW) in …
+]]>
+    </screen>
+   </informalexample>
+  </para>
+  <para>
+   Ulteriori informazioni sui riferimenti e sul loro uso possono essere trovati
+   nella sezione del manuale
+   <link linkend="language.references">Spiegazioni sui riferimenti</link>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="language.operators.assignment.arithmetic">
+  <title>Operatori di Assegnamento Aritmetici</title>
+  <informaltable>
+   <tgroup cols="3">
+    <thead>
+     <row>
+      <entry>Esempio</entry>
+      <entry>Equivalente</entry>
+      <entry>Operazione</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>$a += $b</entry>
+      <entry>$a = $a + $b</entry>
+      <entry>Addizione</entry>
+     </row>
+     <row>
+      <entry>$a -= $b</entry>
+      <entry>$a = $a - $b</entry>
+      <entry>Sottrazione</entry>
+     </row>
+     <row>
+      <entry>$a *= $b</entry>
+      <entry>$a = $a * $b</entry>
+      <entry>Moltiplicazione</entry>
+     </row>
+     <row>
+      <entry>$a /= $b</entry>
+      <entry>$a = $a / $b</entry>
+      <entry>Divisione</entry>
+     </row>
+     <row>
+      <entry>$a %= $b</entry>
+      <entry>$a = $a % $b</entry>
+      <entry>Modulo</entry>
+     </row>
+     <row>
+      <entry>$a **= $b</entry>
+      <entry>$a = $a ** $b</entry>
+      <entry>Esponenziale</entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </sect2>
+
+ <sect2 xml:id="language.operators.assignment.bitwise">
+  <title>Operatori di Assegnazione Bit A Bit</title>
+  <informaltable>
+   <tgroup cols="3">
+    <thead>
+     <row>
+      <entry>Esempio</entry>
+      <entry>Equivalente</entry>
+      <entry>Operazione</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>$a &amp;= $b</entry>
+      <entry>$a = $a &amp; $b</entry>
+      <entry>And Bit a Bit</entry>
+     </row>
+     <row>
+      <entry>$a |= $b</entry>
+      <entry>$a = $a | $b</entry>
+      <entry>Or Bit a Bit</entry>
+     </row>
+     <row>
+      <entry>$a ^= $b</entry>
+      <entry>$a = $a ^ $b</entry>
+      <entry>Xor Bit a Bit</entry>
+     </row>
+     <row>
+      <entry>$a &lt;&lt;= $b</entry>
+      <entry>$a = $a &lt;&lt; $b</entry>
+      <entry>Shift a Sinistra</entry>
+     </row>
+     <row>
+      <entry>$a &gt;&gt;= $b</entry>
+      <entry>$a = $a &gt;&gt; $b</entry>
+      <entry>Shift a Destra</entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </sect2>
+
+ <sect2 xml:id="language.operators.assignment.other">
+  <title>Altri Operatori di Assegnamento</title>
+  <informaltable>
+   <tgroup cols="3">
+    <thead>
+     <row>
+      <entry>Esempio</entry>
+      <entry>Equivalente</entry>
+      <entry>Operazione</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>$a .= $b</entry>
+      <entry>$a = $a . $b</entry>
+      <entry>Concatenazione di stringhe</entry>
+     </row>
+     <row>
+      <entry>$a ??= $b</entry>
+      <entry>$a = $a ?? $b</entry>
+      <entry>Null Coalesce</entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </sect2>
+
+ <sect2 role="seealso" xml:id="language.operators.assignment.see-also">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><link linkend="language.operators.arithmetic">operatori aritmetici</link></member>
+    <member><link linkend="language.operators.bitwise">operatori bit a bit</link></member>
+    <member><link linkend="language.operators.comparison.coalesce">operatori null coalescing</link></member>
+   </simplelist>
+  </para>
+ </sect2>
+</sect1>

@@ -7,7 +7,7 @@ Attualmente la documentazione italiana è [disponibile online](https://www.php.n
 
 ## Stato attuale
 
-![Grafico](http://doc.php.net/images/revcheck/info_revcheck_php_it.png "Grafico dello stato attuale")
+![Grafico](https://doc.php.net/img-status-lang.php?lang=it "Grafico dello stato attuale")
 
 
 ## Contribuire

@@ -1,0 +1,669 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 52407313885d27a4e891e08dd2e2481bcc39e244 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
+<sect1 xml:id="language.operators.bitwise">
+ <title>Operatori sui bit</title>
+ <simpara>
+  Gli operatori sui bit permettono la valutazione e manipolazione di specifici
+  bit in un valore intero.
+ </simpara>
+ <table>
+  <title>Operatori sui bit</title>
+  <tgroup cols="3">
+   <thead>
+    <row>
+     <entry>Esempio</entry>
+     <entry>Nome</entry>
+     <entry>Risultato</entry>
+    </row>
+   </thead>
+   <tbody>
+    <row>
+     <entry><userinput>$a &amp; $b</userinput></entry>
+     <entry>And</entry>
+     <entry>Vengono accesi i bit che sono accesi sia in <varname>$a</varname> che in <varname>$b</varname>.</entry>
+    </row>
+    <row>
+     <entry><userinput>$a | $b</userinput></entry>
+     <entry>Or (inclusive or)</entry>
+     <entry>Vengono accesi i bit che sono accesi o in <varname>$a</varname> oppure in <varname>$b</varname>.</entry>
+    </row>
+    <row>
+     <entry><userinput>$a ^ $b</userinput></entry>
+     <entry>Xor (exclusive or)</entry>
+     <entry>
+ Vengono accesi i bit che sono accesi in <varname>$a</varname> o in <varname>$b</varname>, ma non quelli accesi in entrambe le variabili.
+     </entry>
+    </row>
+    <row>
+     <entry><userinput>~ $a</userinput></entry>
+     <entry>Not</entry>
+     <entry>
+ Vengono accesi i bit che sono spenti in <varname>$a</varname>, e viceversa
+     </entry>
+    </row>
+    <row>
+     <entry><userinput>$a &lt;&lt; $b</userinput></entry>
+     <entry>Shift left</entry>
+     <entry>
+ Sposta verso sinistra i bit di <varname>$a</varname> per <varname>$b</varname> volte (ogni passo significa
+ "moltiplica per due")
+     </entry>
+    </row>
+    <row>
+     <entry><userinput>$a &gt;&gt; $b</userinput></entry>
+     <entry>Shift right</entry>
+     <entry>
+ Sposta verso destra i bit di <varname>$a</varname> per <varname>$b</varname> volte (ogni passo significa
+ "dividi per due")
+     </entry>
+    </row>
+   </tbody>
+  </tgroup>
+ </table>
+ <para>
+  Lo spostamento di bit in PHP è aritmetico.
+  I bit spostati al di fuori delle estremità sono scartati.
+  Gli spostamenti a sinistra inseriscono zeri a destra mentre il bit
+  di segno è scartato sulla sinistra, quindi il segno di un operando
+  non è conservato.
+  Gli spostamenti a destra copiano il bit di segno sulla sinistra,
+  quindi il segno di un operando è conservato.
+ </para>
+ <para>
+  Utilizzare le parentesi per assicurare la
+  <link linkend="language.operators.precedence">precedenza</link> desiderata.
+  Per esempio, <literal>$a &amp; $b == true</literal> valuta
+  l'equivalenza e poi l'operatore and; mentre
+  <literal>($a &amp; $b) == true</literal> valuta l'operatore and e
+  poi l'equivalenza.
+ </para>
+ <para>
+  Se entrambi gli operandi per il operatori <literal>&amp;</literal>, <literal>|</literal>
+  e <literal>^</literal> sono stringhe, allora l'operazione verrà
+  eseguita sui valori ASCII dei caratteri che compongono le stringhe e
+  il risultato sarà una stringa. In tutti gli altri casi, entrambi gli operandi saranno
+  <link linkend="language.types.integer.casting">convertiti in interi</link>
+  e il risultato sarà un intero.
+ </para>
+ <para>
+  Se l'operando per l'operatore <literal>~</literal> è una stringa,
+  l'operazione verrà eseguita sui valori ASCII dei caratteri che compongono
+  la stringa e il risultato sarà una stringa, altrimenti l'operando e il
+  risultato saranno trattati come interi.
+ </para>
+ <para>
+  Sia gli operandi che il risultato per gli operatori <literal>&lt;&lt;</literal>
+  e <literal>&gt;&gt;</literal> sono sempre trattati come interi.
+ </para>
+ <para>
+  <informalexample>
+   <para>
+    <literallayout>
+L'opzione ini error_reporting di PHP usa valori imappati sui bit,
+fornendo quindi una dimostrazione reale dello spegnimento 
+dei bit. Per mostrare tutti gli errori, eccettuati gli avvisi,
+le istruzioni del file php.ini dicono di usare:
+<userinput>E_ALL &amp; ~E_NOTICE</userinput>
+    </literallayout>
+   </para>
+   <para>
+    <literallayout>
+Si prende il valore di E_ALL:
+<computeroutput>00000000000000000111011111111111</computeroutput>
+Quindi quello di E_NOTICE...
+<computeroutput>00000000000000000000000000001000</computeroutput>
+... e lo si inverte con <literal>~</literal>:
+<computeroutput>11111111111111111111111111110111</computeroutput>
+infine, si usa AND (&amp;) pre trovare i bit che sono accesi
+in entrambi i valori:
+<computeroutput>00000000000000000111011111110111</computeroutput>
+    </literallayout>
+   </para>
+   <para>
+    <literallayout>
+Un altro metodo per ottenere questo risultato è usare XOR (<literal>^</literal>)
+per trovare i bit che sono accesi solo in uno dei due operandi:
+<userinput>E_ALL ^ E_NOTICE</userinput>
+    </literallayout>
+   </para>
+  </informalexample>
+ </para>
+ <para>
+  <informalexample>
+   <para>
+    <literallayout>
+error_reporting può essere usata anche per dimostrare come accendere i bit.
+Il modo per mostrare solo gli errori e gli errori recuperabili è:
+<userinput>E_ERROR | E_RECOVERABLE_ERROR</userinput>
+    </literallayout>
+   </para>
+   <para>
+    <literallayout>
+Questo processo combina E_ERROR
+<computeroutput>00000000000000000000000000000001</computeroutput>
+e
+<computeroutput>00000000000000000001000000000000</computeroutput>
+usando l'operatore OR (<literal>|</literal>)
+per recuperare i bit accesi in entrambi i valori:
+<computeroutput>00000000000000000001000000000001</computeroutput>
+    </literallayout>
+   </para>
+  </informalexample>
+ </para>
+ <para>
+  <example>
+   <title>Operazioni AND, OR e XOR su interi</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+/*
+ * Ignorare la sezione iniziale,
+ * server solo a formattare per rendere più leggibile il risultato.
+ */
+
+$format = '(%1$2d = %1$04b) = (%2$2d = %2$04b)'
+      . ' %3$s (%4$2d = %4$04b)' . "\n";
+
+echo <<<EOH
+ ---------     ---------  -- ---------
+ risultato     valore     op test
+ ---------     ---------  -- ---------
+EOH;
+
+
+/*
+ * Ecco gli esempi.
+ */
+
+$values = array(0, 1, 2, 4, 8);
+$test = 1 + 4;
+
+echo "\n Bitwise AND \n";
+foreach ($values as $value) {
+  $result = $value & $test;
+  printf($format, $result, $value, '&', $test);
+}
+
+echo "\n Bitwise Inclusive OR \n";
+foreach ($values as $value) {
+  $result = $value | $test;
+  printf($format, $result, $value, '|', $test);
+}
+
+echo "\n Bitwise Exclusive OR (XOR) \n";
+foreach ($values as $value) {
+  $result = $value ^ $test;
+  printf($format, $result, $value, '^', $test);
+}
+?>
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+ ---------     ---------  -- ---------
+ risultato     valore     op test
+ ---------     ---------  -- ---------
+ Bitwise AND
+( 0 = 0000) = ( 0 = 0000) & ( 5 = 0101)
+( 1 = 0001) = ( 1 = 0001) & ( 5 = 0101)
+( 0 = 0000) = ( 2 = 0010) & ( 5 = 0101)
+( 4 = 0100) = ( 4 = 0100) & ( 5 = 0101)
+( 0 = 0000) = ( 8 = 1000) & ( 5 = 0101)
+
+ Bitwise Inclusive OR
+( 5 = 0101) = ( 0 = 0000) | ( 5 = 0101)
+( 5 = 0101) = ( 1 = 0001) | ( 5 = 0101)
+( 7 = 0111) = ( 2 = 0010) | ( 5 = 0101)
+( 5 = 0101) = ( 4 = 0100) | ( 5 = 0101)
+(13 = 1101) = ( 8 = 1000) | ( 5 = 0101)
+
+ Bitwise Exclusive OR (XOR)
+( 5 = 0101) = ( 0 = 0000) ^ ( 5 = 0101)
+( 4 = 0100) = ( 1 = 0001) ^ ( 5 = 0101)
+( 7 = 0111) = ( 2 = 0010) ^ ( 5 = 0101)
+( 1 = 0001) = ( 4 = 0100) ^ ( 5 = 0101)
+(13 = 1101) = ( 8 = 1000) ^ ( 5 = 0101)
+]]>
+   </screen>
+  </example>
+ </para>
+ <para>
+  <example>
+   <title>Operazioni XOR su stringhe</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+echo 12 ^ 9; // Ritorna '5'
+
+echo "12" ^ "9"; // Ritorna il carattere Backspace (ascii 8)
+               // ('1' (ascii 49)) ^ ('9' (ascii 57)) = #8
+
+echo "hallo" ^ "hello"; // Ritorna i valori ascii #0 #4 #0 #0 #0
+                      // 'a' ^ 'e' = #4
+
+echo 2 ^ "3"; // Ritorna 1
+            // 2 ^ ((int)"3") == 1
+
+echo "2" ^ 3; // Ritorna 1
+            // ((int)"2") ^ 3 == 1
+?>
+]]>
+   </programlisting>
+  </example>
+ </para>
+ <para>
+  <example>
+   <title>Spostamento di bit su interi</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+/*
+ * Ecco gli esempi.
+ */
+
+echo "\n--- SPOSTAMENTO A DESTRA SU INTERI POSITIVI ---\n";
+
+$val = 4;
+$places = 1;
+$res = $val >> $places;
+p($res, $val, '>>', $places, 'copia del bit di segno inserito a sinistra');
+
+$val = 4;
+$places = 2;
+$res = $val >> $places;
+p($res, $val, '>>', $places);
+
+$val = 4;
+$places = 3;
+$res = $val >> $places;
+p($res, $val, '>>', $places, 'i bit escono dal lato destro');
+
+$val = 4;
+$places = 4;
+$res = $val >> $places;
+p($res, $val, '>>', $places, 'come sopra; non c'è spostamento oltre lo 0');
+
+
+echo "\n--- SPOSTAMENTO A SINISTRA SU INTERI NEGATIVI ---\n";
+
+$val = -4;
+$places = 1;
+$res = $val >> $places;
+p($res, $val, '>>', $places, 'copia del bit di segno inserito a sinistra');
+
+$val = -4;
+$places = 2;
+$res = $val >> $places;
+p($res, $val, '>>', $places, 'i bit escono dal lato destro');
+
+$val = -4;
+$places = 3;
+$res = $val >> $places;
+p($res, $val, '>>', $places, 'come sopra; non c'è spostamento oltre il -1');
+
+
+echo "\n--- SPOSTAMENTO A SINISTRA SU INTERI POSITIVI ---\n";
+
+$val = 4;
+$places = 1;
+$res = $val << $places;
+p($res, $val, '<<', $places, 'zeri inseriti a destra');
+
+$val = 4;
+$places = (PHP_INT_SIZE * 8) - 4;
+$res = $val << $places;
+p($res, $val, '<<', $places);
+
+$val = 4;
+$places = (PHP_INT_SIZE * 8) - 3;
+$res = $val << $places;
+p($res, $val, '<<', $places, 'i bit di segno sono spostati');
+
+$val = 4;
+$places = (PHP_INT_SIZE * 8) - 2;
+$res = $val << $places;
+p($res, $val, '<<', $places, 'i bit escono dal lato sinistro');
+
+
+echo "\n--- SPOSTAMENTO A SINISTRA SU INTERI NEGATIVI ---\n";
+
+$val = -4;
+$places = 1;
+$res = $val << $places;
+p($res, $val, '<<', $places, 'zeri inseriti a destra');
+
+$val = -4;
+$places = (PHP_INT_SIZE * 8) - 3;
+$res = $val << $places;
+p($res, $val, '<<', $places);
+
+$val = -4;
+$places = (PHP_INT_SIZE * 8) - 2;
+$res = $val << $places;
+p($res, $val, '<<', $places, 'i bit escono dal lato sinistro, incluso il bit di segno');
+
+
+/*
+ * Ignorare questa sezione finale,
+ * server solo a formattare per rendere più leggibile il risultato.
+ */
+
+function p($res, $val, $op, $places, $note = '') {
+  $format = '%0' . (PHP_INT_SIZE * 8) . "b\n";
+
+  printf("Espressione: %d = %d %s %d\n", $res, $val, $op, $places);
+
+  echo " Decimale:\n";
+  printf("  val=%d\n", $val);
+  printf("  res=%d\n", $res);
+
+  echo " Binario:\n";
+  printf('  val=' . $format, $val);
+  printf('  res=' . $format, $res);
+
+  if ($note) {
+      echo " NOTA: $note\n";
+  }
+
+  echo "\n";
+}
+?>
+]]>
+   </programlisting>
+   &example.outputs.32bit;
+   <screen>
+<![CDATA[
+
+--- SPOSTAMENTO A DESTRA SU INTERI POSITIVI ---
+Espressione: 2 = 4 >> 1
+ Decimale:
+val=4
+res=2
+ Binario:
+val=00000000000000000000000000000100
+res=00000000000000000000000000000010
+ NOTA: copia del bit di segno inserito a sinistra
+
+Espressione: 1 = 4 >> 2
+ Decimale:
+val=4
+res=1
+ Binario:
+val=00000000000000000000000000000100
+res=00000000000000000000000000000001
+
+Espressione: 0 = 4 >> 3
+ Decimale:
+val=4
+res=0
+ Binario:
+val=00000000000000000000000000000100
+res=00000000000000000000000000000000
+ NOTA: i bit escono dal lato destro
+
+Espressione: 0 = 4 >> 4
+ Decimale:
+val=4
+res=0
+ Binario:
+val=00000000000000000000000000000100
+res=00000000000000000000000000000000
+ NOTA: come sopra; non c'è spostamento oltre lo 0
+
+
+--- SPOSTAMENTO A DESTRA SU INTERI NEGATIVI ---
+Espressione: -2 = -4 >> 1
+ Decimale:
+val=-4
+res=-2
+ Binario:
+val=11111111111111111111111111111100
+res=11111111111111111111111111111110
+ NOTA: copia del bit di segno inserito a sinistra
+
+Espressione: -1 = -4 >> 2
+ Decimale:
+val=-4
+res=-1
+ Binario:
+val=11111111111111111111111111111100
+res=11111111111111111111111111111111
+ NOTA: i bit escono dal lato destro
+
+Espressione: -1 = -4 >> 3
+ Decimale:
+val=-4
+res=-1
+ Binario:
+val=11111111111111111111111111111100
+res=11111111111111111111111111111111
+ NOTA: come sopra; non c'è spostamento oltre il -1
+
+
+--- SPOSTAMENTO A SINISTRA SU INTERI POSITIVI ---
+Espressione: 8 = 4 << 1
+ Decimale:
+val=4
+res=8
+ Binario:
+val=00000000000000000000000000000100
+res=00000000000000000000000000001000
+ NOTA: zeri inseriti a destra
+
+Espressione: 1073741824 = 4 << 28
+ Decimale:
+val=4
+res=1073741824
+ Binario:
+val=00000000000000000000000000000100
+res=01000000000000000000000000000000
+
+Espressione: -2147483648 = 4 << 29
+ Decimale:
+val=4
+res=-2147483648
+ Binario:
+val=00000000000000000000000000000100
+res=10000000000000000000000000000000
+ NOTA:i bit di segno sono spostati
+
+Espressione: 0 = 4 << 30
+ Decimale:
+val=4
+res=0
+ Binario:
+val=00000000000000000000000000000100
+res=00000000000000000000000000000000
+ NOTA: i bit escono dal lato sinistro
+
+
+--- SPOSTAMENTO A SINISTRA SU INTERI NEGATIVI ---
+Espressione: -8 = -4 << 1
+ Decimale:
+val=-4
+res=-8
+ Binario:
+val=11111111111111111111111111111100
+res=11111111111111111111111111111000
+ NOTA: zeri inseriti a destra
+
+Espressione: -2147483648 = -4 << 29
+ Decimale:
+val=-4
+res=-2147483648
+ Binario:
+val=11111111111111111111111111111100
+res=10000000000000000000000000000000
+
+Espressione: 0 = -4 << 30
+ Decimale:
+val=-4
+res=0
+ Binario:
+val=11111111111111111111111111111100
+res=00000000000000000000000000000000
+ NOTA: i bit escono dal lato sinistro, incluso il bit di segno
+]]>
+   </screen>
+   &example.outputs.64bit;
+   <screen>
+<![CDATA[
+
+--- SPOSTAMENTO A DESTRA SU INTERI POSITIVI ---
+Espressione: 2 = 4 >> 1
+ Decimale:
+val=4
+res=2
+ Binario:
+val=0000000000000000000000000000000000000000000000000000000000000100
+res=0000000000000000000000000000000000000000000000000000000000000010
+ NOTA: copia del bit di segno inserito a sinistra
+
+Espressione: 1 = 4 >> 2
+ Decimale:
+val=4
+res=1
+ Binario:
+val=0000000000000000000000000000000000000000000000000000000000000100
+res=0000000000000000000000000000000000000000000000000000000000000001
+
+Espressione: 0 = 4 >> 3
+ Decimale:
+val=4
+res=0
+ Binario:
+val=0000000000000000000000000000000000000000000000000000000000000100
+res=0000000000000000000000000000000000000000000000000000000000000000
+ NOTA: i bit escono dal lato destro
+
+Espressione: 0 = 4 >> 4
+ Decimale:
+val=4
+res=0
+ Binario:
+val=0000000000000000000000000000000000000000000000000000000000000100
+res=0000000000000000000000000000000000000000000000000000000000000000
+ NOTA: come sopra; non c'è spostamento oltre lo 0
+
+
+--- SPOSTAMENTO A DESTRA SU INTERI NEGATIVI ---
+Espressione: -2 = -4 >> 1
+ Decimale:
+val=-4
+res=-2
+ Binario:
+val=1111111111111111111111111111111111111111111111111111111111111100
+res=1111111111111111111111111111111111111111111111111111111111111110
+ NOTA: copia del bit di segno inserito a sinistra
+
+Espressione: -1 = -4 >> 2
+ Decimale:
+val=-4
+res=-1
+ Binario:
+val=1111111111111111111111111111111111111111111111111111111111111100
+res=1111111111111111111111111111111111111111111111111111111111111111
+ NOTA: i bit escono dal lato destro
+
+Espressione: -1 = -4 >> 3
+ Decimale:
+val=-4
+res=-1
+ Binario:
+val=1111111111111111111111111111111111111111111111111111111111111100
+res=1111111111111111111111111111111111111111111111111111111111111111
+ NOTA: come sopra; non c'è spostamento oltre il -1
+
+
+--- SPOSTAMENTO A SINISTRA SU INTERI POSITIVI ---
+Espressione: 8 = 4 << 1
+ Decimale:
+val=4
+res=8
+ Binario:
+val=0000000000000000000000000000000000000000000000000000000000000100
+res=0000000000000000000000000000000000000000000000000000000000001000
+ NOTA: zeri inseriti a destra
+
+Espressione: 4611686018427387904 = 4 << 60
+ Decimale:
+val=4
+res=4611686018427387904
+ Binario:
+val=0000000000000000000000000000000000000000000000000000000000000100
+res=0100000000000000000000000000000000000000000000000000000000000000
+
+Espressione: -9223372036854775808 = 4 << 61
+ Decimale:
+val=4
+res=-9223372036854775808
+ Binario:
+val=0000000000000000000000000000000000000000000000000000000000000100
+res=1000000000000000000000000000000000000000000000000000000000000000
+ NOTA: i bit di segno sono spostati
+
+Espressione: 0 = 4 << 62
+ Decimale:
+val=4
+res=0
+ Binario:
+val=0000000000000000000000000000000000000000000000000000000000000100
+res=0000000000000000000000000000000000000000000000000000000000000000
+ NOTA: i bit escono dal lato sinistro
+
+
+--- SPOSTAMENTO A SINISTRA SU INTERI NEGATIVI ---
+Espressione: -8 = -4 << 1
+ Decimale:
+val=-4
+res=-8
+ Binario:
+val=1111111111111111111111111111111111111111111111111111111111111100
+res=1111111111111111111111111111111111111111111111111111111111111000
+ NOTA: zeri inseriti a destra
+
+Espressione: -9223372036854775808 = -4 << 61
+ Decimale:
+val=-4
+res=-9223372036854775808
+ Binario:
+val=1111111111111111111111111111111111111111111111111111111111111100
+res=1000000000000000000000000000000000000000000000000000000000000000
+
+Espressione: 0 = -4 << 62
+ Decimale:
+val=-4
+res=0
+ Binario:
+val=1111111111111111111111111111111111111111111111111111111111111100
+res=0000000000000000000000000000000000000000000000000000000000000000
+ NOTA: i bit escono dal lato sinistro, incluso il bit di segno
+]]>
+   </screen>
+  </example>
+ </para>
+ <warning>
+  <para>
+   Utilizzare le funzioni dell'estensione <link linkend="book.gmp">gmp</link> per
+   manipolazioni bit a bit su numeri che vanno oltre il valore di <literal>PHP_INT_MAX</literal>.
+  </para>
+ </warning>
+
+ <sect2 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+<!-- <link linkend="language.oop5.basic.class.class">::class</link> -->
+    <member><function>pack</function></member>
+    <member><function>unpack</function></member>
+    <member><function>gmp_and</function></member>
+    <member><function>gmp_or</function></member>
+    <member><function>gmp_xor</function></member>
+    <member><function>gmp_testbit</function></member>
+    <member><function>gmp_clrbit</function></member>
+   </simplelist>
+  </para>
+ </sect2>
+</sect1>

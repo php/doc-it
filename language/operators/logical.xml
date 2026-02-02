@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 52407313885d27a4e891e08dd2e2481bcc39e244 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
+<sect1 xml:id="language.operators.logical">
+ <title>Operatori logici</title>
+
+ <table>
+  <title>Operatori logici</title>
+  <tgroup cols="3">
+   <thead>
+    <row>
+     <entry>Esempio</entry>
+     <entry>Nome</entry>
+     <entry>Risultato</entry>
+    </row>
+   </thead>
+   <tbody>
+    <row>
+     <entry>$a and $b</entry>
+     <entry>And</entry>
+     <entry>&true; se <varname>$a</varname> e <varname>$b</varname> sono entrambe &true;.</entry>
+    </row>
+    <row>
+     <entry>$a or $b</entry>
+     <entry>Or</entry>
+     <entry>&true; se <varname>$a</varname> o <varname>$b</varname> è &true;.</entry>
+    </row>
+    <row>
+     <entry>$a xor $b</entry>
+     <entry>Xor</entry>
+     <entry>&true; se <varname>$a</varname> o <varname>$b</varname> è &true;, ma non entrambe.</entry>
+    </row>
+    <row>
+     <entry>! $a</entry>
+     <entry>Not</entry>
+     <entry>&true; se <varname>$a</varname> non è &true;.</entry>
+    </row>
+    <row>
+     <entry>$a &amp;&amp; $b</entry>
+     <entry>And</entry>
+     <entry>&true; se <varname>$a</varname> e <varname>$b</varname> sono entrambe &true;.</entry>
+    </row>
+    <row>
+     <entry>$a || $b</entry>
+     <entry>Or</entry>
+     <entry>&true; se <varname>$a</varname> o <varname>$b</varname> è &true;.</entry>
+    </row>
+   </tbody>
+  </tgroup>
+ </table>
+ <simpara>
+  La ragione per le due differenti variazioni degli operatori "and" e "or"
+  è che operano con differenti precedenze. (Vedere
+  <link linkend="language.operators.precedence">Precedenza degli
+  operatori</link>.)
+ </simpara>
+ <example>
+  <title>Dimostrazione degli operatori logici</title>
+  <programlisting role="php">
+<![CDATA[
+<?php
+
+// --------------------
+// foo() non viene mai chiamata in quanto gli operatori sono in corto-circuito
+
+$a = (false && foo());
+$b = (true  || foo());
+$c = (false and foo());
+$d = (true  or  foo());
+
+// --------------------
+// "||" ha una precedenza maggiore rispetto a "or"
+
+// Il risultato dell'espressione (false || true) è assegnato a $e
+// Funziona come: ($e = (false || true))
+$e = false || true;
+
+// La costante false è assegnata a $f prima che l'operazione "or" avvenga
+// Funziona come: (($f = false) or true)
+$f = false or true;
+
+var_dump($e, $f);
+
+// --------------------
+// "&&" ha una precesenza maggiore rispetto a "and"
+
+// Il risultato dell'espressione (true && false) è assegnato a $g
+// Funziona come: ($g = (true && false))
+$g = true && false;
+
+// La costante true è assegnata a $h prima che l'operazione "and" avvenga
+// Funziona come: (($h = true) and false)
+$h = true and false;
+
+var_dump($g, $h);
+?>
+]]>
+  </programlisting>
+  &example.outputs.similar;
+  <screen>
+<![CDATA[
+bool(true)
+bool(false)
+bool(false)
+bool(true)
+]]>
+  </screen>
+ </example>
+</sect1>

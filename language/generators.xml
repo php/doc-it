@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 08e58ace7e5b538c8ed75d784a54885d5f785d30 Maintainer: lacatoire Status: ready -->
+<chapter xml:id="language.generators" xmlns="http://docbook.org/ns/docbook">
+ <title>Generatori</title>
+
+ <sect1 xml:id="language.generators.overview">
+  <title>Panoramica sui generatori</title>
+  <?phpdoc print-version-for="generators"?>
+
+  <para>
+   I generatori forniscono un modo semplice per implementare
+   <link linkend="language.oop5.iterations">iteratori</link> semplici senza il
+   sovraccarico o la complessità dell'implementazione di una classe che implementa
+   l'interfaccia <classname>Iterator</classname>.
+  </para>
+
+  <para>
+   Un generatore offre un modo comodo per fornire dati ai cicli &foreach; senza
+   dover costruire un array in memoria in anticipo, il che potrebbe causare il superamento
+   del limite di memoria del programma o richiedere una notevole quantità di
+   tempo di elaborazione per la generazione. È invece possibile utilizzare una funzione generatore,
+   che è identica a una normale
+   <link linkend="functions.user-defined">funzione</link>, tranne per il fatto che invece di
+   <link linkend="functions.returning-values">restituire</link> un valore una sola volta, un
+   generatore può eseguire &yield; tutte le volte necessarie per fornire i
+   valori su cui iterare.
+   Come per gli iteratori, l'accesso casuale ai dati non è possibile.
+  </para>
+
+  <para>
+   Un semplice esempio è la reimplementazione della funzione <function>range</function>
+   come generatore. La funzione standard <function>range</function>
+   deve generare un array con tutti i valori al suo interno e restituirlo, il che può
+   risultare in array di grandi dimensioni: per esempio, la chiamata a
+   <command>range(0, 1000000)</command> comporterà l'utilizzo di ben oltre 100 MB di
+   memoria.
+  </para>
+
+  <para>
+   In alternativa, è possibile implementare un generatore <literal>xrange()</literal>,
+   che necessiterà solo di memoria sufficiente per creare un
+   oggetto <classname>Iterator</classname> e tracciare lo stato corrente del
+   generatore internamente, il che risulta essere meno di 1 kilobyte.
+  </para>
+
+  <example>
+   <title>Implementazione di <function>range</function> come generatore</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+function xrange($start, $limit, $step = 1) {
+    if ($start <= $limit) {
+        if ($step <= 0) {
+            throw new LogicException('Step must be positive');
+        }
+
+        for ($i = $start; $i <= $limit; $i += $step) {
+            yield $i;
+        }
+    } else {
+        if ($step >= 0) {
+            throw new LogicException('Step must be negative');
+        }
+
+        for ($i = $start; $i >= $limit; $i += $step) {
+            yield $i;
+        }
+    }
+}
+
+/*
+ * Da notare che sia range() che xrange() producono lo stesso
+ * output qui sotto.
+ */
+
+echo 'Single digit odd numbers from range():  ';
+foreach (range(1, 9, 2) as $number) {
+    echo "$number ";
+}
+echo "\n";
+
+echo 'Single digit odd numbers from xrange(): ';
+foreach (xrange(1, 9, 2) as $number) {
+    echo "$number ";
+}
+?>
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+Single digit odd numbers from range():  1 3 5 7 9
+Single digit odd numbers from xrange(): 1 3 5 7 9
+]]>
+   </screen>
+  </example>
+
+  <sect2 xml:id="language.generators.object">
+   <title>Oggetti <classname>Generator</classname></title>
+   <para>
+    Quando viene chiamata una funzione generatore, viene restituito un nuovo oggetto della
+    classe interna <classname>Generator</classname>. Questo oggetto
+    implementa l'interfaccia <classname>Iterator</classname> in modo molto simile
+    a come farebbe un oggetto iteratore unidirezionale, e fornisce metodi che possono
+    essere chiamati per manipolare lo stato del generatore, incluso l'invio
+    di valori e la restituzione di valori da esso.
+   </para>
+  </sect2>
+ </sect1>
+
+ <sect1 xml:id="language.generators.syntax">
+  <title>Sintassi dei generatori</title>
+
+  <para>
+   Una funzione generatore ha esattamente lo stesso aspetto di una funzione normale, tranne per il fatto che invece
+   di restituire un valore, un generatore esegue &yield; di tutti i valori necessari.
+   Qualsiasi funzione che contiene &yield; è una funzione generatore.
+  </para>
+
+  <para>
+   Quando viene chiamata una funzione generatore, restituisce un oggetto su cui è possibile
+   iterare. Quando si itera su quell'oggetto (per esempio, tramite un
+   ciclo &foreach;), PHP chiama i metodi di iterazione dell'oggetto ogni volta che ha bisogno di un
+   valore, poi salva lo stato del generatore quando il generatore produce un
+   valore in modo che possa essere ripreso quando il valore successivo è richiesto.
+  </para>
+
+  <para>
+   Una volta che non ci sono più valori da produrre, il generatore
+   può semplicemente ritornare, e il codice chiamante continua come se un array avesse esaurito
+   i valori.
+  </para>
+
+  <note>
+   <para>
+    Un generatore può restituire valori, che possono essere recuperati utilizzando
+    <methodname>Generator::getReturn</methodname>.
+   </para>
+  </note>
+
+  <sect2 xml:id="control-structures.yield">
+   <title>La parola chiave <command>yield</command></title>
+
+   <para>
+    Il cuore di una funzione generatore è la parola chiave <command>yield</command>.
+    Nella sua forma più semplice, un'istruzione yield assomiglia molto a un'istruzione return,
+    tranne per il fatto che invece di interrompere l'esecuzione della funzione e
+    restituire un valore, yield fornisce un valore al codice che itera sul
+    generatore e mette in pausa l'esecuzione della funzione generatore.
+   </para>
+
+   <example>
+    <title>Un semplice esempio di produzione di valori con yield</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+function gen_one_to_three() {
+    for ($i = 1; $i <= 3; $i++) {
+        // Da notare che $i viene preservato tra gli yield.
+        yield $i;
+    }
+}
+
+$generator = gen_one_to_three();
+foreach ($generator as $value) {
+    echo "$value\n";
+}
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+1
+2
+3
+]]>
+    </screen>
+   </example>
+
+   <note>
+    <para>
+     Internamente, le chiavi intere sequenziali vengono abbinate ai valori prodotti,
+     proprio come con un array non associativo.
+    </para>
+   </note>
+
+   <sect3 xml:id="control-structures.yield.associative">
+    <title>Produzione di valori con chiavi</title>
+
+    <para>
+     PHP supporta anche gli array associativi, e i generatori non fanno eccezione. Oltre
+     a produrre valori semplici, come mostrato sopra, è anche possibile produrre
+     una chiave contemporaneamente.
+    </para>
+
+    <para>
+     La sintassi per produrre una coppia chiave/valore è molto simile a quella utilizzata per
+     definire un array associativo, come mostrato di seguito.
+    </para>
+
+    <example>
+     <title>Produzione di una coppia chiave/valore</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+/*
+ * L'input è composto da campi separati da punto e virgola, con il primo
+ * campo che è un ID da usare come chiave.
+ */
+
+$input = <<<'EOF'
+1;PHP;Likes dollar signs
+2;Python;Likes whitespace
+3;Ruby;Likes blocks
+EOF;
+
+function input_parser($input) {
+    foreach (explode("\n", $input) as $line) {
+        $fields = explode(';', $line);
+        $id = array_shift($fields);
+
+        yield $id => $fields;
+    }
+}
+
+foreach (input_parser($input) as $id => $fields) {
+    echo "$id:\n";
+    echo "    $fields[0]\n";
+    echo "    $fields[1]\n";
+}
+?>
+]]>
+     </programlisting>
+     &example.outputs;
+     <screen>
+<![CDATA[
+1:
+    PHP
+    Likes dollar signs
+2:
+    Python
+    Likes whitespace
+3:
+    Ruby
+    Likes blocks
+]]>
+     </screen>
+    </example>
+   </sect3>
+
+   <sect3 xml:id="control-structures.yield.null">
+    <title>Produzione di valori null</title>
+
+    <para>
+     Yield può essere chiamato senza argomenti per produrre un valore &null; con una
+     chiave automatica.
+    </para>
+
+    <example>
+     <title>Produzione di &null;</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function gen_three_nulls() {
+    foreach (range(1, 3) as $i) {
+        yield;
+    }
+}
+
+var_dump(iterator_to_array(gen_three_nulls()));
+?>
+]]>
+     </programlisting>
+     &example.outputs;
+     <screen>
+<![CDATA[
+array(3) {
+  [0]=>
+  NULL
+  [1]=>
+  NULL
+  [2]=>
+  NULL
+}
+]]>
+     </screen>
+    </example>
+   </sect3>
+
+   <sect3 xml:id="control-structures.yield.references">
+    <title>Produzione per riferimento</title>
+
+    <para>
+     Le funzioni generatore possono produrre valori per riferimento oltre che per
+     valore. Questo avviene nello stesso modo in cui si
+     <link linkend="functions.returning-values">restituiscono riferimenti dalle funzioni</link>:
+     anteponendo un ampersand al nome della funzione.
+    </para>
+
+    <example>
+     <title>Produzione di valori per riferimento</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function &gen_reference() {
+    $value = 3;
+
+    while ($value > 0) {
+        yield $value;
+    }
+}
+
+/*
+ * Da notare che è possibile modificare $number all'interno del ciclo, e
+ * poiché il generatore produce riferimenti, $value
+ * all'interno di gen_reference() cambia.
+ */
+foreach (gen_reference() as &$number) {
+    echo (--$number).'... ';
+}
+?>
+]]>
+     </programlisting>
+     &example.outputs;
+     <screen>
+<![CDATA[
+2... 1... 0...
+]]>
+     </screen>
+    </example>
+   </sect3>
+
+   <sect3 xml:id="control-structures.yield.from">
+    <title>Delega dei generatori tramite <command>yield from</command></title>
+
+    <para>
+     La delega dei generatori permette di produrre valori da un altro
+     generatore, da un oggetto <classname>Traversable</classname>, o da un
+     <type>array</type> utilizzando la parola chiave <command>yield from</command>.
+     Il generatore esterno produrrà quindi tutti i valori del generatore interno,
+     dell'oggetto o dell'array fino a quando non saranno più validi, dopodiché l'esecuzione
+     continuerà nel generatore esterno.
+    </para>
+
+    <para>
+     Se un generatore viene utilizzato con <command>yield from</command>, l'espressione
+     <command>yield from</command> restituirà anche qualsiasi valore
+     restituito dal generatore interno.
+    </para>
+
+    <caution>
+     <title>Memorizzazione in un array (es. con <function>iterator_to_array</function>)</title>
+
+      <para>
+       <command>yield from</command> non reimposta le chiavi. Preserva
+       le chiavi restituite dall'oggetto <classname>Traversable</classname> o dall'
+       <type>array</type>. Pertanto alcuni valori possono condividere una chiave comune con un altro
+       <command>yield</command> o <command>yield from</command>, che, all'inserimento
+       in un array, sovrascriverà i valori precedenti con quella chiave.
+      </para>
+
+      <para>
+       Un caso comune in cui questo è rilevante è <function>iterator_to_array</function>
+       che restituisce per impostazione predefinita un array con chiavi, portando a risultati
+       potenzialmente inaspettati.
+       <function>iterator_to_array</function> ha un secondo parametro
+       <parameter>preserve_keys</parameter> che può essere impostato a &false; per raccogliere
+       tutti i valori ignorando le chiavi restituite dal <classname>Generator</classname>.
+      </para>
+
+      <example>
+       <title><command>yield from</command> con <function>iterator_to_array</function></title>
+       <programlisting role="php">
+<![CDATA[
+<?php
+function inner() {
+    yield 1; // chiave 0
+    yield 2; // chiave 1
+    yield 3; // chiave 2
+}
+function gen() {
+    yield 0; // chiave 0
+    yield from inner(); // chiavi 0-2
+    yield 4; // chiave 1
+}
+// passare false come secondo parametro per ottenere un array [0, 1, 2, 3, 4]
+var_dump(iterator_to_array(gen()));
+?>
+]]>
+       </programlisting>
+       &example.outputs;
+       <screen>
+<![CDATA[
+array(3) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(4)
+  [2]=>
+  int(3)
+}
+]]>
+       </screen>
+      </example>
+    </caution>
+
+    <example>
+     <title>Utilizzo base di <command>yield from</command></title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function count_to_ten() {
+    yield 1;
+    yield 2;
+    yield from [3, 4];
+    yield from new ArrayIterator([5, 6]);
+    yield from seven_eight();
+    yield 9;
+    yield 10;
+}
+
+function seven_eight() {
+    yield 7;
+    yield from eight();
+}
+
+function eight() {
+    yield 8;
+}
+
+foreach (count_to_ten() as $num) {
+    echo "$num ";
+}
+?>
+]]>
+     </programlisting>
+     &example.outputs;
+     <screen>
+<![CDATA[
+1 2 3 4 5 6 7 8 9 10
+]]>
+     </screen>
+    </example>
+
+    <example>
+     <title><command>yield from</command> e valori di ritorno</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function count_to_ten() {
+    yield 1;
+    yield 2;
+    yield from [3, 4];
+    yield from new ArrayIterator([5, 6]);
+    yield from seven_eight();
+    return yield from nine_ten();
+}
+
+function seven_eight() {
+    yield 7;
+    yield from eight();
+}
+
+function eight() {
+    yield 8;
+}
+
+function nine_ten() {
+    yield 9;
+    return 10;
+}
+
+$gen = count_to_ten();
+foreach ($gen as $num) {
+    echo "$num ";
+}
+echo $gen->getReturn();
+?>
+]]>
+     </programlisting>
+     &example.outputs;
+     <screen>
+<![CDATA[
+1 2 3 4 5 6 7 8 9 10
+]]>
+     </screen>
+    </example>
+   </sect3>
+  </sect2>
+ </sect1>
+
+ <sect1 xml:id="language.generators.comparison">
+  <title>Confronto tra generatori e oggetti <classname>Iterator</classname></title>
+
+  <para>
+   Il vantaggio principale dei generatori è la loro semplicità. È necessario scrivere molto meno
+   codice boilerplate rispetto all'implementazione di una classe
+   <classname>Iterator</classname>, e il codice è generalmente molto più
+   leggibile. Per esempio, la seguente funzione e classe sono equivalenti:
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+function getLinesFromFile($fileName) {
+    if (!$fileHandle = fopen($fileName, 'r')) {
+        return;
+    }
+
+    while (false !== $line = fgets($fileHandle)) {
+        yield $line;
+    }
+
+    fclose($fileHandle);
+}
+
+// versus...
+
+class LineIterator implements Iterator {
+    protected $fileHandle;
+
+    protected $line;
+    protected $i;
+
+    public function __construct($fileName) {
+        if (!$this->fileHandle = fopen($fileName, 'r')) {
+            throw new RuntimeException('Couldn\'t open file "' . $fileName . '"');
+        }
+    }
+
+    public function rewind() {
+        fseek($this->fileHandle, 0);
+        $this->line = fgets($this->fileHandle);
+        $this->i = 0;
+    }
+
+    public function valid() {
+        return false !== $this->line;
+    }
+
+    public function current() {
+        return $this->line;
+    }
+
+    public function key() {
+        return $this->i;
+    }
+
+    public function next() {
+        if (false !== $this->line) {
+            $this->line = fgets($this->fileHandle);
+            $this->i++;
+        }
+    }
+
+    public function __destruct() {
+        fclose($this->fileHandle);
+    }
+}
+?>
+]]>
+   </programlisting>
+  </informalexample>
+
+  <para>
+   Questa flessibilità ha tuttavia un costo: i generatori sono iteratori unidirezionali
+   e non possono essere riavvolti una volta che l'iterazione è iniziata. Questo significa
+   anche che lo stesso generatore non può essere iterato più volte: il
+   generatore dovrà essere ricostruito chiamando nuovamente la funzione generatore.
+  </para>
+
+  <simplesect role="seealso">
+   &reftitle.seealso;
+   <para>
+    <simplelist>
+     <member><link linkend="language.oop5.iterations">Iterazione sugli oggetti</link></member>
+    </simplelist>
+   </para>
+  </simplesect>
+
+ </sect1>
+</chapter>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

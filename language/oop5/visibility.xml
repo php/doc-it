@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: b9af4bd4eef9a501e9a6787d5d8998bce9f37dfb Maintainer: lacatoire Status: ready -->
+ <sect1 xml:id="language.oop5.visibility" xmlns="http://docbook.org/ns/docbook">
+  <title>Visibilit&agrave;</title>
+  <para>
+   La visibilit&agrave; di una propriet&agrave;, di un metodo o (a partire da PHP 7.1.0) di una costante pu&ograve; essere definita
+   anteponendo alla dichiarazione le parole chiave <literal>public</literal>,
+   <literal>protected</literal> o
+   <literal>private</literal>. I membri della classe dichiarati public sono
+   accessibili ovunque. I membri dichiarati protected sono accessibili
+   solo all'interno della classe stessa e dalle classi che la ereditano
+   e dalle classi genitore. I membri dichiarati come private possono essere
+   accessibili solo dalla classe che definisce il membro.
+  </para>
+
+  <sect2 xml:id="language.oop5.visibility-members">
+   <title>Visibilit&agrave; delle propriet&agrave;</title>
+   <para>
+    Le propriet&agrave; della classe possono essere definite come public, private o
+    protected. Le propriet&agrave; dichiarate senza alcuna parola chiave di
+    visibilit&agrave; esplicita sono definite come public.
+   </para>
+   <example>
+    <title>Dichiarazione delle propriet&agrave;</title>
+    <programlisting role="php" annotations="non-interactive">
+<![CDATA[
+<?php
+/**
+ * Definizione di MyClass
+ */
+class MyClass
+{
+    public $public = 'Public';
+    protected $protected = 'Protected';
+    private $private = 'Private';
+
+    function printHello()
+    {
+        echo $this->public;
+        echo $this->protected;
+        echo $this->private;
+    }
+}
+
+$obj = new MyClass();
+echo $obj->public; // Funziona
+echo $obj->protected; // Errore Fatale
+echo $obj->private; // Errore Fatale
+$obj->printHello(); // Mostra Public, Protected e Private
+
+
+/**
+ * Definizione di MyClass2
+ */
+class MyClass2 extends MyClass
+{
+    // Possiamo ridichiarare le proprietà public e protected, ma non private
+    public $public = 'Public2';
+    protected $protected = 'Protected2';
+
+    function printHello()
+    {
+        echo $this->public;
+        echo $this->protected;
+        echo $this->private;
+    }
+}
+
+$obj2 = new MyClass2();
+echo $obj2->public; // Funziona
+echo $obj2->protected; // Errore Fatale
+echo $obj2->private; // Non definito
+$obj2->printHello(); // Mostra Public2, Protected2, Non definito
+
+?>
+]]>
+    </programlisting>
+   </example>
+   <sect3 xml:id="language.oop5.visibility-members-aviz">
+    <title>Visibilit&agrave; asimmetrica delle propriet&agrave;</title>
+    <simpara>
+     A partire da PHP 8.4, le propriet&agrave; degli oggetti possono anche avere la loro
+     visibilit&agrave; impostata in modo asimmetrico, con un ambito diverso per
+     la lettura (<literal>get</literal>) e la scrittura (<literal>set</literal>).
+     Nello specifico, la visibilit&agrave; <literal>set</literal> pu&ograve; essere
+     specificata separatamente, a condizione che non sia pi&ugrave; permissiva della
+     visibilit&agrave; predefinita.
+    </simpara>
+    <example>
+     <title>Visibilit&agrave; asimmetrica delle propriet&agrave;</title>
+     <programlisting role="php" annotations="non-interactive">
+<![CDATA[
+<?php
+class Book
+{
+    public function __construct(
+        public private(set) string $title,
+        public protected(set) string $author,
+        protected private(set) int $pubYear,
+    ) {}
+}
+
+class SpecialBook extends Book
+{
+    public function update(string $author, int $year): void
+    {
+        $this->author = $author; // OK
+        $this->pubYear = $year; // Errore Fatale
+    }
+}
+
+$b = new Book('How to PHP', 'Peter H. Peterson', 2024);
+
+echo $b->title; // Funziona
+echo $b->author; // Funziona
+echo $b->pubYear; // Errore Fatale
+
+$b->title = 'How not to PHP'; // Errore Fatale
+$b->author = 'Pedro H. Peterson'; // Errore Fatale
+$b->pubYear = 2023; // Errore Fatale
+?>
+]]>
+     </programlisting>
+    </example>
+    <simpara>
+     A partire da PHP 8.5, la visibilit&agrave; <literal>set</literal> pu&ograve; essere applicata anche alle propriet&agrave; statiche delle classi.
+    </simpara>
+    <example>
+     <title>Visibilit&agrave; asimmetrica delle propriet&agrave; statiche</title>
+     <programlisting role="php" annotations="non-interactive">
+<![CDATA[
+<?php
+class Manager
+{
+    public private(set) static int $calls = 0;
+
+    public function doAThing(): string
+    {
+        self::$calls++;
+        // Esegue altre operazioni.
+        return "some string";
+    }
+}
+
+$m = new Manager();
+
+$m->doAThing(); // Funziona
+echo Manager::$calls; // Funziona
+Manager::$calls = 5; // Errore fatale
+?>
+]]>
+     </programlisting>
+     &example.outputs;
+     <screen>
+<![CDATA[
+1
+Fatal error: Uncaught Error: Cannot modify private(set) property Manager::$calls from global scope in /some/file.php
+]]>
+     </screen>
+    </example>
+    <para>Ci sono alcune avvertenze riguardo alla visibilit&agrave; asimmetrica:</para>
+    <itemizedlist>
+     <listitem>
+      <simpara>
+       Solo le propriet&agrave; tipizzate possono avere una visibilit&agrave; <literal>set</literal> separata.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       La visibilit&agrave; <literal>set</literal> deve essere la stessa
+       di <literal>get</literal> o pi&ugrave; restrittiva. Cio&egrave; significa che
+       <code>public protected(set)</code> e <code>protected protected(set)</code>
+       sono permessi, ma <code>protected public(set)</code> causer&agrave; un errore di sintassi.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       Se una propriet&agrave; &egrave; <literal>public</literal>, allora la visibilit&agrave; principale pu&ograve; essere
+       omessa. Cio&egrave; significa che <code>public private(set)</code> e <code>private(set)</code>
+       avranno lo stesso risultato.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       Una propriet&agrave; con visibilit&agrave; <literal>private(set)</literal>
+       &egrave; automaticamente <literal>final</literal> e non pu&ograve; essere ridichiarata in una classe figlia.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       Ottenere un riferimento a una propriet&agrave; segue la visibilit&agrave; <literal>set</literal>, non <literal>get</literal>.
+       Questo perch&eacute; un riferimento pu&ograve; essere usato per modificare il valore della propriet&agrave;.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       Analogamente, cercare di scrivere su una propriet&agrave; array implica sia un'operazione <literal>get</literal> che
+       <literal>set</literal> internamente, e pertanto seguir&agrave; la visibilit&agrave; <literal>set</literal>,
+       poich&eacute; &egrave; sempre la pi&ugrave; restrittiva.
+      </simpara>
+     </listitem>
+    </itemizedlist>
+    <note>
+     <simpara>
+      Gli spazi non sono permessi nella dichiarazione della visibilit&agrave; set.
+      <literal>private(set)</literal> &egrave; corretto.
+      <literal>private( set )</literal> non &egrave; corretto e causer&agrave; un errore di analisi.
+     </simpara>
+    </note>
+    <simpara>
+     Quando una classe estende un'altra, la classe figlia pu&ograve; ridefinire
+     qualsiasi propriet&agrave; che non sia <literal>final</literal>. Nel farlo,
+     pu&ograve; ampliare sia la visibilit&agrave; principale che la visibilit&agrave; <literal>set</literal>,
+     a condizione che la nuova visibilit&agrave; sia la stessa o pi&ugrave; ampia
+     di quella della classe genitore. Tuttavia, bisogna tenere presente che se una propriet&agrave;
+     <literal>private</literal> viene sovrascritta, in realt&agrave; non cambia la propriet&agrave; del genitore
+     ma crea una nuova propriet&agrave; con un nome interno diverso.
+    </simpara>
+    <example>
+     <title>Ereditariet&agrave; delle propriet&agrave; asimmetriche</title>
+     <programlisting role="php" annotations="non-interactive">
+<![CDATA[
+<?php
+class Book
+{
+    protected string $title;
+    public protected(set) string $author;
+    protected private(set) int $pubYear;
+}
+
+class SpecialBook extends Book
+{
+    public protected(set) string $title; // OK, poiché la lettura è più ampia e la scrittura è la stessa.
+    public string $author; // OK, poiché la lettura è la stessa e la scrittura è più ampia.
+    public protected(set) int $pubYear; // Errore Fatale. Le proprietà private(set) sono final.
+}
+?>
+]]>
+     </programlisting>
+    </example>
+   </sect3>
+  </sect2>
+
+  <sect2 xml:id="language.oop5.visiblity-methods">
+   <title>Visibilit&agrave; dei metodi</title>
+   <para>
+    I metodi della classe possono essere definiti come public, private o
+    protected. I metodi dichiarati senza alcuna parola chiave di
+    visibilit&agrave; esplicita sono definiti come public.
+   </para>
+   <example>
+    <title>Dichiarazione dei metodi</title>
+    <programlisting role="php" annotations="non-interactive">
+<![CDATA[
+<?php
+/**
+ * Definizione di MyClass
+ */
+class MyClass
+{
+    // Dichiara un costruttore public
+    public function __construct() { }
+
+    // Dichiara un metodo public
+    public function MyPublic() { }
+
+    // Dichiara un metodo protected
+    protected function MyProtected() { }
+
+    // Dichiara un metodo private
+    private function MyPrivate() { }
+
+    // Questo è public
+    function Foo()
+    {
+        $this->MyPublic();
+        $this->MyProtected();
+        $this->MyPrivate();
+    }
+}
+
+$myclass = new MyClass;
+$myclass->MyPublic(); // Funziona
+$myclass->MyProtected(); // Errore Fatale
+$myclass->MyPrivate(); // Errore Fatale
+$myclass->Foo(); // Public, Protected e Private funzionano
+
+
+/**
+ * Definizione di MyClass2
+ */
+class MyClass2 extends MyClass
+{
+    // Questo è public
+    function Foo2()
+    {
+        $this->MyPublic();
+        $this->MyProtected();
+        $this->MyPrivate(); // Errore Fatale
+    }
+}
+
+$myclass2 = new MyClass2;
+$myclass2->MyPublic(); // Funziona
+$myclass2->Foo2(); // Public e Protected funzionano, Private no
+
+class Bar
+{
+    public function test() {
+        $this->testPrivate();
+        $this->testPublic();
+    }
+
+    public function testPublic() {
+        echo "Bar::testPublic\n";
+    }
+
+    private function testPrivate() {
+        echo "Bar::testPrivate\n";
+    }
+}
+
+class Foo extends Bar
+{
+    public function testPublic() {
+        echo "Foo::testPublic\n";
+    }
+
+    private function testPrivate() {
+        echo "Foo::testPrivate\n";
+    }
+}
+
+$myFoo = new Foo();
+$myFoo->test(); // Bar::testPrivate
+                // Foo::testPublic
+?>
+]]>
+    </programlisting>
+   </example>
+  </sect2>
+
+  <sect2 xml:id="language.oop5.visiblity-constants">
+   <title>Visibilit&agrave; delle costanti</title>
+   <para>
+    A partire da PHP 7.1.0, le costanti di classe possono essere definite come public, private o
+    protected. Le costanti dichiarate senza alcuna parola chiave di
+    visibilit&agrave; esplicita sono definite come public.
+   </para>
+   <example>
+    <title>Dichiarazione delle costanti a partire da PHP 7.1.0</title>
+    <programlisting role="php" annotations="non-interactive">
+<![CDATA[
+<?php
+/**
+ * Definizione di MyClass
+ */
+class MyClass
+{
+    // Dichiara una costante public
+    public const MY_PUBLIC = 'public';
+
+    // Dichiara una costante protected
+    protected const MY_PROTECTED = 'protected';
+
+    // Dichiara una costante private
+    private const MY_PRIVATE = 'private';
+
+    public function foo()
+    {
+        echo self::MY_PUBLIC;
+        echo self::MY_PROTECTED;
+        echo self::MY_PRIVATE;
+    }
+}
+
+$myclass = new MyClass();
+MyClass::MY_PUBLIC; // Funziona
+MyClass::MY_PROTECTED; // Errore Fatale
+MyClass::MY_PRIVATE; // Errore Fatale
+$myclass->foo(); // Public, Protected e Private funzionano
+
+
+/**
+ * Definizione di MyClass2
+ */
+class MyClass2 extends MyClass
+{
+    // Questo è public
+    function foo2()
+    {
+        echo self::MY_PUBLIC;
+        echo self::MY_PROTECTED;
+        echo self::MY_PRIVATE; // Errore Fatale
+    }
+}
+
+$myclass2 = new MyClass2;
+echo MyClass2::MY_PUBLIC; // Funziona
+$myclass2->foo2(); // Public e Protected funzionano, Private no
+?>
+]]>
+    </programlisting>
+   </example>
+  </sect2>
+
+  <sect2 xml:id="language.oop5.visibility-other-objects">
+   <title>Visibilit&agrave; da altri oggetti</title>
+   <para>
+    Gli oggetti dello stesso tipo avranno accesso ai membri private e
+    protected l'uno dell'altro anche se non sono le stesse istanze. Questo perch&eacute;
+    i dettagli specifici dell'implementazione sono gi&agrave; noti quando ci si trova
+    all'interno di quegli oggetti.
+   </para>
+   <example>
+    <title>Accesso ai membri private dello stesso tipo di oggetto</title>
+    <programlisting role="php" annotations="non-interactive">
+<![CDATA[
+<?php
+class Test
+{
+    private $foo;
+
+    public function __construct($foo)
+    {
+        $this->foo = $foo;
+    }
+
+    private function bar()
+    {
+        echo 'Accessed the private method.';
+    }
+
+    public function baz(Test $other)
+    {
+        // Possiamo modificare la proprietà private:
+        $other->foo = 'hello';
+        var_dump($other->foo);
+
+        // Possiamo anche chiamare il metodo private:
+        $other->bar();
+    }
+}
+
+$test = new Test('test');
+
+$test->baz(new Test('other'));
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+string(5) "hello"
+Accessed the private method.
+]]>
+    </screen>
+   </example>
+  </sect2>
+ </sect1>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

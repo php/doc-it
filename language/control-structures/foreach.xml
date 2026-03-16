@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: ba7093cf7f30dbcd301c62536ac7ef8664d891f4 Maintainer: lacatoire Status: ready -->
+<sect1 xml:id="control-structures.foreach" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>foreach</title>
+ <?phpdoc print-version-for="foreach"?>
+ <para>
+  Il costrutto <literal>foreach</literal> fornisce un modo semplice per
+  iterare su array e oggetti <interfacename>Traversable</interfacename>.
+  <literal>foreach</literal> genererà un errore se utilizzato con
+  una variabile contenente un tipo di dato diverso o con una variabile non inizializzata.
+  <informalexample>
+   <simpara>
+    <literal>foreach</literal> può opzionalmente ottenere la <literal>chiave</literal> di ogni elemento:
+   </simpara>
+   <programlisting>
+<![CDATA[
+foreach (iterable_expression as $value) {
+    statement_list
+}
+
+foreach (iterable_expression as $key => $value) {
+    statement_list
+}
+]]>
+   </programlisting>
+  </informalexample>
+ </para>
+ <simpara>
+  La prima forma attraversa l'iterabile dato da
+  <literal>iterable_expression</literal>. Ad ogni iterazione, il valore
+  dell'elemento corrente viene assegnato a <literal>$value</literal>.
+ </simpara>
+ <simpara>
+  La seconda forma assegnerà inoltre la chiave dell'elemento corrente alla
+  variabile <literal>$key</literal> ad ogni iterazione.
+ </simpara>
+ <simpara>
+  <literal>foreach</literal> non modifica il puntatore interno dell'array,
+  che è utilizzato da funzioni come <function>current</function>
+  e <function>key</function>.
+ </simpara>
+ <simpara>
+  È possibile
+  <link linkend="language.oop5.iterations">personalizzare l'iterazione degli oggetti</link>.
+ </simpara>
+
+ <example>
+  <title>Usi comuni di <literal>foreach</literal></title>
+  <programlisting role="php">
+<![CDATA[
+<?php
+
+/* Esempio: solo valore */
+$array = [1, 2, 3, 17];
+
+foreach ($array as $value) {
+    echo "Current element of \$array: $value.\n";
+}
+
+/* Esempio: chiave e valore */
+$array = [
+    "one" => 1,
+    "two" => 2,
+    "three" => 3,
+    "seventeen" => 17
+];
+
+foreach ($array as $key => $value) {
+    echo "Key: $key => Value: $value\n";
+}
+
+/* Esempio: array multidimensionali chiave-valore */
+$grid = [];
+$grid[0][0] = "a";
+$grid[0][1] = "b";
+$grid[1][0] = "y";
+$grid[1][1] = "z";
+
+foreach ($grid as $y => $row) {
+    foreach ($row as $x => $value) {
+        echo "Value at position x=$x and y=$y: $value\n";
+    }
+}
+
+/* Esempio: array dinamici */
+foreach (range(1, 5) as $value) {
+    echo "$value\n";
+}
+?>
+]]>
+  </programlisting>
+ </example>
+ <note>
+  <para>
+   <literal>foreach</literal> non supporta la possibilità di
+   sopprimere i messaggi di errore usando
+   <link linkend="language.operators.errorcontrol"><literal>@</literal></link>.
+  </para>
+ </note>
+
+ <sect2 xml:id="control-structures.foreach.list">
+  <title>Spacchettamento di array annidati</title>
+  <?phpdoc print-version-for="foreach.list"?>
+  <para>
+   È possibile iterare su un array di array e spacchettare l'array annidato
+   nelle variabili del ciclo utilizzando la
+   <link linkend="language.types.array.syntax.destructuring">destrutturazione degli array</link>
+   tramite <literal>[]</literal> o utilizzando il costrutto del linguaggio <function>list</function>
+   come valore.
+
+   <note>
+    <simpara>
+     La
+     <link linkend="language.types.array.syntax.destructuring">destrutturazione degli array</link>
+     tramite <literal>[]</literal> è possibile solo a partire da PHP 7.1.0
+    </simpara>
+   </note>
+  </para>
+
+  <para>
+   <informalexample>
+    <simpara>
+     In entrambi gli esempi seguenti <literal>$a</literal> verrà impostato al
+     primo elemento dell'array annidato e <literal>$b</literal> conterrà
+     il secondo elemento:
+    </simpara>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$array = [
+    [1, 2],
+    [3, 4],
+];
+
+foreach ($array as [$a, $b]) {
+    echo "A: $a; B: $b\n";
+}
+
+foreach ($array as list($a, $b)) {
+    echo "A: $a; B: $b\n";
+}
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+A: 1; B: 2
+A: 3; B: 4
+]]>
+    </screen>
+   </informalexample>
+  </para>
+
+  <para>
+   Quando vengono fornite meno variabili di quanti siano gli elementi nell'array,
+   gli elementi rimanenti verranno ignorati.
+   Allo stesso modo, è possibile saltare gli elementi usando una virgola:
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$array = [
+    [1, 2, 5],
+    [3, 4, 6],
+];
+
+foreach ($array as [$a, $b]) {
+    // $c non è presente qui.
+    echo "$a $b\n";
+}
+
+foreach ($array as [, , $c]) {
+    // $a e $b vengono saltati
+    echo "$c\n";
+}
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+1 2
+3 4
+5
+6
+]]>
+    </screen>
+   </informalexample>
+  </para>
+
+  <para>
+   Verrà generato un avviso se non ci sono abbastanza elementi nell'array per riempire
+   <function>list</function>:
+
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$array = [
+    [1, 2],
+    [3, 4],
+];
+
+foreach ($array as [$a, $b, $c]) {
+    echo "A: $a; B: $b; C: $c\n";
+}
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+Notice: Undefined offset: 2 in example.php on line 7
+A: 1; B: 2; C:
+
+Notice: Undefined offset: 2 in example.php on line 7
+A: 3; B: 4; C:
+]]>
+    </screen>
+   </informalexample>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="control-structures.foreach.reference">
+  <title>foreach e i riferimenti</title>
+  <para>
+   È possibile modificare direttamente gli elementi dell'array all'interno di un ciclo
+   facendo precedere <literal>$value</literal> da <literal>&amp;</literal>.
+   In tal caso il valore sarà assegnato per
+   <link linkend="language.references">riferimento</link>.
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$arr = [1, 2, 3, 4];
+foreach ($arr as &$value) {
+    $value = $value * 2;
+}
+// $arr è ora [2, 4, 6, 8]
+unset($value); // interrompe il riferimento con l'ultimo elemento
+?>
+]]>
+    </programlisting>
+   </informalexample>
+  </para>
+  <warning>
+   <simpara>
+    Il riferimento a un <literal>$value</literal> dell'ultimo elemento dell'array
+    rimane anche dopo il ciclo <literal>foreach</literal>. Si raccomanda
+    di distruggerlo usando <function>unset</function>.
+    Altrimenti, si verificherà il seguente comportamento:
+   </simpara>
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$arr = [1, 2, 3, 4];
+foreach ($arr as &$value) {
+    $value = $value * 2;
+}
+// $arr è ora [2, 4, 6, 8]
+
+// senza unset($value), $value è ancora un riferimento all'ultimo elemento: $arr[3]
+
+foreach ($arr as $key => $value) {
+    // $arr[3] verrà aggiornato con ogni valore di $arr...
+    echo "{$key} => {$value} ";
+    print_r($arr);
+}
+// ...fino a quando il penultimo valore verrà copiato sull'ultimo
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+0 => 2 Array ( [0] => 2, [1] => 4, [2] => 6, [3] => 2 )
+1 => 4 Array ( [0] => 2, [1] => 4, [2] => 6, [3] => 4 )
+2 => 6 Array ( [0] => 2, [1] => 4, [2] => 6, [3] => 6 )
+3 => 6 Array ( [0] => 2, [1] => 4, [2] => 6, [3] => 6 )
+]]>
+    </screen>
+   </informalexample>
+  </warning>
+  <example>
+  <title>Iterare i valori di un array costante per riferimento</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+foreach ([1, 2, 3, 4] as &$value) {
+    $value = $value * 2;
+}
+?>
+]]>
+   </programlisting>
+  </example>
+ </sect2>
+
+ <sect2 role="seealso">
+  &reftitle.seealso;
+  <simplelist>
+   <member><link linkend="language.types.array">array</link></member>
+   <member><interfacename>Traversable</interfacename></member>
+   <member><link linkend="language.types.iterable">iterable</link></member>
+   <member><function>list</function></member>
+  </simplelist>
+ </sect2>
+
+</sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

@@ -1,82 +1,151 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- EN-Revision: n/a Maintainer: cortesi Status: working -->
-  <refentry xml:id="function.dirname" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>dirname</refname>
-    <refpurpose>Restituisce il nome della directory dal percorso indicato</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>dirname</methodname>
-      <methodparam><type>string</type><parameter>path</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Data una stringa contenente il percorso di un file, questa funzione
-     restituirà il nome della directory.
-    </para>
-    <para>
-     Su windows sia gli slash (<literal>/</literal>) che i backslash
-     (<literal>\</literal>) vengono utilizzati come caratteri di separazione nei
-     percorsi. In altri ambienti, c'è solo lo slash in avanti
-     (<literal>/</literal>).
-    </para>
-    <para>
-     <example>
-      <title><function>dirname</function> example</title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 21cd3a942724400765125b657d24f8c8c4d623e9 Maintainer: ManueldG Status: ready -->
+<!-- Reviewed: no -->
+<!-- CREDITS cortesi -->
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.dirname">
+ <refnamediv>
+  <refname>dirname</refname>
+  <refpurpose>Restituisce il percorso di una directory padre</refpurpose><!-- genitore - antenato - livello -->
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>dirname</methodname>
+   <methodparam><type>string</type><parameter>path</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>levels</parameter><initializer>1</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Data una stringa contenente il percorso di un file o una directory, questa funzione
+   restituirà il percorso della directory padre
+   <parameter>levels</parameter> più in su della directory corrente.
+  </para>
+  <note>
+   <para>
+     <function>dirname</function> opera in modo ingenuo sulla stringa d'ingresso,
+    e senza conoscere l'attuale filesystem, o componenti del percorso 
+    come "<literal>..</literal>".
+   </para>
+  </note>
+  <caution>
+   <para>
+    Su Windows, <function>dirname</function> presuppone la codepage attualmente impostata, quindi affinché veda il
+    nome di directory corretto con percorsi con caratteri multibyte, deve essere impostata la
+    codepage corrispondente.
+    Se <parameter>path</parameter> contiene caratteri non validi per la codepage
+    corrente, il comportamento di <function>dirname</function> non è definito.
+   </para>
+   <para>
+    Sugli altri sistemi operativi, nella funzione <function>dirname</function> si presume che <parameter>path</parameter>
+    dev'essere in un formato ASCII compatibile. Altrimenti il comportamnto 
+    della funzione è imprevedibile.
+   </para>
+  </caution>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>path</parameter></term>
+     <listitem>
+      <para>
+       Un percorso.
+      </para>
+      <para>
+       Su Windows, sia slash (<literal>/</literal>) che backslash
+       (<literal>\</literal>) sono usati come separatore di directory. In
+       altri ambienti, è lo slash (<literal>/</literal>).
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>levels</parameter></term>
+     <listitem>
+      <para>
+       Il numero di directory padre da risalire.
+      </para>
+      <para>
+       Questo dev'essere un intero maggiore di 0.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce il percorso di una directory padre<!--genitore-->. Se non ci sono slash in
+   <parameter>path</parameter>, viene restituito un punto ('<literal>.</literal>'), che
+   indica la directory corrente. In caso contrario, la stringa restituita è
+   <parameter>path</parameter> con l'eventuale parte finale
+   <literal>/component</literal> rimossa.
+  </para>
+
+  <caution>
+   <para>
+    Fai attenzione quando usi questa funzione in un ciclo che può raggiungere 
+    la directory di livello superiore perché potrebbe causare un ciclo infinito.
+    <informalexample>
+     <programlisting role="php">
 <![CDATA[
 <?php
-$path = "/etc/passwd";
-$file = dirname($path); // $file contiene "/etc"
+dirname('.');    // Restituirà '.'.
+dirname('/');    // Restituirà `\` su Windows e '/' su sistemi *nix .
+dirname('\\');   // Restituirà `\` su Windows e '.' su sistemi *nix.
+dirname('C:\\'); // Restituirà 'C:\' su Windows e '.' su sistemi *nix.
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <note>
-     <para>
-      In PHP 4.0.3, la funzione <function>dirname</function> è stata modificata per essere conforme alle specifiche
-      POSIX. Essenzialmente ciò significa che non ci sono slash
-      nel parametro <parameter>path</parameter> , viene restituito un punto
-      ('<literal>.</literal>') per indicare la directory
-      corrente. In altro modo, la stringa restituita è
-      <parameter>path</parameter> senza alcun
-      <literal>/component</literal>. Occorre notare che ciò implica che spesso
-      dalla funzione <function>dirname</function> si ottiene uno slash od un punto nei casi
-      in cui la vecchia versione avrebbe restituito una
-      stringa vuota.
-     </para>
-    </note>
-    <para>
-     <function>dirname</function> ha modificato il suo comportamento dal PHP 4.3.0.
-     Controllare l'esempio:
-     <informalexample>
-      <programlisting role="php">
+     </programlisting>
+    </informalexample>
+   </para>
+  </caution>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>dirname</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
- 
-//prima del PHP 4.3.0
-dirname('c:/'); // restituisce '.'
- 
-//dopo il PHP 4.3.0
-dirname('c:/'); // restituisce 'c:'
- 
-?>
+echo dirname("/etc/passwd") . PHP_EOL;
+echo dirname("/etc/") . PHP_EOL;
+echo dirname(".") . PHP_EOL;
+echo dirname("C:\\") . PHP_EOL;
+echo dirname("/usr/local/lib", 2);
 ]]>
-      </programlisting>
-     </informalexample>
-    </para>
-    <para>
-     <function>dirname</function> è sicura con i dati binari dal PHP 5.0.0
-    </para>
-    <para>
-     Vedere anche: <function>basename</function>, <function>pathinfo</function> e
-     <function>realpath</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+/etc
+/ (o \ su Windows)
+.
+C:\
+/usr
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>basename</function></member>
+    <member><function>pathinfo</function></member>
+    <member><function>realpath</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

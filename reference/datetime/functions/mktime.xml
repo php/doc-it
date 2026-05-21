@@ -1,105 +1,300 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/datetime.xml, last change in rev 1.1 -->
-<!-- last change to 'mktime' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: curcio_it Status: ready -->
-<!-- OLD-Revision: 1.71/EN.1.2 -->
-  <refentry xml:id="function.mktime" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>mktime</refname>
-    <refpurpose>Restituisce la UNIX timestamp per una data</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>mktime</methodname>
-      <methodparam><type>int</type><parameter>hour</parameter></methodparam>
-      <methodparam><type>int</type><parameter>minute</parameter></methodparam>
-      <methodparam><type>int</type><parameter>second</parameter></methodparam>
-      <methodparam><type>int</type><parameter>month</parameter></methodparam>
-      <methodparam><type>int</type><parameter>day</parameter></methodparam>
-      <methodparam><type>int</type><parameter>year</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>is_dst</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <emphasis>Attenzione:</emphasis> Nota lo strano ordine degli
-     argomenti, che differiscono dal normale ordine degli argomenti in una normale chiamata
-     UNIX mktime() e che non si presta bene a far
-     comparire i parametri da destra a sinistra (guarda sotto). E' un comune errore
-     la confusione di questi argomenti in uno script.
-    </para>
-    <para>
-     Restituisce la Unix timestamp corrispondente all'argomento 
-     dato. Questa timestamp è un intero lungo contenente il numero di
-     secondi tra la Unix Epoch (January 1 1970) e la data e orario 
-     specificati.
-    </para>
-    <para>
-     Gli argomenti possono essere omessi nell'ordine da destra a sinistra; degli
-     argomenti omessi saranno impostati con l'attuale valore accordandolo
-     alla data e orario locale.
-    </para>
-    <para>
-     <parameter>is_dst</parameter> può essere impostato su 1 se l'orario è
-     nell'ora legale, 0 altrimenti, o -1 (di default)
-     se è sconosciuta la presenza dell'ora legale o 
-     meno. Se è sconosciuto, il PHP proverà ad impostarlo da se. Questo può
-     causare un risultato non aspettato (ma non sbagliato).
-    </para>
-    <note>
-     <para>
-      <parameter>is_dst</parameter> è stato aggiunto nella verisone 3.0.10.
-     </para>
-    </note>
-    <para>
-     <function>mktime</function> è usata per fare calcoli tra date
-     e validazioni, come può calcolare automaticamente il corretto 
-     valore per un valore fuori dall'intervallo valido. Per esempio, ognuna delle seguenti
-     linee produce la stringa "Jan-01-1998".
-     <example>
-      <title>Esempio di <function>mktime</function></title>
-      <programlisting role="php">
-<![CDATA[
-echo date ("M-d-Y", mktime (0,0,0,12,32,1997));
-echo date ("M-d-Y", mktime (0,0,0,13,1,1997));
-echo date ("M-d-Y", mktime (0,0,0,1,1,1998));
-echo date ("M-d-Y", mktime (0,0,0,1,1,98));
-]]>
-      </programlisting>
-     </example>
-     <parameter>Year</parameter> può avere sia 2 che 4 cifre,
-     con valori compresi tra 0-69 e 2000-2069 oppure tra 70-99 e
-     1970-1999 (sui sistemi dove time_t è un intero segnato a 32bit, come
-     sulla maggior parte dei PC di oggi, l'intervallo valido per
-     <parameter>year</parameter> è tra 1902 e 2037).
-    </para>
-    <para>
-     L'ultimo giorno del mese dato può essere espresso come il giorno "0" 
-     del mese successivo, non come il giorno -1. Entrami i seguenti esempi
-     produrranno la stringa "L'ultimo giorno di Feb 2000 è: 29".
-     <example>
-      <title>L'ultimo giorno del mese successivo</title>
-      <programlisting role="php">
-<![CDATA[
-$lastday = mktime (0,0,0,3,0,2000);
-echo strftime ("L'ultimo giorno di Feb 2000 è: %d", $lastday);
-     
-$lastday = mktime (0,0,0,4,-31,2000);
-echo strftime ("L'ultimo giorno di Feb 2000 è: %d", $lastday);
-]]>
-      </programlisting>
-     </example>
-    </para>
-    <simpara>
-    Date con anno, mese e giorno uguali a 0 non sono considerate valide 
-    (altrimenti saranno considerate come 30.11.1999, quando hanno uno strano
-     behavior).
-    </simpara>
-    <para>
-     Guarda anche <function>date</function> e <function>time</function>.
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 3a8c3e77df070a046c9d5b56b68926ca2d7e5ee3 Maintainer: pastore Status: ready -->
+<!-- CREDITS: curcio_it -->
+<refentry xml:id="function.mktime" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>mktime</refname>
+  <refpurpose>Restituisce il timestamp Unix per una data</refpurpose>
+ </refnamediv>
 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>int</type><type>false</type></type><methodname>mktime</methodname>
+   <methodparam><type>int</type><parameter>hour</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>minute</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>second</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>month</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>day</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>year</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Restituisce il timestamp Unix corrispondente agli argomenti
+   forniti. Questo timestamp è un numero intero lungo che contiene il numero di
+   secondi trascorsi tra l'Epoca Unix (1 gennaio 1970 00:00:00 GMT) e l'ora
+   specificata.
+  </para>
+  <para>
+   Qualsiasi argomento opzionale
+   omesso o &null; verrà impostato al valore corrente in base
+   alla data e all'ora locali.
+  </para>
+  <warning>
+   <para>
+    Si noti che l'ordine degli argomenti è insolito:
+    <parameter>month</parameter>, <parameter>day</parameter>,
+    <parameter>year</parameter>, e non nel più logico ordine di
+    <parameter>year</parameter>, <parameter>month</parameter>,
+    <parameter>day</parameter>.
+   </para>
+  </warning>
+  <simpara>
+   Chiamare <function>mktime</function> senza argomenti non è supportato,
+   e produrrà un <classname>ArgumentCountError</classname>.
+   <function>time</function> può essere utilizzata per ottenere il timestamp corrente.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>hour</parameter></term>
+     <listitem>
+      <para>
+       Il numero dell'ora relativo all'inizio del giorno determinato da
+       <parameter>month</parameter>, <parameter>day</parameter> e <parameter>year</parameter>.
+       Valori negativi fanno riferimento all'ora precedente la mezzanotte del giorno in questione.
+       Valori maggiori di 23 fanno riferimento all'ora appropriata nel/i giorno/i successivo/i.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>minute</parameter></term>
+     <listitem>
+      <para>
+       Il numero dei minuti relativo all'inizio dell'<parameter>hour</parameter>.
+       Valori negativi fanno riferimento ai minuti dell'ora precedente.
+       Valori maggiori di 59 fanno riferimento ai minuti appropriati nell'/nelle ora/e successiva/e.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>second</parameter></term>
+     <listitem>
+      <para>
+       Il numero dei secondi relativo all'inizio del <parameter>minute</parameter>.
+       Valori negativi fanno riferimento ai secondi del minuto precedente.
+       Valori maggiori di 59 fanno riferimento ai secondi appropriati nel/i minuto/i successivo/i.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>month</parameter></term>
+     <listitem>
+      <para>
+       Il numero del mese relativo alla fine dell'anno precedente.
+       I valori da 1 a 12 fanno riferimento ai normali mesi del calendario dell'anno in questione.
+       Valori inferiori a 1 (inclusi valori negativi) fanno riferimento ai mesi dell'anno precedente in ordine inverso, quindi 0 è dicembre, -1 è novembre, ecc.
+       Valori maggiori di 12 fanno riferimento al mese appropriato nell'/negli anno/i successivo/i.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>day</parameter></term>
+     <listitem>
+      <para>
+       Il numero del giorno relativo alla fine del mese precedente.
+       I valori da 1 a 28, 29, 30 o 31 (a seconda del mese) fanno riferimento ai giorni normali nel mese pertinente.
+       Valori inferiori a 1 (inclusi valori negativi) fanno riferimento ai giorni del mese precedente, quindi 0 è l'ultimo giorno del mese precedente, -1 è il giorno prima, ecc.
+       Valori maggiori del numero di giorni nel mese pertinente fanno riferimento al giorno appropriato nel/i mese/i successivo/i.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>year</parameter></term>
+     <listitem>
+      <para>
+       Il numero dell'anno può essere un valore a due o quattro cifre,
+       con valori tra 0-69 mappati su 2000-2069 e 70-100 su
+       1970-2000. Nei sistemi in cui time_t è un intero con segno a 32 bit, come
+       nella maggior parte dei casi oggi, l'intervallo valido per <parameter>year</parameter> 
+       è compreso tra il 1901 e il 2038.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>                                                                                                            
+   
+  
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues; 
+  <para>
+   <function>mktime</function> restituisce il timestamp Unix degli argomenti
+   forniti, oppure &false; se il timestamp non rientra in un intero PHP.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        <parameter>hour</parameter> non è più opzionale. Se hai bisogno di un timestamp Unix,
+        usa <function>time</function>.
+       </entry>
+      </row>
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        <parameter>minute</parameter>, <parameter>second</parameter>, <parameter>month</parameter>,
+        <parameter>day</parameter> e <parameter>year</parameter> ora possono essere null.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di base di <function>mktime</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// Imposta il fuso orario predefinito da utilizzare.
+date_default_timezone_set('UTC');
+
+// Stampa: July 1, 2000 is on a Saturday
+echo "July 1, 2000 is on a " . date("l", mktime(0, 0, 0, 7, 1, 2000)) . "\n";
+
+// Stampa qualcosa come: 2006-04-05T01:02:03+00:00
+echo date('c', mktime(1, 2, 3, 4, 5, 2006)) . "\n";
+]]>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+July 1, 2000 is on a Saturday
+2006-04-05T01:02:03+00:00
+]]>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Esempio di <function>mktime</function></title>
+    <para>
+     <function>mktime</function> è utile per eseguire calcoli e validazioni sulle date
+     poiché calcola automaticamente il valore corretto
+     per input fuori intervallo. Per esempio, ognuna delle seguenti
+     righe produce la stringa "Jan-01-1998".
+    </para>
+    <programlisting role="php">
+<![CDATA[
+<?php
+date_default_timezone_set('America/New_York');
+
+echo date("c", mktime(0, 0, 0, 12, 32, 1997)) . "\n";
+echo date("c", mktime(0, 0, 0, 13, 1, 1997)) . "\n";
+echo date("c", mktime(0, 0, 0, 1, 1, 1998)) . "\n";
+echo date("c", mktime(0, 0, 0, 1, 1, 98)) . "\n";
+]]>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+1998-01-01T00:00:00-05:00
+1998-01-01T00:00:00-05:00
+1998-01-01T00:00:00-05:00
+1998-01-01T00:00:00-05:00
+]]>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Uso di mktime per trovare date relative</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+date_default_timezone_set('Asia/Tokyo');
+
+$tomorrow  = mktime(0, 0, 0, date("m")  , date("d")+1, date("Y"));
+print date('c', $tomorrow) . "\n";
+
+$lastmonth = mktime(0, 0, 0, date("m")-1, date("d"),   date("Y"));
+print date('c', $lastmonth) . "\n";
+
+$nextyear  = mktime(0, 0, 0, date("m"),   date("d"),   date("Y")+1) . "\n";
+print date('c', $nextyear) . "\n";
+]]>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+2025-09-30T00:00:00+09:00
+2025-08-29T00:00:00+09:00
+2026-09-29T00:00:00+09:00
+]]>
+    </screen>
+   </example>
+   <note>
+    <para>
+     Questo può essere più affidabile rispetto ad aggiungere o sottrarre semplicemente il numero
+     di secondi in un giorno o in un mese a un timestamp a causa dell'ora
+     legale.
+    </para>
+   </note>
+  </para>
+  <para>
+   <example>
+    <title>Ultimo giorno di un mese</title>
+    <para>
+     L'ultimo giorno di un determinato mese può essere espresso come il giorno "0"
+     del mese successivo, non come il giorno -1. Entrambi i seguenti esempi
+     produrranno la stringa "The last day in Feb 2000 is: 29".
+    </para>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+$lastday = mktime(0, 0, 0, 3, 0, 2000);
+echo 'Last day in Feb 2000 is: ', date('d', $lastday) . "\n";
+
+$lastday = mktime(0, 0, 0, 4, -31, 2000);
+echo 'Last day in Feb 2000 is: ', date('d', $lastday) . "\n";
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+Last day in Feb 2000 is: 29
+Last day in Feb 2000 is: 29
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member>La classe <classname>DateTimeImmutable</classname></member>
+    <member><function>checkdate</function></member>
+    <member><function>gmmktime</function></member>
+    <member><function>date</function></member> 
+    <member><function>time</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: ae725a44023db78b9f6e9d2a0baac8c8dc337d38 Maintainer: ManueldG Status: ready -->
+<!-- splitted from ./index.xml, last change in rev 1.66 -->
+  <chapter xml:id="security.errors" xmlns="http://docbook.org/ns/docbook">
+   <title>Segnalazione degli errori</title>
+   <para>
+    Dal punto di vista della sicurezza di PHP, la segnalazione degli errori ha due aspetti. Uno
+    contribuisce ad aumentare la sicurezza, l'altro la danneggia.
+   </para>
+   <para>
+    Una tattica d'attacco comune consiste nel profilare un sistema fornendogli
+    dati non corretti e verificando i tipi e i contesti degli
+    errori che vengono restituiti. Ciò consente al cracker di sondare il sistema
+    alla ricerca di informazioni sul server, per determinare possibili punti deboli.
+    Ad esempio, se un utente malintenzionato avesse raccolto informazioni su una pagina
+    in base a un precedente invio di un modulo, potrebbe tentare di sovrascrivere le
+    variabili o modificarle:
+    <example>
+     <title>Attaccare le variabili con una pagina HTML personalizzata</title>
+     <programlisting role="html">
+<![CDATA[
+<form method="post" action="attacktarget?username=badfoo&amp;password=badfoo">
+<input type="hidden" name="username" value="badfoo" />
+<input type="hidden" name="password" value="badfoo" />
+</form>
+]]>
+     </programlisting>
+    </example>
+   </para>
+   <para>
+    Gli errori che vengono normalmente restituiti da PHP possono essere molto utili a uno
+    sviluppatore che sta tentando di eseguire il debug di uno script, indicando ad esempio
+    la funzione o il file che ha avuto esito negativo, il file PHP in cui si è verificato
+    e il numero di riga in cui si è verificato l'errore. Sono tutte
+    informazioni che possono essere sfruttate. Non è raro che uno sviluppatore
+    PHP utilizzi <function>show_source</function>,
+    <function>highlight_string</function> o
+    <function>highlight_file</function> come strumento di debug, ma in
+    un sito in produzione questo può esporre variabili nascoste, sintassi non verificata
+    e altre informazioni pericolose. Particolarmente pericoloso è eseguire
+    codice di provenienza nota con gestori di debug integrati, o utilizzare
+    tecniche di debug comuni. Se l'aggressore riesce a determinare quale
+    tecnica generale si sta usando, potrebbe tentare un attacco brute-force su una pagina,
+    inviando varie stringhe di debug comuni:
+    <example>
+     <title>Sfruttare le variabili di debug comuni</title>
+     <programlisting role="html">
+<![CDATA[
+<form method="post" action="attacktarget?errors=Y&amp;showerrors=1&amp;debug=1">
+<input type="hidden" name="errors" value="Y" />
+<input type="hidden" name="showerrors" value="1" />
+<input type="hidden" name="debug" value="1" />
+</form>
+]]>
+     </programlisting>
+    </example>
+   </para>
+   <para>
+    Indipendentemente dal metodo di gestione degli errori, la possibilità di sondare un
+    sistema tramite gli errori finisce per fornire a un utente malintenzionato
+    più informazioni.
+   </para>
+   <para>
+    Ad esempio, lo stile stesso di un errore PHP generico indica che un sistema
+    sta eseguendo PHP. Se l'aggressore stesse guardando una pagina <literal>.html</literal> e
+    volesse sondare il back-end (per cercare punti deboli noti del
+    sistema), fornendogli dati errati potrebbe riuscire a
+    determinare che il sistema è stato realizzato con PHP.
+   </para>
+   <para>
+    L'errore di una funzione può indicare se un sistema sta usando uno
+    specifico motore di database, o fornire indizi su come una pagina web è stata
+    programmata o progettata. Ciò consente un'indagine più approfondita sulle
+    porte aperte del database o la ricerca di bug o punti deboli specifici
+    di una pagina web. Fornendo diversi dati errati, per esempio,
+    un utente malintenzionato può determinare l'ordine di autenticazione in uno script
+    (dai numeri di riga degli errori), nonché cercare exploit che
+    possono essere sfruttati in diversi punti dello script.
+   </para>
+   <para>
+    Un errore del filesystem o un errore generico di PHP può indicare quali permessi
+    ha il server web, nonché la struttura e l'organizzazione dei
+    file sul server web. Il codice di gestione degli errori scritto dallo sviluppatore può aggravare
+    questo problema, rendendo facilmente sfruttabili informazioni
+    precedentemente "nascoste".
+   </para>
+   <para>
+    Esistono tre soluzioni principali a questo problema. La prima consiste
+    nell'esaminare attentamente tutte le funzioni e tentare di compensare la maggior parte
+    degli errori. La seconda è disabilitare completamente la segnalazione degli errori
+    nel codice in esecuzione. La terza consiste nell'utilizzare le funzioni di PHP per la gestione
+    personalizzata degli errori per creare il proprio gestore di errori. A seconda
+    della propria politica di sicurezza, tutte e tre potrebbero essere applicabili
+    alla propria situazione.
+   </para>
+   <para>
+    Un modo per individuare in anticipo questo problema è utilizzare
+    la funzione <function>error_reporting</function> di PHP, che aiuta a
+    proteggere il codice e a trovare utilizzi di variabili che potrebbero essere pericolosi.
+    Testando il codice prima della distribuzione con <constant>E_ALL</constant>,
+    si possono trovare rapidamente i punti in cui le variabili potrebbero essere esposte
+    a contaminazione o ad altri tipi di modifica. Una volta pronti per la distribuzione,
+    si dovrebbe disabilitare completamente la segnalazione degli errori impostando
+    <function>error_reporting</function> a 0, oppure disattivare la visualizzazione
+    degli errori tramite l'opzione di &php.ini; <literal>display_errors</literal>,
+    per proteggere il codice dai tentativi di sondaggio. Se si sceglie la seconda opzione,
+    si dovrebbe anche definire il percorso del file di log tramite la
+    direttiva ini <literal>error_log</literal> e attivare
+    <literal>log_errors</literal>.
+    <example>
+     <title>Trovare variabili pericolose con E_ALL</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+if ($username) {  // Non inizializzata né verificata prima dell'uso
+    $good_login = 1;
+}
+if ($good_login == 1) { // Se il test precedente fallisce, non inizializzata né verificata prima dell'uso
+    readfile ("/highly/sensitive/data/index.html");
+}
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </chapter>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

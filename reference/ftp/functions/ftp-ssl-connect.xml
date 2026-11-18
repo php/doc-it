@@ -1,75 +1,165 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/ftp.xml, last change in rev 1.1 -->
-<!-- last change to 'ftp-ssl-connect' in en/ tree in rev 1.7 -->
-<!-- EN-Revision: n/a Maintainer: afparam Status: ready -->
-<!-- CREDITS: Colombo -->
-<!-- OLD-Revision: 1.43/EN.1.7 -->
-  <refentry xml:id="function.ftp-ssl-connect" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>ftp_ssl_connect</refname>
-    <refpurpose>Apre una connessione SSL-FTP connessione</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>resource</type><methodname>ftp_ssl_connect</methodname>
-      <methodparam><type>string</type><parameter>host</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>port</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>timeout</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Restituisce uno stream SSL-FTP in caso di successo o &false; in caso di errore.
-    </para>  
-    <para>
-     La funzione <function>ftp_ssl_connect</function> apre una connessione SSL-FTP verso
-     il server <parameter>host</parameter>. Il parametro <parameter>port</parameter>
-     specifica una porta alternativa a cui connettersi. Se omesso
-     o impostato a zero allora viene usata la porta 21 standard.
-    </para>
-    <para>
-     Il parametro <parameter>timeout</parameter> specifica il timeout per tutte
-     le operazioni di rete successive. Se omesso il valore predefinito e' di 90
-     secondi. Il timeout puo' essere interrogato o modificato in qualsiasi momento
-     con le funzioni <function>ftp_set_option</function>
-     e <function>ftp_get_option</function>.
-    </para>
-    <para>
-     <example>
-      <title>Esempio di funzione <function>ftp_ssl_connect</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 38221fa6de28e3035e7a3b18d8ec1c598e3087a2 Maintainer: pastore Status: ready -->
+<!-- CREDITS: Colombo,afparam -->
+<refentry xml:id="function.ftp-ssl-connect" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>ftp_ssl_connect</refname>
+  <refpurpose>Apre una connessione SSL-FTP sicura</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>FTP\Connection</type><type>false</type></type><methodname>ftp_ssl_connect</methodname>
+   <methodparam><type>string</type><parameter>hostname</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>port</parameter><initializer>21</initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>timeout</parameter><initializer>90</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>ftp_ssl_connect</function> apre una connessione SSL-FTP <emphasis>esplicita</emphasis> verso l'host
+   specificato in <parameter>hostname</parameter>. Ciò implica che
+   <function>ftp_ssl_connect</function> avrà successo anche se il server non è
+   configurato per SSL-FTP. Solo quando viene chiamata <function>ftp_login</function>, il client invierà il
+   comando <literal>AUTH FTP</literal> appropriato, quindi <function>ftp_login</function> fallirà.
+   La connessione stabilita da <function>ftp_ssl_connect</function> <emphasis>non</emphasis> effettuerà
+   la verifica del certificato del peer.
+  </para>
+  <note>
+   <title>Perché questa funzione potrebbe non esistere</title>
+   <para>
+    Prima di PHP 7.0.0, <function>ftp_ssl_connect</function> era disponibile solo se sia
+    il modulo ftp sia il supporto <link linkend="ref.openssl">OpenSSL</link>
+    erano stati compilati staticamente in php; ciò significa che su Windows questa
+    funzione non era definita nelle build ufficiali di PHP. Per avere questa
+    funzione disponibile su Windows, era necessario compilare i propri binari di PHP.
+   </para>
+  </note>
+  <note>
+   <para>
+    <function>ftp_ssl_connect</function> non è pensata per l'uso con sFTP.
+    Per usare sFTP con PHP, consultare <function>ssh2_sftp</function>.
+   </para>
+  </note>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>hostname</parameter></term>
+     <listitem>
+      <para>
+       L'indirizzo del server FTP. Questo parametro non deve avere barre
+       finali e non deve essere preceduto da <literal>ftp://</literal>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>port</parameter></term>
+     <listitem>
+      <para>
+       Questo parametro specifica una porta alternativa a cui connettersi. Se è
+       omesso o impostato a zero, verrà usata la porta FTP predefinita, 21.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>timeout</parameter></term>
+     <listitem>
+      <para>
+       Questo parametro specifica il timeout per tutte le successive operazioni di rete.
+       Se omesso, il valore predefinito è di 90 secondi. Il timeout può essere modificato e
+       interrogato in qualsiasi momento con <function>ftp_set_option</function> e
+       <function>ftp_get_option</function>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce un'istanza di <classname>FTP\Connection</classname> in caso di successo&return.falseforfailure;.
+  </para>
+ </refsect1>
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <simpara>
+   Lancia un <exceptionname>ValueError</exceptionname> se
+   <parameter>timeout</parameter> è minore o uguale a <literal>0</literal>.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.1.0</entry>
+      <entry>
+       Ora restituisce un'istanza di <classname>FTP\Connection</classname>;
+       in precedenza, veniva restituita una &resource;.
+      </entry>
+     </row>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       Ora viene lanciato un <exceptionname>ValueError</exceptionname> se
+       <parameter>timeout</parameter> è minore o uguale a <literal>0</literal>;
+       in precedenza, veniva emesso un <constant>E_WARNING</constant> e veniva restituito &false;.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>ftp_ssl_connect</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 
 // stabilisce una connessione ssl
-$conn_id = ftp_ssl_connect($ftp_server);
+$ftp = ftp_ssl_connect($ftp_server);
 
-// si collega come username e password
-$login_result = ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
+// si collega con nome utente e password
+$login_result = ftp_login($ftp, $ftp_user_name, $ftp_user_pass);
 
-echo ftp_pwd($conn_id); // /
+if (!$login_result) {
+    // In questo caso PHP avrà già generato un messaggio di livello E_WARNING
+    die("impossibile effettuare il login");
+}
+
+echo ftp_pwd($ftp);
 
 // chiude la connessione ssl
-ftp_close($conn_id);
+ftp_close($ftp);
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <note>
-     <title>Perche' questa funzione puo' non essere presente</title>
-     <para>
-      La funzione <function>ftp_ssl_connect</function> e' disponibile solo se
-      il supporto <link linkend="ref.openssl">OpenSSL</link> e' abilitato nella
-      versione corrente di PHP. Se non e' definito ed e' stato incluso
-      il supporto a FTP durante la compilazione, questa e' la ragione per cui la funzione non e' presente.
-     </para>
-    </note>
-    <para>
-     Vedere anche <function>ftp_connect</function>.
-    </para>
-   </refsect1>
-  </refentry>
-
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>ftp_connect</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

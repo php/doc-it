@@ -1,35 +1,113 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- EN-Revision: n/a Maintainer: cortesi Status: working -->
-  <refentry xml:id="function.lstat" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>lstat</refname>
-    <refpurpose>Da informazioni su un file o un link simbolico</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>array</type><methodname>lstat</methodname>
-      <methodparam><type>string</type><parameter>filename</parameter></methodparam>
-     </methodsynopsis>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 871a231f4a1caa5fb258ae53b1bb7d1fb2a0f949 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi -->
+<refentry xml:id="function.lstat" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>lstat</refname>
+  <refpurpose>Fornisce informazioni su un file o un collegamento simbolico</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>array</type><type>false</type></type><methodname>lstat</methodname>
+   <methodparam><type>string</type><parameter>filename</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Raccoglie le statistiche del file o del collegamento simbolico indicato da
+   <parameter>filename</parameter>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>filename</parameter></term>
+     <listitem>
+      <para>
+       Percorso di un file o di un collegamento simbolico.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Consultare la pagina del manuale di <function>stat</function> per informazioni sulla
+   struttura dell'array restituito da <function>lstat</function>.
+   Questa funzione è identica alla funzione <function>stat</function>,
+   tranne per il fatto che se il parametro <parameter>filename</parameter> è un collegamento
+   simbolico, viene restituito lo stato del collegamento simbolico, non lo stato del
+   file puntato dal collegamento simbolico.
+  </para>
+  <para>
+   In caso di errore, viene restituito &false;.
+  </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  &fs.emits.warning.on.failure;
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Confronto tra <function>stat</function> e <function>lstat</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+symlink('uploads.php', 'uploads');
+
+// Confronta le informazioni di uploads.php e uploads
+array_diff(stat('uploads'), lstat('uploads'));
+?>
+]]>
+    </programlisting>
+    &example.outputs.similar;
     <para>
-     Raccoglie le statistiche del file o del link simbolico chiamato
-     <parameter>filename</parameter>.. Questa funzione è identica alla funzione 
-     <function>stat</function> eccetto che se il paramametro
-     <parameter>filename</parameter> è un link simbolico valido,
-     viene restituito lo stato del link simbolico, non lo stato del file puntato 
-     dal link simbolico.
+     Informazioni che differiscono tra i due file.
     </para>
-    &note.clearstatcache;
+    <screen>
+<![CDATA[
+Array
+(
+    [ino] => 97236376
+    [mode] => 33188
+    [size] => 34
+    [atime] => 1223580003
+    [mtime] => 1223581848
+    [ctime] => 1223581848
+    [blocks] => 8
+)
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
 
-    &tip.fopen-wrapper.stat;
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.clearstatcache;
+  &tip.fopen-wrapper.stat;
+ </refsect1>
 
-    <simpara>
-     Vedere anche <function>stat</function>.
-    </simpara>
-   </refsect1>
-  </refentry>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>stat</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
 
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

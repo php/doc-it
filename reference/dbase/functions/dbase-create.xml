@@ -1,114 +1,146 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: fernando Status: ready -->
-<!-- CREDITS: calandra -->
-<!-- splitted from ./it/functions/dbase.xml, last change in rev 1.2 -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 0545e305cf06937b14b3f0694d6e716c9881ffd7 Maintainer: pastore Status: ready -->
+<!-- CREDITS: calandra,fernando -->
+<refentry xml:id="function.dbase-create" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>dbase_create</refname>
+  <refpurpose>Crea un database</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>resource</type><methodname>dbase_create</methodname>
+   <methodparam><type>string</type><parameter>path</parameter></methodparam>
+   <methodparam><type>array</type><parameter>fields</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>type</parameter><initializer>DBASE_TYPE_DBASE</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>dbase_create</function> crea un database dBase con la
+   definizione indicata.
+   Se il file esiste già, non viene troncato.
+   È possibile chiamare <function>dbase_pack</function> per forzarne il troncamento.
+  </para>
+  &note.open-basedir.func;
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>path</parameter></term>
+     <listitem>
+      <para>
+       Il percorso del database. Può essere un percorso relativo o assoluto del
+       file in cui dBase memorizzerà i dati.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>fields</parameter></term>
+     <listitem>
+      <para>
+       Un array di array, ognuno dei quali descrive il formato di un campo del
+       database. Ogni campo è composto da un nome, un carattere che indica il tipo
+       del campo e, facoltativamente, una lunghezza, una precisione e un flag nullable.
+       I tipi di campo supportati sono elencati nella <link
+       linkend="intro.dbase">sezione introduttiva</link>.
+      </para>
+      <note>
+       <para>
+        I nomi dei campi hanno una lunghezza limitata e non devono superare i 10 caratteri.
+       </para>
+      </note>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>type</parameter></term>
+     <listitem>
+      <para>
+       Il tipo di database da creare. Può essere
+       <constant>DBASE_TYPE_DBASE</constant> o
+       <constant>DBASE_TYPE_FOXPRO</constant>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce una risorsa del database se il database viene creato correttamente,
+   oppure &false; se si è verificato un errore.
+  </para>
+ </refsect1>
 
-  <refentry xml:id="function.dbase-create" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>dbase_create</refname>
-    <refpurpose>Crea un database dBase</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>dbase_create</methodname>
-      <methodparam><type>string</type><parameter>filename</parameter></methodparam>
-      <methodparam><type>array</type><parameter>fields</parameter></methodparam>
-     </methodsynopsis>
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>PECL dbase 7.0.0</entry>
+      <entry>
+       È stato aggiunto il parametro <parameter>type</parameter>.
+      </entry>
+     </row>
+     <row>
+      <entry>PECL dbase 7.0.0</entry>
+      <entry>
+       Il valore restituito ora è una <type>resource</type> invece di un
+       <type>int</type>.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
 
-     <para>
-      <function>dBase_create</function>crea un database dBase nel file<parameter>filename</parameter>
-      con i campi<parameter>fields</parameter>
-     </para>
-
-    <para>
-     Il parametro <parameter>fields</parameter> è un array di arrays,
-     ciascun array descrive il formato di un campo nel database. Ogni campo
-     consiste di un nome, un carattere che indica il tipo di campo, una
-     lunghezza, e una precisione.
-    </para>
-    <para>
-     I tipi di campo disponibili sono:
-     <variablelist>
-      <varlistentry>
-       <term>L</term>
-       <listitem>
-        <simpara>
-         Boolean. Questi non hanno una lunghezza o una precisione.
-        </simpara>
-       </listitem>
-      </varlistentry>
-      <varlistentry>
-       <term>M</term>
-       <listitem>
-        <simpara>
-         Memo. (Nota che non sono supportati da PHP.) Questi non hanno una
-         lunghezza o una precisione.
-        </simpara>
-       </listitem>
-      </varlistentry>
-      <varlistentry>
-       <term>D</term>
-       <listitem>
-        <simpara>
-         Date (memorizzate nel formato YYYYMMDD). Questi non hanno una lunghezza o
-         una precisione.
-        </simpara>
-       </listitem>
-      </varlistentry>
-      <varlistentry>
-       <term>N</term>
-       <listitem>
-        <simpara>
-         Number. Questi hanno sia una lunghezza sia una precisione
-         (il numero di decimali).
-        </simpara>
-       </listitem>
-
-      </varlistentry>
-      <varlistentry>
-       <term>C</term>
-       <listitem>
-        <simpara>
-         String.
-        </simpara>
-       </listitem>
-      </varlistentry>
-     </variablelist>
-    </para>
-    <para>
-     Se il database è creato con successo, viene restituito un dbase_identifier, altrimenti viene restituito
-     &false;.
-     <example>
-      <title>Creare un file di database dBase</title>
-      <programlisting role="php">
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Creazione di un file di database dBase</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 
-// "database" name
-$dbname = "/tmp/test.dbf";
+// "definizione" del database
+$def = array(
+  array("date",     "D"),
+  array("name",     "C",  50),
+  array("age",      "N",   3, 0),
+  array("email",    "C", 128),
+  array("ismember", "L")
+);
 
-// database "definition"
-$def =
-    array(
-        array("date",     "D"),
-        array("name",     "C",  50),
-        array("age",      "N",   3, 0),
-        array("email",    "C", 128),
-        array("ismember", "L")
-    );
-
-// creation
-if (!dbase_create($dbname, $def))
-    echo "<strong>Error!</strong>";
+// creazione
+if (!dbase_create('/tmp/test.dbf', $def)) {
+  echo "Errore, impossibile creare il database\n";
+}
 
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>dbase_open</function></member>
+    <member><function>dbase_close</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

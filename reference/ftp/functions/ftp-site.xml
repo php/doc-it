@@ -1,62 +1,110 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/ftp.xml, last change in rev 1.3 -->
-<!-- last change to 'ftp-site' in en/ tree in rev 1.7 -->
-<!-- EN-Revision: n/a Maintainer: afparam Status: ready -->
-<!-- CREDITS: Colombo -->
-<!-- OLD-Revision: 1.43/EN.1.7 -->
-  <refentry xml:id="function.ftp-site" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>ftp_site</refname>
-    <refpurpose>Invia al server un comando SITE</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>ftp_site</methodname>
-      <methodparam><type>resource</type><parameter>ftp_stream</parameter></methodparam>
-      <methodparam><type>string</type><parameter>cmd</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     La funzione <function>ftp_site</function> invia al server FTP
-     il comando specificato dal parametro <parameter>cmd</parameter>.
-     I comandi SITE non sono standardizzati e sono diversi da server a server.  They are
-     Sono utili per operare, ad esempio, sui permessi dei file o sull'appartenenza a
-     gruppi.
-    </para>
-    <para>
-     <example>
-      <title>Invio di un comando SITE ad un server ftp</title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 4d1c34c9b7a30cfc3a59641122c707a2812cfed7 Maintainer: pastore Status: ready -->
+<!-- CREDITS: Colombo,afparam -->
+<refentry xml:id="function.ftp-site" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>ftp_site</refname>
+  <refpurpose>Invia un comando SITE al server</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>ftp_site</methodname>
+   <methodparam><type>FTP\Connection</type><parameter>ftp</parameter></methodparam>
+   <methodparam><type>string</type><parameter>command</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>ftp_site</function> invia il comando <literal>SITE</literal>
+   specificato al server FTP.
+  </para>
+  <para>
+   I comandi <literal>SITE</literal> non sono standardizzati e variano da server
+   a server. Sono utili per gestire aspetti come i permessi dei file e
+   l'appartenenza ai gruppi.
+  </para>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>ftp</parameter></term>
+     <listitem>
+       &ftp.parameter.ftp;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>command</parameter></term>
+     <listitem>
+      <para>
+       Il comando SITE. Notare che questo parametro non subisce l'escape, quindi potrebbero
+       esserci problemi con nomi di file contenenti spazi e altri caratteri.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &ftp.changelog.ftp-param;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Invio di un comando SITE a un server ftp</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-/* Connessione al server FTP */
-$conn = ftp_connect('ftp.example.com');
-if (!$conn) die('Impossibile connettersi a ftp.example.com');
+// Connessione al server FTP
+$ftp = ftp_connect('ftp.example.com');
+if (!$ftp) die('Impossibile connettersi a ftp.example.com');
 
-/* Collegarsi come "user" con password "pass" */
-if (!ftp_login($conn, 'user', 'pass')) die('Errore nel collegamento come "user" a ftp.example.com');
+// Login come "user" con password "pass"
+if (!ftp_login($ftp, 'user', 'pass')) die('Errore durante il login su ftp.example.com');
 
-/* Invio: comando "SITE CHMOD 0600 /home/user/privatefile" al server ftp */
-if (ftp_site($conn, 'CHMOD 0600 /home/user/privatefile')) {
+// Invia il comando "SITE CHMOD 0600 /home/user/privatefile" al server ftp
+if (ftp_site($ftp, 'CHMOD 0600 /home/user/privatefile')) {
    echo "Comando eseguito correttamente.\n";
 } else {
-   die('Errore nell'esecuzione del comando.');
+   die('Comando non riuscito.');
 }
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     &return.success;
-    </para>
-    <simpara>
-     Vedere anche:
-     <function>ftp_raw</function>
-    </simpara>
-   </refsect1>
-  </refentry>
-
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>ftp_raw</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

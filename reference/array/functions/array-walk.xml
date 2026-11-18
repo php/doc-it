@@ -1,108 +1,164 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/array.xml, last change in rev 1.1 -->
-<!-- last change to 'array-walk' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.173/EN.1.2 -->
-  <refentry xml:id="function.array-walk" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>array_walk</refname>
-    <refpurpose>
-     Esegue una funzione su ogni elemento dell'array
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-    <methodsynopsis>
-     <type>bool</type><methodname>array_walk</methodname>
-     <methodparam><type>array</type><parameter>&amp;array</parameter></methodparam>
-     <methodparam><type>callback</type><parameter>funzione</parameter></methodparam>
-     <methodparam choice="opt"><type>mixed</type><parameter>datiutente</parameter></methodparam>
-    </methodsynopsis>
-    <simpara>
-     &return.success;
-    </simpara>
-    <simpara>
-     Esegue la funzione definita dall'utente identificata da <parameter>funzione</parameter> 
-     su ogni elemento di <parameter>array</parameter>. Normalmente
-     <parameter>funzione</parameter> accetta due parametri.
-     Il valore del parametro <parameter>array</parameter> viene passato per primo,
-     la chiave/indice per secondo. Se il parametro <parameter>datiutente</parameter>
-     è specificato, verrà passato come terzo parametro alla 
-     <parameter>funzione</parameter> callback.
-    </simpara>
-    <simpara>
-     Se <parameter>funzione</parameter> richiede più parametri di
-     quanti gliene vengono passati, un errore di livello <link linkend="errorfunc.constants">
-     E_WARNING</link> verrà generato ogni volta che <function>array_walk</function>
-     la chiama. Questi avvertimenti possono essere soppressi
-     apponendo l'operatore d'errore 
-     <link linkend="language.operators.errorcontrol">@</link> alla
-     chiamata di <function>array_walk</function>, oppure usando
-     <function>error_reporting</function>.
-    </simpara>
-    <note>
-     <para>
-      Se <parameter>funzione</parameter> deve lavorare con i 
-      reali valori dell'array, specificare che il primo parametro di 
-      <parameter>funzione</parameter> deve essere passato come
-      <link linkend="language.references">riferimento</link>. A qesto punto
-      ogni modifica a questi elementi verrà effettuata sull'array
-      stesso.
-     </para>
-    </note>
-    <note>
-     <para>
-      Il passaggio della chiave e di <parameter>datiutente</parameter> a <parameter>func</parameter> è
-      stato aggiunto nella versione 4.0.
-     </para>
-    </note>
-    <para>
-     <function>array_walk</function> non è influenzato dal puntatore
-     interno dell'array <parameter>array</parameter>. <function>
-     array_walk</function> percorrerà l'intero array
-     indipendentemente dalla posizione del puntatore. Per reinizializzare il puntatore, utilizzare
-     <function>reset</function>. In PHP 3,
-     <function>array_walk</function> reinizializza il puntatore.
-    </para>
-    <para>
-     Gli utenti non possono modificare l'array attraverso la funzione
-     di callback, ad esempio aggiungere/togliere un elemento, o cancellare l'array su cui
-     <function>array_walk</function> è applicata. Se l'array viene
-     cambiato, il comportamento di questa funzione non è definito ed
-     è imprevedibile.
-    </para>
-    <para>
-     <example>
-      <title>esempio di <function>array_walk</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 4ca7cdeaee66bff2fefb9df88213ea6fc2e6f3dc Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
+<refentry xml:id="function.array-walk" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>array_walk</refname>
+  <refpurpose>Applica una funzione definita dall'utente a ogni elemento di un array</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>true</type><methodname>array_walk</methodname>
+   <methodparam><type class="union"><type>array</type><type>object</type></type><parameter role="reference">array</parameter></methodparam>
+   <methodparam><type>callable</type><parameter>callback</parameter></methodparam>
+   <methodparam choice="opt"><type>mixed</type><parameter>arg</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <simpara>
+   Applica la funzione definita dall'utente <parameter>callback</parameter> a ogni
+   elemento dell'array <parameter>array</parameter>.
+  </simpara>
+  <para>
+   <function>array_walk</function> non è influenzata dal puntatore interno
+   dell'array <parameter>array</parameter>. <function>array_walk</function>
+   percorrerà l'intero array indipendentemente dalla posizione del puntatore.
+  </para>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>array</parameter></term>
+     <listitem>
+      <para>
+       L'array in input.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>callback</parameter></term>
+     <listitem>
+      <para>
+       In genere, <parameter>callback</parameter> accetta due parametri:
+       il primo è il valore del parametro <parameter>array</parameter> e
+       il secondo è la chiave/indice.
+      </para>
+      <note>
+       <para>
+        Se <parameter>callback</parameter> deve lavorare con i
+        valori effettivi dell'array, specificare il primo parametro di
+        <parameter>callback</parameter> come
+        <link linkend="language.references">riferimento</link>. In questo modo,
+        qualsiasi modifica a quegli elementi verrà apportata
+        all'array originale stesso.
+       </para>
+      </note>
+      <note>
+        <para>
+          Molte funzioni interne (ad esempio <function>strtolower</function>)
+          lanciano un errore se vengono passati più argomenti del previsto
+          e quindi non possono essere usate direttamente come
+          <parameter>callback</parameter>.
+        </para>
+      </note>
+      <para>
+       Solo i valori di <parameter>array</parameter> possono essere
+       modificati; la sua struttura non può essere alterata, cioè non è possibile
+       aggiungere, eliminare o riordinare elementi. Se la callback non rispetta questo
+       requisito, il comportamento di questa funzione è indefinito e
+       imprevedibile.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>arg</parameter></term>
+     <listitem>
+      <para>
+       Se viene fornito il parametro opzionale <parameter>arg</parameter>,
+       questo verrà passato come terzo parametro alla
+       <parameter>callback</parameter>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.true.always;
+  </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <para>
+   A partire da PHP 7.1.0, viene lanciato un <classname>ArgumentCountError</classname> se la funzione <parameter>callback</parameter>
+   richiede più di 2 parametri (il valore e la chiave dell'elemento dell'array),
+   o più di 3 parametri se viene passato anche <parameter>arg</parameter>.
+   In precedenza, in questo caso
+   veniva generato un errore di livello <link linkend="errorfunc.constants">E_WARNING</link> ogni volta che
+   <function>array_walk</function> chiamava <parameter>callback</parameter>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &return.type.true;
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       Se <parameter>callback</parameter> si aspetta che il secondo o il terzo parametro venga passato
+       per riferimento, questa funzione ora emette un <constant>E_WARNING</constant>.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>array_walk</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$frutta = array("d"=>"limone", "a"=>"arancia", "b"=>"banana", "c"=>"mela");
+$fruits = array("d" => "limone", "a" => "arancia", "b" => "banana", "c" => "mela");
 
-function modifica(&$elemento1, $chiave, $prefisso) 
+function test_alter(&$item1, $key, $prefix)
 {
-    $elemento1 = "$prefisso: $elemento1";
+    $item1 = "$prefix: $item1";
 }
 
-function stampa($elemento2, $chiave) 
+function test_print($item2, $key)
 {
-    echo "$chiave. $elemento2<br />\n";
+    echo "$key. $item2\n";
 }
 
 echo "Prima ...:\n";
-array_walk($frutta, 'stampa');
+array_walk($fruits, 'test_print');
 
-array_walk($frutta, 'modifica', 'frutto');
+array_walk($fruits, 'test_alter', 'frutto');
 echo "... e dopo:\n";
 
-array_walk($frutta, 'stampa');
+array_walk($fruits, 'test_print');
 ?>
 ]]>
-      </programlisting>
-      <para>
-       Il risultato del programma sarà:
-      </para>
-      <screen role="php">
+    </programlisting>
+    &example.outputs;
+    <screen role="php">
 <![CDATA[
 Prima ...:
 d. limone
@@ -115,20 +171,50 @@ a. frutto: arancia
 b. frutto: banana
 c. frutto: mela
 ]]>
-       </screen>
-     </example>
-    </para>
-    <simpara>
-     Vedere anche <function>array_walk_recursive</function>,
-     <function>create_function</function>,
-     <function>list</function>,
-     <link linkend="control-structures.foreach">foreach</link>, 
-     <function>each</function>,
-     <function>call_user_func_array</function> e
-     <function>array_map</function>
-    </simpara>
-   </refsect1>
-  </refentry>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Esempio di <function>array_walk</function> con una funzione anonima</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$elements = ['a', 'b', 'c'];
+
+array_walk($elements, function ($value, $key) {
+  echo "{$key} => {$value}\n";
+});
+
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen role="php">
+<![CDATA[
+0 => a
+1 => b
+2 => c
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>array_walk_recursive</function></member>
+    <member><function>iterator_apply</function></member>
+    <member><function>list</function></member>
+    <member><function>each</function></member>
+    <member><function>call_user_func_array</function></member>
+    <member><function>array_map</function></member>
+    <member>&foreach;</member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

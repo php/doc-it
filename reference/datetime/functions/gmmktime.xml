@@ -1,32 +1,184 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/datetime.xml, last change in rev 1.1 -->
-<!-- last change to 'gmmktime' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: curcio_it Status: ready -->
-<!-- OLD-Revision: 1.71/EN.1.2 -->
-  <refentry xml:id="function.gmmktime" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>gmmktime</refname>
-    <refpurpose>Riceve l'UNIX timestamp per una data GMT</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>gmmktime</methodname>
-      <methodparam><type>int</type><parameter>ora</parameter></methodparam>
-      <methodparam><type>int</type><parameter>minuto</parameter></methodparam>
-      <methodparam><type>int</type><parameter>secondo</parameter></methodparam>
-      <methodparam><type>int</type><parameter>mese</parameter></methodparam>
-      <methodparam><type>int</type><parameter>giorno</parameter></methodparam>
-      <methodparam><type>int</type><parameter>anno</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>is_dst</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Identica alla funzione <function>mktime</function> eccetto per il paramentro passato, che
-     rappresenta una data GMT.
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 3a8c3e77df070a046c9d5b56b68926ca2d7e5ee3 Maintainer: pastore Status: ready -->
+<!-- CREDITS: curcio_it -->
+<refentry xml:id="function.gmmktime" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>gmmktime</refname>
+  <refpurpose>Ottiene il timestamp Unix per una data GMT</refpurpose>
+ </refnamediv>
 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>int</type><type>false</type></type><methodname>gmmktime</methodname>
+   <methodparam><type>int</type><parameter>hour</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>minute</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>second</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>month</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>day</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>year</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Identica a <function>mktime</function>, tranne per il fatto che i parametri passati rappresentano una
+   data GMT. <function>gmmktime</function> usa internamente <function>mktime</function>,
+   quindi possono essere usati solo orari validi nell'ora locale derivata.
+  </para>
+  <para>
+   Come per <function>mktime</function>, gli argomenti opzionali possono essere omessi
+   in ordine da destra a sinistra; gli argomenti omessi vengono impostati al
+   corrispondente valore GMT corrente.
+  </para>
+  <simpara>
+   La chiamata a <function>gmmktime</function> senza argomenti non è
+   supportata e genera un <classname>ArgumentCountError</classname>.
+   <function>time</function> può essere usata per ottenere il timestamp corrente.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>hour</parameter></term>
+     <listitem>
+      <para>
+       Il numero dell'ora relativo all'inizio del giorno determinato da
+       <parameter>month</parameter>, <parameter>day</parameter> e <parameter>year</parameter>.
+       I valori negativi indicano le ore prima della mezzanotte del giorno in questione.
+       I valori maggiori di 23 indicano l'ora corrispondente nel giorno o nei giorni successivi.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>minute</parameter></term>
+     <listitem>
+      <para>
+       Il numero del minuto relativo all'inizio di <parameter>hour</parameter>.
+       I valori negativi indicano i minuti dell'ora precedente.
+       I valori maggiori di 59 indicano il minuto corrispondente nell'ora o nelle ore successive.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>second</parameter></term>
+     <listitem>
+      <para>
+       Il numero di secondi relativo all'inizio di <parameter>minute</parameter>.
+       I valori negativi indicano i secondi del minuto precedente.
+       I valori maggiori di 59 indicano il secondo corrispondente nel minuto o nei minuti successivi.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>month</parameter></term>
+     <listitem>
+      <para>
+       Il numero del mese relativo alla fine dell'anno precedente.
+       I valori da 1 a 12 indicano i normali mesi di calendario dell'anno in questione.
+       I valori minori di 1 (compresi quelli negativi) indicano i mesi dell'anno precedente in ordine inverso, quindi 0 è dicembre, -1 è novembre, ecc.
+       I valori maggiori di 12 indicano il mese corrispondente nell'anno o negli anni successivi.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>day</parameter></term>
+     <listitem>
+      <para>
+       Il numero del giorno relativo alla fine del mese precedente.
+       I valori da 1 a 28, 29, 30 o 31 (a seconda del mese) indicano i normali giorni del mese in questione.
+       I valori minori di 1 (compresi quelli negativi) indicano i giorni del mese precedente, quindi 0 è l'ultimo giorno del mese precedente, -1 il giorno prima, ecc.
+       I valori maggiori del numero di giorni del mese in questione indicano il giorno corrispondente nel mese o nei mesi successivi.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>year</parameter></term>
+     <listitem>
+      <para>
+       L'anno
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce un timestamp Unix di tipo <type>int</type> in caso di successo, oppure &false; se il
+   timestamp non può essere rappresentato da un intero PHP.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        <parameter>hour</parameter> non è più opzionale. Se occorre un timestamp
+        Unix, usare <function>time</function>.
+       </entry>
+      </row>
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        <parameter>minute</parameter>, <parameter>second</parameter>, <parameter>month</parameter>,
+        <parameter>day</parameter> e <parameter>year</parameter> ora sono nullable.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio base di <function>gmmktime</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+date_default_timezone_set("Indian/Maldives");
+
+echo "Il 1º luglio 2000 era un " . date("l", gmmktime(0, 0, 0, 7, 1, 2000));
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+Il 1º luglio 2000 era un Saturday
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member>La classe <classname>DateTimeImmutable</classname></member>
+    <member><function>mktime</function></member>
+    <member><function>date</function></member>
+    <member><function>time</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

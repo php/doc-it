@@ -1,80 +1,120 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-<!-- CREDITS: cortesi -->
-<!-- OLD-Revision: 1.134/EN.1.2 -->
-  <refentry xml:id="function.fscanf" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>fscanf</refname>
-    <refpurpose>Analizza l'input da un file secondo un determinato formato</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>mixed</type><methodname>fscanf</methodname>
-      <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
-      <methodparam><type>string</type><parameter>format</parameter></methodparam>
-      <methodparam choice="opt"><type>mixed</type><parameter role="reference">...</parameter></methodparam>
-      </methodsynopsis>
-    <para>
-     La funzione <function>fscanf</function> è simile a 
-     <function>sscanf</function>, ma prende il proprio input da un file 
-     associato con <parameter>handle</parameter> e interpreta 
-     l'input in accordo con il parametro 
-     <parameter>format</parameter>, che viene descritto nella documentazione della funzione
-     <function>sprintf</function>. Se vengono passati solo due parametri
-     a questa funzione, i valori esaminati verranno restituiti in un vettore.
-     Altrimenti, se vengono passati i parametri opzionali, la funzione restituirà
-     il numero dei valori assegnati. I parametri opzionali
-     devono essere passati da reference.
-    </para>
-    <para>
-     Ogni spazio nella stringa di formato identifica uno spazio nel flusso
-     di input. Questo significa che anche i tab <literal>\t</literal> presenti nella stringa
-     di formato possono identiicare uno spazio nel flusso di input.
-    </para>
-    <para>
-     <example>
-      <title>Esempio di <function>fscanf</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 9947012f745f0fb6e083bce5a8c920213ff468b7 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi,fernando -->
+<refentry xml:id="function.fscanf" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>fscanf</refname>
+  <refpurpose>Analizza l'input da un file secondo un formato</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>array</type><type>int</type><type>false</type><type>null</type></type><methodname>fscanf</methodname>
+   <methodparam><type>resource</type><parameter>stream</parameter></methodparam>
+   <methodparam><type>string</type><parameter>format</parameter></methodparam>
+   <methodparam rep="repeat"><type>mixed</type><parameter role="reference">vars</parameter></methodparam>
+  </methodsynopsis>
+  <simpara>
+   La funzione <function>fscanf</function> è simile a
+   <function>sscanf</function>, ma prende il proprio input da un file
+   associato a <parameter>stream</parameter> e interpreta
+   l'input secondo il <parameter>format</parameter> specificato.
+  </simpara>
+  <simpara>
+   Qualsiasi spazio bianco nella stringa di formato corrisponde a qualsiasi spazio bianco nello stream
+   di input. Ciò significa che anche una tabulazione (<literal>\t</literal>) nella stringa
+   di formato può corrispondere a un singolo carattere di spazio nello stream di input.
+  </simpara>
+  <simpara>
+   Ogni chiamata a <function>fscanf</function> legge una riga dal file.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <variablelist>
+   <varlistentry>
+    <term><parameter>stream</parameter></term>
+    <listitem>
+     &fs.file.pointer;
+    </listitem>
+   </varlistentry>
+   &strings.scanf.parameter.format;
+   <varlistentry>
+    <term><parameter>vars</parameter></term>
+    <listitem>
+     <simpara>
+      I valori assegnati opzionali.
+     </simpara>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <simpara>
+   Se a questa funzione vengono passati solo due parametri, i valori analizzati verranno
+   restituiti come <type>array</type>. Altrimenti, se vengono passati parametri opzionali,
+   la funzione restituirà il numero di valori assegnati. I parametri
+   opzionali devono essere passati per riferimento.
+  </simpara>
+  <simpara>
+   Se nel <parameter>format</parameter> sono previste più sottostringhe
+   di quante ne siano disponibili in <parameter>string</parameter>,
+   verrà restituito &null;. In caso di altri errori, verrà restituito &false;.
+  </simpara>
+  <simpara>
+   Quando si usano i parametri opzionali e si raggiunge la fine dell'input letto da
+   <parameter>stream</parameter> prima che sia stato analizzato alcun valore,
+   viene restituito <literal>-1</literal>.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <example>
+   <title>Esempio di <function>fscanf</function></title>
+   <programlisting role="php">
 <![CDATA[
 <?php
 $handle = fopen("users.txt", "r");
-while ($userinfo = fscanf ($handle, "%s\t%s\t%s\n")) {
+while ($userinfo = fscanf($handle, "%s\t%s\t%s\n")) {
     list ($name, $profession, $countrycode) = $userinfo;
-    //... fai quacosa coi valori ...
+    //... fare qualcosa con i valori
 }
 fclose($handle);
 ?>
 ]]>
-      </programlisting>
-     </example>
-     <example>
-      <title>Cntyennts of users.txt</title>
-      <programlisting role="txt">
+   </programlisting>
+  </example>
+  <example>
+   <title>Contenuto di users.txt</title>
+   <programlisting role="txt">
 <![CDATA[
-javier  argonaut        pe
-hiroshi sculptor        jp
-robert  slacker us
-luigi   florist it
+javier  argonauta       pe
+hiroshi scultore        jp
+robert  fannullone      us
+luigi   fiorista        it
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <note>
-     <simpara>
-      Nelle versioni di PHP precedenti alla 4.3.0, il numero massimo di caratteri
-      letti da un file era di 512 (o fino al primo \n, dipende da quale si incontra prima).
-      Dal PHP 4.3.0 si possono esaminare linee di lunghezza arbitraria.
-     </simpara>
-    </note>
-    <para>
-     Vedere anche <function>fread</function>, <function>fgets</function>,
-     <function>fgetss</function>, <function>sscanf</function>,
-     <function>printf</function> e <function>sprintf</function>.
-    </para>
-   </refsect1>
-  </refentry>
+   </programlisting>
+  </example>
+ </refsect1>
 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <simplelist>
+   <member><function>fread</function></member>
+   <member><function>fgets</function></member>
+   <member><function>fgetss</function></member>
+   <member><function>sscanf</function></member>
+   <member><function>printf</function></member>
+   <member><function>sprintf</function></member>
+  </simplelist>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

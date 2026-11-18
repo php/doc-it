@@ -1,40 +1,117 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/info.xml, last change in rev 1.71 -->
-  <refentry xml:id="function.get-defined-constants" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>get_defined_constants</refname>
-    <refpurpose>
-     Restituisve un array associativo con i nomi di tutte le costanti
-     ed i loro valori
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>array</type><methodname>get_defined_constants</methodname>
-      <void/>
-     </methodsynopsis>
-    <para>
-     Questa funzione restituisce i nomi ed i valori di tutte le costanti
-     attualmente definite. Queste includono sia quelle create dalle estensioni
-     sia quelle create con la funzione 
-     <function>define</function>.
-    </para>
-    <para>
-     Ad esempio la linea seguente:
-     <informalexample>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: df4b2be84a0ca22f837f2a921bc40b178be45c66 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.get-defined-constants" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>get_defined_constants</refname>
+  <refpurpose>Restituisce un array associativo con i nomi di tutte le costanti e i loro valori</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>array</type><methodname>get_defined_constants</methodname>
+   <methodparam choice="opt"><type>bool</type><parameter>categorize</parameter><initializer>&false;</initializer></methodparam>
+  </methodsynopsis>
+  <simpara>
+   Restituisce i nomi e i valori di tutte le costanti attualmente definite. Ciò include le costanti
+   definite dalle estensioni e quelle create usando la funzione <function>define</function>.
+   Tuttavia, esclude le <link linkend="language.constants.magic">costanti magiche</link>,
+   che vengono risolte in fase di compilazione.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>categorize</parameter></term>
+     <listitem>
+      <para>
+       Fa sì che questa funzione restituisca un array
+       multidimensionale con le categorie nelle chiavi della prima dimensione e le costanti
+       e i loro valori nella seconda dimensione.
+       <informalexample>
+        <programlisting role="php">
+<![CDATA[
+<?php
+define("MY_CONSTANT", 1);
+print_r(get_defined_constants(true));
+?>
+]]>
+        </programlisting>
+        &example.outputs.similar;
+        <screen>
+<![CDATA[
+Array
+(
+    [Core] => Array
+        (
+            [E_ERROR] => 1
+            [E_WARNING] => 2
+            [E_PARSE] => 4
+            [E_NOTICE] => 8
+            [E_CORE_ERROR] => 16
+            [E_CORE_WARNING] => 32
+            [E_COMPILE_ERROR] => 64
+            [E_COMPILE_WARNING] => 128
+            [E_USER_ERROR] => 256
+            [E_USER_WARNING] => 512
+            [E_USER_NOTICE] => 1024
+            [E_ALL] => 30719
+            [TRUE] => 1
+        )
+
+    [pcre] => Array
+        (
+            [PREG_PATTERN_ORDER] => 1
+            [PREG_SET_ORDER] => 2
+            [PREG_OFFSET_CAPTURE] => 256
+            [PREG_SPLIT_NO_EMPTY] => 1
+            [PREG_SPLIT_DELIM_CAPTURE] => 2
+            [PREG_SPLIT_OFFSET_CAPTURE] => 4
+            [PREG_GREP_INVERT] => 1
+        )
+
+    [user] => Array
+        (
+            [MY_CONSTANT] => 1
+        )
+
+)
+]]>
+        </screen>
+       </informalexample>
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <simpara>
+   Restituisce un array di coppie nome della costante => valore della costante, eventualmente
+   raggruppate per nome dell'estensione che registra la costante.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>get_defined_constants</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 print_r(get_defined_constants());
 ?>
 ]]>
-      </programlisting>
-      <para>
-       visualizzerà il seguente elenco:
-      </para>
-      <screen>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
 <![CDATA[
 Array
 (
@@ -49,22 +126,29 @@ Array
     [E_USER_ERROR] => 256
     [E_USER_WARNING] => 512
     [E_USER_NOTICE] => 1024
-    [E_ALL] => 2047
+    [E_ALL] => 30719
     [TRUE] => 1
 )
 ]]>
-      </screen>
-     </informalexample>
-    </para>
-    <para>
-     Vedere anche:
-     <function>defined</function>,
-     <function>get_loaded_extensions</function>,
-     <function>get_defined_functions</function> e
-     <function>get_defined_vars</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>defined</function></member>
+    <member><function>constant</function></member>
+    <member><function>get_loaded_extensions</function></member>
+    <member><function>get_defined_functions</function></member>
+    <member><function>get_defined_vars</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

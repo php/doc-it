@@ -1,68 +1,127 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/array.xml, last change in rev 1.1 -->
-<!-- last change to 'current' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.173/EN.1.2 -->
-  <refentry xml:id="function.current" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>current</refname>
-    <refpurpose>Restituisce l'elemento corrente di un array</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>mixed</type><methodname>current</methodname>
-      <methodparam><type>array</type><parameter>array</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Ogni array ha un puntatore interno all'elemento "corrente",
-     che è inizializzato al primo elemento inserito
-     nell'array.
-    </para>
-    <para>
-     La funzione <function>current</function> restituisce il
-     valore dell'elemento che è attualmente puntato dal puntatore
-     interno. In ogni caso non muove il puntatore.  Se il
-     puntatore interno punta oltre la fine della lista di elementi,
-     <function>current</function> restituisce &false;.
-     <warning>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 2e60c5134e7a847c99f81eb3f7ecee1f5efeeace Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
+<refentry xml:id="function.current" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>current</refname>
+  <refpurpose>Restituisce l'elemento corrente di un array</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>mixed</type><methodname>current</methodname>
+   <methodparam><type class="union"><type>array</type><type>object</type></type><parameter>array</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Ogni array ha un puntatore interno al suo elemento "corrente",
+   che viene inizializzato al primo elemento inserito
+   nell'array.
+  </para>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>array</parameter></term>
+     <listitem>
       <para>
-       Se l'array contiene elementi vuoti (0 o "", la stringa
-       vuota) la funzione restituirà &false;
-       pure per questi elementi.  Questo rende impossibile
-       stabilire se si è veramente alla fine della lista in un
-       array di questo tipo usando <function>current</function>.  Per attraversare
-       in modo corretto un array che può contenere elementi vuoti, usare la
-       funzione <function>each</function>.
+       L'array.
       </para>
-     </warning>
-    </para>
-    <para>
-     <example>
-      <title>Esempio di <function>current</function> e funzioni relative</title>
-      <programlisting role="php">
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   La funzione <function>current</function> restituisce semplicemente il
+   valore dell'elemento dell'array a cui punta attualmente il
+   puntatore interno. Non sposta il puntatore in alcun modo. Se il
+   puntatore interno punta oltre la fine della lista degli elementi, oppure se l'array è
+   vuoto, <function>current</function> restituisce &false;.
+  </para>
+  &return.falseproblem;
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &standard.changelog.calling-on-objects;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di utilizzo di <function>current</function> e delle funzioni correlate</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$trasporti = array('piedi', 'bicicletta', 'automobile', 'aereo');
-$mode = current($trasporti); // $mode = 'piedi';
-$mode = next($trasporti);    // $mode = 'bicicletta';
-$mode = current($trasporti); // $mode = 'bicicletta';
-$mode = prev($trasporti);    // $mode = 'piedi';
-$mode = end($trasporti);     // $mode = 'aereo';
-$mode = current($trasporti); // $mode = 'aereo';
+$transport = array('piedi', 'bici', 'auto', 'aereo');
+echo $mode = current($transport), PHP_EOL; // $mode = 'piedi';
+echo $mode = next($transport), PHP_EOL;    // $mode = 'bici';
+echo $mode = current($transport), PHP_EOL; // $mode = 'bici';
+echo $mode = prev($transport), PHP_EOL;    // $mode = 'piedi';
+echo $mode = end($transport), PHP_EOL;     // $mode = 'aereo';
+echo $mode = current($transport), PHP_EOL; // $mode = 'aereo';
+
+$arr = array();
+var_dump(current($arr)); // bool(false)
+
+$arr = array(array());
+var_dump(current($arr)); // array(0) { }
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Vedere anche <function>end</function>, <function>key</function>,
-     <function>next</function>, <function>prev</function> e
-     <function>reset</function>.
-    </para>
-   </refsect1>
-  </refentry>
-
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <simpara>
+    I risultati della chiamata a <function>current</function> su un array vuoto
+    e su un array il cui puntatore interno punta oltre la fine degli elementi
+    sono indistinguibili da un elemento &false; di tipo <type>bool</type>.
+    Per attraversare correttamente un array che potrebbe contenere elementi &false;, vedere la
+    struttura di controllo &foreach;.
+   </simpara>
+   <simpara>
+    Per usare comunque <function>current</function> e verificare correttamente se il valore
+    è davvero un elemento dell'array, occorre verificare che la <function>key</function>
+    dell'elemento <function>current</function> sia strettamente
+    diversa da &null;.
+   </simpara>
+  </note>
+ </refsect1>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>end</function></member>
+    <member><function>key</function></member>
+    <member><function>each</function></member>
+    <member><function>prev</function></member>
+    <member><function>reset</function></member>
+    <member><function>next</function></member>
+    <member>&foreach;</member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

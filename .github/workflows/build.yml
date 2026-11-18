@@ -10,8 +10,28 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # A list in runs-on means "one runner with all these labels", which never
+    # matches: a matrix runs the same job once per operating system instead.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-2025]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     steps:
+      # Keep LF endings in doc-en and doc-base too (doc-it has .gitattributes).
+      - name: Disable CRLF conversion
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
+      # Same PHP on both systems, so both builds give the same result.
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+
       - name: Checkout
         uses: actions/checkout@v2
         with:

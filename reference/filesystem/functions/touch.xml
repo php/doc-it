@@ -1,51 +1,144 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-<!-- CREDITS: cortesi -->
-  <refentry xml:id="function.touch" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>touch</refname>
-    <refpurpose>Imposta l'ora di modifica di un file</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>touch</methodname>
-      <methodparam><type>string</type><parameter>filename</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>time</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>atime</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Tenta di impostare l'ora di modifica del file indicato da 
-     <parameter>filename</parameter>. Se il parametro <parameter>time</parameter>
-     non è passato, usa l'ora attuale. Ciò equivale a quello che fa utime
-     (a volte indicato come utimes). Se è presente il terzo parametro opzionale
-     <parameter>atime</parameter> è presente, viene utilizzato per impostare
-     l'orario di accesso al file indicato.
-     Occorre rilevare che l'orario di accesso è sempre modificato, indipendentemente dal
-     numero dei parametri.
-    </para>
-    <para>
-     Se il file non esiste, viene creato.
-    </para>
-    <para>
-     <example>
-      <title><function>touch</function> example</title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 2b56c905fb0d6fcab44cc0c2abdbf393fc2b69ea Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi,fernando -->
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.touch">
+ <refnamediv>
+  <refname>touch</refname>
+  <refpurpose>Imposta l'ora di accesso e di modifica di un file</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>touch</methodname>
+   <methodparam><type>string</type><parameter>filename</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>mtime</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>atime</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Tenta di impostare l'ora di accesso e di modifica del file indicato nel
+   parametro <parameter>filename</parameter> al valore fornito in
+   <parameter>mtime</parameter>.
+   Si noti che l'ora di accesso viene sempre modificata, indipendentemente dal numero
+   di parametri.
+  </para>
+  <para>
+   Se il file non esiste, verrà creato.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>filename</parameter></term>
+     <listitem>
+      <para>
+       Il nome del file su cui eseguire il touch.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>mtime</parameter></term>
+     <listitem>
+      <para>
+       L'ora del touch. Se <parameter>mtime</parameter> è &null;,
+       viene usata l'ora corrente di sistema (<function>time</function>).
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>atime</parameter></term>
+     <listitem>
+      <para>
+       Se non è &null;, l'ora di accesso del file indicato viene impostata
+       al valore di <parameter>atime</parameter>. Altrimenti, viene impostata
+       al valore passato al parametro <parameter>mtime</parameter>.
+       Se entrambi sono &null;, viene usata l'ora corrente di sistema.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>mtime</parameter> e <parameter>atime</parameter>
+       ora sono nullable.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>touch</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-if (touch($FileName)) {
-    echo "$FileName modification time has been changed to present time";
+if (touch($filename)) {
+    echo 'L\'ora di modifica di ' . $filename . ' è stata impostata all\'ora attuale';
 } else {
-    echo "Sorry, could not change modification time of $FileName";
+    echo 'Spiacenti, impossibile cambiare l\'ora di modifica di ' . $filename;
 }
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Uso di <function>touch</function> con il parametro <parameter>mtime</parameter></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// Questa è l'ora del touch, che viene impostata a un'ora fa.
+$time = time() - 3600;
+
+// Esegue il touch del file
+if (!touch('some_file.txt', $time)) {
+    echo 'Ops, qualcosa è andato storto...';
+} else {
+    echo 'Touch del file eseguito con successo';
+}
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.filesystem-time-res;
+ </refsect1>
+ 
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

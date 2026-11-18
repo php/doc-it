@@ -1,46 +1,137 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/info.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.getrusage" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>getrusage</refname>
-    <refpurpose>Restituisce lo stato dell'utilizzo delle risorse</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>array</type><methodname>getrusage</methodname>
-      <methodparam choice="opt"><type>int</type><parameter>who</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-    Questa funzione è un interfaccia a getrusage(2). Restituisce una matrice associativa
-    contente le informazioni restituite dalla chiamata di sistema. Se il parametro
-    <parameter>who</parameter> vale 1, <function>getrusage</function>sarà eseguita con RUSAGE_CHILDREN.
-    </para>
-    <para>
-     Tutte le informazioni sono accessibili tramite i nomi dei campi documentati.
-    </para>
-    <para>
-     <example>
-      <title>Esempio di uso di <function>getrusage</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 5367d2fcdf4b710a81806aba52a71c522f082713 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.getrusage" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>getrusage</refname>
+  <refpurpose>Ottiene l'utilizzo corrente delle risorse</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>array</type><type>false</type></type><methodname>getrusage</methodname>
+   <methodparam choice="opt"><type>int</type><parameter>mode</parameter><initializer>0</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Questa è un'interfaccia a <command>getrusage(2)</command>. Ottiene i dati restituiti
+   dalla chiamata di sistema.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>mode</parameter></term>
+     <listitem>
+      <para>
+       Se <parameter>mode</parameter> è 1, getrusage verrà chiamata con
+       <constant>RUSAGE_CHILDREN</constant>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce un array associativo contenente i dati restituiti dalla chiamata
+   di sistema. Tutte le voci sono accessibili usando i nomi dei campi documentati.
+   Restituisce &false; in caso di errore.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>getrusage</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 $dat = getrusage();
+echo $dat["ru_oublock"];       // numero di operazioni di output a blocchi
+echo $dat["ru_inblock"];       // numero di operazioni di input a blocchi
+echo $dat["ru_msgsnd"];        // numero di messaggi IPC inviati
+echo $dat["ru_msgrcv"];        // numero di messaggi IPC ricevuti
+echo $dat["ru_maxrss"];        // dimensione massima del resident set
+echo $dat["ru_ixrss"];         // dimensione integrale della memoria condivisa
+echo $dat["ru_idrss"];         // dimensione integrale dei dati non condivisi
+echo $dat["ru_minflt"];        // numero di recuperi di pagina (soft page fault)
+echo $dat["ru_majflt"];        // numero di page fault (hard page fault)
+echo $dat["ru_nsignals"];      // numero di segnali ricevuti
+echo $dat["ru_nvcsw"];         // numero di cambi di contesto volontari
+echo $dat["ru_nivcsw"];        // numero di cambi di contesto involontari
 echo $dat["ru_nswap"];         // numero di swap
-echo $dat["ru_majflt"];        // numero di page faults
-echo $dat["ru_utime.tv_sec"];  // tempo utente utilizzato (seconds)
-echo $dat["ru_utime.tv_usec"]; // tempo utente utilizzato (microseconds)
+echo $dat["ru_utime.tv_usec"]; // tempo utente utilizzato (microsecondi)
+echo $dat["ru_utime.tv_sec"];  // tempo utente utilizzato (secondi)
+echo $dat["ru_stime.tv_usec"]; // tempo di sistema utilizzato (microsecondi)
+echo $dat["ru_stime.tv_sec"];  // tempo di sistema utilizzato (secondi)
 ?>
 ]]>
-      </programlisting>
-     </example>
-     Per maggior dettagli si veda la pagina di getrusage(2) nel manuale del proprio  sistema.
-    </para>
-    &note.no-windows;
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    Su Windows <function>getrusage</function> restituirà solo i seguenti
+    membri:
+   </para>
+   <para>
+    <simplelist>
+     <member><literal>"ru_stime.tv_sec"</literal></member>
+     <member><literal>"ru_stime.tv_usec"</literal></member>
+     <member><literal>"ru_utime.tv_sec"</literal></member>
+     <member><literal>"ru_utime.tv_usec"</literal></member>
+     <member>
+      <literal>"ru_majflt"</literal> (solo se <parameter>mode</parameter> è
+      <constant>RUSAGE_SELF</constant>)
+     </member>
+     <member>
+      <literal>"ru_maxrss"</literal> (solo se <parameter>mode</parameter> è
+      <constant>RUSAGE_SELF</constant>)
+     </member>
+    </simplelist>
+   </para>
+   <simpara>
+    Se <function>getrusage</function> viene chiamata con <parameter>mode</parameter>
+    impostato a <literal>1</literal> (<constant>RUSAGE_CHILDREN</constant>), allora
+    viene raccolto l'utilizzo delle risorse dei processi figli.
+   </simpara>
+  </note>
+  <note>
+   <para>
+    Su BeOS 2000, vengono restituiti solo i seguenti membri:
+   </para>
+   <para>
+    <simplelist>
+     <member><literal>"ru_stime.tv_sec"</literal></member>
+     <member><literal>"ru_stime.tv_usec"</literal></member>
+     <member><literal>"ru_utime.tv_sec"</literal></member>
+     <member><literal>"ru_utime.tv_usec"</literal></member>
+    </simplelist>
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member>La pagina man del proprio sistema su <command>getrusage(2)</command></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

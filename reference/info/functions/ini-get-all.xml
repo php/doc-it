@@ -1,87 +1,221 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/info.xml, last change in rev 1.23 -->
-  <refentry xml:id="function.ini-get-all" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>ini_get_all</refname>
-    <refpurpose>Restituisce tutte le opzioni di configurazione</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>array</type><methodname>ini_get_all</methodname>
-      <methodparam choice="opt"><type>string</type><parameter>extension</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Restituisce tutte le opzioni di configurazione come una matrice
-     associativa. Se viene specificato il parametro opzionale <parameter>extension</parameter>
-     La funzione restituirà solo le opzioni specifiche per quel modulo.
-    </para>
-    <para>
-     I nomi delle opzioni faranno da indice per la matrcie restituita,
-     quindi gli elementi potranno essere: <literal>global_value</literal> (impostata in
-     &php.ini;), <literal>local_value</literal> (impostata in
-     <function>ini_set</function> oppure in &htaccess;), e
-     <literal>access</literal> (il livello di accesso).  Per avere informazioni
-     su cosa siano i livello di accesso, vedere la pagina del manuale
-     su <link linkend="configuration.changes">modifiche di configurazione</link>
-    </para>
-    <note>
-     <para>
-      Per le direttive è possibile avere più livelli di accesso, è per questo che
-      <literal>access</literal> restituisce le appropriate maschere di bit.
-     </para>
-    </note>
-    <para>
-     <example>
-      <title>Esempio di uso di  <function>ini_get_all</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: e1c07e73cad907fd44dab6684b0a846f9e3798e2 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.ini-get-all" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>ini_get_all</refname>
+  <refpurpose>Ottiene tutte le opzioni di configurazione</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>array</type><type>false</type></type><methodname>ini_get_all</methodname>
+   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>extension</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type>bool</type><parameter>details</parameter><initializer>&true;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Restituisce tutte le opzioni di configurazione registrate.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>extension</parameter></term>
+     <listitem>
+      <para>
+       Un nome di estensione opzionale. Se non è &null; o la &string; <literal>core</literal>, la funzione restituisce solo le opzioni
+       specifiche di quell'estensione.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>details</parameter></term>
+     <listitem>
+      <para>
+       Recupera le impostazioni dettagliate o solo il valore corrente di ciascuna impostazione.
+       Il valore predefinito è &true; (recupera i dettagli).
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce un array associativo con il nome della direttiva come chiave dell'array.
+   Restituisce &false; ed emette un errore di livello <constant>E_WARNING</constant>
+   se <parameter>extension</parameter> non esiste.
+  </para>
+  <simpara>
+   Quando <parameter>details</parameter> è &true; (predefinito) l'array
+   conterrà <literal>global_value</literal> (impostato in
+   &php.ini;), <literal>local_value</literal> (eventualmente impostato con
+   <function>ini_set</function> o &htaccess;),
+   <literal>builtin_default_value</literal> (il valore predefinito integrato della
+   direttiva, o &null; se non ne ha, indipendente dai valori impostati in
+   &php.ini;, sulla riga di comando o a runtime) e
+   <literal>access</literal> (il livello di accesso).
+  </simpara>
+  <para>
+   Quando <parameter>details</parameter> è &false; il valore sarà il
+   valore corrente dell'opzione.
+  </para>
+  <para>
+   Vedere la <link linkend="configuration.changes.modes">sezione del manuale</link>
+   per informazioni sul significato dei livelli di accesso.
+  </para>
+  <note>
+   <para>
+    È possibile che una direttiva abbia più livelli di accesso, ed è per questo che
+    <literal>access</literal> mostra i valori di maschera di bit appropriati.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+ <informaltable>
+  <tgroup cols="2">
+   <thead>
+    <row>
+     <entry>&Version;</entry>
+     <entry>&Description;</entry>
+    </row>
+   </thead>
+   <tbody>
+    <row>
+     <entry>8.6.0</entry>
+     <entry>
+      L'elemento <literal>builtin_default_value</literal> è stato aggiunto
+      all'array dei dettagli restituito per ciascuna direttiva.
+     </entry>
+    </row>
+   </tbody>
+  </tgroup>
+ </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempi di <function>ini_get_all</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$inis = ini_get_all();
-
-print_r($inis);
-
+print_r(ini_get_all("pcre"));
+print_r(ini_get_all());
 ?>
 ]]>
-      </programlisting>
-      <para>
-       Parte dell'aoutput potrebbe essere:
-      </para>
-      <screen>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
 <![CDATA[
 Array
 (
+    [pcre.backtrack_limit] => Array
+        (
+            [global_value] => 100000
+            [local_value] => 100000
+            [builtin_default_value] => 100000
+            [access] => 7
+        )
+
+    [pcre.recursion_limit] => Array
+        (
+            [global_value] => 100000
+            [local_value] => 100000
+            [builtin_default_value] => 100000
+            [access] => 7
+        )
+
+)
+Array
+(
     [allow_call_time_pass_reference] => Array
-    (
-        [global_value] => 1
-        [local_value] => 1
-        [access] => 6
-    )
+        (
+            [global_value] => 0
+            [local_value] => 0
+            [builtin_default_value] => 0
+            [access] => 6
+        )
+
     [allow_url_fopen] => Array
-    (
-        [global_value] => 1
-        [local_value] => 1
-        [access] => 7
-    )
+        (
+            [global_value] => 1
+            [local_value] => 1
+            [builtin_default_value] => 1
+            [access] => 4
+        )
 
     ...
 
 )
 ]]>
-      </screen>
-     </example>
-    </para>
-    <para>
-     Vedere anche <function>ini_get</function>,
-     <function>ini_restore</function>, 
-     <function>ini_set</function>,
-     <function>get_loaded_extensions</function> e
-     <function>phpinfo</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </screen>
+   </example>
+   <example>
+    <title>Disabilitazione di <parameter>details</parameter></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+print_r(ini_get_all("pcre", false)); // Aggiunto in PHP 5.3.0
+print_r(ini_get_all(null, false)); // Aggiunto in PHP 5.3.0
+?>
+]]>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+Array
+(
+    [pcre.backtrack_limit] => 100000
+    [pcre.recursion_limit] => 100000
+)
+Array
+(
+    [allow_call_time_pass_reference] => 0
+    [allow_url_fopen] => 1
+    ...
+)
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    <function>ini_get_all</function> ignora le opzioni ini di tipo "array" come
+    <literal>pdo.dsn.<replaceable>*</replaceable></literal>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><xref linkend="configuration.changes"/></member>
+    <member><function>ini_get</function></member>
+    <member><function>ini_restore</function></member>
+    <member><function>ini_set</function></member>
+    <member><function>get_loaded_extensions</function></member>
+    <member><function>phpinfo</function></member>
+    <member><methodname>ReflectionExtension::getINIEntries</methodname></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,71 +1,224 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/array.xml, last change in rev 1.1 -->
-<!-- last change to 'array-unshift' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.173/EN.1.2 -->
-  <refentry xml:id="function.array-unshift" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>array_unshift</refname>
-    <refpurpose>
-     Inserisce uno o più elementi all'inizio dell'array
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>array_unshift</methodname>
-      <methodparam><type>array</type><parameter>array</parameter></methodparam>
-      <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
-      <methodparam choice="opt"><type>mixed</type><parameter>
-        ...
-       </parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>array_unshift</function> aggiunge gli elementi specificati in
-     testa ad <parameter>array</parameter>. Si noti che la lista
-     di elementi è aggiunta in blocco, in modo tale che gli
-     elementi rimangano nello stesso ordine. Tutte le chiavi numeriche vengono
-     modificate per iniziare da zero mentre le chiavi alfabetiche non sono modificate.
-    </para>
-    <para>
-     Restituisce il nuovo numero di elementi in
-     <parameter>array</parameter>.
-    </para>
-    <para>
-     <example>
-      <title>esempio di <function>array_unshift</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 17c238517825dfb7ec3edfef5972acd944ffbc1e Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
+<refentry xml:id="function.array-unshift" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>array_unshift</refname>
+  <refpurpose>Aggiunge uno o più elementi all'inizio di un array</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>int</type><methodname>array_unshift</methodname>
+   <methodparam><type>array</type><parameter role="reference">array</parameter></methodparam>
+   <methodparam rep="repeat"><type>mixed</type><parameter>values</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>array_unshift</function> aggiunge gli elementi passati all'inizio
+   di <parameter>array</parameter>. Si noti che la lista di elementi viene
+   aggiunta in blocco, in modo che gli elementi aggiunti mantengano lo stesso
+   ordine. Tutte le chiavi numeriche dell'array verranno modificate in modo da partire da
+   zero, mentre le chiavi stringa non verranno modificate.
+  </para>
+  &note.reset-index;
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>array</parameter></term>
+     <listitem>
+      <para>
+       L'array in input.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>values</parameter></term>
+     <listitem>
+      <para>
+       I valori da aggiungere in testa.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce il nuovo numero di elementi di <parameter>array</parameter>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>7.3.0</entry>
+       <entry>
+        Questa funzione ora può essere chiamata con un solo parametro. In precedenza,
+        erano richiesti almeno due parametri.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>array_unshift</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$lista = array("arancia", "banana");
-array_unshift($lista, "mela", "lampone");
+
+$queue = [
+    "arancia",
+    "banana"
+];
+
+array_unshift($queue, "mela", "lampone");
+
+var_dump($queue);
+
 ?>
 ]]>
-      </programlisting>
-      <para>
-       In questo modo <varname>$lista</varname> conterrà i
-       seguenti elementi:
-      </para>
-      <screen role="php">
+    </programlisting>
+    &example.outputs;
+    <screen role="php">
 <![CDATA[
-Array
-(
-    [0] => mela
-    [1] => lampone
-    [2] => arancia
-    [3] => banana
-)
+array(4) {
+  [0]=>
+  string(4) "mela"
+  [1]=>
+  string(7) "lampone"
+  [2]=>
+  string(7) "arancia"
+  [3]=>
+  string(6) "banana"
+}
 ]]>
-      </screen>
-     </example>
-    </para>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Uso con array associativi</title>
     <para>
-     Vedere anche <function>array_shift</function>,
-     <function>array_push</function> e
-     <function>array_pop</function>.
+     Se un array associativo viene aggiunto in testa a un altro array associativo,
+     l'array aggiunto viene inserito con indice numerico nel primo array.
     </para>
-   </refsect1>
-  </refentry>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+$foods = [
+    'mele' => [
+        'McIntosh' => 'rosso',
+        'Granny Smith' => 'verde',
+    ],
+    'arance' => [
+        'Navel' => 'arancione',
+        'Valencia' => 'arancione',
+    ],
+];
+
+$vegetables = [
+    'lattuga' => [
+        'Iceberg' => 'verde',
+        'Butterhead' => 'verde',
+    ],
+    'carote' => [
+        'Deep Purple Hybrid' => 'viola',
+        'Imperator' => 'arancione',
+    ],
+    'cetrioli' => [
+        'Kirby' => 'verde',
+        'Gherkin' => 'verde',
+    ],
+];
+
+array_unshift($foods, $vegetables);
+
+var_dump($foods);
+
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen role="php">
+<![CDATA[
+array(3) {
+  [0]=>
+  array(3) {
+    ["lattuga"]=>
+    array(2) {
+      ["Iceberg"]=>
+      string(5) "verde"
+      ["Butterhead"]=>
+      string(5) "verde"
+    }
+    ["carote"]=>
+    array(2) {
+      ["Deep Purple Hybrid"]=>
+      string(5) "viola"
+      ["Imperator"]=>
+      string(9) "arancione"
+    }
+    ["cetrioli"]=>
+    array(2) {
+      ["Kirby"]=>
+      string(5) "verde"
+      ["Gherkin"]=>
+      string(5) "verde"
+    }
+  }
+  ["mele"]=>
+  array(2) {
+    ["McIntosh"]=>
+    string(5) "rosso"
+    ["Granny Smith"]=>
+    string(5) "verde"
+  }
+  ["arance"]=>
+  array(2) {
+    ["Navel"]=>
+    string(9) "arancione"
+    ["Valencia"]=>
+    string(9) "arancione"
+  }
+}
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>array_merge</function></member>
+    <member><function>array_shift</function></member>
+    <member><function>array_push</function></member>
+    <member><function>array_pop</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

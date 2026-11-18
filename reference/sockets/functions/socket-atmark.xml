@@ -60,21 +60,21 @@ socket_connect( $socketClient, $stAddr, $uPort );
 $socket = socket_accept( $socketServer );
 socket_shutdown( $socket, 1 );
 
-$st = 'Questo è un dato normale.';
+$st = 'This is normal data.';
 socket_send( $socketClient, $st, strlen( $st ), 0 );
 $st = '!'; # TCP consente un solo byte di dati urgenti.
 socket_send( $socketClient, $st, strlen( $st ), MSG_OOB );
-$st = 'Non così urgente.';
+$st = 'Not so urgent.';
 socket_send( $socketClient, $st, strlen( $st ), 0 );
 socket_shutdown( $socketClient );
 
 do {
     if ( socket_atmark( $socket ) ) {
         $rc = socket_recv( $socket, $st, 65536, MSG_OOB );
-        echo "Dato urgente ricevuto: ({$rc}) {$st}\n";
+        echo "Received urgent data: ({$rc}) {$st}\n";
     } else {
         $rc = socket_recv( $socket, $st, 1024, 0 );
-        echo "Dato normale ricevuto: ({$rc}) {$st}\n";
+        echo "Received normal data: ({$rc}) {$st}\n";
     }
 } while ( $rc > 0 );
 socket_close( $socketServer );
@@ -86,10 +86,10 @@ socket_close( $socket );
     &example.outputs;
     <screen>
 <![CDATA[
-Dato normale ricevuto: (26) Questo è un dato normale.
-Dato urgente ricevuto: (1) !
-Dato normale ricevuto: (18) Non così urgente.
-Dato normale ricevuto: (0)
+Received normal data: (20) This is normal data.
+Received urgent data: (1) !
+Received normal data: (14) Not so urgent.
+Received normal data: (0)
 ]]>
     </screen>
    </example>

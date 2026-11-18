@@ -7,13 +7,13 @@
   <example>
    <title>Esempio di socket: semplice server TCP/IP</title>
    <para>
-    Questo esempio mostra un semplice server "talkback". Modifica le
+    Questo esempio mostra un semplice server "talkback". Modificare le
     variabili <varname>address</varname> e <varname>port</varname>
-    per adattarle alla tua configurazione ed eseguilo. Puoi quindi
-    connetterti al server con un comando simile a: <command>telnet 192.168.1.53
-    10000</command> (dove indirizzo e porta corrispondono alla tua
-    configurazione). Tutto ciò che digiti verrà quindi mostrato in output
-    sul lato server e rinviato a te. Per disconnetterti, digita 'quit'.
+    in base alla propria configurazione ed eseguirlo. È quindi possibile
+    connettersi al server con un comando simile a: <command>telnet 192.168.1.53
+    10000</command> (dove indirizzo e porta corrispondono alla propria
+    configurazione). Tutto ciò che viene digitato verrà quindi mostrato in output
+    sul lato server e rimandato indietro. Per disconnettersi, digitare 'quit'.
    </para>
    <programlisting role="php">
 <![CDATA[
@@ -32,30 +32,30 @@ $address = '192.168.1.53';
 $port = 10000;
 
 if (($sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) === false) {
-    echo "socket_create() fallita: motivo: " . socket_strerror(socket_last_error()) . "\n";
+    echo "socket_create() failed: reason: " . socket_strerror(socket_last_error()) . "\n";
 }
 
 if (socket_bind($sock, $address, $port) === false) {
-    echo "socket_bind() fallita: motivo: " . socket_strerror(socket_last_error($sock)) . "\n";
+    echo "socket_bind() failed: reason: " . socket_strerror(socket_last_error($sock)) . "\n";
 }
 
 if (socket_listen($sock, 5) === false) {
-    echo "socket_listen() fallita: motivo: " . socket_strerror(socket_last_error($sock)) . "\n";
+    echo "socket_listen() failed: reason: " . socket_strerror(socket_last_error($sock)) . "\n";
 }
 
 do {
     if (($msgsock = socket_accept($sock)) === false) {
-        echo "socket_accept() fallita: motivo: " . socket_strerror(socket_last_error($sock)) . "\n";
+        echo "socket_accept() failed: reason: " . socket_strerror(socket_last_error($sock)) . "\n";
         break;
     }
     /* Invia le istruzioni. */
-    $msg = "\nBenvenuto nel server di prova di PHP. \n" .
-        "Per uscire, digita 'quit'. Per arrestare il server digita 'shutdown'.\n";
+    $msg = "\nWelcome to the PHP Test Server. \n" .
+        "To quit, type 'quit'. To shut down the server type 'shutdown'.\n";
     socket_write($msgsock, $msg, strlen($msg));
 
     do {
         if (false === ($buf = socket_read($msgsock, 2048, PHP_NORMAL_READ))) {
-            echo "socket_read() fallita: motivo: " . socket_strerror(socket_last_error($msgsock)) . "\n";
+            echo "socket_read() failed: reason: " . socket_strerror(socket_last_error($msgsock)) . "\n";
             break 2;
         }
         if (!$buf = trim($buf)) {
@@ -68,7 +68,7 @@ do {
             socket_close($msgsock);
             break 2;
         }
-        $talkback = "PHP: Hai detto '$buf'.\n";
+        $talkback = "PHP: You said '$buf'.\n";
         socket_write($msgsock, $talkback, strlen($talkback));
         echo "$buf\n";
     } while (true);
@@ -94,7 +94,7 @@ socket_close($sock);
 <?php
 error_reporting(E_ALL);
 
-echo "<h2>Connessione TCP/IP</h2>\n";
+echo "<h2>TCP/IP Connection</h2>\n";
 
 /* Ottiene la porta per il servizio WWW. */
 $service_port = getservbyname('www', 'tcp');
@@ -105,15 +105,15 @@ $address = gethostbyname('www.example.com');
 /* Crea un socket TCP/IP. */
 $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 if ($socket === false) {
-    echo "socket_create() fallita: motivo: " . socket_strerror(socket_last_error()) . "\n";
+    echo "socket_create() failed: reason: " . socket_strerror(socket_last_error()) . "\n";
 } else {
     echo "OK.\n";
 }
 
-echo "Tentativo di connessione a '$address' sulla porta '$service_port'...";
+echo "Attempting to connect to '$address' on port '$service_port'...";
 $result = socket_connect($socket, $address, $service_port);
 if ($result === false) {
-    echo "socket_connect() fallita.\nMotivo: ($result) " . socket_strerror(socket_last_error($socket)) . "\n";
+    echo "socket_connect() failed.\nReason: ($result) " . socket_strerror(socket_last_error($socket)) . "\n";
 } else {
     echo "OK.\n";
 }
@@ -123,16 +123,16 @@ $in .= "Host: www.example.com\r\n";
 $in .= "Connection: Close\r\n\r\n";
 $out = '';
 
-echo "Invio della richiesta HTTP HEAD...";
+echo "Sending HTTP HEAD request...";
 socket_write($socket, $in, strlen($in));
 echo "OK.\n";
 
-echo "Lettura della risposta:\n\n";
+echo "Reading response:\n\n";
 while ($out = socket_read($socket, 2048)) {
     echo $out;
 }
 
-echo "Chiusura del socket...";
+echo "Closing socket...";
 socket_close($socket);
 echo "OK.\n\n";
 ?>
@@ -162,3 +162,4 @@ vim600: syn=xml fen fdm=syntax fdl=2 si
 vim: et tw=78 syn=sgml
 vi: ts=1 sw=1
 -->
+

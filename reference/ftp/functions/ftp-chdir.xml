@@ -1,65 +1,115 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/ftp.xml, last change in rev 1.2 -->
-<!-- last change to 'ftp-chdir' in en/ tree in rev 1.7 -->
-<!-- EN-Revision: n/a Maintainer: afparam Status: ready -->
-<!-- CREDITS: colombo -->
-<!-- OLD-Revision: 1.43/EN.1.2 -->
-  <refentry xml:id="function.ftp-chdir" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>ftp_chdir</refname>
-    <refpurpose>Cambia le directory su un server FTP</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>ftp_chdir</methodname>
-      <methodparam><type>resource</type><parameter>ftp_stream</parameter></methodparam>
-      <methodparam><type>string</type><parameter>directory</parameter></methodparam>
-     </methodsynopsis>
-    <para> 
-     Passa dalla directory corrente alla <parameter>directory</parameter> specificata.
-    </para>
-    <para>
-     &return.success;
-    </para>
-    <example>
-     <title>esempio <function>ftp_chdir</function> </title>
-     <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 4d1c34c9b7a30cfc3a59641122c707a2812cfed7 Maintainer: pastore Status: ready -->
+<!-- CREDITS: colombo,afparam -->
+<refentry xml:id="function.ftp-chdir" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>ftp_chdir</refname>
+  <refpurpose>Cambia la directory corrente su un server FTP</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>ftp_chdir</methodname>
+   <methodparam><type>FTP\Connection</type><parameter>ftp</parameter></methodparam>
+   <methodparam><type>string</type><parameter>directory</parameter></methodparam>
+  </methodsynopsis>
+  <para> 
+   Cambia la directory corrente con quella specificata.
+  </para>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>ftp</parameter></term>
+     <listitem>
+       &ftp.parameter.ftp;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>directory</parameter></term>
+     <listitem>
+      <para>
+       La directory di destinazione.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+   Se il cambio di directory fallisce, PHP emetterà anche un avviso.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &ftp.changelog.ftp-param;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>ftp_chdir</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 
-// stabilisce la connessione
-$conn_id = ftp_connect($ftp_server); 
+// stabilisce la connessione di base
+$ftp = ftp_connect($ftp_server); 
 
 // si collega con nome utente e password
-$login_result = ftp_login($conn_id, $ftp_user_name, $ftp_user_pass); 
+$login_result = ftp_login($ftp, $ftp_user_name, $ftp_user_pass); 
 
 // controlla la connessione
-if ((!$conn_id) || (!$login_result)) {
-    die("FTP connection has failed !");
+if ((!$ftp) || (!$login_result)) {
+    die("La connessione FTP non è riuscita!");
 }
 
-echo "Current directory: " . ftp_pwd($conn_id) . "\n";
+echo "Directory corrente: " . ftp_pwd($ftp) . "\n";
 
 // tenta di passare alla directory somedir
-if (ftp_chdir($conn_id, "somedir")) {
-    echo "Current directory is now: " . ftp_pwd($conn_id) . "\n";
+if (ftp_chdir($ftp, "somedir")) {
+    echo "Ora la directory corrente è: " . ftp_pwd($ftp) . "\n";
 } else { 
-    echo "Couldn't change directory\n";
+    echo "Impossibile cambiare directory\n";
 }
 
 // chiude la connessione
-ftp_close($conn_id);
+ftp_close($ftp);
 ?>
 ]]>
-     </programlisting>
-    </example>
-    <para>
-     Vedi anche <function>ftp_cdup</function>.
-    </para>
-   </refsect1>
-  </refentry>
-
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>ftp_cdup</function></member>
+    <member><function>ftp_pwd</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

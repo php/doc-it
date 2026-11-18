@@ -1,62 +1,128 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/ftp.xml, last change in rev 1.1 -->
-<!-- last change to 'ftp-get-option' in en/ tree in rev 1.7 -->
-<!-- EN-Revision: n/a Maintainer: afparam Status: ready -->
-<!-- CREDITS: Colombo -->
-<!-- OLD-Revision: 1.43/EN.1.7 -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 38221fa6de28e3035e7a3b18d8ec1c598e3087a2 Maintainer: pastore Status: ready -->
+<!-- CREDITS: Colombo,afparam -->
+<refentry xml:id="function.ftp-get-option" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>ftp_get_option</refname>
+  <refpurpose>Recupera vari comportamenti di runtime della connessione FTP corrente</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>int</type><type>bool</type></type><methodname>ftp_get_option</methodname>
+   <methodparam><type>FTP\Connection</type><parameter>ftp</parameter></methodparam>
+   <methodparam><type>int</type><parameter>option</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Questa funzione restituisce il valore della
+   <parameter>option</parameter> richiesta dalla connessione FTP specificata.
+  </para>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>ftp</parameter></term>
+     <listitem>
+       &ftp.parameter.ftp;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>option</parameter></term>
+     <listitem>
+      <para>
+       Attualmente sono supportate le seguenti opzioni:
+       <table>
+        <title>Opzioni FTP di runtime supportate</title>
+        <tgroup cols="2">
+         <tbody>
+          <row>
+           <entry><constant>FTP_TIMEOUT_SEC</constant></entry>
+           <entry>
+            Restituisce il timeout corrente usato per le operazioni di rete.
+           </entry>
+          </row>
+          <row>
+           <entry><constant>FTP_AUTOSEEK</constant></entry>
+           <entry>
+            Restituisce &true; se questa opzione è attiva, altrimenti &false;.
+           </entry>
+          </row>
+         </tbody>
+        </tgroup>
+       </table>
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <simpara>
+   Restituisce il valore della <parameter>option</parameter> richiesta.
+  </simpara>
+ </refsect1>
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <simpara>
+   Lancia un <exceptionname>ValueError</exceptionname> se
+   <parameter>option</parameter> non è <constant>FTP_TIMEOUT_SEC</constant>,
+   <constant>FTP_AUTOSEEK</constant> o <constant>FTP_USEPASVADDRESS</constant>.
+  </simpara>
+ </refsect1>
 
-  <refentry xml:id='function.ftp-get-option' xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>ftp_get_option</refname>
-    <refpurpose>Recupera diversi comportamenti dello stream FTP durante l'esecuzione</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>mixed</type><methodname>ftp_get_option</methodname>
-      <methodparam><type>resource</type><parameter>ftp_stream</parameter></methodparam>
-      <methodparam><type>int</type><parameter>option</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Restituisce il valore in caso di successo oppure &false; se l'opzione
-     <parameter>option</parameter> data non e' supportata. In quest'ultimo caso,
-     viene anche visualizzato un messaggio di avvertimento.
-    </para>
-    <para>
-     Questa funzione restituisce il valore dell'opzione 
-     <parameter>option</parameter> richiesta dallo stream FTP <parameter>ftp_stream
-     </parameter> specificato. Attualmente sono riconosciute le seguenti opzioni:
-     <table>
-      <title>Opzioni di runtime FTP riconosciute</title>
-      <tgroup cols="2">
-       <tbody>
-        <row>
-         <entry>FTP_TIMEOUT_SEC</entry>
-         <entry>
-          Restituisce il timeout corrente, usato in operazioni di rete.
-         </entry>
-        </row>
-       </tbody>
-      </tgroup>
-     </table>
-    </para>
-    <example>
-     <title> Esempio di funzione <function>ftp_get_option</function> </title>
-     <programlisting role="php">
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &ftp.changelog.ftp-param;
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       Ora viene lanciato un <exceptionname>ValueError</exceptionname> se
+       <parameter>option</parameter> non è supportata;
+       in precedenza veniva emesso un <constant>E_WARNING</constant> e veniva restituito &false;.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>ftp_get_option</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-// Recupera il time out dello stream FTP richiesto
-$timeout = ftp_get_option($conn_id, FTP_TIMEOUT_SEC);
+// Ottiene il timeout della connessione FTP indicata
+$timeout = ftp_get_option($ftp, FTP_TIMEOUT_SEC);
 ?>
 ]]>
-     </programlisting>
-    </example>
-    <para>
-     Vedere anche <function>ftp_set_option</function>.
-    </para>
-   </refsect1>
-  </refentry>
-
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>ftp_set_option</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 9c73659a3578fa34561e7e6531f98c4eaac4c990 Maintainer: lacatoire Status: ready -->
+<refentry xml:id="pdostatement.bindparam" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>PDOStatement::bindParam</refname>
+  <refpurpose>
+   Associa un parametro al nome di variabile specificato
+  </refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis role="PDOStatement">
+   <modifier>public</modifier> <type>bool</type><methodname>PDOStatement::bindParam</methodname>
+   <methodparam><type class="union"><type>string</type><type>int</type></type><parameter>param</parameter></methodparam>
+   <methodparam><type>mixed</type><parameter role="reference">var</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>type</parameter><initializer><constant>PDO::PARAM_STR</constant></initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>maxLength</parameter><initializer>0</initializer></methodparam>
+   <methodparam choice="opt"><type>mixed</type><parameter>driverOptions</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Associa una variabile PHP al segnaposto con nome o con punto interrogativo
+   corrispondente nell'istruzione SQL usata per preparare lo statement. A
+   differenza di <methodname>PDOStatement::bindValue</methodname>, la variabile
+   viene associata come riferimento e verrà valutata solo nel momento in cui
+   viene chiamato <methodname>PDOStatement::execute</methodname>.
+  </para>
+  <para>
+   La maggior parte dei parametri è costituita da parametri di input, cioè
+   parametri usati in sola lettura per costruire la query (ma che possono
+   comunque essere convertiti in base a <parameter>type</parameter>). Alcuni
+   driver supportano l'invocazione di stored procedure che restituiscono dati
+   come parametri di output, e alcuni anche come parametri di input/output, che
+   inviano dati e vengono aggiornati per riceverli.
+  </para>
+
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>param</parameter></term>
+      <listitem>
+       <para>
+        Identificatore del parametro. Per un prepared statement che usa
+        segnaposto con nome, sarà un nome di parametro nella forma
+        <varname>:name</varname>. Per un prepared statement che usa
+        segnaposto con punto interrogativo, sarà la posizione del
+        parametro, con indice a partire da 1.
+       </para>
+      </listitem>
+     </varlistentry>
+    <varlistentry>
+     <term><parameter>var</parameter></term>
+      <listitem>
+       <para>
+        Nome della variabile PHP da associare al parametro dell'istruzione SQL.
+       </para>
+      </listitem>
+     </varlistentry>
+    <varlistentry>
+     <term><parameter>type</parameter></term>
+      <listitem>
+       <para>
+        Tipo di dati esplicito del parametro, specificato dalle <link linkend="pdo.constants">costanti
+        <constant>PDO::PARAM_<replaceable>*</replaceable></constant></link>.
+        Per restituire un parametro INOUT da una stored procedure,
+        usare l'operatore OR bit a bit per impostare i bit <constant>PDO::PARAM_INPUT_OUTPUT</constant>
+        per il parametro <parameter>type</parameter>.
+       </para>
+      </listitem>
+     </varlistentry>
+    <varlistentry>
+     <term><parameter>maxLength</parameter></term>
+      <listitem>
+       <para>
+        Lunghezza del tipo di dati. Per indicare che un parametro è un
+        parametro OUT di una stored procedure, è necessario impostare
+        esplicitamente la lunghezza.
+        Significativo solo quando il parametro <parameter>type</parameter> è <constant>PDO::PARAM_INPUT_OUTPUT</constant>.
+       </para>
+      </listitem>
+     </varlistentry>
+    <varlistentry>
+     <term><parameter>driverOptions</parameter></term>
+     <listitem>
+      <para>
+
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  &pdo.errors;
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <example><title>Esecuzione di un prepared statement con segnaposto con nome</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+/* Esegue una prepared statement associando variabili PHP */
+$calories = 150;
+$colour = 'red';
+$sth = $dbh->prepare('SELECT name, colour, calories
+    FROM fruit
+    WHERE calories < :calories AND colour = :colour');
+$sth->bindParam('calories', $calories, PDO::PARAM_INT);
+/* Anche i nomi possono avere il prefisso dei due punti ":" (facoltativo) */
+$sth->bindParam(':colour', $colour, PDO::PARAM_STR);
+$sth->execute();
+?>
+]]>
+   </programlisting>
+  </example>
+
+  <example><title>Esecuzione di un prepared statement con segnaposto con punto interrogativo</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+/* Esegue una prepared statement associando variabili PHP */
+$calories = 150;
+$colour = 'red';
+$sth = $dbh->prepare('SELECT name, colour, calories
+    FROM fruit
+    WHERE calories < ? AND colour = ?');
+$sth->bindParam(1, $calories, PDO::PARAM_INT);
+$sth->bindParam(2, $colour, PDO::PARAM_STR);
+$sth->execute();
+?>
+]]>
+   </programlisting>
+  </example>
+
+<!--
+  <example><title>Passaggio di un valore NULL a un prepared statement</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+/* Esegue una prepared statement associando variabili PHP */
+$calories = 150;
+$colour = 'red';
+$sth = $dbh->prepare('SELECT name, colour, calories
+    FROM fruit
+    WHERE calories < :calories AND colour = :colour');
+$sth->bindParam(':calories', $calories, PDO::PARAM_INT);
+
+/* Trova la frutta con un valore NULL nella colonna colour */
+$sth->bindParam(':colour', $colour, PDO::PARAM_NULL);
+
+$sth->execute();
+?>
+]]>
+   </programlisting>
+  </example>
+-->
+  <example><title>Chiamata a una stored procedure con un parametro INOUT</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+/* Chiama una stored procedure con un parametro INOUT */
+$colour = 'red';
+$sth = $dbh->prepare('CALL puree_fruit(?)');
+$sth->bindParam(1, $colour, PDO::PARAM_STR|PDO::PARAM_INPUT_OUTPUT, 12);
+$sth->execute();
+print "Dopo aver frullato la frutta, il colore è: $colour";
+?>
+]]>
+   </programlisting>
+  </example>
+
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><methodname>PDO::prepare</methodname></member>
+    <member><methodname>PDOStatement::execute</methodname></member>
+    <member><methodname>PDOStatement::bindValue</methodname></member>
+   </simplelist>
+  </para>
+
+ </refsect1>
+</refentry>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

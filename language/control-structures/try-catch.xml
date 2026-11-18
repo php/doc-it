@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 6b099f8dcc7a8f4a6863a6149d7cd97c7f43c470 Maintainer: pastore Status: ready -->
+<sect1 xml:id="control-structures.try-catch" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>try...catch</title>
+ <sect2 xml:id="control-structures.try" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>try</title>
+  <?phpdoc print-version-for="try"?>
+  <simpara>
+   Un blocco &try; delimita una porzione di codice che potrebbe lanciare (&throw;)
+   un errore <exceptionname>Throwable</exceptionname> da gestire.
+   Un blocco &try; <emphasis>deve</emphasis> avere almeno un blocco
+   &catch; o &finally; corrispondente.
+  </simpara>
+  <simpara>
+   Quando un errore <exceptionname>Throwable</exceptionname> viene lanciato in un blocco &try;,
+   PHP cerca il primo blocco &catch; corrispondente per gestire
+   l'errore. Se non ne trova nessuno, risale lo stack delle chiamate finché non trova
+   un blocco &catch; corrispondente o non raggiunge lo scope globale.
+   Un oggetto non catturato viene quindi passato al gestore delle eccezioni impostato con
+   <function>set_exception_handler</function>, se presente; altrimenti,
+   lo script termina con un errore fatale.
+  </simpara>
+ </sect2>
+ <sect2 xml:id="control-structures.catch" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>catch</title>
+  <?phpdoc print-version-for="catch"?>
+  <simpara>
+   Un blocco &catch; definisce come rispondere a un errore <exceptionname>Throwable</exceptionname> lanciato.
+   Specifica una o più sottoclassi di <exceptionname>Throwable</exceptionname>
+   (di solito <exceptionname>Exception</exceptionname>) che può gestire e,
+   facoltativamente, una variabile a cui viene assegnata l'eccezione.
+  </simpara>
+  <simpara>
+   Il primo blocco &catch;
+   che corrisponde alla classe dell'oggetto <exceptionname>Throwable</exceptionname>
+   lanciato gestirà l'errore.
+   L'esecuzione normale riprende dopo il blocco &catch;, senza entrare in nessun altro blocco &catch; corrispondente.
+  </simpara>
+  <note>
+   <simpara>
+    <emphasis>Non</emphasis> è consigliato catturare gli oggetti <exceptionname>Error</exceptionname>,
+    poiché segnalano un errore di programmazione.
+   </simpara>
+  </note>
+  <example>
+   <title>Catturare un'Eccezione</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+try {
+    throw new Exception('Error');
+} catch (Exception $e) {
+    echo 'Caught exception: ', $e->getMessage(), "\n";
+}
+
+// Continua l'esecuzione
+echo "Hello World\n";
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+Caught exception: Error
+Hello World
+]]>
+   </screen>
+  </example>
+
+  <simpara>
+   A partire da PHP 7.1.0, un blocco &catch; può specificare un'unione di
+   sottoclassi di <exceptionname>Throwable</exceptionname> che il blocco deve gestire
+   usando il carattere pipe (<literal>|</literal>). È utile quando
+   eccezioni diverse, appartenenti a gerarchie di classi diverse, vengono gestite allo stesso modo.
+  </simpara>
+  <example>
+   <title>Catturare un'unione di classi da gestire</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+class MyException extends Exception { }
+
+class MyOtherException extends Exception { }
+
+class Test {
+    public function testing() {
+        try {
+            throw new MyException();
+        } catch (MyException | MyOtherException $e) {
+            var_dump(get_class($e));
+        }
+    }
+}
+
+$foo = new Test;
+$foo->testing();
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+string(11) "MyException"
+]]>
+   </screen>
+  </example>
+
+  <simpara>
+   È possibile usare più blocchi &catch; per gestire in modi diversi le diverse classi di
+   errori <exceptionname>Throwable</exceptionname>.
+  </simpara>
+  <example>
+   <title>Blocchi catch multipli</title>
+   <programlisting role="php" annotations="non-interactive">
+<![CDATA[
+<?php
+try {
+    do_something_io_related();
+} catch (FileNotFoundException $e) {
+    // Cattura solo FileNotFoundException e in questo caso fa qualcosa
+} catch (MissingPermissionException $e) {
+    // Cattura solo MissingPermissionException e in questo caso fa qualcosa di diverso
+}
+]]>
+   </programlisting>
+  </example>
+
+  <simpara>
+   Gli oggetti <exceptionname>Throwable</exceptionname> possono essere lanciati (&throw;) o rilanciati all'interno di un blocco &catch;.
+  </simpara>
+  <example>
+   <title>Eccezione annidata</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+class MyException extends Exception { }
+
+class Test {
+    public function testing() {
+        try {
+            try {
+                throw new MyException('foo!');
+            } catch (MyException $e) {
+                // la rilancia
+                throw $e;
+            }
+        } catch (Exception $e) {
+            var_dump($e->getMessage());
+        }
+    }
+}
+
+$foo = new Test;
+$foo->testing();
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+string(4) "foo!"
+]]>
+   </screen>
+  </example>
+  <caution>
+   <simpara>
+    Un oggetto lanciato all'interno di un blocco &catch; <emphasis>non</emphasis>
+    verrà catturato da un blocco &catch; adiacente.
+   </simpara>
+   <example>
+    <title>Blocchi catch sequenziali</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+class A extends Exception {}
+class B extends Exception {}
+
+try {
+    throw new A;
+} catch (A $e) {
+    throw new B;
+} catch (B) {
+    echo 'Hello';
+}
+
+]]>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+Fatal error: Uncaught B in /in/K8Tl9:9
+Stack trace:
+#0 {main}
+  thrown in /in/K8Tl9 on line 9
+]]>
+    </screen>
+   </example>
+  </caution>
+
+  <simpara>
+   A partire da PHP 8.0.0, il nome della variabile per un oggetto
+   <exceptionname>Throwable</exceptionname> catturato è facoltativo.
+   Se non viene specificato, il blocco &catch; viene comunque eseguito, ma non
+   ha accesso all'oggetto lanciato.
+  </simpara>
+  <example>
+   <title>Omettere la variabile catturata</title>
+   <simpara>Consentito solo a partire da PHP 8.0.0.</simpara>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+class SpecificException extends Exception {}
+
+function test() {
+    throw new SpecificException('Oopsie');
+}
+
+try {
+    test();
+} catch (SpecificException) {
+    print "A SpecificException was thrown, but we don't care about the details.";
+}
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+A SpecificException was thrown, but we don't care about the details.
+]]>
+   </screen>
+  </example>
+  <simpara>
+   Vedere la sezione sulla <link linkend="language.error-handling.throwable">gestione degli errori</link>
+   per la gerarchia di <exceptionname>Throwable</exceptionname> e per
+   come definire eccezioni personalizzate.
+  </simpara>
+ </sect2>
+</sect1>

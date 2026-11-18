@@ -1,48 +1,137 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/exec.xml, last change in rev 1.12 -->
-<!-- last change to 'escapeshellarg' in en/ tree in rev 1.8 -->
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-<!-- CREDITS: cortesi -->
-<!-- OLD-Revision: 1.27/EN.1.8 -->
-  <refentry xml:id="function.escapeshellarg" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>escapeshellarg</refname>
-    <refpurpose>estrae una stringa da usare come un argomento della shell</refpurpose>
-   </refnamediv>
-   <refsect1>
-    &reftitle.description;
-     <methodsynopsis>
-      <type>string</type><methodname>escapeshellarg</methodname>
-      <methodparam><type>string</type><parameter>arg</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>escapeshellarg</function> aggiunge le virgolette singole
-     attorno ad una stringa ed elude ogni virgoletta semplice per permetterti di
-     passare una stringa direttamente ad una funzione della shell a che questa 
-     venga trattata come un singolo argomento.
-     Questa funzione dovrebbe essere usata per eludere argomenti individuali per funzioni
-     della shell che giungano dall'input del utente. Le funzioni della shell includono
-     <function>exec</function>, <function>system</function> e 
-     <link linkend="language.operators.execution">l'operatore backtick</link>. 
-     Un utilizzo standard sarebbe:</para>
-    <para>
-     <informalexample>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: d71237a6d72fe22ef4b47b6d65ef169b90aecd9b Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi,fernando -->
+<!-- splitted from ./en/functions/exec.xml, last change in rev 1.8 -->
+<refentry xml:id="function.escapeshellarg" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>escapeshellarg</refname>
+  <refpurpose>Effettua l'escape di una stringa da usare come argomento della shell</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>escapeshellarg</methodname>
+   <methodparam><type>string</type><parameter>arg</parameter></methodparam>
+  </methodsynopsis>
+  <simpara>
+   <function>escapeshellarg</function> aggiunge apici singoli attorno a una stringa
+   ed effettua il quoting/escape degli apici singoli esistenti, consentendo di passare una
+   stringa direttamente a una funzione della shell e di farla trattare come un singolo
+   argomento sicuro. Questa funzione dovrebbe essere usata per effettuare l'escape dei singoli
+   argomenti delle funzioni della shell provenienti dall'input dell'utente. Le funzioni della shell
+   includono <function>exec</function>, <function>system</function> e
+   <link linkend="language.operators.execution">l'operatore backtick</link>.
+  </simpara>
+  <simpara>
+   Su Windows, <function>escapeshellarg</function> invece sostituisce i segni di
+   percentuale, i punti esclamativi (sostituzione ritardata delle variabili) e i doppi apici
+   con spazi e aggiunge doppi apici attorno alla stringa.
+   Inoltre, ogni sequenza di backslash consecutivi (<literal>\</literal>)
+   viene preceduta da un backslash aggiuntivo.
+  </simpara>
+  <simpara>
+   Il comportamento di questa funzione con le stringhe multibyte dipende dall'impostazione
+   corrente della localizzazione <constant>LC_CTYPE</constant>. I caratteri non riconosciuti verranno
+   scartati. Vedere <function>setlocale</function>.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>arg</parameter></term>
+     <listitem>
+      <simpara>
+       L'argomento di cui verrà effettuato l'escape.
+      </simpara>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <simpara>
+   La stringa con l'escape applicato.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <simpara>
+   Lancia un <exceptionname>ValueError</exceptionname> se <parameter>arg</parameter>
+   contiene byte null, o se <parameter>arg</parameter> o l'argomento con
+   escape supera la lunghezza massima della riga di comando consentita dal
+   sistema.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.4.0</entry>
+      <entry>
+       Se <parameter>arg</parameter> o l'argomento con escape è troppo lungo,
+       <function>escapeshellarg</function> ora lancia un <exceptionname>ValueError</exceptionname>.
+       In precedenza veniva generato un errore fatale <constant>E_ERROR</constant>.
+      </entry>
+     </row>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       Se <parameter>arg</parameter> contiene byte null,
+       <function>escapeshellarg</function> ora lancia un <exceptionname>ValueError</exceptionname>.
+       In precedenza veniva generato un errore fatale <constant>E_ERROR</constant>.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>escapeshellarg</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 system('ls '.escapeshellarg($dir));
+?>
 ]]>
-      </programlisting>
-     </informalexample>
-    </para>
-    <para>
-     Vedere anche <function>escapeshellcmd</function>, <function>exec</function>,
-     <function>popen</function>, <function>system</function> e <link
-     linkend="language.operators.execution">l'operatore backtick</link>.
-    </para>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
-   </refsect1>
-  </refentry>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>setlocale</function></member>
+    <member><function>escapeshellcmd</function></member>
+    <member><function>exec</function></member>
+    <member><function>popen</function></member>
+    <member><function>system</function></member>
+    <member><link linkend="language.operators.execution">l'operatore backtick</link></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

@@ -1,133 +1,333 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-<!-- CREDITS: cortesi -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: f80105b4fc1196bd8d5fecb98d686b580b1ff65d Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi,fernando -->
 <refentry xml:id="function.stat" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>stat</refname>
-    <refpurpose>Da informazioni su un file</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>array</type><methodname>stat</methodname>
-      <methodparam><type>string</type><parameter>filename</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Restituisce una serie di informazioni a riguardo del file <parameter>filename</parameter>.
-     Se il parametro <parameter>filename</parameter> è un link simbolico, le informazioni riguardano il file stesso,
-     e non il file puntato dal link. La funzione <function>lstat</function> è identica a<function>
-     stat</function> tranne che dovrebbe restituire il file puntato dal link.
-    </para>
-    <para>
-     In caso di errore <function>stat</function> restituisce &false;. Inoltre
-     genera un warning.
-    </para>
-    <para>
-    La funzione restituisce un vettore con le informazioni sul file contenente i
-     seguenti elementi. Il vettore parte dall'indice zero. Oltre agli indici numerici
-     il vettore contiene indici
-     associativi, come sarà indicato per ciascun parametro; questo è disponibile
-     dal PHP versione 4.0.6.
-    </para>
-    <para>
-     <table>
-      <title>Formato del vettore restituito da <function>stat</function>
-       e <function>fstat</function></title>
-      <tgroup cols="3">
-       <thead>
-        <row>
-         <entry>Indice numerico</entry>
-         <entry>Associativo (da PHP 4.0.6)</entry>
-         <entry>Descrizione</entry>
-        </row>
-       </thead>
-       <tbody>
-        <row>
-         <entry>0</entry>
-         <entry>dev</entry>
-         <entry>device</entry>
-        </row>
-        <row>
-         <entry>1</entry>
-         <entry>ino</entry>
-         <entry>inode</entry>
-        </row>
-        <row>
-         <entry>2</entry>
-         <entry>mode</entry>
-         <entry>modalità di protezione dell'inode</entry>
-        </row>
-        <row>
-         <entry>3</entry>
-         <entry>nlink</entry>
-         <entry>numero di link</entry>
-        </row>
-        <row>
-         <entry>4</entry>
-         <entry>uid</entry>
-         <entry>ID utente del proprietario</entry>
-        </row>
-        <row>
-         <entry>5</entry>
-         <entry>gid</entry>
-         <entry>ID del gruppo del proprietario</entry>
-        </row>
-        <row>
-         <entry>6</entry>
-         <entry>rdev</entry>
-         <entry>tipo di device con l'inode device *</entry>
-        </row>
-        <row>
-         <entry>7</entry>
-         <entry>size</entry>
-         <entry>dimensione in byte</entry>
-        </row>
-        <row>
-         <entry>8</entry>
-         <entry>atime</entry>
-         <entry>ora dell'ultimo accesso (Unix timestamp)</entry>
-        </row>
-        <row>
-         <entry>9</entry>
-         <entry>mtime</entry>
-         <entry>ora del'ultima modifica (Unix timestamp)</entry>
-        </row>
-        <row>
-         <entry>10</entry>
-         <entry>ctime</entry>
-         <entry>ora dell'ultimo cambiamento di inode(Unix timestamp)</entry>
-        </row>
-        <row>
-         <entry>11</entry>
-         <entry>blksize</entry>
-         <entry>dimensione del blocco per l'I/O di filesystem *</entry>
-        </row>
-        <row>
-         <entry>12</entry>
-         <entry>blocks</entry>
-         <entry>numero dei blocchi allocati</entry>
-        </row>
+ <refnamediv>
+  <refname>stat</refname>
+  <refpurpose>Fornisce informazioni su un file</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>array</type><type>false</type></type><methodname>stat</methodname>
+   <methodparam><type>string</type><parameter>filename</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Raccoglie le statistiche del file indicato da
+   <parameter>filename</parameter>.  Se <parameter>filename</parameter> è un
+   collegamento simbolico, le statistiche sono quelle del file stesso, non del collegamento simbolico.
+   Prima di PHP 7.4.0, nelle build <abbrev>NTS</abbrev> su Windows le statistiche <literal>size</literal>,
+   <literal>atime</literal>, <literal>mtime</literal> e <literal>ctime</literal>
+   erano, in questo caso, quelle del collegamento simbolico.
+  </para>
+  <para>
+   <function>lstat</function> è identica a <function>stat</function>,
+   tranne per il fatto che si basa invece sullo stato del collegamento simbolico.
+  </para>
+ </refsect1>
 
-       </tbody>
-      </tgroup>
-     </table>
-     * - valida solo su sistemi che supportano il tipo st_blksize--altri sistemi
-     (ad esempio Windows) restituiscono -1.
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>filename</parameter></term>
+     <listitem>
+      <para>
+       Percorso del file.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
 
-    &note.clearstatcache;
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   <table>
+    <title>Formato del risultato di <function>stat</function> e
+     <function>fstat</function></title>
+    <tgroup cols="3">
+     <thead>
+      <row>
+       <entry>Numerico</entry>
+       <entry>Associativo</entry>
+       <entry>Descrizione</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>0</entry>
+       <entry>dev</entry>
+       <entry>numero del dispositivo ***</entry>
+      </row>
+      <row>
+       <entry>1</entry>
+       <entry>ino</entry>
+       <entry>numero dell'inode ****</entry>
+      </row>
+      <row>
+       <entry>2</entry>
+       <entry>mode</entry>
+       <entry>modalità di protezione dell'inode *****</entry>
+      </row>
+      <row>
+       <entry>3</entry>
+       <entry>nlink</entry>
+       <entry>numero di collegamenti</entry>
+      </row>
+      <row>
+       <entry>4</entry>
+       <entry>uid</entry>
+       <entry>ID utente del proprietario *</entry>
+      </row>
+      <row>
+       <entry>5</entry>
+       <entry>gid</entry>
+       <entry>ID gruppo del proprietario *</entry>
+      </row>
+      <row>
+       <entry>6</entry>
+       <entry>rdev</entry>
+       <entry>tipo di dispositivo, se l'inode è un dispositivo</entry>
+      </row>
+      <row>
+       <entry>7</entry>
+       <entry>size</entry>
+       <entry>dimensione in byte</entry>
+      </row>
+      <row>
+       <entry>8</entry>
+       <entry>atime</entry>
+       <entry>ora dell'ultimo accesso (timestamp Unix)</entry>
+      </row>
+      <row>
+       <entry>9</entry>
+       <entry>mtime</entry>
+       <entry>ora dell'ultima modifica (timestamp Unix)</entry>
+      </row>
+      <row>
+       <entry>10</entry>
+       <entry>ctime</entry>
+       <entry>ora dell'ultima modifica dell'inode (timestamp Unix)</entry>
+      </row>
+      <row>
+       <entry>11</entry>
+       <entry>blksize</entry>
+       <entry>dimensione del blocco per l'IO del filesystem **</entry>
+      </row>
+      <row>
+       <entry>12</entry>
+       <entry>blocks</entry>
+       <entry>numero di blocchi da 512 byte allocati **</entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </table>
+  </para>
+  <para>
+   * Su Windows sarà sempre <literal>0</literal>.
+  </para>
+  <para>
+   ** Valido solo sui sistemi che supportano il tipo st_blksize; gli altri
+   sistemi (ad es. Windows) restituiscono <literal>-1</literal>.
+  </para>
+  <para>
+   *** Su Windows, a partire da PHP 7.4.0, è il numero di serie del volume che contiene il file,
+   che è un intero a 64 bit <emphasis>senza segno</emphasis>, quindi può andare in overflow.
+   In precedenza, era la rappresentazione numerica della lettera dell'unità (ad es. <literal>2</literal>
+   per <literal>C:</literal>) per <function>stat</function>, e <literal>0</literal> per
+   <function>lstat</function>.
+  </para>
+  <para>
+   **** Su Windows, a partire da PHP 7.4.0, è l'identificatore associato al file,
+   che è un intero a 64 bit <emphasis>senza segno</emphasis>, quindi può andare in overflow.
+   In precedenza, era sempre <literal>0</literal>.
+  </para>
+  <para>
+   ***** Su Windows, il bit del permesso di scrittura è impostato in base all'attributo di sola
+   lettura del file, e lo stesso valore è riportato per tutti gli utenti, il gruppo e il proprietario.
+   L'ACL non viene presa in considerazione, a differenza di <function>is_writable</function>.
+  </para>
+  <para>
+  Il valore di <literal>mode</literal> contiene informazioni lette da diverse funzioni.
+  Scrivendolo in ottale, partendo da destra, le prime tre cifre sono restituite da
+  <function>chmod</function>. La cifra successiva è ignorata da PHP. Le due cifre successive indicano
+  il tipo di file:
+   <table>
+    <title>Tipi di file di <literal>mode</literal></title>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry><literal>mode</literal> in ottale</entry>
+       <entry>Significato</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry><literal>0140000</literal></entry>
+       <entry>socket</entry>
+      </row>
+      <row>
+       <entry><literal>0120000</literal></entry>
+       <entry>collegamento</entry>
+      </row>
+      <row>
+       <entry><literal>0100000</literal></entry>
+       <entry>file regolare</entry>
+      </row>
+      <row>
+       <entry><literal>0060000</literal></entry>
+       <entry>dispositivo a blocchi</entry>
+      </row>
+      <row>
+       <entry><literal>0040000</literal></entry>
+       <entry>directory</entry>
+      </row>
+      <row>
+       <entry><literal>0020000</literal></entry>
+       <entry>dispositivo a caratteri</entry>
+      </row>
+      <row>
+       <entry><literal>0010000</literal></entry>
+       <entry>fifo</entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </table>
+   Quindi, ad esempio, un file regolare potrebbe essere <literal>0100644</literal> e una directory potrebbe essere
+   <literal>0040755</literal>.
+  </para>
+  <para>
+   In caso di errore, <function>stat</function> restituisce &false;.
+  </para>
+  &fs.file.32bit;
+ </refsect1>
 
-    &tip.fopen-wrapper.stat;
-    </para>
-    <para>
-     Vedere anche <function>lstat</function>,
-     <function>fstat</function>,
-     <function>filemtime</function> e
-     <function>filegroup</function>.
-    </para>
-   </refsect1>
-  </refentry>
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <para>
+   In caso di errore, viene emesso un <constant>E_WARNING</constant>.
+  </para>
+ </refsect1>
 
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>7.4.0</entry>
+      <entry>
+       Su Windows, il numero del dispositivo è ora il numero di serie del volume che
+       contiene il file, e il numero dell'inode è l'identificatore associato al file.
+      </entry>
+     </row>
+     <row>
+      <entry>7.4.0</entry>
+      <entry>
+       Le statistiche <literal>size</literal>, <literal>atime</literal>, <literal>mtime</literal> e
+       <literal>ctime</literal> dei collegamenti simbolici sono sempre quelle della destinazione.
+       In precedenza non era così per le build <abbrev>NTS</abbrev> su Windows.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>stat</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+/* Ottiene le informazioni di stat del file */
+$stat = stat('C:\php\php.exe');
+
+/*
+ * Stampa l'ora di accesso al file, equivale
+ * a chiamare fileatime()
+ */
+echo 'Ora di accesso: ' . $stat['atime'];
+
+/*
+ * Stampa l'ora di modifica del file, equivale
+ * a chiamare filemtime()
+ */
+echo 'Ora di modifica: ' . $stat['mtime'];
+
+/* Stampa il numero del dispositivo */
+echo 'Numero del dispositivo: ' . $stat['dev'];
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Uso delle informazioni di <function>stat</function> insieme a <function>touch</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+/* Ottiene le informazioni di stat del file */
+$stat = stat('C:\php\php.exe');
+
+/* Non è stato possibile ottenere le informazioni di stat? */
+if (!$stat) {
+    echo 'Chiamata a stat() fallita...';
+} else {
+    /*
+     * Si vuole che l'ora di accesso sia 1 settimana
+     * dopo l'ora di accesso corrente.
+     */
+    $atime = $stat['atime'] + 604800;
+
+    /* Esegue il touch del file */
+    if (!touch('some_file.txt', time(), $atime)) {
+        echo 'Touch del file non riuscito...';
+    } else {
+        echo 'touch() eseguita con successo...';
+    }
+}
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.filesystem-time-res;
+  &note.clearstatcache;
+  &tip.fopen-wrapper.stat;
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>lstat</function></member>
+    <member><function>fstat</function></member>
+    <member><function>filemtime</function></member>
+    <member><function>filegroup</function></member>
+    <member><classname>SplFileInfo</classname></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

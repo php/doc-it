@@ -1,106 +1,137 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/info.xml, last change in rev 1.64 -->
-  <refentry xml:id="function.ini-get" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>ini_get</refname>
-    <refpurpose>Restituisce il valore delle opzioni di configurazione</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>ini_get</methodname>
-      <methodparam><type>string</type><parameter>varname</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Restituisce il valore delle opzioni di configurazione.  In caso di errore, tipo
-     la richiesta per un valore inesistente, sarà restituita una stringa vuota.
-    </para>
-    <note>
-     <title>Richieste per valori booleani</title>
-     <para>
-      Nel file ini, il valore booleano <literal>off</literal> sarà restituito come
-      stringa vuota o "0", mentre il valore <literal>on</literal> sarà restituito come
-      "1".
-     </para>
-    </note>
-    <note>
-     <title>Richieste per le dimensioni della memoria</title>
-     <para>
-      Diversi parametri attinenti alle dimensioni di memoria, tipo
-      <link linkend="ini.upload-max-filesize">upload_max_filesize</link>
-      sono registrati nel &php.ini; in notazione abbreviata. La funzione <function>ini_get</function>
-      restituirà l'esatto valore presente nel &php.ini;, e <emphasis>NON</emphasis>
-      l'<type>intero</type> equivalente. L'esecuzione delle normali funzioni aritmetiche su questi valori
-      potrà dare risultati inattesi. L'esempio seguente illustra come
-      si possa convertire la notazione breve in byte in modo molto simile a come
-      fa il PHP.
-     </para>
-    </note>
-    <para>
-     <example>
-      <title>Qualche esempio di <function>ini_get</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 911fe79de766ef4475bf22446903667a0f3a24d3 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.ini-get" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>ini_get</refname>
+  <refpurpose>Ottiene il valore di un'opzione di configurazione</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>false</type></type><methodname>ini_get</methodname>
+   <methodparam><type>string</type><parameter>option</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Restituisce il valore dell'opzione di configurazione in caso di successo.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>option</parameter></term>
+     <listitem>
+      <para>
+       Il nome dell'opzione di configurazione.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <simpara>
+   Restituisce il valore dell'opzione di configurazione come stringa in caso di successo, oppure una
+   stringa vuota per i valori &null;. Restituisce &false; se
+   l'opzione di configurazione non esiste.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Alcuni esempi di <function>ini_get</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
+
 /*
-Il nostro php.ini contiene i seguenti parametri:
+Il nostro php.ini contiene le seguenti impostazioni:
 
 display_errors = On
-register_globals = Off
+opcache.enable_cli = Off
 post_max_size = 8M
 */
 
 echo 'display_errors = ' . ini_get('display_errors') . "\n";
-echo 'register_globals = ' . ini_get('register_globals') . "\n";
+echo 'opcache.enable_cli = ' . (int) ini_get('opcache.enable_cli') . "\n";
 echo 'post_max_size = ' . ini_get('post_max_size') . "\n";
-echo 'post_max_size+1 = ' . (ini_get('post_max_size')+1) . "\n";
-echo 'post_max_size in bytes = ' . return_bytes(ini_get('post_max_size'));
+echo 'post_max_size + 1 = ' . (rtrim(ini_get('post_max_size'), 'KMG') + 1) . "\n";
+echo 'post_max_size in byte = ' . ini_parse_quantity(ini_get('post_max_size'));
 
-function return_bytes($val) {
-    $val = trim($val);
-    $last = $val{strlen($val)-1};
-    switch($last) {
-        case 'k':
-        case 'K':
-            return (int) $val * 1024;
-            break;
-        case 'm':
-        case 'M':
-            return (int) $val * 1048576;
-            break;
-        default:
-            return $val;
-    }
-}
 ?>
 ]]>
-       </programlisting>
-       <para>
-        Lo script produrrà:
-       </para>
-       <screen>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
 <![CDATA[
 
 display_errors = 1
-register_globals = 0
+opcache.enable_cli = 0
 post_max_size = 8M
 post_max_size+1 = 9
-post_max_size in bytes = 8388608
-]]>
-       </screen>
-      </example>
-     </para>
-    <para>
-     Vedere anche:
-     <function>get_cfg_var</function>,
-     <function>ini_get_all</function>,
-     <function>ini_restore</function> e
-     <function>ini_set</function>.
-    </para>
-   </refsect1>
-  </refentry>
+post_max_size in byte = 8388608
 
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <title>Quando si interrogano valori booleani</title>
+   <para>
+    Un valore ini booleano <literal>off</literal> verrà restituito come
+    stringa vuota o "0", mentre un valore ini booleano <literal>on</literal> verrà
+    restituito come "1".
+    La funzione può anche restituire la stringa letterale del valore INI.
+   </para>
+  </note>
+  <note>
+   <title>Quando si interrogano valori di dimensione della memoria</title>
+   <para>
+    Molti valori ini di dimensione della memoria, come
+    <link linkend="ini.upload-max-filesize">upload_max_filesize</link>, sono
+    memorizzati nel file &php.ini; in notazione abbreviata.
+    <function>ini_get</function> restituirà la stringa esatta memorizzata nel
+    file &php.ini; e <emphasis>NON</emphasis> il suo <type>int</type>
+    equivalente. L'applicazione delle normali funzioni aritmetiche a questi valori
+    non darà i risultati che ci si aspetterebbe. La funzione
+    <function>ini_parse_quantity</function> può essere usata per convertire
+    la notazione abbreviata in byte.
+   </para>
+  </note>
+  <note>
+   <para>
+    <function>ini_get</function> non può leggere le opzioni ini di tipo "array" come
+    <literal>pdo.dsn.<replaceable>*</replaceable></literal>, e in questo caso restituisce &false;.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>get_cfg_var</function></member>
+    <member><function>ini_get_all</function></member>
+    <member><function>ini_parse_quantity</function></member>
+    <member><function>ini_restore</function></member>
+    <member><function>ini_set</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

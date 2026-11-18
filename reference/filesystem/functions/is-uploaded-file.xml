@@ -1,68 +1,97 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-  <!-- CREDITS: cortesi -->
-<refentry xml:id="function.is-uploaded-file" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>is_uploaded_file</refname>
-    <refpurpose>Dice se un file fù caricato via HTTP POST.</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>is_uploaded_file</methodname>
-      <methodparam><type>string</type><parameter>filename</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Restituisce &true; se il file chiamato per <parameter>filename</parameter> è stato spedito in upload col metodo HTTP POST. Ciò è utile per rendere sicuro il fatto da un utente malizioso non abbia cercato di forzare uno script ad agire sul file sul quale non dovrebbe essere svolto alcun lavoro--ad esempio,
-     <filename>/etc/passwd</filename>.
-    </para>
-    <para>
-     Questo controllo è particolarmente importante in caso esista una qualunque possibilità che una qualunque cosa che viaggia durante l'upload del file, possa rivelarne il contenuto all'utente, o anche ad altri utenti che operano sullo stesso sistema.
-    </para>
-    <para>
-     <function>is_uploaded_file</function> è disponibile solo nella versione PHP 3, dopo la 3.0.16, e nella versione 4
-     dopo la 4.0.2. Se hai delle perplessità nell'usare una versione più recente, puoi utilizzare una delle seguenti funzioni per proteggere te stesso:
-     <note>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: c1bb7dd16da7b27352a48604d7ad99f477aba0f9 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi,fernando -->
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.is-uploaded-file">
+ <refnamediv>
+  <refname>is_uploaded_file</refname>
+  <refpurpose>Dice se il file è stato caricato tramite HTTP POST</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>is_uploaded_file</methodname>
+   <methodparam><type>string</type><parameter>filename</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Restituisce &true; se il file indicato da <parameter>filename</parameter> è stato
+   caricato tramite HTTP POST. Ciò è utile per contribuire a garantire che un
+   utente malintenzionato non abbia cercato di indurre lo script a lavorare su
+   file su cui non dovrebbe lavorare--ad esempio,
+   <filename>/etc/passwd</filename>.
+  </para>
+  <para>
+   Questo tipo di controllo è particolarmente importante se esiste la possibilità
+   che qualsiasi operazione eseguita sui file caricati possa rivelarne il
+   contenuto all'utente, o persino ad altri utenti dello stesso
+   sistema.
+  </para>
+  <para>
+   Per funzionare correttamente, la funzione <function>is_uploaded_file</function> richiede
+   un argomento come <varname>$_FILES['userfile']['tmp_name']</varname>; il nome del file caricato
+   sulla macchina del client, <varname>$_FILES['userfile']['name']</varname>, non funziona.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>filename</parameter></term>
+     <listitem>
       <para>
-       L'esempio seguente <emphasis>not</emphasis> lavorerà con
-       le versioni PHP 4 dopo la 4.0.2. Ciò dipende da funzionalità interne        a PHP che sono variate dopo tale versione.
+       Il nome del file da controllare.
       </para>
-     </note>
-    </para>
-     <example>
-      <title><function>is_uploaded_file</function> example</title>
-     <programlisting role="php">
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>is_uploaded_file</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-/* Userland test for uploaded file. */
-function is_uploaded_file($filename) 
-{
-    if (!$tmp_file = get_cfg_var('upload_tmp_dir')) {
-        $tmp_file = dirname(tempnam('', ''));
-    }
-    $tmp_file .= '/' . basename($filename);
-    /* User might have trailing slash in php.ini... */
-    return (ereg_replace('/+', '/', $tmp_file) == $filename);
+
+if (is_uploaded_file($_FILES['userfile']['tmp_name'])) {
+   echo "File ". $_FILES['userfile']['name'] ." caricato correttamente.\n";
+   echo "Visualizzazione del contenuto\n";
+   readfile($_FILES['userfile']['tmp_name']);
+} else {
+   echo "Possibile attacco tramite upload di file: ";
+   echo "nome del file '". $_FILES['userfile']['tmp_name'] . "'.";
 }
 
-/* This is how to use it, since you also don't have
- * move_uploaded_file() in these older versions: */
-if (is_uploaded_file($HTTP_POST_FILES['userfile'])) {
-    copy($HTTP_POST_FILES['userfile'], "/place/to/put/uploaded/file");
-} else {
-    echo "Possibile attacco su file in uploading: filename '$HTTP_POST_FILES[userfile]'.";
-}
-?>
-]]>
-     </programlisting>
-    </example>
-    <para>
-     Vedi anche <function>move_uploaded_file</function>, e la sezione
-     <link linkend="features.file-upload">Handling file uploads</link>
-     per un semplice esempio di utilizzo.
-    </para>
-   </refsect1>
-  </refentry>
+?>]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>move_uploaded_file</function></member>
+    <member><varname>$_FILES</varname></member>
+    <member>Vedere <link linkend="features.file-upload">Gestione dei caricamenti di file</link> per un semplice esempio di utilizzo.</member>
+   </simplelist>
+  </para>
+ </refsect1>
+ 
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

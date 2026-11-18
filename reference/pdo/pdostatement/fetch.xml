@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: d312fb61f970ec50f4ce7cbaac90dc62e2d2a551 Maintainer: lacatoire Status: ready -->
+<refentry xml:id="pdostatement.fetch" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>PDOStatement::fetch</refname>
+  <refpurpose>
+   Recupera la riga successiva da un set di risultati
+  </refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis role="PDOStatement">
+   <modifier>public</modifier> <type>mixed</type><methodname>PDOStatement::fetch</methodname>
+   <methodparam choice="opt"><type>int</type><parameter>mode</parameter><initializer><constant>PDO::FETCH_DEFAULT</constant></initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>cursorOrientation</parameter><initializer><constant>PDO::FETCH_ORI_NEXT</constant></initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>cursorOffset</parameter><initializer>0</initializer></methodparam>
+  </methodsynopsis>
+
+  <simpara>
+   Recupera una riga da un set di risultati associato a un'istanza di
+   <classname>PDOStatement</classname>.
+   Il parametro <parameter>mode</parameter> determina come PDO restituisce la riga.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <variablelist>
+   <varlistentry>
+    <term><parameter>mode</parameter></term>
+    <listitem>
+     <para>
+      Controlla come la riga successiva verrà restituita al chiamante.
+      Questo valore deve essere una delle costanti
+      <constant>PDO::FETCH_<replaceable>*</replaceable></constant>,
+      con valore predefinito pari a <constant>PDO::ATTR_DEFAULT_FETCH_MODE</constant>
+      (che a sua volta vale per impostazione predefinita <constant>PDO::FETCH_BOTH</constant>).
+      <itemizedlist>
+       <listitem>
+        <simpara>
+         <constant>PDO::FETCH_ASSOC</constant>: restituisce un array indicizzato
+         per nome di colonna, come restituito nel set di risultati.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         <constant>PDO::FETCH_NAMED</constant>: restituisce un array con la stessa
+         forma di <constant>PDO::FETCH_ASSOC</constant>,
+         tranne che, se più colonne hanno lo stesso nome,
+         il valore riferito da quella chiave sarà un array di tutti i valori
+         della riga che avevano quel nome di colonna.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         <constant>PDO::FETCH_NUM</constant>: restituisce un array indicizzato per numero
+         di colonna, come restituito nel set di risultati, a partire dalla colonna 0.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         <constant>PDO::FETCH_BOTH</constant>: restituisce un array indicizzato sia
+         per nome di colonna sia per numero di colonna a base 0, come restituito nel
+         set di risultati.
+         È di fatto una combinazione di
+         <constant>PDO::FETCH_NUM</constant> e
+         <constant>PDO::FETCH_ASSOC</constant>.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         <constant>PDO::FETCH_BOUND</constant>: restituisce &true; e assegna
+         i valori delle colonne del set di risultati alle variabili PHP a cui sono
+         state associate con il metodo
+         <methodname>PDOStatement::bindColumn</methodname>.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         <constant>PDO::FETCH_OBJ</constant>: restituisce un'istanza di
+         <classname>stdClass</classname> con nomi di proprietà corrispondenti
+         ai nomi delle colonne restituite nel set di risultati.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         <constant>PDO::FETCH_CLASS</constant>: restituisce una nuova istanza della
+         classe richiesta. A meno che la classe non sia stata impostata con
+         <methodname>PDOStatement::setFetchMode</methodname>, questa modalità deve essere
+         combinata con <constant>PDO::FETCH_CLASSTYPE</constant>, nel qual caso
+         la classe da istanziare è determinata dal valore della
+         prima colonna.
+        </simpara>
+        <simpara>
+         Per impostazione predefinita, l'oggetto viene inizializzato associando le colonne del
+         set di risultati alle proprietà della classe.
+         Ciò avviene <emphasis>prima</emphasis> di chiamare il costruttore,
+         consentendo di popolare le proprietà indipendentemente dalla loro visibilità
+         o dal fatto che siano contrassegnate come <literal>readonly</literal>, purché
+         il costruttore non le inizializzi a sua volta.
+
+         Se una proprietà non esiste nella classe, viene invocato il metodo magico
+         <link linkend="object.set">__set()</link>
+         se esiste; altrimenti viene creata una proprietà pubblica
+         dinamica.
+        </simpara>
+        <simpara>
+         È possibile modificare questo comportamento usando il flag
+         <constant>PDO::FETCH_PROPS_LATE</constant>, che chiama il
+         costruttore <emphasis>prima</emphasis> di popolare le proprietà.
+        </simpara>
+        <caution>
+         <simpara>
+          I valori delle colonne <emphasis>non</emphasis> vengono passati come argomenti
+          al costruttore, indipendentemente dall'uso di
+          <constant>PDO::FETCH_PROPS_LATE</constant>. Vengono passati solo gli argomenti forniti a
+          <methodname>PDOStatement::setFetchMode</methodname>.
+         </simpara>
+        </caution>
+       </listitem>
+       <listitem>
+        <simpara>
+         <constant>PDO::FETCH_INTO</constant>: aggiorna un'istanza esistente
+         della classe richiesta, associando le colonne del set di risultati alle
+         proprietà con nome della classe.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         <constant>PDO::FETCH_LAZY</constant>: combina
+         <constant>PDO::FETCH_BOTH</constant> e
+         <constant>PDO::FETCH_OBJ</constant>,
+         e restituisce un oggetto <classname>PDORow</classname>
+         che crea i nomi delle proprietà dell'oggetto man mano che vi si accede.
+        </simpara>
+       </listitem>
+      </itemizedlist>
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><parameter>cursorOrientation</parameter></term>
+    <listitem>
+     <simpara>
+      Per un oggetto <classname>PDOStatement</classname> che rappresenta un
+      cursore scorrevole, questo valore determina quale riga verrà restituita
+      al chiamante. Questo valore deve essere una delle costanti
+      <constant>PDO::FETCH_ORI_<replaceable>*</replaceable></constant>,
+      con valore predefinito <constant>PDO::FETCH_ORI_NEXT</constant>.
+      Per richiedere un cursore scorrevole per l'oggetto
+      <classname>PDOStatement</classname>,
+      l'attributo <constant>PDO::ATTR_CURSOR</constant> deve essere impostato a
+      <constant>PDO::CURSOR_SCROLL</constant> quando l'istruzione SQL viene
+      preparata con <methodname>PDO::prepare</methodname>.
+     </simpara>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><parameter>cursorOffset</parameter></term>
+    <listitem>
+     <simpara>
+      Se il valore del parametro <parameter>cursorOrientation</parameter>
+      è <constant>PDO::FETCH_ORI_ABS</constant>, questo valore specifica il
+      numero assoluto della riga del set di risultati da recuperare.
+     </simpara>
+     <simpara>
+      Se il valore del parametro <parameter>cursorOrientation</parameter>
+      è <constant>PDO::FETCH_ORI_REL</constant>, questo valore specifica la
+      riga da recuperare relativamente alla posizione del cursore prima della chiamata a
+      <methodname>PDOStatement::fetch</methodname>.
+     </simpara>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <simpara>
+   In caso di successo, il valore restituito da questa funzione dipende dal tipo di fetch. In
+   ogni caso, viene restituito &false; in caso di fallimento o se non ci sono altre righe.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  &pdo.errors;
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <example>
+   <title>Recupero di righe con diversi stili di fetch</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$db = new PDO('sqlite::memory:');
+$db->exec("CREATE TABLE fruit (name VARCHAR(100), colour VARCHAR(100))");
+$db->exec("INSERT INTO fruit (name, colour) VALUES
+                             ('apple', 'red'),
+                             ('banana', 'yellow'),
+                             ('orange', 'orange'),
+                             ('kiwi', 'green')");
+$sth = $db->prepare("SELECT name, colour FROM fruit");
+$sth->execute();
+
+/* Prova degli stili di PDOStatement::fetch */
+echo "PDO::FETCH_ASSOC: ";
+echo "Restituisce la riga successiva come array indicizzato per nome di colonna\n";
+$result = $sth->fetch(PDO::FETCH_ASSOC);
+var_dump($result);
+echo "\n";
+
+echo "PDO::FETCH_BOTH: ";
+echo "Restituisce la riga successiva come array indicizzato sia per nome sia per numero di colonna\n";
+$result = $sth->fetch(PDO::FETCH_BOTH);
+var_dump($result);
+echo "\n";
+
+echo "PDO::FETCH_LAZY: ";
+echo "Restituisce la riga successiva come oggetto PDORow con i nomi delle colonne come proprietà\n";
+$result = $sth->fetch(PDO::FETCH_LAZY);
+var_dump($result);
+echo "\n";
+
+echo "PDO::FETCH_OBJ: ";
+echo "Restituisce la riga successiva come oggetto stdClass con i nomi delle colonne come proprietà\n";
+$result = $sth->fetch(PDO::FETCH_OBJ);
+var_dump($result);
+echo "\n";
+?>
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+PDO::FETCH_ASSOC: Restituisce la riga successiva come array indicizzato per nome di colonna
+array(2) {
+  ["name"]=>
+  string(5) "apple"
+  ["colour"]=>
+  string(3) "red"
+}
+
+PDO::FETCH_BOTH: Restituisce la riga successiva come array indicizzato sia per nome sia per numero di colonna
+array(4) {
+  ["name"]=>
+  string(6) "banana"
+  [0]=>
+  string(6) "banana"
+  ["colour"]=>
+  string(6) "yellow"
+  [1]=>
+  string(6) "yellow"
+}
+
+PDO::FETCH_LAZY: Restituisce la riga successiva come oggetto PDORow con i nomi delle colonne come proprietà
+object(PDORow)#3 (3) {
+  ["queryString"]=>
+  string(30) "SELECT name, colour FROM fruit"
+  ["name"]=>
+  string(6) "orange"
+  ["colour"]=>
+  string(6) "orange"
+}
+
+PDO::FETCH_OBJ: Restituisce la riga successiva come oggetto stdClass con i nomi delle colonne come proprietà
+object(stdClass)#4 (2) {
+  ["name"]=>
+  string(4) "kiwi"
+  ["colour"]=>
+  string(5) "green"
+}
+
+]]>
+   </screen>
+  </example>
+  <example>
+   <title>Recupero di righe con un cursore scorrevole</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+function readDataForwards($dbh) {
+    $sql = 'SELECT hand, won, bet FROM mynumbers ORDER BY BET';
+    $stmt = $dbh->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+    $stmt->execute();
+    while ($row = $stmt->fetch(PDO::FETCH_NUM, PDO::FETCH_ORI_NEXT)) {
+        $data = $row[0] . "\t" . $row[1] . "\t" . $row[2] . "\n";
+        print $data;
+    }
+}
+function readDataBackwards($dbh) {
+    $sql = 'SELECT hand, won, bet FROM mynumbers ORDER BY bet';
+    $stmt = $dbh->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+    $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_NUM, PDO::FETCH_ORI_LAST);
+    do {
+        $data = $row[0] . "\t" . $row[1] . "\t" . $row[2] . "\n";
+        print $data;
+    } while ($row = $stmt->fetch(PDO::FETCH_NUM, PDO::FETCH_ORI_PRIOR));
+}
+
+print "Lettura in avanti:\n";
+readDataForwards($conn);
+
+print "Lettura all'indietro:\n";
+readDataBackwards($conn);
+?>
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+Lettura in avanti:
+21    10    5
+16    0     5
+19    20    10
+
+Lettura all'indietro:
+19    20    10
+16    0     5
+21    10    5
+]]>
+   </screen>
+  </example>
+
+  <example>
+   <title>Ordine di costruzione</title>
+   <simpara>
+    Quando gli oggetti vengono recuperati tramite <constant>PDO::FETCH_CLASS</constant>, le proprietà
+    dell'oggetto vengono assegnate per prime e solo dopo viene invocato il costruttore della
+    classe. Tuttavia, quando viene indicato anche <constant>PDO::FETCH_PROPS_LATE</constant>,
+    questo ordine è invertito, ossia viene prima chiamato il costruttore e
+    successivamente vengono assegnate le proprietà.
+   </simpara>
+   <programlisting role="php">
+<![CDATA[
+<?php
+class Person
+{
+    private $name;
+
+    public function __construct()
+    {
+        $this->tell();
+    }
+
+    public function tell()
+    {
+        if (isset($this->name)) {
+            echo "Sono {$this->name}.\n";
+        } else {
+            echo "Non ho ancora un nome.\n";
+        }
+    }
+}
+
+$sth = $dbh->query("SELECT * FROM people");
+$sth->setFetchMode(PDO::FETCH_CLASS, 'Person');
+$person = $sth->fetch();
+$person->tell();
+$sth->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Person');
+$person = $sth->fetch();
+$person->tell();
+?>
+]]>
+   </programlisting>
+   &example.outputs.similar;
+   <screen>
+<![CDATA[
+Sono Alice.
+Sono Alice.
+Non ho ancora un nome.
+Sono Bob.
+]]>
+   </screen>
+  </example>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <simplelist>
+   <member><methodname>PDO::prepare</methodname></member>
+   <member><methodname>PDOStatement::execute</methodname></member>
+   <member><methodname>PDOStatement::fetchAll</methodname></member>
+   <member><methodname>PDOStatement::fetchColumn</methodname></member>
+   <member><methodname>PDOStatement::fetchObject</methodname></member>
+   <member><methodname>PDOStatement::setFetchMode</methodname></member>
+  </simplelist>
+ </refsect1>
+</refentry>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

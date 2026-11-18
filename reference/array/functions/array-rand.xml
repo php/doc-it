@@ -1,60 +1,136 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/array.xml, last change in rev 1.6 -->
-<!-- last change to 'array-rand' in en/ tree in rev 1.13 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.173/EN.1.13 -->
-  <refentry xml:id="function.array-rand" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>array_rand</refname>
-    <refpurpose>
-     Estrae a caso uno o più elementi da un array
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>mixed</type><methodname>array_rand</methodname>
-      <methodparam><type>array</type><parameter>input</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>num_req</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>array_rand</function> è piuttosto utile quando si vuole
-     estrarre a caso  uno o più elementi da un array. Prende un
-     array (<parameter>input</parameter>) e un argomento ozpionale
-     (<parameter>num_req</parameter>) che specifica quanti elementi
-     estrarre - se non è specificato, è 1 per default.
-    </para>
-    <para>
-     Se si sta estraendo solo un elemento, <function>array_rand</function>
-     restituisce la chiave di un elemento. Altrimenti, restituisce un array
-     di chiavi. Questo viene fatto in modo da permettere di estrarre
-     dall'array sia le chiavi che i valori.
-    </para>
-    
-    &note.randomseed;
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: d6dc2be3c5c70e4a1c3d13f788643ea232747c19 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
+<refentry xml:id="function.array-rand" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <refnamediv>
+  <refname>array_rand</refname>
+  <refpurpose>Sceglie una o più chiavi casuali da un array</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>int</type><type>string</type><type>array</type></type><methodname>array_rand</methodname>
+   <methodparam><type>array</type><parameter>array</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>num</parameter><initializer>1</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Sceglie uno o più elementi casuali da un array e restituisce la
+   chiave (o le chiavi) degli elementi casuali.
+  </para>
+  &caution.cryptographically-insecure;
+  &caution.mt19937-global-state;
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>array</parameter></term>
+     <listitem>
+      <para>
+       L'array in input.
+       Non può essere vuoto.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>num</parameter></term>
+     <listitem>
+      <para>
+       Specifica quanti elementi devono essere scelti.
+       Deve essere maggiore di zero e minore o uguale alla lunghezza di <parameter>array</parameter>
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Quando viene scelto un solo elemento, <function>array_rand</function> restituisce
+   la chiave di un elemento casuale. Altrimenti, viene restituito un array di chiavi
+   degli elementi casuali. In questo modo è possibile scegliere chiavi casuali
+   dall'array, oltre che valori casuali. Se vengono restituite più chiavi,
+   queste vengono restituite nell'ordine in cui erano presenti nell'array originale.
+  </para>
+ </refsect1>
 
-    <para>
-     <example>
-      <title>esempio di <function>array_rand</function></title>
-      <programlisting role="php">
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <para>
+   Lancia un <classname>ValueError</classname> se <parameter>array</parameter> è vuoto,
+   o se <parameter>num</parameter> è fuori dall'intervallo consentito.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        <function>array_rand</function> ora lancia un <classname>ValueError</classname>
+        se <parameter>num</parameter> è fuori dall'intervallo consentito; in precedenza veniva generato un
+        <constant>E_WARNING</constant> e la funzione restituiva &null;.
+       </entry>
+      </row>
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        <function>array_rand</function> ora lancia un <classname>ValueError</classname>
+        se <parameter>array</parameter> è vuoto; in precedenza veniva generato un
+        <constant>E_WARNING</constant> e la funzione restituiva &null;.
+       </entry>
+      </row>
+      <row>
+       <entry>7.1.0</entry>
+       <entry>
+        L'algoritmo interno di randomizzazione <link linkend="migration71.incompatible.rand-srand-aliases">è stato modificato</link> per usare il generatore di numeri casuali <link xlink:href="&url.mersenne;">Mersenne Twister</link> invece della funzione rand della libc.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>array_rand</function></title>
+    <programlisting role="php">
 <![CDATA[
-<?
-srand((float) microtime() * 10000000);
+<?php
 $input = array("Neo", "Morpheus", "Trinity", "Cypher", "Tank");
-$chiavi = array_rand($input, 2);
-echo $input[$chiavi[0]] . "\n";
-echo $input[$chiavi[1]] . "\n";
+$rand_keys = array_rand($input, 2);
+echo $input[$rand_keys[0]] . "\n";
+echo $input[$rand_keys[1]] . "\n";
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Vedere anche <function>shuffle</function>.
-    </para>
-   </refsect1>
-  </refentry>
-
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>Random\Randomizer::pickArrayKeys</function></member>
+    <member><function>Random\Randomizer::shuffleArray</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

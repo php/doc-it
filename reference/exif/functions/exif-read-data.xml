@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 4cab6e04096c02da7accd5668f9e5aaae2ac681b Maintainer: lacatoire Status: ready -->
+<refentry xml:id="function.exif-read-data" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <refnamediv>
+  <refname>exif_read_data</refname>
+  <refpurpose>Legge gli header <acronym>EXIF</acronym> da un file immagine</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>array</type><type>false</type></type><methodname>exif_read_data</methodname>
+   <methodparam><type class="union"><type>resource</type><type>string</type></type><parameter>file</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>required_sections</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type>bool</type><parameter>as_arrays</parameter><initializer>&false;</initializer></methodparam>
+   <methodparam choice="opt"><type>bool</type><parameter>read_thumbnail</parameter><initializer>&false;</initializer></methodparam>
+  </methodsynopsis>
+  <simpara>
+   <function>exif_read_data</function> legge gli
+   header <acronym>EXIF</acronym> da un file immagine. In questo modo è possibile
+   leggere i metadati generati dalle fotocamere digitali.
+  </simpara>
+  <simpara>
+   Gli header <acronym>EXIF</acronym> tendono a essere presenti nelle immagini JPEG/TIFF
+   generate dalle fotocamere digitali, ma purtroppo ogni produttore di fotocamere
+   digitali ha una propria idea di come etichettare le immagini, quindi non
+   sempre si può contare sulla presenza di uno specifico header Exif.
+  </simpara>
+  <simpara>
+   <literal>Height</literal> e <literal>Width</literal> sono calcolati allo
+   stesso modo di <function>getimagesize</function>, quindi i loro valori non
+   devono far parte di alcun header restituito. Inoltre, <literal>html</literal>
+   è una stringa di testo con altezza/larghezza da usare all'interno del normale
+   <acronym>HTML</acronym>.
+  </simpara>
+  <simpara>
+   Quando un header Exif contiene una nota di Copyright, questa può a sua volta
+   contenere due valori. Poiché la soluzione è incoerente nello standard Exif
+   2.10, la sezione <literal>COMPUTED</literal> restituisce entrambe le voci
+   <literal>Copyright.Photographer</literal> e
+   <literal>Copyright.Editor</literal>, mentre la sezione <literal>IFD0</literal>
+   contiene l'array di byte con il carattere NULL che separa le due voci, oppure
+   solo la prima voce se il tipo di dato era errato (comportamento normale di
+   Exif). La sezione <literal>COMPUTED</literal> contiene inoltre la voce
+   <literal>Copyright</literal>, che è la stringa di copyright originale oppure
+   un elenco separato da virgole dei copyright della foto e dell'editor.
+  </simpara>
+  <simpara>
+   Il tag <literal>UserComment</literal> ha lo stesso problema del tag
+   Copyright: può memorizzare due valori, prima la codifica usata e poi il valore
+   stesso. In tal caso la sezione <literal>IFD</literal> contiene solo la codifica
+   o un array di byte. La sezione <literal>COMPUTED</literal> memorizza entrambi
+   nelle voci <literal>UserCommentEncoding</literal> e
+   <literal>UserComment</literal>. La voce <literal>UserComment</literal>
+   è disponibile in entrambi i casi, quindi va usata in preferenza al valore
+   della sezione <literal>IFD0</literal>.
+  </simpara>
+  <simpara>
+   <function>exif_read_data</function> convalida inoltre i tag dei dati EXIF secondo
+   la specifica EXIF (<link xlink:href="&url.exifspec;">&url.exifspec;</link>, pagina 20).
+  </simpara>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <variablelist>
+   <varlistentry>
+    <term><parameter>file</parameter></term>
+    <listitem>
+     <simpara>
+      La posizione del file immagine. Può essere il percorso del file
+      (come di consueto sono supportati anche gli stream wrapper)
+      oppure una <type>resource</type> di tipo stream.
+     </simpara>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><parameter>required_sections</parameter></term>
+    <listitem>
+     <para>
+      È un elenco, separato da virgole, di sezioni che devono essere presenti nel
+      file per produrre un <type>array</type> come risultato. Se nessuna delle
+      sezioni richieste può essere trovata, il valore restituito è &false;.
+      <informaltable>
+       <tgroup cols="2">
+        <tbody>
+         <row>
+          <entry>FILE</entry>
+          <entry>FileName, FileSize, FileDateTime, SectionsFound</entry>
+         </row>
+         <row>
+          <entry>COMPUTED</entry>
+          <entry>
+           html, Width, Height, IsColor, e altro se disponibile. Height e
+           Width sono calcolati allo stesso modo di <function>getimagesize</function>,
+           quindi i loro valori non devono far parte di alcun header restituito.
+           Inoltre, <literal>html</literal> è una stringa di testo con altezza/larghezza
+           da usare all'interno del normale <acronym>HTML</acronym>.
+          </entry>
+         </row>
+         <row>
+          <entry>ANY_TAG</entry>
+          <entry>Qualsiasi informazione che abbia un tag, ad es. <literal>IFD0</literal>, <literal>EXIF</literal>, ...</entry>
+         </row>
+         <row>
+          <entry>IFD0</entry>
+          <entry>
+           Tutti i dati con tag di IFD0. Nei normali file immagine contiene
+           le dimensioni dell'immagine e così via.
+          </entry>
+         </row>
+         <row>
+          <entry>THUMBNAIL</entry>
+          <entry>
+           Si presume che un file contenga una miniatura se ha un secondo <literal>IFD</literal>.
+           Tutte le informazioni con tag sulla miniatura incorporata sono memorizzate
+           in questa sezione.
+          </entry>
+         </row>
+         <row>
+          <entry>COMMENT</entry>
+          <entry>Header di commento delle immagini JPEG.</entry>
+         </row>
+         <row>
+          <entry>EXIF</entry>
+          <entry>
+           La sezione EXIF è una sottosezione di <literal>IFD0</literal>. Contiene
+           informazioni più dettagliate su un'immagine. La maggior parte di queste voci
+           riguarda la fotocamera digitale.
+          </entry>
+         </row>
+        </tbody>
+       </tgroup>
+      </informaltable>
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><parameter>as_arrays</parameter></term>
+     <listitem>
+     <simpara>
+      Specifica se ogni sezione diventi o meno un array. Le sezioni
+      <literal>COMPUTED</literal>, <literal>THUMBNAIL</literal> e
+      <literal>COMMENT</literal> di <parameter>required_sections</parameter>
+      diventano sempre array, poiché possono contenere valori i cui nomi sono in
+      conflitto con altre sezioni.
+     </simpara>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><parameter>read_thumbnail</parameter></term>
+    <listitem>
+     <simpara>
+      Se impostato a &true; viene letta la miniatura stessa. Altrimenti vengono
+      letti solo i dati con tag.
+     </simpara>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <simpara>
+   Restituisce un <type>array</type> associativo in cui gli indici sono i nomi
+   degli header e i valori sono quelli associati a tali header. Se non è possibile
+   restituire alcun dato, <function>exif_read_data</function> restituisce &false;.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <simpara>
+   Possono essere generati errori di livello <constant>E_WARNING</constant>
+   e/o <constant>E_NOTICE</constant> per tag non supportati o altre potenziali
+   condizioni di errore, ma la funzione tenta comunque di leggere tutte le
+   informazioni comprensibili.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.5.0</entry>
+      <entry>
+       I tag <literal>OffsetTime</literal>, <literal>OffsetTimeOriginal</literal>
+       e <literal>OffsetTimeDigitized</literal> ora vengono riconosciuti;
+       in precedenza venivano riportati come <literal>UndefinedTag:0x9010</literal>,
+       <literal>UndefinedTag:0x9011</literal> e
+       <literal>UndefinedTag:0x9012</literal>.
+      </entry>
+     </row>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>required_sections</parameter> ora è nullable.
+      </entry>
+     </row>
+     <row>
+      <entry>7.2.0</entry>
+      <entry>
+       Il parametro <parameter>file</parameter> ora supporta sia i file locali
+       sia le resource di tipo stream.
+      </entry>
+     </row>
+     <row>
+      <entry>7.2.0</entry>
+      <entry>
+       <para>
+        È stato aggiunto il supporto per i seguenti formati EXIF:
+        <simplelist>
+         <member>Samsung</member>
+         <member>DJI</member>
+         <member>Panasonic</member>
+         <member>Sony</member>
+         <member>Pentax</member>
+         <member>Minolta</member>
+         <member>Sigma/Foveon</member>
+         <member>AGFA</member>
+         <member>Kyocera</member>
+         <member>Ricoh</member>
+         <member>Epson</member>
+        </simplelist>
+       </para>
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <example>
+   <title>Esempio di uso di <function>exif_read_data</function></title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+echo "test1.jpg:<br />\n";
+$exif = exif_read_data('tests/test1.jpg', 'IFD0');
+echo $exif===false ? "No header data found.<br />\n" : "Image contains headers<br />\n";
+
+$exif = exif_read_data('tests/test2.jpg', 0, true);
+echo "test2.jpg:<br />\n";
+foreach ($exif as $key => $section) {
+    foreach ($section as $name => $val) {
+        echo "$key.$name: $val<br />\n";
+    }
+}
+?>
+]]>
+   </programlisting>
+   <simpara>
+    La prima chiamata fallisce perché l'immagine non contiene informazioni di header.
+   </simpara>
+   &example.outputs.similar;
+   <screen role="php">
+<![CDATA[
+test1.jpg:
+No header data found.
+test2.jpg:
+FILE.FileName: test2.jpg
+FILE.FileDateTime: 1017666176
+FILE.FileSize: 1240
+FILE.FileType: 2
+FILE.SectionsFound: ANY_TAG, IFD0, THUMBNAIL, COMMENT
+COMPUTED.html: width="1" height="1"
+COMPUTED.Height: 1
+COMPUTED.Width: 1
+COMPUTED.IsColor: 1
+COMPUTED.ByteOrderMotorola: 1
+COMPUTED.UserComment: Exif test image.
+COMPUTED.UserCommentEncoding: ASCII
+COMPUTED.Copyright: Photo (c) M.Boerger, Edited by M.Boerger.
+COMPUTED.Copyright.Photographer: Photo (c) M.Boerger
+COMPUTED.Copyright.Editor: Edited by M.Boerger.
+IFD0.Copyright: Photo (c) M.Boerger
+IFD0.UserComment: ASCII
+THUMBNAIL.JPEGInterchangeFormat: 134
+THUMBNAIL.JPEGInterchangeFormatLength: 523
+COMMENT.0: Comment #1.
+COMMENT.1: Comment #2.
+COMMENT.2: Comment #3end
+THUMBNAIL.JPEGInterchangeFormat: 134
+THUMBNAIL.Thumbnail.Height: 1
+THUMBNAIL.Thumbnail.Height: 1
+]]>
+   </screen>
+  </example>
+  <example>
+   <title><function>exif_read_data</function> con gli stream, disponibile a partire da PHP 7.2.0</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+// Apre il file, che dovrebbe essere in modalità binaria
+$fp = fopen('/path/to/image.jpg', 'rb');
+
+if (!$fp) {
+    echo 'Error: Unable to open image for reading';
+    exit;
+}
+
+// Tenta di leggere gli header exif
+$headers = exif_read_data($fp);
+
+if (!$headers) {
+    echo 'Error: Unable to read exif headers';
+    exit;
+}
+
+// Stampa gli header 'COMPUTED'
+echo 'EXIF Headers:' . PHP_EOL;
+
+foreach ($headers['COMPUTED'] as $header => $value) {
+    printf(' %s => %s%s', $header, $value, PHP_EOL);
+}
+?>
+]]>
+   </programlisting>
+   &example.outputs.similar;
+   <screen role="php">
+<![CDATA[
+EXIF Headers:
+ Height => 576
+ Width => 1024
+ IsColor => 1
+ ByteOrderMotorola => 0
+ ApertureFNumber => f/5.6
+ UserComment =>
+ UserCommentEncoding => UNDEFINED
+ Copyright => Denis
+ Thumbnail.FileType => 2
+ Thumbnail.MimeType => image/jpeg
+]]>
+   </screen>
+  </example>
+ </refsect1>
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <simpara>
+    Se <link linkend="ref.mbstring">mbstring</link> è abilitata, exif tenterà di elaborare
+    l'unicode e di scegliere un set di caratteri come specificato da
+    <link linkend="ini.exif.decode-unicode-motorola">exif.decode_unicode_motorola</link> e
+    <link linkend="ini.exif.decode-unicode-intel">exif.decode_unicode_intel</link>.
+    L'estensione exif non tenterà di determinare la codifica da sola: spetta
+    all'utente specificare correttamente la codifica da usare per la decodifica,
+    impostando una di queste due direttive ini prima di chiamare
+    <function>exif_read_data</function>.
+   </simpara>
+  </note>
+  <note>
+   <simpara>
+    Se <parameter>file</parameter> è usato per passare uno stream a questa funzione, lo stream
+    deve supportare il posizionamento (seekable). Si noti che la posizione del puntatore al file
+    non viene modificata dopo il ritorno della funzione.
+   </simpara>
+  </note>
+ </refsect1>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <simplelist>
+   <member><function>exif_thumbnail</function></member>
+   <member><function>getimagesize</function></member>
+   <member><xref linkend="wrappers"/></member>
+  </simplelist>
+ </refsect1>
+</refentry>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

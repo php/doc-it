@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 84e8f0960b841a5ebca9d81cd2c2311b6504a371 Maintainer: lacatoire Status: ready -->
+
+<chapter xml:id="pdo.prepared-statements" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>Prepared statement e stored procedure</title>
+ <para>
+  Molti dei database più maturi supportano il concetto di prepared
+  statement. Di cosa si tratta? Possono essere considerate una sorta di
+  template compilato per l'SQL che un'applicazione intende eseguire, che può essere personalizzato
+  tramite parametri variabili. Le prepared statement offrono due vantaggi principali:
+ </para>
+ <itemizedlist>
+  <listitem>
+   <simpara>
+    La query deve essere analizzata (o preparata) una sola volta, ma può essere
+    eseguita più volte con parametri uguali o diversi. Quando la
+    query viene preparata, il database ne analizza, compila e ottimizza il
+    piano di esecuzione. Per le query complesse questo processo può richiedere
+    un tempo tale da rallentare in modo percepibile un'applicazione, se
+    occorre ripetere la stessa query molte volte con parametri diversi. Usando
+    una prepared statement l'applicazione evita di ripetere il ciclo di
+    analisi/compilazione/ottimizzazione. Ciò significa che le prepared statement usano meno
+    risorse e quindi vengono eseguite più velocemente.
+   </simpara>
+  </listitem>
+  <listitem>
+   <simpara>
+    I parametri delle prepared statement non devono essere racchiusi tra apici
+    (quoting); il driver se ne occupa automaticamente. Se un'applicazione usa esclusivamente
+    prepared statement, lo sviluppatore può essere certo che non si verificherà
+    alcuna SQL injection (tuttavia, se altre parti della query vengono costruite con
+    input privo di escape, la SQL injection è ancora possibile).
+   </simpara>
+  </listitem>
+ </itemizedlist>
+ <para>
+  Le prepared statement sono così utili che sono l'unica funzionalità che PDO
+  emula per i driver che non le supportano. Ciò garantisce che
+  un'applicazione possa usare lo stesso paradigma di accesso ai dati indipendentemente dalle
+  capacità del database.
+ </para>
+ <para>
+  <example>
+   <title>Inserimenti ripetuti con prepared statement</title>
+   <simpara>
+    Questo esempio esegue una query INSERT sostituendo un <literal>name</literal>
+    e un <literal>value</literal> ai segnaposto con nome.
+   </simpara>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$stmt = $dbh->prepare("INSERT INTO REGISTRY (name, value) VALUES (:name, :value)");
+$stmt->bindParam(':name', $name);
+$stmt->bindParam(':value', $value);
+
+// inserisce una riga
+$name = 'uno';
+$value = 1;
+$stmt->execute();
+
+// inserisce un'altra riga con valori diversi
+$name = 'due';
+$value = 2;
+$stmt->execute();
+?>
+]]>
+   </programlisting>
+  </example>
+ </para>
+ <para>
+  <example>
+   <title>Inserimenti ripetuti con prepared statement</title>
+   <simpara>
+    Questo esempio esegue una query INSERT sostituendo un <literal>name</literal>
+    e un <literal>value</literal> ai segnaposto posizionali <literal>?</literal>.
+   </simpara>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$stmt = $dbh->prepare("INSERT INTO REGISTRY (name, value) VALUES (?, ?)");
+$stmt->bindParam(1, $name);
+$stmt->bindParam(2, $value);
+
+// inserisce una riga
+$name = 'uno';
+$value = 1;
+$stmt->execute();
+
+// inserisce un'altra riga con valori diversi
+$name = 'due';
+$value = 2;
+$stmt->execute();
+?>
+]]>
+   </programlisting>
+  </example>
+ </para>
+ <para>
+  <example>
+   <title>Recupero di dati con prepared statement</title>
+   <simpara>
+    Questo esempio recupera dati in base a un valore chiave fornito da un form.
+    L'input dell'utente viene racchiuso automaticamente tra apici, quindi non
+    sussiste alcun rischio di attacco SQL injection.
+   </simpara>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$stmt = $dbh->prepare("SELECT * FROM REGISTRY where name = ?");
+$stmt->execute([$_GET['name']]);
+foreach ($stmt as $row) {
+  print_r($row);
+}
+?>
+]]>
+   </programlisting>
+  </example>
+ </para>
+ <para>
+  <example>
+   <title>Chiamata a una stored procedure con un parametro di output</title>
+   <simpara>
+    Se il driver del database lo supporta, un'applicazione può associare parametri sia
+    in output sia in input. I parametri di output sono tipicamente usati per recuperare
+    valori dalle stored procedure. I parametri di output sono leggermente più complessi
+    da usare rispetto a quelli di input, in quanto lo sviluppatore deve sapere quanto grande possa essere un dato
+    parametro nel momento in cui lo associa. Se il valore risulta più grande
+    della dimensione indicata, viene generato un errore.
+   </simpara>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$stmt = $dbh->prepare("CALL sp_returns_string(?)");
+$stmt->bindParam(1, $return_value, PDO::PARAM_STR, 4000);
+
+// chiama la stored procedure
+$stmt->execute();
+
+print "la procedura ha restituito $return_value\n";
+?>
+]]>
+   </programlisting>
+  </example>
+ </para>
+ <para>
+  <example>
+   <title>Chiamata a una stored procedure con un parametro di input/output</title>
+   <simpara>
+    Gli sviluppatori possono anche specificare parametri che contengono valori sia in input sia in output;
+    la sintassi è simile a quella dei parametri di output. Nell'esempio seguente, la
+    stringa 'ciao' viene passata alla stored procedure e, al ritorno,
+    ciao viene sostituita dal valore restituito dalla procedura.
+   </simpara>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$stmt = $dbh->prepare("CALL sp_takes_string_returns_string(?)");
+$value = 'ciao';
+$stmt->bindParam(1, $value, PDO::PARAM_STR|PDO::PARAM_INPUT_OUTPUT, 4000);
+
+// chiama la stored procedure
+$stmt->execute();
+
+print "la procedura ha restituito $value\n";
+?>
+]]>
+   </programlisting>
+  </example>
+ </para>
+ <para>
+  <example>
+   <title>Uso non valido di un segnaposto</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$stmt = $dbh->prepare("SELECT * FROM REGISTRY where name LIKE '%?%'");
+$stmt->execute([$_GET['name']]);
+
+// il segnaposto deve essere usato al posto dell'intero valore
+$stmt = $dbh->prepare("SELECT * FROM REGISTRY where name LIKE ?");
+$stmt->execute(["%$_GET[name]%"]);
+?>
+]]>
+   </programlisting>
+  </example>
+ </para>
+</chapter>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->
+

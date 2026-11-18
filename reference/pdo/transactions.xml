@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 969a4a70626497a200e4f2ffd883a29cbb228b33 Maintainer: lacatoire Status: ready -->
+
+<chapter xml:id="pdo.transactions" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>Transazioni e auto-commit</title>
+ <para>
+  Ora che la connessione tramite PDO è stabilita, è necessario capire come PDO
+  gestisce le transazioni prima di iniziare a eseguire query. Chi non ha mai
+  incontrato le transazioni deve sapere che offrono 4 caratteristiche principali: Atomicità,
+  Consistenza, Isolamento e Durabilità (ACID). In parole semplici, qualsiasi lavoro
+  svolto in una transazione, anche se eseguito per fasi, viene
+  applicato al database in modo sicuro e senza interferenze
+  da parte di altre connessioni, quando ne viene eseguito il commit. Il lavoro transazionale può anche
+  essere annullato automaticamente su richiesta (purché non ne sia già stato
+  eseguito il commit), il che semplifica la gestione degli errori negli script.
+ </para>
+ <para>
+  Le transazioni sono tipicamente implementate "accumulando" il gruppo di
+  modifiche da applicare tutte in una volta; ciò ha il piacevole effetto collaterale di
+  migliorare drasticamente l'efficienza di tali aggiornamenti. In altre parole,
+  le transazioni possono rendere gli script più veloci e potenzialmente più robusti
+  (occorre comunque usarle correttamente per ottenere questo vantaggio).
+ </para>
+ <para>
+  Purtroppo non tutti i database supportano le transazioni, quindi PDO deve
+  operare in quella che è nota come modalità "auto-commit" quando la
+  connessione viene aperta per la prima volta. La modalità auto-commit significa che ogni query eseguita ha
+  una propria transazione implicita, se il database la supporta, o nessuna transazione
+  se il database non supporta le transazioni. Se serve una transazione,
+  è necessario usare il metodo <methodname>PDO::beginTransaction</methodname> per
+  avviarla. Se il driver sottostante non supporta le transazioni, viene lanciata una
+  PDOException (indipendentemente dalle impostazioni di gestione degli errori:
+  si tratta sempre di una condizione di errore grave). Una volta avviata una transazione,
+  è possibile usare <methodname>PDO::commit</methodname> o
+  <methodname>PDO::rollBack</methodname> per concluderla, a seconda del successo
+  del codice eseguito durante la transazione.
+ </para>
+ <warning>
+  <para>
+   PDO verifica le capacità transazionali solo a livello di driver. Se determinate
+   condizioni a runtime rendono le transazioni non disponibili,
+   <methodname>PDO::beginTransaction</methodname> restituirà comunque &true;
+   senza errori se il server di database accetta la richiesta di avviare una
+   transazione.
+  </para>
+  <para>
+   Un esempio è il tentativo di usare le transazioni su tabelle MyISAM in
+   un database MySQL.
+  </para>
+ </warning>
+ <warning>
+  <para>
+   <emphasis>Commit impliciti con le istruzioni DDL:</emphasis>
+   Alcuni database eseguono automaticamente un
+   <literal>COMMIT</literal> implicito quando un'istruzione del linguaggio di definizione dei dati (DDL),
+   come <literal>DROP TABLE</literal> o <literal>CREATE TABLE</literal>,
+   viene eseguita all'interno di una transazione. Ciò significa che tutte le modifiche precedenti effettuate
+   nella stessa transazione verranno <emphasis>confermate automaticamente</emphasis> e non
+   potranno essere annullate.
+  </para>
+  <para>
+   <literal>MySQL</literal> e <literal>Oracle</literal> sono esempi di database che
+   mostrano questo comportamento.
+  </para>
+ </warning>
+ <para>
+  <example>
+   <title>Esempio di commit implicito</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$pdo->beginTransaction();
+$pdo->exec("INSERT INTO users (name) VALUES ('Rasmus')");
+$pdo->exec("CREATE TABLE test (id INT PRIMARY KEY)"); // Implicit COMMIT occurs here
+$pdo->rollBack(); // This will NOT undo the INSERT/CREATE for MySQL or Oracle
+?>
+]]>
+   </programlisting>
+  </example>
+ </para>
+ <para>
+  <emphasis>Buona pratica:</emphasis> evitare di eseguire istruzioni DDL all'interno di transazioni
+  se si usano database che impongono questo comportamento. Se necessario, separare le operazioni DDL
+  dalla logica transazionale.
+ </para>
+ <para>
+  Quando lo script termina o quando una connessione sta per essere chiusa, se
+  esiste una transazione in sospeso, PDO ne esegue automaticamente il rollback.
+  Si tratta di una misura di sicurezza per evitare incoerenze nei casi in cui
+  lo script termini inaspettatamente: se non è stato eseguito esplicitamente il commit della
+  transazione, si presume che qualcosa sia andato storto, quindi il rollback
+  viene eseguito a tutela dei dati.
+ </para>
+ <warning>
+  <para>
+   Il rollback automatico avviene solo se la transazione è stata avviata tramite
+   <methodname>PDO::beginTransaction</methodname>. Se si esegue manualmente una
+   query che avvia una transazione, PDO non ha modo di saperlo e
+   quindi non può annullarla se qualcosa va storto.
+  </para>
+ </warning>
+ <para>
+  <example><title>Esecuzione di un batch in una transazione</title>
+   <para>
+    Nell'esempio seguente, si supponga di creare un insieme di
+    voci per un nuovo dipendente, a cui è stato assegnato il numero ID 23.
+    Oltre a inserire i dati di base di tale persona, occorre anche
+    registrarne lo stipendio. È piuttosto semplice eseguire due aggiornamenti separati,
+    ma racchiudendoli tra le chiamate a
+    <methodname>PDO::beginTransaction</methodname> e
+    <methodname>PDO::commit</methodname>, si garantisce che nessun altro
+    possa vedere tali modifiche finché non sono complete. Se
+    qualcosa va storto, il blocco catch annulla tutte le modifiche effettuate
+    dall'avvio della transazione, quindi stampa un messaggio
+    di errore.
+   </para>
+   <programlisting role="php">
+<![CDATA[
+<?php
+try {
+  $dbh = new PDO('odbc:SAMPLE', 'db2inst1', 'ibmdb2',
+      array(PDO::ATTR_PERSISTENT => true));
+  echo "Connected\n";
+} catch (Exception $e) {
+  die("Unable to connect: " . $e->getMessage());
+}
+
+try {
+  $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+  $dbh->beginTransaction();
+  $dbh->exec("insert into staff (id, first, last) values (23, 'Joe', 'Bloggs')");
+  $dbh->exec("insert into salarychange (id, amount, changedate)
+      values (23, 50000, NOW())");
+  $dbh->commit();
+
+} catch (Exception $e) {
+  $dbh->rollBack();
+  echo "Failed: " . $e->getMessage();
+}
+?>
+]]>
+   </programlisting>
+  </example>
+ </para>
+ <para>
+  In una transazione non ci si deve limitare a effettuare aggiornamenti: è possibile anche eseguire
+  query complesse per estrarre dati e, eventualmente, usare tali informazioni per
+  costruire ulteriori aggiornamenti e query; mentre la transazione è attiva,
+  è garantito che nessun altro possa apportare modifiche nel corso
+  del lavoro. Per ulteriori approfondimenti sulle transazioni, fare riferimento alla
+  documentazione fornita dal proprio server di database.
+ </para>
+</chapter>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

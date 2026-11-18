@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: e41aab5ecacf449e51179886c17f1d41735b0234 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 4f36c26a72c40b16e955c3c1c88041910932d0bf Maintainer: pastore Status: ready -->
 <!-- CREDITS: darvina -->
 <refentry xml:id="function.get-class" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
@@ -10,7 +10,7 @@
   &reftitle.description;
   <methodsynopsis>
    <type>string</type><methodname>get_class</methodname>
-   <methodparam choice="opt"><type>object</type><parameter>object</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type>object</type><parameter>object</parameter></methodparam>
   </methodsynopsis>
   <para>
    Restituisce il nome della classe dell'<parameter>object</parameter> dato.
@@ -24,8 +24,16 @@
      <term><parameter>object</parameter></term>
      <listitem>
       <para>
-       L'oggetto testato. Questo parametro potrebbe essere omesso quando si è dentro ad una classe.
+       L'oggetto testato.
       </para>
+      <note>
+       <simpara>
+        Passare esplicitamente &null; come <parameter>object</parameter> non è
+        più consentito a partire da PHP 7.2.0 e emette un <constant>E_WARNING</constant>.
+        A partire da PHP 8.0.0, quando viene usato &null; viene emesso un
+        <classname>TypeError</classname>.
+       </simpara>
+      </note>
      </listitem>
     </varlistentry>
    </variablelist>
@@ -35,19 +43,24 @@
   &reftitle.returnvalues;
   <para>
    Restituisce il nome della classe di cui <parameter>object</parameter> è
-   un'istanza. Restituisce &false; se <parameter>object</parameter> non è un 
-   oggetto.
+   un'istanza.
   </para>
   <para>
-   Se viene omesso <parameter>object</parameter> quando è dentro una classe, viene
-   restituito il nome di quella classe.
+   Se <parameter>object</parameter> è un'istanza di una classe che esiste
+   in un namespace, viene restituito il nome completo di namespace di quella classe.
   </para>
  </refsect1>
  <refsect1 role="errors">
   &reftitle.errors;
   <para>
-   Se viene chiamata <function>get_class</function> con qualcosa di diverso da un
-   oggetto, viene sollevato un errore di livello <constant>E_WARNING</constant>.
+   Se <function>get_class</function> viene chiamata con qualcosa di diverso da un
+   oggetto, viene sollevato un <classname>TypeError</classname>. Prima di PHP 8.0.0,
+   veniva sollevato un errore di livello <constant>E_WARNING</constant>.
+  </para>
+  <para>
+   Se <function>get_class</function> viene chiamata senza argomenti al di fuori di
+   una classe, viene lanciato un <classname>Error</classname>. Prima di PHP 8.0.0,
+   veniva sollevato un errore di livello <constant>E_WARNING</constant>.
   </para>
  </refsect1>
  <refsect1 role="changelog">
@@ -63,11 +76,29 @@
      </thead>
      <tbody>
       <row>
-       <entry>5.3.0</entry>
+       <entry>8.3.0</entry>
        <entry>
-        &null; è diventato il valore di default per <parameter>object</parameter>,
-        quindi passare &null; a <parameter>object</parameter> ora ha lo stesso
-        risultato di non passare nessun valore.
+        Chiamare <function>get_class</function> senza argomenti ora emette un
+        avviso <constant>E_DEPRECATED</constant>;
+        in precedenza, chiamare questa funzione all'interno di una classe restituiva il nome di quella classe.
+       </entry>
+      </row>
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        Chiamare questa funzione al di fuori di una classe, senza alcun argomento,
+        ora lancia un <classname>Error</classname>.
+        In precedenza veniva sollevato un <constant>E_WARNING</constant>
+        e la funzione restituiva &false;.
+       </entry>
+      </row>
+      <row>
+       <entry>7.2.0</entry>
+       <entry>
+        Prima di questa versione il valore di default di <parameter>object</parameter>
+        era &null; e aveva lo stesso effetto di non passare nessun valore. Ora
+        &null; è stato rimosso come valore di default di <parameter>object</parameter>
+        e non è più un input valido.
        </entry>
       </row>
      </tbody>
@@ -141,6 +172,34 @@ string(3) "bar"
 ]]>
     </screen>
    </example>
+   <example>
+    <title>Utilizzo di <function>get_class</function> con classi in un namespace</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+namespace Foo\Bar;
+
+class Baz {
+    public function __construct()
+    {
+
+    }
+}
+
+$baz = new \Foo\Bar\Baz;
+
+var_dump(get_class($baz));
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+string(11) "Foo\Bar\Baz"
+]]>
+    </screen>
+   </example>
   </para>
  </refsect1>
  <refsect1 role="seealso">
@@ -150,6 +209,7 @@ string(3) "bar"
     <member><function>get_called_class</function></member>
     <member><function>get_parent_class</function></member>
     <member><function>gettype</function></member>
+    <member><function>get_debug_type</function></member>
     <member><function>is_subclass_of</function></member>
    </simplelist>
   </para>

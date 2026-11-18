@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 0d66a6cf2c0cad946dd8b766ac6ea09b96989114 Maintainer: reghe Status: ready -->
+<!-- EN-Revision: 78d17c25eeecc78cb7098b1a01d42391e36af2c1 Maintainer: reghe Status: ready -->
 <refentry xml:id="function.eval" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>eval</refname>
@@ -14,6 +14,16 @@
   </methodsynopsis>
   <para>
    Esegue la data stringa <parameter>code</parameter> come codice PHP.
+  </para>
+  <para>
+   Il codice valutato eredita lo
+   <link linkend="language.variables.scope">scope delle variabili</link>
+   della riga in cui avviene la chiamata a <function>eval</function>.
+   Tutte le variabili disponibili in quella riga saranno disponibili in lettura e
+   modifica nel codice valutato.
+   Tuttavia, tutte le funzioni e le classi definite saranno definite nel namespace globale.
+   In altre parole, il compilatore considera il codice valutato come se fosse un
+   file <link linkend="function.include">incluso</link> separato.
   </para>
   <caution>
    <para>
@@ -40,9 +50,9 @@
        Il codice non deve essere incluso nei <link linkend="language.basic-syntax.phpmode">tag
        di apertura e chisura</link> di PHP. Ad esempio
        <literal>'echo "Ciao!";'</literal> è corretto invece di
-       <literal>'&lt;? echo "Ciao!"; &gt;'</literal>. È comunque possibile uscire e
+       <literal>'&lt;?php echo "Ciao!"; ?&gt;'</literal>. È comunque possibile uscire e
        rientrare nella modalità PHP attraverso l'utilizzo dei tag PHP appropriati, ad esempio:
-       <literal>'echo "In PHP mode!"; ?&gt;In HTML mode!&lt;? echo "Back in PHP mode!";'</literal>.
+       <literal>'echo "In PHP mode!"; ?&gt;In HTML mode!&lt;?php echo "Back in PHP mode!";'</literal>.
       </para>
       <para>
        Oltre a questo, valgono tutte le regole del codice PHP. Questo include l'inserimento al termine
@@ -70,9 +80,10 @@
   <para>
    <function>eval</function> ritorna &null; a meno che 
    non venga richiamato <literal>return</literal> nel codice da valutare, in tal caso
-   il valore passato a <literal>return</literal> viene ritornato. Se avviene un
-   parse error nel codice valutato, <function>eval</function> ritorna
-   &false; e l'esecuzione del codice seguente continua normalmente. Non
+   il valore passato a <literal>return</literal> viene ritornato. A partire da PHP 7, se avviene un
+   parse error nel codice valutato, <function>eval</function> lancia un'eccezione <classname>ParseError</classname>.
+   Prima di PHP 7, in questo caso <function>eval</function> ritornava
+   &false; e l'esecuzione del codice seguente continuava normalmente. Non
    è possibile catturare un parse error in <function>eval</function>
    usando <function>set_error_handler</function>.
   </para>

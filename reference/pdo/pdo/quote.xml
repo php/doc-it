@@ -23,13 +23,12 @@
   <para>
    Se questa funzione viene usata per costruire istruzioni SQL, si raccomanda
    <emphasis>vivamente</emphasis> di usare
-   <methodname>PDO::prepare</methodname> per preparare le istruzioni SQL con
-   parametri associati, invece di usare <methodname>PDO::quote</methodname> per
-   interpolare l'input dell'utente in un'istruzione SQL.  Le prepared statement
-   con parametri associati non sono soltanto più portabili, più comode e immuni
-   dalla SQL injection, ma sono spesso molto più veloci da eseguire rispetto
-   alle query interpolate, poiché sia il lato server sia il lato client possono
-   mettere in cache una forma compilata della query.
+   <methodname>PDO::prepare</methodname> per preparare le istruzioni SQL con parametri
+   associati, invece di usare <methodname>PDO::quote</methodname> per interpolare
+   l'input dell'utente in un'istruzione SQL. Le prepared statement con parametri associati
+   non sono soltanto più portabili, più comode e immuni dalla SQL injection, ma
+   sono spesso molto più veloci da eseguire rispetto alle query interpolate, poiché sia il
+   lato server sia il lato client possono mettere in cache una forma compilata della query.
   </para>
   <simpara>
    Non tutti i driver PDO implementano questo metodo (in particolare
@@ -38,12 +37,10 @@
   <caution>
    <title>Sicurezza: il set di caratteri predefinito</title>
    <para>
-    Il set di caratteri deve essere impostato a livello di server, oppure
-    all'interno della connessione al database stessa (a seconda del driver),
-    affinché abbia effetto su
-    <methodname>PDO::quote</methodname>. Consultare la
-    <link linkend="pdo.drivers">documentazione specifica dei driver</link> per
-    ulteriori informazioni.
+    Il set di caratteri deve essere impostato a livello di server, oppure all'interno
+    della connessione al database stessa (a seconda del driver), affinché abbia effetto su
+    <methodname>PDO::quote</methodname>. Consultare la <link linkend="pdo.drivers">documentazione specifica
+    dei driver</link> per ulteriori informazioni.
    </para>
   </caution>
  </refsect1>
@@ -95,11 +92,10 @@
      <row>
       <entry>8.5.0</entry>
       <entry>
-       Quando si usa il driver SQLite, se <parameter>string</parameter>
-       contiene un byte nullo viene ora generata una
-       <exceptionname>PDOException</exceptionname> oppure emesso un warning,
-       a seconda della modalità di errore; in precedenza la stringa veniva
-       troncata silenziosamente al byte nullo.
+       Quando si usa il driver SQLite, viene ora generata una <exceptionname>PDOException</exceptionname>
+       oppure emesso un warning, a seconda della modalità di errore, se
+       <parameter>string</parameter> contiene un byte nullo; in precedenza la
+       stringa veniva troncata silenziosamente al byte nullo.
       </entry>
      </row>
     </tbody>
@@ -117,18 +113,18 @@
 <?php
 $conn = new PDO('sqlite:/home/lynn/music.sql3');
 
-/* Simple string */
+/* Stringa semplice */
 $string = 'Nice';
-print "Unquoted string: $string\n";
-print "Quoted string: " . $conn->quote($string) . "\n";
+print "Stringa senza apici: $string\n";
+print "Stringa tra apici: " . $conn->quote($string) . "\n";
 ?>
 ]]>
     </programlisting>
     &example.outputs;
     <screen>
 <![CDATA[
-Unquoted string: Nice
-Quoted string: 'Nice'
+Stringa senza apici: Nice
+Stringa tra apici: 'Nice'
 ]]>
     </screen>
    </example>
@@ -139,18 +135,18 @@ Quoted string: 'Nice'
 <?php
 $conn = new PDO('sqlite:/home/lynn/music.sql3');
 
-/* Dangerous string */
+/* Stringa pericolosa */
 $string = 'Naughty \' string';
-print "Unquoted string: $string\n";
-print "Quoted string:" . $conn->quote($string) . "\n";
+print "Stringa senza apici: $string\n";
+print "Stringa tra apici:" . $conn->quote($string) . "\n";
 ?>
 ]]>
     </programlisting>
     &example.outputs;
     <screen>
 <![CDATA[
-Unquoted string: Naughty ' string
-Quoted string: 'Naughty '' string'
+Stringa senza apici: Naughty ' string
+Stringa tra apici: 'Naughty '' string'
 ]]>
     </screen>
    </example>
@@ -161,18 +157,18 @@ Quoted string: 'Naughty '' string'
 <?php
 $conn = new PDO('sqlite:/home/lynn/music.sql3');
 
-/* Complex string */
+/* Stringa complessa */
 $string = "Co'mpl''ex \"st'\"ring";
-print "Unquoted string: $string\n";
-print "Quoted string: " . $conn->quote($string) . "\n";
+print "Stringa senza apici: $string\n";
+print "Stringa tra apici: " . $conn->quote($string) . "\n";
 ?>
 ]]>
     </programlisting>
     &example.outputs;
     <screen>
 <![CDATA[
-Unquoted string: Co'mpl''ex "st'"ring
-Quoted string: 'Co''mpl''''ex "st''"ring'
+Stringa senza apici: Co'mpl''ex "st'"ring
+Stringa tra apici: 'Co''mpl''''ex "st''"ring'
 ]]>
     </screen>
    </example>

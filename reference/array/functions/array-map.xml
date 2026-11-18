@@ -1,29 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 80872147aa52367137bd3d168412f70cbe2ddf9c Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 33968dfebb9b847733d02ee221b3b8054a101b41c Maintainer: Manuel dG Status: ready -->
+<!-- Reviewed: no -->
 <!-- CREDITS: cucinato -->
 <refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.array-map">
  <refnamediv>
   <refname>array_map</refname>
-  <refpurpose>Applica la funzione callback a tutti gli elementi degli array dati</refpurpose>
+  <refpurpose>Applica la callback a tutti gli elementi dell'array in input</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>array</type><methodname>array_map</methodname>
-   <methodparam><type>callable</type><parameter>callback</parameter></methodparam>
-   <methodparam><type>array</type><parameter>array1</parameter></methodparam>
-   <methodparam choice="opt"><type>array</type><parameter>...</parameter></methodparam>
+   <methodparam><type class="union"><type>callable</type><type>null</type></type><parameter>callback</parameter></methodparam>
+   <methodparam><type>array</type><parameter>array</parameter></methodparam>
+   <methodparam rep="repeat"><type>array</type><parameter>arrays</parameter></methodparam>
   </methodsynopsis>
   <para>
-   <function>array_map</function> restituisce un &array; contenente
-   i risultati dell'applicazione della <parameter>callback</parameter>
-   all'indice corrispondente di <parameter>array1</parameter>
-   (e <parameter>...</parameter> se vengono forniti più array)
-   usati come argomenti per la callback.
+   <function>array_map</function> restituisce un &array; che contiene
+   i risultati della <parameter>callback</parameter>
+   all'indice corrispondente dell'elemento dell'<parameter>array</parameter>
+   (o <parameter>arrays</parameter> se vengono forniti più array)
+   usato/i come argomento per la callback.
    Il numero di parametri che la funzione <parameter>callback</parameter>
    accetta dovrebbe corrispondere al numero di array
-   passati ad <function>array_map</function>.
+   passati a <function>array_map</function>.
+   I parametri in eccesso sono ignorati.
+   Un <classname>ArgumentCountError</classname>
+   viene generato se sarà fornito un numero insufficente di argomenti.   
   </para>
  </refsect1>
 
@@ -35,18 +39,23 @@
      <term><parameter>callback</parameter></term>
      <listitem>
       <para>
-       Una <type>callable</type> da eseguire per ogni elemento in ogni array.
+       Una funzione <type>callable</type> da eseguire per ogni elemento in ogni array.
       </para>
       <para>
        &null; può essere passato come valore alla <parameter>callback</parameter>
-       per eseguire un'operazione zip su più array.
-       Se viene fornito solo <parameter>array1</parameter>,
-       <methodname>array_map</methodname> restituirà l'array di input.
+       per eseguire un'operazione zip su più array e ritornerà un'array 
+       i cui elementi sono ciascuno un sub-array contenente gli elementi degli 
+       array di input con lo stesso indice (vedere l'esempio seguente).
+       
+        Se viene fornito un solo <parameter>array</parameter>,
+        <methodname>array_map</methodname> restituirà l'array di input.
+
+     
       </para>
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>array1</parameter></term>
+     <term><parameter>array</parameter></term>
      <listitem>
       <para>
        Un array su cui eseguire la funzione <parameter>callback</parameter>.
@@ -54,11 +63,11 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>...</parameter></term>
+     <term><parameter>arrays</parameter></term>
      <listitem>
       <para>
-       Lista di variabili supplementari di argomenti di array da eseguire nella
-       funzione <parameter>callback</parameter>.
+       Array di argomenti supplementari da eseguire nella
+       <parameter>callback</parameter>.
       </para>
      </listitem>
     </varlistentry>
@@ -69,9 +78,9 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>  
-   Restituisce un array contenente i risultati dell'applicazione della funzione
+   Restituisce un array contenente i risultati dell'applicazione della
    <parameter>callback</parameter> all'indice corrispondente di <parameter>array1</parameter>
-   (e <parameter>...</parameter> se vengono forniti più array)
+   (o <parameter>arrays</parameter> se vengono forniti più array)
    usati come argomenti per la callback.
   </para>
   <para>
@@ -79,6 +88,23 @@
    se viene passato esattamente un array. Se viene passato più di un array, l'array
    restituito avrà chiavi intere sequenziali.
   </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &array.changelog.by-ref;
+    </tbody>
+   </tgroup>
+  </informaltable>
  </refsect1>
 
  <refsect1 role="examples">
@@ -123,11 +149,16 @@ Array
     <programlisting role="php">
 <![CDATA[
 <?php
-$func = function($value) {
+$func = function(int $value): int {
     return $value * 2;
 };
 
 print_r(array_map($func, range(1, 5)));
+
+// O come in PHP 7.4.0:
+
+print_r(array_map(fn($value): int => $value * 2, range(1, 5)));
+
 ?>
 ]]>
     </programlisting>
@@ -151,12 +182,12 @@ Array
     <programlisting role="php">
 <![CDATA[
 <?php
-function show_Spanish($n, $m)
+function show_Spanish(int $n, string $m): string
 {
-    return "Il numero {$n} è chiamato {$m} in spagnolo";
+    return "Il numero {$n} si dice {$m} in Spagnolo";
 }
 
-function map_Spanish($n, $m)
+function map_Spanish(int $n, string $m): array
 {
     return [$n => $m];
 }
@@ -176,6 +207,7 @@ print_r($d);
     <screen>
 <![CDATA[
 // stampa di $c
+// stampa di $c
 Array
 (
     [0] => Il numero 1 è chiamato uno in spagnolo
@@ -183,8 +215,14 @@ Array
     [2] => Il numero 3 è chiamato tres in spagnolo
     [3] => Il numero 4 è chiamato cuatro in spagnolo
     [4] => Il numero 5 è chiamato cinco in spagnolo
+    [0] => Il numero 1 è chiamato uno in spagnolo
+    [1] => Il numero 2 è chiamato dos in spagnolo
+    [2] => Il numero 3 è chiamato tres in spagnolo
+    [3] => Il numero 4 è chiamato cuatro in spagnolo
+    [4] => Il numero 5 è chiamato cinco in spagnolo
 )
 
+// stampa di $d
 // stampa di $d
 Array
 (
@@ -375,6 +413,44 @@ array(1) {
 ]]>
     </screen>
    </example>
+   <example>
+    <title><function>array_map</function> - array associativi</title>
+    <para>
+     Mentre <function>array_map</function> non supporta direttamente
+     di arrray associativi come input, questo può essere simulato con <function>array_keys</function>.
+    </para>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$arr = [
+    'v1' => 'Prima release',
+    'v2' => 'Seconda release',
+    'v3' => 'Terza release',
+];
+
+// Note: Prima della 7.4.0,invece si usava una versione estesa per le funzioni anonime.
+$callback = fn(string $k, string $v): string => "$k was the $v";
+
+$result = array_map($callback, array_keys($arr), array_values($arr));
+
+var_dump($result);
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+array(3) {
+  [0]=>
+  string(24) "v1 was the First release"
+  [1]=>
+  string(25) "v2 was the Second release"
+  [2]=>
+  string(24) "v3 was the Third release"
+}
+]]>
+    </screen>
+   </example>
   </para>
  </refsect1>
 
@@ -389,7 +465,6 @@ array(1) {
   </para>
  </refsect1>
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 0c5b5b90e55baccbeb577a24696726d3fb466c74 Maintainer: lacatoire Status: ready -->
+<refentry xml:id="function.curl-setopt-array" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>curl_setopt_array</refname>
+  <refpurpose>Imposta più opzioni per un trasferimento cURL</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>curl_setopt_array</methodname>
+   <methodparam><type>CurlHandle</type><parameter>handle</parameter></methodparam>
+   <methodparam><type>array</type><parameter>options</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Imposta più opzioni per una sessione cURL. Questa funzione è
+   utile per impostare un gran numero di opzioni cURL senza chiamare
+   ripetutamente <function>curl_setopt</function>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    &curl.ch.description;
+    <varlistentry>
+     <term><parameter>options</parameter></term>
+     <listitem>
+      <para>
+       Un <type>array</type> che specifica quali opzioni impostare e i loro valori.
+       Le chiavi devono essere costanti valide di <function>curl_setopt</function> o
+       i loro equivalenti interi.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce &true; se tutte le opzioni sono state impostate con successo. Se
+   un'opzione non può essere impostata con successo, viene restituito immediatamente
+   &false;, ignorando le eventuali opzioni successive nell'array
+   <parameter>options</parameter>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <simpara>
+   Genera un'eccezione <exceptionname>ValueError</exceptionname> quando
+   <parameter>options</parameter> contiene un'opzione cURL non valida.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <function>curl_setopt_array</function> ora genera un'eccezione
+       <exceptionname>ValueError</exceptionname> se
+       <parameter>options</parameter> contiene un'opzione sconosciuta o una
+       chiave di tipo stringa. In precedenza le opzioni sconosciute venivano ignorate
+       silenziosamente, mentre una chiave di tipo stringa emetteva un
+       <constant>E_WARNING</constant> e restituiva
+       &false;.
+      </entry>
+     </row>
+     &curl.changelog.handle-param;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>
+     Inizializza una nuova sessione cURL e scarica una pagina web
+    </title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// crea una nuova risorsa cURL
+$ch = curl_init();
+
+// imposta l'URL e altre opzioni appropriate
+$options = array(CURLOPT_URL => 'http://www.example.com/',
+                 CURLOPT_HEADER => false
+                );
+
+curl_setopt_array($ch, $options);
+
+// prende l'URL e lo passa al browser
+curl_exec($ch);
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    Come per <function>curl_setopt</function>, passare un array a
+    <constant>CURLOPT_POST</constant> codifica i dati come
+    <emphasis>multipart/form-data</emphasis>, mentre passare una
+    stringa codificata come URL codifica i dati come
+    <emphasis>application/x-www-form-urlencoded</emphasis>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>curl_setopt</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

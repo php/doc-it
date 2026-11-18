@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 9d792d3c559fb0df638d3d8c649de7e02861cc4d Maintainer: lacatoire Status: ready -->
+<refentry xml:id="pdo.setattribute" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>PDO::setAttribute</refname>
+  <refpurpose>
+   Imposta un attributo
+  </refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis role="PDO">
+   <modifier>public</modifier> <type>bool</type><methodname>PDO::setAttribute</methodname>
+   <methodparam><type>int</type><parameter>attribute</parameter></methodparam>
+   <methodparam><type>mixed</type><parameter>value</parameter></methodparam>
+  </methodsynopsis>
+
+  <para>
+   Imposta un attributo sull'handle del database. Di seguito sono elencati
+   alcuni degli attributi generici disponibili; alcuni driver possono fare uso
+   di ulteriori attributi specifici del driver.
+   Si noti che gli attributi specifici di un driver <emphasis>non devono</emphasis>
+   essere usati con altri driver.
+   <variablelist>
+    <varlistentry>
+     <term><constant>PDO::ATTR_CASE</constant></term>
+     <listitem>
+      <para>
+       Forza i nomi delle colonne a uno specifico caso (maiuscolo/minuscolo).
+       Può assumere uno dei seguenti valori:
+      </para>
+      <variablelist>
+       <varlistentry>
+        <term><constant>PDO::CASE_LOWER</constant></term>
+        <listitem>
+         <simpara>
+          Forza i nomi delle colonne in minuscolo.
+         </simpara>
+        </listitem>
+       </varlistentry>
+       <varlistentry>
+        <term><constant>PDO::CASE_NATURAL</constant></term>
+        <listitem>
+         <simpara>
+          Lascia i nomi delle colonne così come restituiti dal driver del database.
+         </simpara>
+        </listitem>
+       </varlistentry>
+       <varlistentry>
+        <term><constant>PDO::CASE_UPPER</constant></term>
+        <listitem>
+         <simpara>
+          Forza i nomi delle colonne in maiuscolo.
+         </simpara>
+        </listitem>
+       </varlistentry>
+      </variablelist>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><constant>PDO::ATTR_ERRMODE</constant></term>
+     <listitem>
+      <para>
+       Modalità di segnalazione degli errori di PDO.
+       Può assumere uno dei seguenti valori:
+      </para>
+      <variablelist>
+       <varlistentry>
+        <term><constant>PDO::ERRMODE_SILENT</constant></term>
+        <listitem>
+         <simpara>
+          Imposta soltanto i codici di errore.
+         </simpara>
+        </listitem>
+       </varlistentry>
+       <varlistentry>
+        <term><constant>PDO::ERRMODE_WARNING</constant></term>
+        <listitem>
+         <simpara>
+          Genera diagnostiche <constant>E_WARNING</constant>.
+         </simpara>
+        </listitem>
+       </varlistentry>
+       <varlistentry>
+        <term><constant>PDO::ERRMODE_EXCEPTION</constant></term>
+        <listitem>
+         <simpara>
+          Genera eccezioni <classname>PDOException</classname>.
+         </simpara>
+        </listitem>
+       </varlistentry>
+      </variablelist>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><constant>PDO::ATTR_ORACLE_NULLS</constant></term>
+     <listitem>
+      <note>
+       <simpara>
+        Questo attributo è disponibile con tutti i driver, non solo con Oracle.
+       </simpara>
+      </note>
+      <para>
+       Determina se e come &null; e le stringhe vuote devono essere convertiti.
+       Può assumere uno dei seguenti valori:
+      </para>
+      <variablelist>
+       <varlistentry>
+        <term><constant>PDO::NULL_NATURAL</constant></term>
+        <listitem>
+         <simpara>
+          Non viene eseguita alcuna conversione.
+         </simpara>
+        </listitem>
+       </varlistentry>
+       <varlistentry>
+        <term><constant>PDO::NULL_EMPTY_STRING</constant></term>
+        <listitem>
+         <simpara>
+          Le stringhe vuote vengono convertite in &null;.
+         </simpara>
+        </listitem>
+       </varlistentry>
+       <varlistentry>
+        <term><constant>PDO::NULL_TO_STRING</constant></term>
+        <listitem>
+         <simpara>
+          &null; viene convertito in una stringa vuota.
+         </simpara>
+        </listitem>
+       </varlistentry>
+      </variablelist>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><constant>PDO::ATTR_STRINGIFY_FETCHES</constant></term>
+     <listitem>
+      <para>
+       Controlla se i valori recuperati (eccetto &null;) vengono convertiti in stringhe.
+       Accetta un valore di tipo <type>bool</type>: &true; per abilitare e &false; per
+       disabilitare (predefinito).
+       I valori &null; rimangono invariati, a meno che <constant>PDO::ATTR_ORACLE_NULLS</constant>
+       non sia impostato a <constant>PDO::NULL_TO_STRING</constant>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><constant>PDO::ATTR_STATEMENT_CLASS</constant></term>
+     <listitem>
+      <para>
+       Imposta una classe di statement fornita dall'utente, derivata da PDOStatement.
+       <!-- TODO improve description of the value it takes, or refer to other docs -->
+       Richiede <literal>array(string classname, array(mixed constructor_args))</literal>.
+      </para>
+      <caution>
+       <simpara>
+        Non può essere usato con istanze PDO persistenti.
+       </simpara>
+      </caution>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><constant>PDO::ATTR_TIMEOUT</constant></term>
+     <listitem>
+      <para>
+       Specifica la durata del timeout in secondi.
+       Accetta un valore di tipo <type>int</type>.
+      </para>
+      <note>
+       <para>
+        Non tutti i driver supportano questa opzione e il suo significato può
+        variare da driver a driver. Ad esempio, SQLite attende fino a questo
+        valore di tempo prima di rinunciare a ottenere un lock in scrittura,
+        mentre altri driver possono interpretarlo come intervallo di timeout di
+        connessione o di lettura.
+       </para>
+      </note>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><constant>PDO::ATTR_AUTOCOMMIT</constant></term>
+     <listitem>
+      <note>
+       <simpara>
+        Disponibile solo per i driver OCI, Firebird e MySQL.
+       </simpara>
+      </note>
+      <para>
+       Indica se eseguire l'autocommit di ogni singola istruzione.
+       Accetta un valore di tipo <type>bool</type>: &true; per abilitare e
+       &false; per disabilitare. Per impostazione predefinita, &true;.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><constant>PDO::ATTR_EMULATE_PREPARES</constant></term>
+     <listitem>
+      <note>
+       <simpara>
+        Disponibile solo per i driver OCI, Firebird e MySQL.
+       </simpara>
+      </note>
+      <para>
+       Indica se abilitare o disabilitare l'emulazione delle prepared statement.
+       Alcuni driver non supportano nativamente le prepared statement o ne
+       hanno un supporto limitato.
+       Se impostato a &true;, PDO emulerà sempre le prepared statement,
+       altrimenti PDO tenterà di usare le prepared statement native.
+       Nel caso in cui il driver non riesca a preparare con successo la query corrente,
+       PDO ricorrerà sempre all'emulazione della prepared statement.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><constant>PDO::MYSQL_ATTR_USE_BUFFERED_QUERY</constant></term>
+     <listitem>
+      <note>
+       <simpara>
+        Disponibile solo per il driver MySQL.
+       </simpara>
+      </note>
+      <para>
+       Indica se usare le query con buffer.
+       Accetta un valore di tipo <type>bool</type>: &true; per abilitare e
+       &false; per disabilitare. Per impostazione predefinita, &true;.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><constant>PDO::ATTR_DEFAULT_FETCH_MODE</constant></term>
+     <listitem>
+      <para>
+       Imposta la modalità di fetch predefinita.
+       Una descrizione delle modalità e di come usarle è disponibile nella
+       documentazione di <methodname>PDOStatement::fetch</methodname>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>attribute</parameter></term>
+     <listitem>
+      <para>
+       L'attributo da modificare.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>value</parameter></term>
+     <listitem>
+      <para>
+       Il valore da assegnare a <parameter>attribute</parameter>;
+       può richiedere un tipo specifico a seconda dell'attributo.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>PDO::getAttribute</function></member>
+    <member><function>PDOStatement::getAttribute</function></member>
+    <member><function>PDOStatement::setAttribute</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

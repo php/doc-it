@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 082ddc19f53e6e254010de1a1fbbe485ff744ec1 Maintainer: lacatoire Status: ready -->
+<refentry xml:id="pdostatement.closecursor" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>PDOStatement::closeCursor</refname>
+  <refpurpose>
+   Chiude il cursore, consentendo di eseguire nuovamente lo statement
+  </refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis role="PDOStatement">
+   <modifier>public</modifier> <type>bool</type><methodname>PDOStatement::closeCursor</methodname>
+   <void/>
+  </methodsynopsis>
+
+  <para>
+   <methodname>PDOStatement::closeCursor</methodname> libera la connessione
+   al server in modo che possano essere eseguite altre istruzioni SQL, ma lascia
+   lo statement in uno stato che ne consente una nuova esecuzione.
+  </para>
+  <para>
+   Questo metodo è utile per i driver di database che non supportano l'esecuzione
+   di un oggetto PDOStatement quando un oggetto PDOStatement eseguito in precedenza
+   ha ancora righe non recuperate. Se il driver del database presenta questa
+   limitazione, il problema può manifestarsi come errore di sequenza
+   (out-of-sequence).
+  </para>
+  <para>
+   <methodname>PDOStatement::closeCursor</methodname> è implementato come metodo
+   opzionale specifico del driver (per ottenere la massima efficienza) oppure
+   come fallback generico di PDO se non è installata alcuna funzione specifica
+   del driver. Il fallback generico di PDO equivale, semanticamente, a scrivere
+   il codice seguente nello script PHP:
+   <programlisting role="php">
+<![CDATA[
+<?php
+do {
+    while ($stmt->fetch())
+        ;
+    if (!$stmt->nextRowset())
+        break;
+} while (true);
+?>
+]]>
+   </programlisting>
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  &no.function.parameters;
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  &pdo.errors;
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <methodname>PDOStatement::closeCursor</methodname></title>
+    <para>
+     Nell'esempio seguente l'oggetto PDOStatement <varname>$stmt</varname>
+     restituisce più righe, ma l'applicazione recupera solo la prima,
+     lasciando l'oggetto PDOStatement in uno stato con righe non recuperate.
+     Per garantire che l'applicazione funzioni con tutti i driver di database,
+     l'autore inserisce una chiamata a <methodname>PDOStatement::closeCursor</methodname>
+     su <varname>$stmt</varname> prima di eseguire l'oggetto PDOStatement
+     <varname>$otherStmt</varname>.
+    </para>
+    <programlisting role="php">
+<![CDATA[
+<?php
+/* Crea un oggetto PDOStatement */
+$stmt = $dbh->prepare('SELECT foo FROM bar');
+
+/* Crea un secondo oggetto PDOStatement */
+$otherStmt = $dbh->prepare('SELECT foobaz FROM foobar');
+
+/* Esegue il primo statement */
+$stmt->execute();
+
+/* Recupera solo la prima riga dai risultati */
+$stmt->fetch();
+
+/* La chiamata seguente a closeCursor() può essere richiesta da alcuni driver */
+$stmt->closeCursor();
+
+/* Ora è possibile eseguire il secondo statement */
+$otherStmt->execute();
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><methodname>PDOStatement::execute</methodname></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 96c9d88bad9a7d7d44bfb7f26c226df7ee9ddf26 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
 <refentry xml:id="function.dio-seek" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>dio_seek</refname>
-  <refpurpose>Si posiziona al byte pos del file indicato da fd</refpurpose>
+  <refpurpose>Si posiziona su pos in fd a partire da whence</refpurpose>
  </refnamediv>
  <refsect1 role="description">
   &reftitle.description;
@@ -11,11 +12,11 @@
    <type>int</type><methodname>dio_seek</methodname>
    <methodparam><type>resource</type><parameter>fd</parameter></methodparam>
    <methodparam><type>int</type><parameter>pos</parameter></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>whence</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>whence</parameter><initializer>SEEK_SET</initializer></methodparam>
   </methodsynopsis>
   <para>
-   La funzione <function>dio_seek</function> viene utilizzata per modificare la 
-   posizione nel file indicato dal descrittore <parameter>fd</parameter>.
+   La funzione <function>dio_seek</function> viene usata per modificare la
+   posizione nel file del descrittore di file indicato.
   </para>
  </refsect1>
  <refsect1 role="parameters">
@@ -26,7 +27,7 @@
      <term><parameter>fd</parameter></term>
      <listitem>
       <para>
-       Descrittore di file restituito da <function>dio_open</function>.
+       Il descrittore di file restituito da <function>dio_open</function>.
       </para>
      </listitem>
     </varlistentry>
@@ -42,31 +43,31 @@
      <term><parameter>whence</parameter></term>
      <listitem>
       <para>
-       specifica come debba essere interpretata la
-       posizione indicata da <parameter>pos</parameter>:
+       Specifica come deve essere interpretata la posizione
+       <parameter>pos</parameter>:
        <itemizedlist>
         <listitem>
          <para>
-          <constant>SEEK_SET</constant> (default) - Indica
-          che <parameter>pos</parameter> è
-          determinato dall'inizio del file.
+          <constant>SEEK_SET</constant> (predefinito) - specifica che
+          <parameter>pos</parameter> è indicata a partire dall'inizio del
+          file.
          </para>
         </listitem>
         <listitem>
          <para>
-          <constant>SEEK_CUR</constant> - Indica che <parameter>pos</parameter> è il numero
-          di caratteri dalla posizione attuale. Questo valore può essere
-          positivo o negativo.
+          <constant>SEEK_CUR</constant> - Specifica che
+          <parameter>pos</parameter> è un numero di caratteri a partire dalla posizione
+          corrente nel file. Questo numero può essere positivo o negativo.
          </para>
         </listitem>
         <listitem>
          <para>
-          <constant>SEEK_END</constant> - Indica che <parameter>pos</parameter> è il numero
-          di caratteri dalla fine del file. Un valore negativo
-          specifica una posizione all'interno dell'estensione del file;
-          un valore positivo specifica una posizione oltre la fine corrente del file.
-          Se si specifica una posizione oltre la fine del file, e vi si scrive
-          dei dati, il file sarà allungato e riempito di zero fino a quella
+          <constant>SEEK_END</constant> - Specifica che
+          <parameter>pos</parameter> è un numero di caratteri a partire dalla fine
+          del file. Un numero negativo indica una posizione all'interno della
+          dimensione corrente del file; un numero positivo indica una posizione oltre la
+          fine corrente. Se si imposta la posizione oltre la fine corrente e si
+          scrivono effettivamente dei dati, il file viene esteso con zeri fino a quella
           posizione.
          </para>
         </listitem>
@@ -94,18 +95,18 @@
 $fd = dio_open('/dev/ttyS0', O_RDWR);
 
 dio_seek($fd, 10, SEEK_SET);
-// Si posiziona a 10 caratteri dall'inizio del file
+// la posizione è ora a 10 caratteri dall'inizio del file
 
 dio_seek($fd, -2, SEEK_CUR);
-// Si posiziona a 8 caratteri dall'inizio del file
+// la posizione è ora a 8 caratteri dall'inizio del file
 
 dio_seek($fd, -5, SEEK_END);
-// Si posiziona a 5 caratteri dalla fine del file
+// la posizione è ora a 5 caratteri dalla fine del file
 
 dio_seek($fd, 10, SEEK_END);
-// Si posiziona a 10 caratteri dopo la fine del file
-// i 10 caratteri tra la fine del file e la posizione corrente
-// sono riempiti con zero.
+// la posizione è ora a 10 caratteri oltre la fine del file.
+// I 10 caratteri tra la fine del file e la posizione
+// corrente vengono riempiti con zeri.
 
 dio_close($fd);
 ?>

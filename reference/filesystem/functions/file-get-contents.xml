@@ -1,51 +1,253 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- last change to 'file-get-contents' in en/ tree in rev 1.130 -->
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-<!-- CREDITS: cortesi -->
-  <refentry xml:id="function.file-get-contents" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>file_get_contents</refname> 
-    <refpurpose>Legge un file all'interno di una stringa</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Description</title>
-     <methodsynopsis>
-      <type>string</type><methodname>file_get_contents</methodname>
-      <methodparam><type>string</type><parameter>filename</parameter></methodparam>
-      <methodparam choice="opt"><type>bool</type><parameter>use_include_path</parameter></methodparam> 
-      <methodparam choice="opt"><type>resource</type><parameter>context</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>offset</parameter></methodparam>
-     </methodsynopsis>
-    <para> 
-     Simile alla funzione <function>file</function>, tranne che
-     <function>file_get_contents</function> restituisce il file in una stringa,
-     iniziando allo specificato <parameter>offset</parameter>.
-     Se si verifica un errore <function>file_get_contents</function> restituirà &false;
-    </para>
-    <note>
-     <simpara>
-      Il parametro<parameter>offset</parameter> è stato aggiunto nel PHP 5.1.0.
-     </simpara>
-    </note>
-    <note>
-     <para>
-      Se si sta aprendo un URI con caratteri speciali, spazi ad esempio, 
-      si ha bisogno di decodificare l' URI con <function>urlencode</function>.
-     </para>
-   </note>   
-    &note.bin-safe;
-    &tip.fopen-wrapper;
-    &note.context-support;
-    &warn.ssl-non-standard;
-    <simpara>
-     Vedere anche <function>fgets</function>, <function>file</function>,
-     <function>fread</function>, <function>include</function>,
-     <function>readfile</function> &listendand;
-     <function>file_put_contents</function>.
-    </simpara>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 3abd17e61d5022d503604cc06894254e3281acf5 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi,fernando -->
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.file-get-contents" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <refnamediv>
+  <refname>file_get_contents</refname> 
+  <refpurpose>Legge l'intero file in una stringa</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>false</type></type><methodname>file_get_contents</methodname>
+   <methodparam><type>string</type><parameter>filename</parameter></methodparam>
+   <methodparam choice="opt"><type>bool</type><parameter>use_include_path</parameter><initializer>&false;</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>resource</type><type>null</type></type><parameter>context</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>offset</parameter><initializer>0</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>length</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para> 
+   Questa funzione è simile a <function>file</function>, tranne per il fatto che
+   <function>file_get_contents</function> restituisce il file in una
+   <type>string</type>, a partire dall'<parameter>offset</parameter> specificato
+   fino a <parameter>length</parameter> byte. In caso di errore,
+   <function>file_get_contents</function> restituisce &false;.
+  </para>
+  <para>
+   <function>file_get_contents</function> è il modo preferibile per leggere il
+   contenuto di un file in una stringa. Usa tecniche di memory mapping, se
+   supportate dal sistema operativo, per migliorare le prestazioni.
+  </para>
+  <note>
+   <para>
+    Se si apre un URI con caratteri speciali, come gli spazi, occorre
+    codificare l'URI con <function>urlencode</function>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>filename</parameter></term>
+     <listitem>
+      <para>
+       Nome del file da leggere.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>use_include_path</parameter></term>
+     <listitem>
+      <note>
+       <para>
+        La costante <constant>FILE_USE_INCLUDE_PATH</constant> può essere usata
+        per attivare nell'<link linkend="ini.include-path">include path</link> la
+        ricerca.
+        Ciò non è possibile se la <link
+        linkend="language.types.declarations.strict">tipizzazione stretta</link>
+        è abilitata, poiché <constant>FILE_USE_INCLUDE_PATH</constant> è un
+        <type>int</type>. Usare invece &true;.
+       </para>
+      </note>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>context</parameter></term>
+     <listitem>
+      <para>
+       Una risorsa di contesto valida creata con
+       <function>stream_context_create</function>. Se non è necessario usare un
+       contesto personalizzato, è possibile saltare questo parametro passando &null;.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>offset</parameter></term>
+     <listitem>
+      <para>
+       L'offset da cui inizia la lettura sullo stream originale.
+       Gli offset negativi vengono contati dalla fine dello stream.
+      </para>
+      <para>
+       Il posizionamento (<parameter>offset</parameter>) non è supportato con i file remoti.
+       Tentare il posizionamento su file non locali può funzionare con offset piccoli, ma
+       il risultato è imprevedibile perché si opera sullo stream bufferizzato.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>length</parameter></term>
+     <listitem>
+      <para>
+       Lunghezza massima dei dati letti. Il comportamento predefinito è leggere fino al
+       raggiungimento della fine del file. Si noti che questo parametro viene applicato allo
+       stream elaborato dai filtri.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   La funzione restituisce i dati letti&return.falseforfailure;.
+  </para>
+  &return.falseproblem;
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <para>
+   Viene generato un errore di livello <constant>E_WARNING</constant> se <parameter>filename</parameter> non viene trovato, se <parameter>length</parameter>
+   è minore di zero, o se il posizionamento all'<parameter>offset</parameter> specificato nello stream fallisce.
+  </para>
+  <para>
+   Quando <function>file_get_contents</function> viene chiamata su una directory,
+   viene generato un errore di livello <constant>E_WARNING</constant> su Windows,
+   e a partire da PHP 7.4 anche sugli altri sistemi operativi.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        <parameter>length</parameter> ora è nullable.
+       </entry>
+      </row>
+      <row>
+       <entry>7.1.0</entry>
+       <entry>
+        È stato aggiunto il supporto per valori negativi di <parameter>offset</parameter>.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Ottenere e stampare il sorgente della homepage di un sito web</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$homepage = file_get_contents('http://www.example.com/');
+echo $homepage;
+?>
+]]>
+    </programlisting>
+   </example>
+   <example>
+    <title>Ricerca all'interno dell'include_path</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// Se i tipi stretti sono abilitati, cioè declare(strict_types=1);
+$file = file_get_contents('./people.txt', true);
+// Altrimenti
+$file = file_get_contents('./people.txt', FILE_USE_INCLUDE_PATH);
+?>
+]]>
+    </programlisting>
+   </example>
+   <example>
+    <title>Lettura di una sezione di un file</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// Legge 14 caratteri a partire dal 21° carattere
+$section = file_get_contents('./people.txt', FALSE, NULL, 20, 14);
+var_dump($section);
+?>
+]]>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+string(14) "lle Bjori Ro" 
+]]>
+    </screen>
+   </example>
+   <example>
+    <title>Uso dei contesti di stream</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// Crea uno stream
+$opts = [
+  'http' => [
+    'method' => "GET",
+    'header' => "Accept-language: en\r\n" .
+                "Cookie: foo=bar",
+  ]
+];
+
+$context = stream_context_create($opts);
+
+// Apre il file usando gli header HTTP impostati sopra
+$file = file_get_contents('http://www.example.com/', false, $context);
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.bin-safe;
+  &tip.fopen-wrapper;
+  &warn.ssl-non-standard;
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>file</function></member>
+    <member><function>fgets</function></member>
+    <member><function>fread</function></member>
+    <member><function>readfile</function></member>
+    <member><function>file_put_contents</function></member>
+    <member><function>stream_get_contents</function></member>
+    <member><function>stream_context_create</function></member>
+    <member><link linkend="reserved.variables.httpresponseheader">$http_response_header</link></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

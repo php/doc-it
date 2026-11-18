@@ -1,49 +1,148 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-<!-- CREDITS: cortesi -->  
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-  <refentry xml:id="function.realpath" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>realpath</refname>
-    <refpurpose>Restituisce un percorso assoluto regolare</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>realpath</methodname>
-      <methodparam><type>string</type><parameter>path</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>realpath</function> espande tutti i link simbolici e risolve i
-     riferimenti a '/./', '/../' ed altri caratteri '/'  nell'input
-     <parameter>path</parameter> e restituisce il percorso assoluto canonizzato.
-     Il percorso risultante non avrà link simbolici,
-     '/./' o '/../'.
-    </para>
-    <para>
-     <function>realpath</function> restituisce &false; in caso di fallimento, per esempio se
-     il file non esiste.
-    </para>
-    <para>
-     <example>
-      <title>Esempio di <function>realpath</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 0c9c2dd669fe9395eaa73d487fbd160f9057429a Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi,fernando -->
+<refentry xml:id="function.realpath" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>realpath</refname>
+  <refpurpose>Restituisce il percorso assoluto canonicalizzato</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>false</type></type><methodname>realpath</methodname>
+   <methodparam><type>string</type><parameter>path</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>realpath</function> espande tutti i collegamenti simbolici e
+   risolve i riferimenti a <literal>/./</literal>, <literal>/../</literal> e i caratteri <literal>/</literal> superflui nel
+   <parameter>path</parameter> fornito in input e restituisce il percorso assoluto
+   canonicalizzato.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>path</parameter></term>
+     <listitem>
+      <para>
+       Il percorso da verificare.
+       <note>
+        <para>
+         Sebbene sia obbligatorio fornire un percorso, il valore può essere una stringa vuota.
+         In questo caso, il valore viene interpretato come la directory corrente.
+        </para>
+       </note>
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce il percorso assoluto canonicalizzato in caso di successo. Il percorso risultante
+   non avrà collegamenti simbolici né componenti <literal>/./</literal> o <literal>/../</literal>. Vengono rimossi anche i delimitatori finali,
+   come <literal>\</literal> e <literal>/</literal>.
+  </para>
+  <para>
+   <function>realpath</function> restituisce &false; in caso di errore, ad esempio se
+   il file non esiste.
+  </para>
+  <note>
+   <para>
+    Lo script in esecuzione deve avere i permessi di esecuzione su tutte le directory
+    della gerarchia, altrimenti <function>realpath</function> restituirà
+    &false;.
+   </para>
+  </note>
+  <note>
+   <para>
+    Nei filesystem che non distinguono tra maiuscole e minuscole, <function>realpath</function> può
+    normalizzare o meno le maiuscole e minuscole dei caratteri.
+   </para>
+  </note>
+  <note>
+   <para>
+    La funzione <function>realpath</function> non funziona per un file che
+    si trova all'interno di un Phar, poiché tale percorso sarebbe virtuale, non reale.
+   </para>
+  </note>
+  <note>
+   <para>
+    Su Windows, le giunzioni e i collegamenti simbolici alle directory vengono espansi solo di
+    un livello.
+   </para>
+  </note>
+  &fs.file.32bit;
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>realpath</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$real_path = realpath("../../index.php");
+chdir('/var/www/');
+echo realpath('./../../etc/passwd') . PHP_EOL;
+
+echo realpath('/tmp/') . PHP_EOL;
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+/etc/passwd
+/tmp
+]]>
+    </screen>
+   </example>
+   <example>
+    <title><function>realpath</function> su Windows</title>
     <para>
-     Vedere anche <function>basename</function>, 
-     <function>dirname</function> e
-     <function>pathinfo</function>.
+     Su Windows <function>realpath</function> convertirà i percorsi in stile unix
+     in percorsi in stile windows.
     </para>
-   </refsect1>
-  </refentry>
+    <programlisting role="php">
+<![CDATA[
+<?php
+echo realpath('/windows/system32'), PHP_EOL;
 
+echo realpath('C:\Program Files\\'), PHP_EOL;
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+C:\WINDOWS\System32
+C:\Program Files
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>basename</function></member>
+    <member><function>dirname</function></member>
+    <member><function>pathinfo</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

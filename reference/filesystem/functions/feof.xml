@@ -1,34 +1,104 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: fernando Status: working -->
-<!-- CREDITS: cortesi -->
-  <refentry xml:id="function.feof" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>feof</refname>
-    <refpurpose>Verifica se è stata raggiunta la fine del file su un puntatore a file</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>feof</methodname>
-      <methodparam><type>resource</type><parameter>handle</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Restituisce &true; se il puntatore al file ha raggiunto la fine del file (EOF)
-     o si è verificato un errore (anche in caso di timeout del socket); altrimenti restituisce &false;.
-    </para>
-     <warning>
-      <simpara>
-       Se una connessione aperta da <function>fsockopen</function> non è stata chiusa 
-       dal server, <function>feof</function> attenderà finchè un timeout 
-       non sia stato raggiunto e restituisce &true;. Il valore di timeout di default è
-       60 secondi. Si può usare <function>stream_set_timeout</function> per cambiare questo
-       valore.
-      </simpara>
-     </warning>
-    &fs.validfp.all;
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 0c9c2dd669fe9395eaa73d487fbd160f9057429a Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi,fernando -->
+<refentry xml:id="function.feof" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>feof</refname>
+  <refpurpose>Verifica se è stata raggiunta la fine del file su un puntatore al file</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>feof</methodname>
+   <methodparam><type>resource</type><parameter>stream</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Verifica se è stata raggiunta la fine del file su un puntatore al file.
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>stream</parameter></term>
+     <listitem>
+      &fs.validfp.all;
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce &true; se il puntatore al file è a EOF o se si verifica un errore
+   (incluso il timeout del socket); altrimenti restituisce &false;.
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <warning>
+   <para>
+    Se una connessione aperta da <function>fsockopen</function> non è stata chiusa
+    dal server, <function>feof</function> si bloccherà. Per aggirare il problema, vedere
+    l'esempio seguente:
+    <example>
+     <title>Gestione dei timeout con <function>feof</function></title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function safe_feof($fp, &$start = NULL) {
+ $start = microtime(true);
 
+ return feof($fp);
+}
+
+/* Si assume che $fp sia stato aperto in precedenza da fsockopen() */
+
+$start = NULL;
+$timeout = ini_get('default_socket_timeout');
+
+while(!safe_feof($fp, $start) && (microtime(true) - $start) < $timeout)
+{
+ /* Gestione */
+}
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </warning>
+  <warning>
+   <para>
+    Se il puntatore al file passato non è valido si potrebbe ottenere un ciclo infinito, perché
+    <function>feof</function> non riesce a restituire &true;.
+    <example>
+     <title>Esempio di <function>feof</function> con un puntatore al file non valido</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+// se il file non può essere letto o non esiste, la funzione fopen restituisce FALSE
+$file = @fopen("no_such_file", "r");
+
+// il FALSE restituito da fopen genera un warning e qui provoca un ciclo infinito
+while (!feof($file)) {
+}
+
+fclose($file);
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </warning>
+ </refsect1>
+ 
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,68 +1,151 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: cortesi Status: working -->
-  <refentry xml:id="function.clearstatcache" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>clearstatcache</refname>
-    <refpurpose>Libera la cache dello stato di un file</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>void</type><methodname>clearstatcache</methodname>
-      <void/>
-     </methodsynopsis>
-    <para>
-     Quando si eseguono le funzioni di sistema <systemitem>stat</systemitem> o
-     <systemitem>lstat</systemitem> o una delle funzioni elencate nella
-     lista delle funzioni coinvolte (vedi sotto), il PHP memorizza le informazioni restituite
-     da queste funzioni in modo da fornire migliori performance. Esistono, tuttavia,
-     casi in cui si desidera rimuovere le informazioni memorizzate. Ad esempio, 
-     nel caso in cui un file venga controllato più volte nel medesimo script ed il file si trova in situazioni
-     in cui possa venire rimosso o possa essere variato durante l'esecuzione dello script; in questi casi
-     si può volere cancellare le informazioni memorizzate. Per queste situazioni si può utilizzare la funzione
-     <function>clearstatcache</function> che cancella le informazioni memorizzate dal PHP sullo
-     stato di un file.
-    </para>
-    <para>
-     Occorre notare che il PHP non memorizza informazioni su file inesistenti.
-     Pertanto se si esegue la funzione <function>file_exists</function> su un file 
-     che non esiste, questa restituisce &false; fino a quando il file non viene creato.
-     Un volta ccreato il file, la funzione restituisce &true; anche se il file viene cancellato.
-    </para>
-    <note>
-     <para>
-      Queste funzioni memorizzano informazioni su specifici file, pertanto basta 
-      eseguire <function>clearstatcache</function> nel caso di molteplici operazioni
-      sul medesimo file oppure nel caso sia necessario non memorizzare informazioni
-      su un dato file.
-     </para>
-    </note>
-    <para>
-     Tale valore viene memorizzato solo per la durata di una singola richiesta.
-    </para>
-    <para>
-     Le funzioni coinvolte sono <function>stat</function>,
-     <function>lstat</function>,
-     <function>file_exists</function>,
-     <function>is_writable</function>,
-     <function>is_readable</function>,
-     <function>is_executable</function>,
-     <function>is_file</function>,
-     <function>is_dir</function>,
-     <function>is_link</function>,
-     <function>filectime</function>,
-     <function>fileatime</function>,
-     <function>filemtime</function>,
-     <function>fileinode</function>,
-     <function>filegroup</function>,
-     <function>fileowner</function>,
-     <function>filesize</function>,
-     <function>filetype</function> e
-     <function>fileperms</function>.
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 124e1f57f5dc2cd667536dc8eb027816effcfead Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi -->
+<refentry xml:id="function.clearstatcache" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>clearstatcache</refname>
+  <refpurpose>Svuota la cache dello stato dei file</refpurpose>
+ </refnamediv>
 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>void</type><methodname>clearstatcache</methodname>
+   <methodparam choice="opt"><type>bool</type><parameter>clear_realpath_cache</parameter><initializer>&false;</initializer></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>filename</parameter><initializer>""</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Quando si usano <function>stat</function>, <function>lstat</function> o
+   una qualsiasi delle altre funzioni elencate nella lista delle funzioni interessate (sotto),
+   PHP memorizza in cache le informazioni restituite da tali funzioni per fornire
+   prestazioni migliori. Tuttavia, in alcuni casi, può essere necessario cancellare le
+   informazioni memorizzate in cache. Ad esempio, se lo stesso file viene controllato
+   più volte all'interno di un singolo script, e quel file rischia di
+   essere rimosso o modificato durante l'esecuzione dello script, si può scegliere di
+   svuotare la cache dello stato. In questi casi, è possibile usare la
+   funzione <function>clearstatcache</function> per cancellare le informazioni
+   che PHP memorizza in cache su un file.
+  </para>
+  <simpara>
+   Si noti inoltre che PHP non memorizza in cache informazioni sui file
+   inesistenti. Quindi, se si chiama <function>is_file</function> su un file che
+   non esiste, questa restituirà &false; finché il file non viene creato. Se si
+   crea il file, restituirà &true; anche se poi il file viene eliminato.
+   Tuttavia <function>unlink</function> svuota la cache automaticamente.
+  </simpara>
+  <note>
+   <para>
+    Questa funzione memorizza in cache informazioni su specifici nomi di file, quindi è
+    necessario chiamare <function>clearstatcache</function> solo se si eseguono
+    più operazioni sullo stesso nome di file e occorre che le informazioni
+    su quel particolare file non vengano memorizzate in cache.
+   </para>
+  </note>
+  <para>
+   Le funzioni interessate includono <function>stat</function>,
+   <function>lstat</function>,
+   <function>file_exists</function>,
+   <function>is_writable</function>,
+   <function>is_readable</function>,
+   <function>is_executable</function>,
+   <function>is_file</function>,
+   <function>is_dir</function>,
+   <function>is_link</function>,
+   <function>filectime</function>,
+   <function>fileatime</function>,
+   <function>filemtime</function>,
+   <function>fileinode</function>,
+   <function>filegroup</function>,
+   <function>fileowner</function>,
+   <function>filesize</function>,
+   <function>filetype</function> e
+   <function>fileperms</function>.
+  </para>
+  <simpara>
+   <function>file_exists</function>, <function>is_writable</function>,
+   <function>is_readable</function> e <function>is_executable</function>
+   usano la cache solo per i percorsi che usano un wrapper diverso dal filesystem
+   locale. I file locali vengono controllati direttamente ogni volta.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>clear_realpath_cache</parameter></term>
+     <listitem>
+      <para>
+       Indica se svuotare <emphasis>anche</emphasis> la cache di realpath.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>filename</parameter></term>
+     <listitem>
+      <para>
+       Svuota la cache di realpath solo per uno specifico nome di file; usato
+       solo se <parameter>clear_realpath_cache</parameter> è &true;.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.void;
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>clearstatcache</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+$file = tempnam(sys_get_temp_dir(), 'stat-demo-');
+file_put_contents($file, 'Ciao');
+
+echo "Eseguire questo comando in un'altra shell:\n";
+echo "\techo \" Mondo!\" >> $file\n";
+
+$before = filesize($file); // memorizza in cache i metadati
+
+sleep(20); // Eseguire il comando echo in un'altra shell
+
+$cached = filesize($file); // vengono restituiti dati non aggiornati
+
+clearstatcache();
+
+$fresh = filesize($file);  // restituisce i dati corretti
+
+printf("Prima: %d\nIn cache: %d\nAggiornato: %d\n", $before, $cached, $fresh);
+
+unlink($file);
+]]>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+Eseguire questo comando in un'altra shell:
+    echo " Mondo!" >> /tmp/stat-demo-6fjvs4vir9ll2haCl4W
+Prima: 4
+In cache: 4
+Aggiornato: 12
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,42 +1,114 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/filesystem.xml, last change in rev 1.15 -->
-<!-- EN-Revision: n/a Maintainer: cortesi Status: working -->
-  <refentry xml:id="function.unlink" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>unlink</refname>
-    <refpurpose>Cancella un file</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>unlink</methodname>
-      <methodparam><type>string</type><parameter>filename</parameter></methodparam>
-      <methodparam choice="opt"><type>resource</type><parameter>context</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Cancella <parameter>filename</parameter>.  Simile alla funzione C di Unix 
-     unlink(). &return.success;
-    </para>
-    <note>
-     <simpara>
-      Dal PHP 5.0.0 <function>unlink</function> potrà essere utilizzata anche
-      con <emphasis>qualche</emphasis> wrapper URL. Fare riferimento a <xref linkend="wrappers"/>
-      per avere la lista di quali wrapper supportano <function>unlink</function>.
-     </simpara>
-    </note>
-    <note>
-     <simpara>
-      Il parametro <parameter>context</parameter> è stato aggiunto in PHP 5.0.0.
-     </simpara>
-    </note>
-    <para>
-     Restituisce 0 o &false; in caso d'errore.
-    </para>
-    <para>
-     Vedere anche <function>rmdir</function> per eliminare directory.
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: ea62fb83196997032641b50fe44420305466195e Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi -->
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.unlink">
+ <refnamediv>
+  <refname>unlink</refname>
+  <refpurpose>Elimina un file</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>unlink</methodname>
+   <methodparam><type>string</type><parameter>filename</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>resource</type><type>null</type></type><parameter>context</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Elimina <parameter>filename</parameter>. Simile alla funzione C unlink()
+   di Unix. Verrà generato un errore di livello <constant>E_WARNING</constant> in caso di
+   errore.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>filename</parameter></term>
+     <listitem>
+      <para>
+       Percorso del file.
+      </para>
+      <para>
+       Se il file è un collegamento simbolico, verrà eliminato il collegamento simbolico. Su Windows, per eliminare
+       un collegamento simbolico a una directory, occorre invece usare <function>rmdir</function>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>context</parameter></term>
+     <listitem>
+      &note.context-support;
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>7.3.0</entry>
+      <entry>
+       Su Windows, ora è possibile usare <function>unlink</function> su file con
+       handle in uso, mentre in precedenza ciò falliva. Tuttavia, non è ancora
+       possibile ricreare il file eliminato finché tutti i suoi handle non sono stati
+       chiusi.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Uso di base di <function>unlink</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$fh = fopen('test.html', 'a');
+fwrite($fh, '<h1>Ciao mondo!</h1>');
+fclose($fh);
+
+unlink('test.html');
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>rmdir</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

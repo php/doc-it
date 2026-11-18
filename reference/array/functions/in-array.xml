@@ -1,50 +1,98 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/array.xml, last change in rev 1.7 -->
-<!-- last change to 'in-array' in en/ tree in rev 1.56 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.173/EN.1.56 -->
-  <refentry xml:id="function.in-array" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>in_array</refname>
-    <refpurpose>Controlla se un valore è presente in un array</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>in_array</methodname>
-      <methodparam><type>mixed</type><parameter>ago</parameter></methodparam>
-      <methodparam><type>array</type><parameter>pagliaio</parameter></methodparam>
-      <methodparam choice="opt"><type>bool</type><parameter>strict</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Cerca in <parameter>pagliaio</parameter> per trovare
-     <parameter>ago</parameter> e restituisce &true;
-     se viene trovato nell'array, &false; altrimenti.
-    </para>
-    <para>
-     Se il terzo parametro <parameter>strict</parameter> è
-     &true; la funzione <function>in_array</function>
-     controllerà anche il <link linkend="language.types">tipo</link> di <parameter>ago</parameter>
-     nell'array <parameter>haystack</parameter>.
-    </para>
-    <note>
-     <para>
-      Se <parameter>ago</parameter> è una stringa, il confronto è effettuato
-      tenendo conto delle maiuscole/minuscole.
-     </para>
-    </note>
-    <note>
-     <para>
-      Nelle versioni di PHP precedenti la 4.2.0. <parameter>ago</parameter> non
-      poteva essere un array.
-     </para>
-    </note>
-    <para>
-     <example>
-      <title>esempio di <function>in_array</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 40514c7a2d1262c4126d2c8906835ecaf53d6354 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
+<refentry xml:id="function.in-array" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>in_array</refname>
+  <refpurpose>Controlla se un valore esiste in un array</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>in_array</methodname>
+   <methodparam><type>mixed</type><parameter>needle</parameter></methodparam>
+   <methodparam><type>array</type><parameter>haystack</parameter></methodparam>
+   <methodparam choice="opt"><type>bool</type><parameter>strict</parameter><initializer>&false;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Cerca <parameter>needle</parameter> in <parameter>haystack</parameter> usando il confronto debole,
+   a meno che non sia impostato <parameter>strict</parameter>.
+  </para>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>needle</parameter></term>
+     <listitem>
+      <para>
+       Il valore cercato.
+      </para>
+      <note>
+       <para>
+        Se <parameter>needle</parameter> è una stringa, il confronto viene effettuato
+        distinguendo tra maiuscole e minuscole.
+       </para>
+      </note>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>haystack</parameter></term>
+     <listitem>
+      <para>
+       L'array.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>strict</parameter></term>
+     <listitem>
+      <para>
+       Se il terzo parametro <parameter>strict</parameter> è impostato a &true;,
+       la funzione <function>in_array</function> controllerà anche i
+       <link linkend="language.types">tipi</link> di
+       <parameter>needle</parameter> in <parameter>haystack</parameter>.
+      </para>
+      <note>
+       <simpara>
+        Prima di PHP 8.0.0, una <type>string</type> non numerica come
+        <parameter>needle</parameter> corrispondeva in modo debole a un valore
+        <literal>0</literal> in <parameter>haystack</parameter>, e
+        viceversa. A partire da PHP 8.0.0, il numero viene convertito in
+        <type>string</type> e i due vengono confrontati come stringhe, quindi corrisponde
+        solo una <type>string</type> numerica con lo stesso valore.
+       </simpara>
+       <simpara>
+        La modalità non stretta usa comunque il
+        <link linkend="types.comparisions-loose">confronto debole</link>, quindi
+        valori di tipi diversi possono comunque risultare uguali: &true; corrisponde a
+        qualsiasi <type>string</type> che equivale a vero, e &false; corrisponde sia a
+        <literal>""</literal> che a <literal>"0"</literal>. A meno che i tipi di
+        tutti i valori coinvolti non siano noti con certezza, passare sempre
+        <parameter>strict</parameter> per forzare un confronto di identità.
+       </simpara>
+      </note>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce &true; se <parameter>needle</parameter> viene trovato nell'array,
+   altrimenti &false;.
+  </para>
+ </refsect1>
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>in_array</function></title>
+    <programlisting role="php">
 <![CDATA[
-<?
+<?php
 $os = array("Mac", "NT", "Irix", "Linux");
 if (in_array("Irix", $os)) {
     echo "Trovato Irix";
@@ -54,50 +102,48 @@ if (in_array("mac", $os)) {
 }
 ?>
 ]]>
-      </programlisting>
-      <para>
-       La seconda condizione fallisce perché <function>in_array</function>
-       tiene conto di maiuscole e minuscole, quindi il programma mostrerà:
-      </para>
-      <screen>
+    </programlisting>
+    <para>
+     La seconda condizione non è soddisfatta perché <function>in_array</function>
+     distingue tra maiuscole e minuscole, quindi il programma precedente visualizzerà:
+    </para>
+    <screen>
 <![CDATA[
 Trovato Irix
 ]]>
-      </screen>
-     </example>
-    </para>
-    <para>
-     <example>
-      <title>esempio di <function>in_array</function> con strict</title>
-      <programlisting role="php">
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Esempio di <function>in_array</function> con strict</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 $a = array('1.10', 12.4, 1.13);
 
 if (in_array('12.4', $a, true)) {
-    echo "'12.4' trovato con controllo strict\n"
+    echo "'12.4' trovato con il controllo stretto\n";
 }
 
 if (in_array(1.13, $a, true)) {
-    echo "1.13 trovato con controllo strict\n"
+    echo "1.13 trovato con il controllo stretto\n";
 }
 ?>
 ]]>
-      </programlisting>
-      <para>
-       Questo mostrerà:
-      </para>
-      <screen>
+    </programlisting>
+    &example.outputs;
+    <screen>
 <![CDATA[
-1.13 trovato con controllo strict
+1.13 trovato con il controllo stretto
 ]]>
-      </screen>
-     </example>
-    </para>
-    <para>
-     <example>
-      <title><function>in_array</function> con un array come ago</title>
-      <programlisting role="php">
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title><function>in_array</function> con un array come needle</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 $a = array(array('p', 'h'), array('p', 'r'), 'o');
@@ -107,7 +153,7 @@ if (in_array(array('p', 'h'), $a)) {
 }
 
 if (in_array(array('f', 'i'), $a)) {
-    echo "'fi' non trovato\n";
+    echo "'fi' trovato\n";
 }
 
 if (in_array('o', $a)) {
@@ -115,25 +161,29 @@ if (in_array('o', $a)) {
 }
 ?>
 ]]>
-      </programlisting>
-      <para>
-       Questo ritornerà:
-      </para>
-      <screen>
+    </programlisting>
+    &example.outputs;
+    <screen>
 <![CDATA[
-  'ph' trovato
-  'o' trovato
+'ph' trovato
+'o' trovato
 ]]>
-     </screen>
-     </example>
-    </para>
-    <para>
-     Vedere anche <function>array_search</function>,
-     <function>array_key_exists</function> e
-     <function>isset</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>array_search</function></member>
+    <member><function>isset</function></member>
+    <member><function>array_key_exists</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

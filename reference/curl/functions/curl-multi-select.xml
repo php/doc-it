@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: b7f8c11e56ff1c57a2993e2ed7e5c5ace18637fd Maintainer: pastore Status: ready -->
+<!-- EN-Revision: f414967c2c80702de6401191034d9837a2801dc1 Maintainer: pastore Status: ready -->
 <!-- CREDITS: darvina -->
 <refentry xml:id="function.curl-multi-select" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>curl_multi_select</refname>
-  <refpurpose>Attende l'attività su qualsiasi connessione curl_multi</refpurpose>
+  <refpurpose>Attende finché la lettura o la scrittura è possibile per qualsiasi connessione di un handle multi cURL</refpurpose>
  </refnamediv>
- 
+
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
@@ -15,7 +15,10 @@
    <methodparam choice="opt"><type>float</type><parameter>timeout</parameter><initializer>1.0</initializer></methodparam>
   </methodsynopsis>
   <para>
-    Blocca finchè c'è attività su qualsiasi connessione curl_multi.
+   Blocca l'esecuzione dello script finché un handle cURL associato
+   all'handle multi cURL potrebbe fare progressi alla successiva chiamata di
+   <function>curl_multi_exec</function> oppure finché scade il timeout
+   (a seconda di quale evento si verifichi per primo).
   </para>
 
  </refsect1>
@@ -29,22 +32,31 @@
      <term><parameter>timeout</parameter></term>
      <listitem>
       <para>
-       Il tempo, in secondi, da attendere per una risposta.
+       Il tempo, in secondi, da attendere per una risposta dalle connessioni attive dell'handle multi cURL.
       </para>
      </listitem>
     </varlistentry>
    </variablelist>
   </para>
  </refsect1>
- 
+
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   In caso di sucesso, restuisce il numero di descrittori contenuti nel 
-   set di descrittori. Questo potrebbe essere 0 se non ci fossero attività in qualcuno
-   dei descrittori. In caso di fallimento, questa funzione restituirà -1 per un fallimento
-   di select (dalla chiamata di sistema select sottostante).
+   In caso di successo, restituisce il numero di descrittori attivi contenuti nel
+   set di descrittori. Questo potrebbe essere <literal>0</literal> se non ci fossero attività in qualcuno
+   dei descrittori. In caso di fallimento, questa funzione
+   restituirà <literal>-1</literal> per un fallimento di select (dalla
+   chiamata di sistema <literal>select()</literal> sottostante).
   </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <simpara>
+   Genera un'eccezione <exceptionname>ValueError</exceptionname> se <parameter>timeout</parameter>
+   è minore di <literal>0</literal> o maggiore di <constant>PHP_INT_MAX</constant>.
+  </simpara>
  </refsect1>
 
  <refsect1 role="changelog">
@@ -58,6 +70,13 @@
      </row>
     </thead>
     <tbody>
+     <row>
+      <entry>8.4.0</entry>
+      <entry>
+       Ora genera un'eccezione <exceptionname>ValueError</exceptionname> se <parameter>timeout</parameter>
+       è minore di <literal>0</literal> o maggiore di <constant>PHP_INT_MAX</constant>.
+      </entry>
+     </row>
      &curl.changelog.multi-handle-param;
     </tbody>
    </tgroup>

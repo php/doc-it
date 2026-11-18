@@ -1,129 +1,242 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/network.xml, last change in rev 1.1 -->
-<!-- last change to 'fsockopen' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: cortesi Status: ready -->
-<!-- OLD-Revision: 1.60/EN.1.2 -->
-  <refentry xml:id="function.fsockopen" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>fsockopen</refname>
-    <refpurpose>
-     Apre una connessione a un socket appartenente a un dominio Internet o Unix
-    </refpurpose> 
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>fsockopen</methodname>
-      <methodparam><type>string</type><parameter>hostname</parameter></methodparam>
-      <methodparam><type>int</type><parameter>porta</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>errno</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>errstr</parameter></methodparam>
-      <methodparam choice="opt"><type>float</type><parameter>timeout</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Inizializza una connessione nel dominio Internet (AF_INET, usando TCP
-     o UDP) o Unix (AF_UNIX). Per il dominio Internet, apre
-     una connessione a un socket TCP verso l'
-     <parameter>hostname</parameter> sulla porta
-     <parameter>port</parameter>.  <parameter>hostname</parameter> può essere
-     in questo caso, sia un fully qualified domain name o un indirizzo IP.
-     Per le connessioni UDP, è necessario specificare esplicitamente il 
-     protocollo, usando: '<literal>udp://</literal>' come prefisso di 
-     <parameter>hostname</parameter>. Per il dominio Unix, 
-     <parameter>hostname</parameter> viene utilizzato come percorso verso il 
-     socket, in questo caso, <parameter>porta</parameter> deve essere impostato
-     a 0. Il parametro opzionale <parameter>timeout</parameter> può essere 
-     usato per impostare un timeout in secondi per la chiamata di sistema connect.
-    </para>
-    <para>
-     A partire da PHP 4.3.0, se si è compilato con il supporto OpenSSL, si può
-     prefissare <parameter>hostname</parameter> con
-     '<literal>ssl://</literal>' oppure '<literal>tls://</literal>' per
-     utilizzare una connessione client SSL o TLS su una connessione TCP/IP per connettersi
-     all'host remoto.
-    </para>
-    <para>
-     <function>fsockopen</function> restituisce un puntatore a file che può
-     essere usato nelle altre funzioni orientate ai file (come
-     <function>fgets</function>, <function>fgetss</function>,
-     <function>fputs</function>, <function>fclose</function> e
-     <function>feof</function>).
-    </para>
-    <para>
-     Se la chiamata non ha successo, viene restituito &false; e se gli argomenti opzionali
-     <parameter>errno</parameter> e <parameter>errstr</parameter>
-     sono presenti, vengono impostati a indicare l'errore
-     a livello di sistema che è avvenuto nella chiamata alla funzione
-     <literal>connect()</literal> del sistema operativo. Se il valore di 
-     <parameter>errno</parameter> restituito è <literal>0</literal> e
-     la funzione restituisce &false;, è un'indicazione che l'errore
-     è avvenuto prima della chiamata di <literal>connect()</literal>. Questo è
-     molto probabilmente legato ad un problema di inizializzazione del socket. Si noti che
-     gli argomenti <parameter>errno</parameter> e
-     <parameter>errstr</parameter> verranno sempre passati by
-     reference.
-    </para>
-    <para>
-     A seconda dell'ambiente operativo, il dominio Unix o l'opzionale
-     timeout della connect potrebbero non essere disponibili.
-    </para>
-    <para>
-     Il socket viene aperto di default in modo blocking. Si può passare
-     al modo non-blocking usando
-     <function>socket_set_blocking</function>.
-     <example>
-      <title>Esempio di <function>fsockopen</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 4e6f0774f03131cbeeb8c21019a690bf97fd22b6 Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi -->
+<refentry xml:id="function.fsockopen" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>fsockopen</refname>
+  <refpurpose>Apre una connessione socket di dominio Internet o Unix</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>resource</type><type>false</type></type><methodname>fsockopen</methodname>
+   <methodparam><type>string</type><parameter>hostname</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>port</parameter><initializer>-1</initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter role="reference">error_code</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter role="reference">error_message</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>float</type><type>null</type></type><parameter>timeout</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Avvia una connessione socket verso la risorsa specificata da
+   <parameter>hostname</parameter>.
+  </para>
+  <para>
+   PHP supporta destinazioni nei domini Internet e Unix come descritto in
+   <xref linkend="transports"/>. Un elenco dei trasporti supportati può anche essere
+   ottenuto usando <function>stream_get_transports</function>.
+  </para>
+  <para>
+   Per impostazione predefinita il socket viene aperto in modalità bloccante. È possibile
+   passare alla modalità non bloccante usando
+   <function>stream_set_blocking</function>.
+  </para>
+  <para>
+   La funzione <function>stream_socket_client</function> è simile, ma
+   fornisce un insieme più ricco di opzioni, tra cui la connessione non bloccante e la
+   possibilità di fornire un contesto di stream.
+  </para>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>hostname</parameter></term>
+     <listitem>
+      <para>
+       Se il supporto OpenSSL <link linkend="openssl.installation">è
+       installato</link>, è possibile anteporre a <parameter>hostname</parameter>
+       <literal>ssl://</literal> oppure <literal>tls://</literal> per
+       usare una connessione client SSL o TLS su TCP/IP per connettersi
+       all'host remoto.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>port</parameter></term>
+     <listitem>
+      <para>
+       Il numero della porta. Può essere omesso e saltato con
+       <literal>-1</literal> per i trasporti che non usano porte, come
+       <literal>unix://</literal>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>error_code</parameter></term>
+     <listitem>
+      <para>
+       Se fornito, contiene il numero di errore a livello di sistema verificatosi nella
+       chiamata di sistema <literal>connect()</literal>.
+      </para>
+      <para>
+       Se il valore restituito in <parameter>error_code</parameter> è
+       <literal>0</literal> e la funzione ha restituito &false;, è
+       un'indicazione che l'errore si è verificato prima della
+       chiamata a <literal>connect()</literal>. Molto probabilmente ciò è dovuto a un
+       problema di inizializzazione del socket.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>error_message</parameter></term>
+     <listitem>
+      <para>
+       Il messaggio di errore come stringa.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>timeout</parameter></term>
+     <listitem>
+      <para>
+       Il timeout della connessione, in secondi. Se &null;, viene usata l'impostazione
+       <link linkend="ini.default-socket-timeout">default_socket_timeout</link> di &php.ini;.
+      </para>
+      <note>
+       <para>
+        Se occorre impostare un timeout per la lettura/scrittura dei dati sul
+        socket, usare <function>stream_set_timeout</function>, poiché il parametro
+        <parameter>timeout</parameter> di
+        <function>fsockopen</function> si applica solo durante la connessione del
+        socket.
+       </para>
+      </note>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   <function>fsockopen</function> restituisce un puntatore a file che può essere usato
+   insieme alle altre funzioni sui file (come
+   <function>fgets</function>, <function>fgetss</function>,
+   <function>fwrite</function>, <function>fclose</function> e
+   <function>feof</function>). Se la chiamata fallisce, restituisce &false;
+  </para>
+ </refsect1>
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <para>
+   Emette un <constant>E_WARNING</constant> se <parameter>hostname</parameter> non è
+   un dominio valido.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog"><!-- {{{ -->
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>timeout</parameter> ora è nullable.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>fsockopen</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$fp = fsockopen ("www.php.net", 80, $errno, $errstr, 30);
+$fp = fsockopen("www.example.com", 80, $errno, $errstr, 30);
 if (!$fp) {
-    echo "$errstr ($errno)<br>\n";
+    echo "$errstr ($errno)<br />\n";
 } else {
-    fputs ($fp, "GET / HTTP/1.0\r\nHost: www.php.net\r\n\r\n");
+    $out = "GET / HTTP/1.1\r\n";
+    $out .= "Host: www.example.com\r\n";
+    $out .= "Connection: Close\r\n\r\n";
+    fwrite($fp, $out);
     while (!feof($fp)) {
-        echo fgets ($fp,128);
+        echo fgets($fp, 128);
     }
-    fclose ($fp);
+    fclose($fp);
 }
 ?>
 ]]>
-      </programlisting>
-     </example>
-     L'esempio seguente mostra come ottenere data e ora
-     tramite il servizio UDP "daytime" (porta 13) della vostra stessa macchina.
-     <example>
-     <title>Uso di connessione UDP</title>
-     <programlisting role="php">
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Uso di una connessione UDP</title>
+    <para>
+     L'esempio seguente mostra come ottenere la data e l'ora dal servizio UDP
+     "daytime" (porta 13) della propria macchina.
+    </para>
+    <programlisting role="php">
 <![CDATA[
 <?php
 $fp = fsockopen("udp://127.0.0.1", 13, $errno, $errstr);
 if (!$fp) {
-    echo "ERRORE: $errno - $errstr<br>\n";
+    echo "ERRORE: $errno - $errstr<br />\n";
 } else {
-    fwrite($fp,"\n");
+    fwrite($fp, "\n");
     echo fread($fp, 26);
     fclose($fp);
 }
 ?>
 ]]>
-     </programlisting>
-     </example>
-     <note>
-      <para>Il parametro timeout è stato introdotto nel PHP 3.0.9 e
-      il supporto UDP è stato aggiunto nel PHP 4.
-      </para>
-     </note>
-     Vedere anche <function>pfsockopen</function>, 
-     <function>socket_set_blocking</function>,
-     <function>socket_set_timeout</function>, <function>fgets</function>,
-     <function>fgetss</function>, <function>fputs</function>,
-     <function>fclose</function>, <function>feof</function> e
-     l'<link linkend="ref.curl">estensione Curl</link>.
-    </para>
-   </refsect1>
-  </refentry>
-
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    A seconda dell'ambiente, il dominio Unix o il timeout di connessione
+    opzionale potrebbero non essere disponibili.
+   </para>
+  </note>
+  <warning>
+   <para>
+    A volte i socket UDP sembreranno essersi aperti senza errori,
+    anche se l'host remoto non è raggiungibile. L'errore diventerà
+    evidente solo quando si leggono o scrivono dati da/verso il socket.
+    Il motivo è che UDP è un protocollo "senza connessione",
+    il che significa che il sistema operativo non tenta di stabilire
+    un collegamento per il socket finché non ha effettivamente bisogno di inviare o ricevere dati.
+   </para>
+  </warning>
+  &ipv6.brackets;
+ </refsect1>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pfsockopen</function></member>
+    <member><function>stream_socket_client</function></member>
+    <member><function>stream_set_blocking</function></member>
+    <member><function>stream_set_timeout</function></member>
+    <member><function>fgets</function></member>
+    <member><function>fgetss</function></member>
+    <member><function>fwrite</function></member>
+    <member><function>fclose</function></member>
+    <member><function>feof</function></member>
+    <member><function>socket_connect</function></member>
+    <member>L'<link linkend="ref.curl">estensione Curl</link></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

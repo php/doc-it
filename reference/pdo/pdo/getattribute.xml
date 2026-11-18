@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: ea010c6c957f8fdd64e1d622ab5fbe584cf3d231 Maintainer: lacatoire Status: ready -->
+<refentry xml:id="pdo.getattribute" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>PDO::getAttribute</refname>
+  <refpurpose>
+   Recupera un attributo della connessione al database
+  </refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis role="PDO">
+   <modifier>public</modifier> <type>mixed</type><methodname>PDO::getAttribute</methodname>
+   <methodparam><type>int</type><parameter>attribute</parameter></methodparam>
+  </methodsynopsis>
+
+  <para>
+   Questa funzione restituisce il valore di un attributo della connessione al
+   database. Per recuperare gli attributi di PDOStatement, consultare
+   <methodname>PDOStatement::getAttribute</methodname>.
+  </para>
+
+  <simpara>
+   Solo gli attributi generici elencati di seguito possono essere recuperati
+   con tutti i driver. La possibilità di recuperare un altro attributo dipende
+   dal driver.
+  </simpara>
+
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>attribute</parameter></term>
+     <listitem>
+      <para>
+       Una delle costanti <constant>PDO::ATTR_<replaceable>*</replaceable></constant>.
+       I seguenti attributi generici sono gestiti da PDO stesso
+       e possono essere recuperati con tutti i driver:
+       <simplelist>
+        <member><constant>PDO::ATTR_CASE</constant></member>
+        <member><constant>PDO::ATTR_DEFAULT_FETCH_MODE</constant></member>
+        <member><constant>PDO::ATTR_DRIVER_NAME</constant></member>
+        <member><constant>PDO::ATTR_ERRMODE</constant></member>
+        <member><constant>PDO::ATTR_ORACLE_NULLS</constant></member>
+        <member><constant>PDO::ATTR_PERSISTENT</constant></member>
+        <member><constant>PDO::ATTR_STATEMENT_CLASS</constant></member>
+        <member><constant>PDO::ATTR_STRINGIFY_FETCHES</constant></member>
+       </simplelist>
+      </para>
+      <simpara>
+       Tutti gli altri attributi sono gestiti dal driver.
+       Quali di essi possano essere recuperati varia da driver a driver.
+       Ciò comprende attributi generici come
+       <constant>PDO::ATTR_AUTOCOMMIT</constant>,
+       <constant>PDO::ATTR_CLIENT_VERSION</constant>,
+       <constant>PDO::ATTR_CONNECTION_STATUS</constant>,
+       <constant>PDO::ATTR_SERVER_INFO</constant>,
+       <constant>PDO::ATTR_SERVER_VERSION</constant> e
+       <constant>PDO::ATTR_TIMEOUT</constant>,
+       oltre agli attributi specifici del driver.
+       Si noti che gli attributi specifici di un driver <emphasis>non devono</emphasis> essere usati
+       con altri driver.
+      </simpara>
+     </listitem>
+     </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <simpara>
+   Restituisce il valore dell'attributo richiesto, oppure &false; in caso di errore.
+  </simpara>
+  <simpara>
+   Il valore di alcuni attributi, come
+   <constant>PDO::ATTR_PERSISTENT</constant>, può essere a sua volta &false;,
+   quindi un valore di ritorno &false; non indica sempre un errore.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <simpara>
+   <methodname>PDO::getAttribute</methodname> può lanciare una <exceptionname>PDOException</exceptionname>
+   quando il driver sottostante non supporta l'<parameter>attribute</parameter> richiesto.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.4.0</entry>
+      <entry>
+       Ora è possibile recuperare il valore dell'attributo
+       <constant>PDO::ATTR_STRINGIFY_FETCHES</constant>.
+      </entry>
+     </row>
+     <row>
+      <entry>8.4.0</entry>
+      <entry>
+       Il valore di <constant>PDO::ATTR_AUTOCOMMIT</constant> ora viene restituito come
+       <type>bool</type> dai driver MySQL e Firebird, e il valore di
+       <constant>PDO::ATTR_EMULATE_PREPARES</constant> e
+       <constant>PDO::MYSQL_ATTR_DIRECT_QUERY</constant> ora viene restituito come
+       <type>bool</type> dal driver MySQL; in precedenza venivano restituiti come
+       <type>int</type>.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Recupero degli attributi della connessione al database</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$pdo = new PDO('sqlite::memory:');
+
+$attributes = [
+    'DRIVER_NAME', 'ERRMODE', 'CASE', 'ORACLE_NULLS', 'PERSISTENT',
+    'CLIENT_VERSION', 'SERVER_VERSION', 'AUTOCOMMIT', 'TIMEOUT',
+];
+
+foreach ($attributes as $name) {
+    try {
+        $value = $pdo->getAttribute(constant("PDO::ATTR_$name"));
+        echo "PDO::ATTR_$name: ", var_export($value, true), "\n";
+    } catch (PDOException $e) {
+        echo "PDO::ATTR_$name: ", $e->getMessage(), "\n";
+    }
+}
+?>
+]]>
+    </programlisting>
+    &example.outputs.similar;
+    <screen>
+<![CDATA[
+PDO::ATTR_DRIVER_NAME: 'sqlite'
+PDO::ATTR_ERRMODE: 2
+PDO::ATTR_CASE: 0
+PDO::ATTR_ORACLE_NULLS: 0
+PDO::ATTR_PERSISTENT: false
+PDO::ATTR_CLIENT_VERSION: '3.46.1'
+PDO::ATTR_SERVER_VERSION: '3.46.1'
+PDO::ATTR_AUTOCOMMIT: SQLSTATE[IM001]: Driver does not support this function: driver does not support that attribute
+PDO::ATTR_TIMEOUT: SQLSTATE[IM001]: Driver does not support this function: driver does not support that attribute
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><methodname>PDO::setAttribute</methodname></member>
+    <member><methodname>PDOStatement::getAttribute</methodname></member>
+    <member><methodname>PDOStatement::setAttribute</methodname></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+
+</refentry>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

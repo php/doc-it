@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: e16d04c436e9801627139c67c1cabcb92b469ccc Maintainer: lacatoire Status: ready -->
+<refentry xml:id="pdo.construct" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>PDO::__construct</refname>
+  <refpurpose>
+   Crea un'istanza PDO che rappresenta una connessione a un database
+  </refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <constructorsynopsis role="PDO">
+   <modifier>public</modifier> <methodname>PDO::__construct</methodname>
+   <methodparam><type>string</type><parameter>dsn</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>username</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><modifier role="attribute">#[\SensitiveParameter]</modifier><type class="union"><type>string</type><type>null</type></type><parameter>password</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>array</type><type>null</type></type><parameter>options</parameter><initializer>&null;</initializer></methodparam>
+  </constructorsynopsis>
+  <para>
+   Crea un'istanza PDO per rappresentare una connessione al database
+   richiesto.
+  </para>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>dsn</parameter></term>
+     <listitem>
+      <para>
+       Il Data Source Name, o DSN, contiene le informazioni necessarie per
+       connettersi al database.
+      </para>
+      <para>
+       In generale, un DSN è composto dal nome del driver PDO, seguito da due punti,
+       seguito dalla sintassi di connessione specifica del driver PDO. Ulteriori
+       informazioni sono disponibili nella <link linkend="pdo.drivers">documentazione
+       specifica dei driver PDO</link>.
+      </para>
+      <para>
+       Il parametro <parameter>dsn</parameter> supporta tre
+       diversi metodi per specificare gli argomenti necessari per creare
+       una connessione al database:
+      </para>
+      <para>
+       <variablelist>
+        <varlistentry><term>Invocazione tramite driver</term>
+         <listitem>
+          <para>
+           <parameter>dsn</parameter> contiene il DSN completo.
+          </para>
+         </listitem>
+        </varlistentry>
+        <varlistentry><term>Invocazione tramite URI</term>
+         <listitem>
+          <para>
+           <parameter>dsn</parameter> è composto da <userinput>uri:</userinput>
+           seguito da un URI che definisce la posizione di un file contenente
+           la stringa DSN. L'URI può specificare un file locale o un URL remoto.
+          </para>
+          <para><userinput>uri:file:///path/to/dsnfile</userinput></para>
+          <warning>
+           <simpara>
+            Lo schema DSN <userinput>uri:</userinput> è deprecato a partire da
+            PHP 8.5.0 a causa di problemi di sicurezza legati ai DSN provenienti
+            da URI remoti.
+           </simpara>
+          </warning>
+         </listitem>
+        </varlistentry>
+        <varlistentry><term>Alias</term>
+         <listitem>
+          <para>
+           <parameter>dsn</parameter> è composto da un nome
+           <parameter>name</parameter> che corrisponde a
+           <code>pdo.dsn.<parameter>name</parameter></code> in &php.ini;
+           e che definisce la stringa DSN.
+          </para>
+          <note>
+           <para>
+            L'alias deve essere definito in &php.ini;, e non in &htaccess; o &httpd.conf;
+           </para>
+          </note>
+         </listitem>
+        </varlistentry>
+       </variablelist>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>username</parameter></term>
+     <listitem>
+      <para>
+       Il nome utente per la stringa DSN. Questo parametro è facoltativo per
+       alcuni driver PDO.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>password</parameter></term>
+     <listitem>
+      <para>
+       La password per la stringa DSN. Questo parametro è facoltativo per
+       alcuni driver PDO.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>options</parameter></term>
+     <listitem>
+      <para>
+       Un array chiave=&gt;valore di opzioni di connessione specifiche del driver.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <simpara>
+   Viene generata una <exceptionname>PDOException</exceptionname> se il tentativo
+   di connessione al database richiesto fallisce,
+   indipendentemente dal valore di <constant>PDO::ATTR_ERRMODE</constant> attualmente impostato.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.5.0</entry>
+      <entry>
+       Lo schema DSN <userinput>uri:</userinput> è ora deprecato.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example><title>Creazione di un'istanza PDO tramite invocazione del driver</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+$dsn = 'mysql:dbname=testdb;host=127.0.0.1';
+$user = 'dbuser';
+$password = 'dbpass';
+
+$dbh = new PDO($dsn, $user, $password);
+
+?>
+]]>
+    </programlisting>
+   </example>
+   <example><title>Creazione di un'istanza PDO tramite invocazione URI</title>
+    <para>
+     L'esempio seguente presuppone che esista il file
+     <filename>/usr/local/dbconnect</filename> con permessi che
+     consentono a PHP di leggerlo. Il file contiene il DSN PDO per
+     connettersi a un database DB2 tramite il driver PDO_ODBC:
+    </para>
+    <screen>
+<![CDATA[
+odbc:DSN=SAMPLE;UID=john;PWD=mypass
+]]>
+    </screen>
+    <para>
+     Lo script PHP può quindi creare una connessione al database semplicemente
+     passando il parametro <literal>uri:</literal> e indicando
+     l'URI del file:
+    </para>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+$dsn = 'uri:file:///usr/local/dbconnect';
+$user = '';
+$password = '';
+
+$dbh = new PDO($dsn, $user, $password);
+
+?>
+]]>
+    </programlisting>
+   </example>
+   <example><title>Creazione di un'istanza PDO tramite un alias</title>
+    <para>
+     L'esempio seguente presuppone che &php.ini; contenga la seguente
+     voce per consentire la connessione a un database MySQL usando solo
+     l'alias <literal>mydb</literal>:
+    </para>
+    <programlisting role="ini">
+[PDO]
+pdo.dsn.mydb="mysql:dbname=testdb;host=localhost"
+    </programlisting>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+$dsn = 'mydb';
+$user = '';
+$password = '';
+
+$dbh = new PDO($dsn, $user, $password);
+
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+</refentry>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

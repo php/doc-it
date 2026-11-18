@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 33968dfebb9b847733d02ee221b3b8054a101b41c Maintainer: Manuel dG Status: ready -->
-<!-- Reviewed: no -->
+<!-- EN-Revision: 33968dfebb9b847733d02ee221b3b8054a101b41 Maintainer: ManueldG Status: ready -->
 <!-- CREDITS: cucinato -->
-<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.array-map">
+<!-- CREDITS: pastore -->
+<refentry xml:id="function.array-map" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>array_map</refname>
-  <refpurpose>Applica la callback a tutti gli elementi dell'array in input</refpurpose>
+  <refpurpose>Applica la callback agli elementi degli array forniti</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
@@ -18,16 +18,15 @@
   </methodsynopsis>
   <para>
    <function>array_map</function> restituisce un &array; che contiene
-   i risultati della <parameter>callback</parameter>
-   all'indice corrispondente dell'elemento dell'<parameter>array</parameter>
-   (o <parameter>arrays</parameter> se vengono forniti più array)
-   usato/i come argomento per la callback.
+   i risultati dell'applicazione della <parameter>callback</parameter>
+   al valore corrispondente dell'<parameter>array</parameter>
+   (e <parameter>arrays</parameter> se vengono forniti più array)
+   usati come argomenti per la callback.
    Il numero di parametri che la funzione <parameter>callback</parameter>
    accetta dovrebbe corrispondere al numero di array
    passati a <function>array_map</function>.
-   I parametri in eccesso sono ignorati.
-   Un <classname>ArgumentCountError</classname>
-   viene generato se sarà fornito un numero insufficente di argomenti.   
+   Gli array di input in eccesso vengono ignorati. Un <classname>ArgumentCountError</classname>
+   viene lanciato se viene fornito un numero insufficiente di argomenti.   
   </para>
  </refsect1>
 
@@ -43,14 +42,10 @@
       </para>
       <para>
        &null; può essere passato come valore alla <parameter>callback</parameter>
-       per eseguire un'operazione zip su più array e ritornerà un'array 
-       i cui elementi sono ciascuno un sub-array contenente gli elementi degli 
-       array di input con lo stesso indice (vedere l'esempio seguente).
-       
-        Se viene fornito un solo <parameter>array</parameter>,
-        <methodname>array_map</methodname> restituirà l'array di input.
-
-     
+       per eseguire un'operazione zip su più array e restituire un array 
+       i cui elementi sono ciascuno un sub-array contenente gli elementi degli array di input con lo stesso indice (vedere l'esempio seguente).
+       Se viene fornito un solo <parameter>array</parameter>,
+       <methodname>array_map</methodname> restituirà l'array di input.
       </para>
      </listitem>
     </varlistentry>
@@ -66,8 +61,8 @@
      <term><parameter>arrays</parameter></term>
      <listitem>
       <para>
-       Array di argomenti supplementari da eseguire nella
-       <parameter>callback</parameter>.
+       Elenco variabile supplementare di argomenti di tipo array da elaborare tramite la
+       funzione <parameter>callback</parameter>.
       </para>
      </listitem>
     </varlistentry>
@@ -79,8 +74,8 @@
   &reftitle.returnvalues;
   <para>  
    Restituisce un array contenente i risultati dell'applicazione della
-   <parameter>callback</parameter> all'indice corrispondente di <parameter>array1</parameter>
-   (o <parameter>arrays</parameter> se vengono forniti più array)
+   funzione <parameter>callback</parameter> al valore corrispondente di <parameter>array</parameter>
+   (e <parameter>arrays</parameter> se vengono forniti più array)
    usati come argomenti per la callback.
   </para>
   <para>
@@ -145,7 +140,7 @@ Array
   </para>
   <para>
    <example>
-    <title><function>array_map</function> usando una funzione lambda (a partire da PHP 5.3.0)</title>
+    <title><function>array_map</function> usando una funzione lambda</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -155,7 +150,7 @@ $func = function(int $value): int {
 
 print_r(array_map($func, range(1, 5)));
 
-// O come in PHP 7.4.0:
+// Oppure a partire da PHP 7.4.0:
 
 print_r(array_map(fn($value): int => $value * 2, range(1, 5)));
 
@@ -184,7 +179,7 @@ Array
 <?php
 function show_Spanish(int $n, string $m): string
 {
-    return "Il numero {$n} si dice {$m} in Spagnolo";
+    return "Il numero {$n} è chiamato {$m} in spagnolo";
 }
 
 function map_Spanish(int $n, string $m): array
@@ -207,7 +202,6 @@ print_r($d);
     <screen>
 <![CDATA[
 // stampa di $c
-// stampa di $c
 Array
 (
     [0] => Il numero 1 è chiamato uno in spagnolo
@@ -215,14 +209,8 @@ Array
     [2] => Il numero 3 è chiamato tres in spagnolo
     [3] => Il numero 4 è chiamato cuatro in spagnolo
     [4] => Il numero 5 è chiamato cinco in spagnolo
-    [0] => Il numero 1 è chiamato uno in spagnolo
-    [1] => Il numero 2 è chiamato dos in spagnolo
-    [2] => Il numero 3 è chiamato tres in spagnolo
-    [3] => Il numero 4 è chiamato cuatro in spagnolo
-    [4] => Il numero 5 è chiamato cinco in spagnolo
 )
 
-// stampa di $d
 // stampa di $d
 Array
 (
@@ -333,7 +321,7 @@ Array
    <example>
     <title>
      <parameter>callback</parameter> &null; con solo
-     <parameter>array1</parameter>
+     <parameter>array</parameter>
     </title>
     <programlisting role="php">
 <![CDATA[
@@ -416,8 +404,8 @@ array(1) {
    <example>
     <title><function>array_map</function> - array associativi</title>
     <para>
-     Mentre <function>array_map</function> non supporta direttamente
-     di arrray associativi come input, questo può essere simulato con <function>array_keys</function>.
+     Sebbene <function>array_map</function> non supporti direttamente
+     l'uso della chiave dell'array come input, ciò può essere simulato utilizzando <function>array_keys</function>.
     </para>
     <programlisting role="php">
 <![CDATA[
@@ -428,8 +416,8 @@ $arr = [
     'v3' => 'Terza release',
 ];
 
-// Note: Prima della 7.4.0,invece si usava una versione estesa per le funzioni anonime.
-$callback = fn(string $k, string $v): string => "$k was the $v";
+// Nota: Prima della versione 7.4.0, utilizzare la sintassi più lunga per le funzioni anonime.
+$callback = fn(string $k, string $v): string => "$k era la $v";
 
 $result = array_map($callback, array_keys($arr), array_values($arr));
 
@@ -442,11 +430,11 @@ var_dump($result);
 <![CDATA[
 array(3) {
   [0]=>
-  string(24) "v1 was the First release"
+  string(23) "v1 era la Prima release"
   [1]=>
-  string(25) "v2 was the Second release"
+  string(25) "v2 era la Seconda release"
   [2]=>
-  string(24) "v3 was the Third release"
+  string(23) "v3 era la Terza release"
 }
 ]]>
     </screen>

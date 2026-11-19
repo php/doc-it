@@ -1,46 +1,124 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: c2eca73ef79ebe78cebb34053e41b565af504c4f Maintainer: pastore Status: ready -->
+<!-- CREDITS: fabio,cortesi,denny,cucinato -->
 <!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.82 -->
-<!-- CREDITS: fabio,cortesi,denny -->
-  <refentry xml:id="function.pg-last-oid" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_last_oid</refname>
-    <refpurpose>Restituisce l'oid dell'ultimo oggetto</refpurpose>
-   </refnamediv>
-   <refsect1>
-   <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>pg_last_oid</methodname>
-      <methodparam><type>resource</type><parameter>risultato</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_last_oid</function> è utilizzato per recuperare
-     l'<varname>oid</varname> assegnato ad una tupla inserita (record), se
-     la risorsa risultato deriva dall'ultimo comando inviato attraverso
-     <function>pg_query</function>, e se quest'ultimo è un SQL INSERT.  Restituisce un
-     intero positivo se esiste un <varname>oid</varname> valido. Restituisce
-     invece &false; in caso di errore o se l'ultimo comnado inviato da
-     <function>pg_query</function> non era un INSERT, oppure se l'INSERT ha
-     fallito.
-    </para>
-    <para>
-     Il campo OID è diventato opzionale dal PostgreSQL 7.2. Quando
-     il campo OID non è definito in una tabella, il programmatore deve utilizzare
-     <function>pg_result_status</function> per controllare se il record
-     è stato inserito con successo.
-    </para>
-    <note>
-     <para>
-      Questa funzione si chiamava <literal>pg_getlastoid()</literal>.
-     </para>
-    </note>
-    <para>
-     Vedere anche <function>pg_query</function> e
-     <function>pg_result_status</function>
-    </para>
-   </refsect1>
-  </refentry>
+<refentry xml:id="function.pg-last-oid" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_last_oid</refname> 
+  <refpurpose>Restituisce l'OID dell'ultima riga</refpurpose>
+ </refnamediv>
 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>int</type><type>false</type></type><methodname>pg_last_oid</methodname>
+   <methodparam><type>PgSql\Result</type><parameter>result</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_last_oid</function> viene usata per recuperare
+   l'<varname>OID</varname> assegnato a una riga inserita.
+  </para>
+  <para>
+   Il campo OID è diventato facoltativo a partire da PostgreSQL 7.2 e
+   non sarà presente per impostazione predefinita in PostgreSQL 8.1. Quando il
+   campo OID non è presente in una tabella, il programmatore deve usare
+   <function>pg_result_status</function> per verificare che l'inserimento
+   sia avvenuto con successo.
+  </para>
+  <para>
+   Per ottenere il valore di un campo <literal>SERIAL</literal> in una riga
+   inserita, è necessario usare la funzione <literal>CURRVAL</literal> di PostgreSQL,
+   indicando la sequenza di cui si vuole l'ultimo valore. Se il
+   nome della sequenza non è noto, è necessaria la funzione <literal>pg_get_serial_sequence</literal>
+   di PostgreSQL 8.0.
+  </para>
+  <para>
+   PostgreSQL 8.1 dispone di una funzione <literal>LASTVAL</literal> che restituisce
+   il valore della sequenza usata più di recente nella sessione. Ciò evita
+   del tutto la necessità di indicare la sequenza, la tabella o la colonna.
+  </para>
+  <note>
+   <para>
+    Questa funzione si chiamava <function>pg_getlastoid</function>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>result</parameter></term>
+     <listitem>
+      &pgsql.parameter.result;
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Un <type>int</type> o una <type>string</type> contenente l'OID assegnato alla riga inserita più di recente
+   nella <parameter>connection</parameter> specificata, o &false; in caso di errore o se
+   non è disponibile alcun OID.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &pgsql.changelog.result-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>pg_last_oid</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+  // Connessione al database
+  pg_connect("dbname=mark host=localhost");
+
+  // Creazione di una tabella di esempio
+  pg_query("CREATE TABLE test (a INTEGER) WITH OIDS");
+
+  // Inserimento di alcuni dati
+  $res = pg_query("INSERT INTO test VALUES (1)");
+
+  $oid = pg_last_oid($res);
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_query</function></member>
+    <member><function>pg_result_status</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml
@@ -61,4 +139,3 @@ vim600: syn=xml fen fdm=syntax fdl=2 si
 vim: et tw=78 syn=sgml
 vi: ts=1 sw=1
 -->
-

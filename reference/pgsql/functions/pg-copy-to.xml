@@ -1,37 +1,126 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/pgsql.xml, last change in rev 1.16 -->
-<!-- last change to 'pg-copy-to' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.70/EN.1.2 -->
-<!-- CREDITS: fabio,cortesi,denny -->
-  <refentry xml:id='function.pg-copy-to' xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_copy_to</refname>
-    <refpurpose>
-     Copia una tabella in un array
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>array</type><methodname>pg_copy_to</methodname>
-      <methodparam><type>resource</type><parameter>connessione</parameter></methodparam>
-      <methodparam><type>string</type><parameter>nometabella</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>delimitatore</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>null_as</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_copy_to</function> copia una tabella in un array.
-     Internamente utilizza il comando SQL <literal>COPY TO</literal> per
-     inserire le tuple. Restituisce l'array risultante. Restituisce 
-     &false; in caso di errore.
-    </para>
-    <para>
-     Vedere anche <function>pg_copy_from</function>
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: c2eca73ef79ebe78cebb34053e41b565af504c4f Maintainer: pastore Status: ready -->
+<!-- CREDITS: fabio,cortesi,denny,cucinato -->
+<!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.2 -->
+<refentry xml:id="function.pg-copy-to" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_copy_to</refname>
+  <refpurpose>
+   Copia una tabella in un array
+  </refpurpose>
+ </refnamediv>
 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>array</type><type>false</type></type><methodname>pg_copy_to</methodname>
+   <methodparam><type>PgSql\Connection</type><parameter>connection</parameter></methodparam>
+   <methodparam><type>string</type><parameter>table_name</parameter></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>separator</parameter><initializer>"\t"</initializer></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>null_as</parameter><initializer>"\\\\N"</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_copy_to</function> copia una tabella in un array.
+   Per recuperare i record esegue internamente un comando SQL
+   <literal>COPY TO</literal>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>connection</parameter></term>
+     <listitem>
+      &pgsql.parameter.connection;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>table_name</parameter></term>
+     <listitem>
+      <para>
+       Nome della tabella da cui copiare i dati in <parameter>rows</parameter>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>separator</parameter></term>
+     <listitem>
+      <para>
+       Il token che separa i valori di ciascun campo in ogni elemento di
+       <parameter>rows</parameter>. Il valore predefinito è <literal>\t</literal>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>null_as</parameter></term>
+     <listitem>
+      <para>
+       Come vengono rappresentati i valori SQL <literal>NULL</literal> in
+       <parameter>rows</parameter>. Il valore predefinito è <literal>\\N</literal> (<literal>"\\\\N"</literal>).
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+   <para>
+    Un <type>array</type> con un elemento per ogni riga di dati di <literal>COPY</literal>&return.falseforfailure;.
+   </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &pgsql.changelog.connection-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>pg_copy_to</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+   $db = pg_connect("dbname=publisher") or die("Impossibile connettersi");
+   
+   $rows = pg_copy_to($db, $table_name);
+   
+   pg_query($db, "DELETE FROM $table_name");
+   
+   pg_copy_from($db, $table_name, $rows);
+?>
+]]>
+    </programlisting>
+   </example> 
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_copy_from</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

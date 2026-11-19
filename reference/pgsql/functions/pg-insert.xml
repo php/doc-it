@@ -1,60 +1,181 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 39bb8a868935a56cfce438b0169e13c02c93211c Maintainer: pastore Status: ready -->
+<!-- CREDITS: fabio,cortesi,denny,cucinato -->
 <!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.80 -->
-<!-- CREDITS: fabio,cortesi,denny -->
-  <refentry xml:id='function.pg-insert' xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_insert</refname>
-    <refpurpose>
-     Inserisce un array in una tabella.
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>pg_insert</methodname>
-      <methodparam><type>resource</type><parameter>connessione</parameter></methodparam>
-      <methodparam><type>string</type><parameter>nome_tabella</parameter></methodparam>
-      <methodparam><type>array</type><parameter>array_assoc</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>opzioni</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_insert</function> inserisce
-     <literal>array_assoc</literal> composto da
-     <literal>campo=>valore</literal> nella tabella specificata da
-     <literal>nome_tabella</literal>. Se <literal>opzioni</literal> è
-     specificato, <function>pg_convert</function> è eseguita
-     su <literal>array_assoc</literal> con le opzioni date.
-    </para>
-    <example>
-     <title>pg_insert</title>
-     <programlisting role="php">
+<refentry xml:id="function.pg-insert" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_insert</refname>
+  <refpurpose>
+   Inserisce un array in una tabella
+  </refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>PgSql\Result</type><type>string</type><type>bool</type></type><methodname>pg_insert</methodname>
+   <methodparam><type>PgSql\Connection</type><parameter>connection</parameter></methodparam>
+   <methodparam><type>string</type><parameter>table_name</parameter></methodparam>
+   <methodparam><type>array</type><parameter>values</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>flags</parameter><initializer><constant>PGSQL_DML_EXEC</constant></initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_insert</function> inserisce i valori
+   di <parameter>values</parameter> nella tabella specificata
+   da <parameter>table_name</parameter>.
+  </para>
+  <para>
+   Se <parameter>flags</parameter> è specificato,
+   <function>pg_convert</function> viene applicata a
+   <parameter>values</parameter> con i flag specificati.
+  </para>
+  <para>
+   Per impostazione predefinita <function>pg_insert</function> passa i valori grezzi.
+   Occorre effettuare l'escape dei valori oppure specificare il flag <constant>PGSQL_DML_ESCAPE</constant>
+   in <parameter>flags</parameter>.
+   <constant>PGSQL_DML_ESCAPE</constant> mette tra virgolette ed effettua l'escape di parametri/identificatori.
+   Di conseguenza, i nomi di tabelle/colonne diventano sensibili alle maiuscole/minuscole.
+  </para>
+  <para>
+   Si noti che né l'escape né le query preparate possono proteggere query LIKE,
+   JSON, Array, Regex, ecc. Questi parametri devono essere gestiti
+   in base al loro contesto, cioè effettuando l'escape o la validazione dei valori.
+  </para>
+ </refsect1>
+
+<refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>connection</parameter></term>
+     <listitem>
+      &pgsql.parameter.connection;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>table_name</parameter></term>
+     <listitem>
+      <para>
+       Nome della tabella in cui inserire le righe. La tabella <parameter>table_name</parameter> deve avere
+       almeno tante colonne quanti sono gli elementi di <parameter>values</parameter>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>values</parameter></term>
+     <listitem>
+      <para>
+       Un <type>array</type> le cui chiavi sono i nomi dei campi della tabella <parameter>table_name</parameter>
+       e i cui valori sono i valori da inserire in tali campi.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>flags</parameter></term>
+     <listitem>
+      <para>
+       Una combinazione qualsiasi di <constant>PGSQL_CONV_OPTS</constant>,
+       <constant>PGSQL_DML_NO_CONV</constant>,
+       <constant>PGSQL_DML_ESCAPE</constant>,
+       <constant>PGSQL_DML_EXEC</constant>,
+       <constant>PGSQL_DML_ASYNC</constant> o
+       <constant>PGSQL_DML_STRING</constant>. Se <constant>PGSQL_DML_STRING</constant> fa parte di
+       <parameter>flags</parameter>, viene restituita la stringa della query. Quando è impostato <constant>PGSQL_DML_NO_CONV</constant>
+       o <constant>PGSQL_DML_ESCAPE</constant>, <function>pg_convert</function> non viene chiamata internamente.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success; Oppure restituisce una &string; in caso di successo se <constant>PGSQL_DML_STRING</constant> viene passato
+   tramite <parameter>flags</parameter>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <para>
+   Viene lanciato un <classname>ValueError</classname> quando la tabella specificata non è valida.
+  </para>
+  <para>
+   Viene lanciato un <classname>ValueError</classname> o un <classname>TypeError</classname>
+   quando il valore o il tipo di un campo non corrisponde correttamente a un tipo di PostgreSQL.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.3.0</entry>
+      <entry>
+       Ora lancia un errore <classname>ValueError</classname> quando la tabella specificata non è valida;
+       in precedenza veniva emesso un <constant>E_WARNING</constant>.
+      </entry>
+     </row>
+     <row>
+      <entry>8.3.0</entry>
+      <entry>
+       Ora lancia un errore <classname>ValueError</classname> o <classname>TypeError</classname>
+       quando il valore o il tipo di un campo non corrisponde correttamente a un tipo di PostgreSQL;
+       in precedenza veniva emesso un <constant>E_WARNING</constant>.
+      </entry>
+     </row>
+     &pgsql.changelog.return-result-object;
+     &pgsql.changelog.connection-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>pg_insert</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php 
-    $db = pg_connect ('dbname=foo');
-    // La riga seguente è sicura, dato che $_POST è convertito automaticamente
-    $res = pg_insert($db, 'post_log', $_POST);
-    if ($res) {
-        echo "dati POST inseriti con successo\n";
-    }
-    else {
-    echo "L'utente deve aver invitao dati sbagliati\n";
-    }
+  $dbconn = pg_connect('dbname=foo');
+  // Questo è in parte sicuro, poiché viene effettuato l'escape di tutti i valori.
+  // Tuttavia PostgreSQL supporta JSON/Array. Questi non sono
+  // protetti né dall'escape né dalle query preparate.
+  $res = pg_insert($dbconn, 'post_log', $_POST, PGSQL_DML_ESCAPE);
+  if ($res) {
+      echo "Dati POST registrati con successo\n";
+  } else {
+      echo "L'utente deve aver inviato dati errati\n";
+  }
 ?>
 ]]>
-     </programlisting>
-    </example>
-    <note>
-     <para>
-      Questa funzione è sperimentale.
-     </para>
-    </note>
-    <para>
-     Vedere anche <function>pg_convert</function>
-    </para>    
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_convert</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

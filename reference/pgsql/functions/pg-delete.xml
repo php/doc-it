@@ -1,59 +1,151 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.80 -->
-<!-- CREDITS: fabio,cortesi,denny -->
-<refentry xml:id='function.pg-delete' xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_delete</refname>
-    <refpurpose>
-     Cancella le tuple.
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>mixed</type><methodname>pg_delete</methodname>
-      <methodparam><type>resource</type><parameter>connessione</parameter></methodparam>
-      <methodparam><type>string</type><parameter>nometabella</parameter></methodparam>
-      <methodparam><type>array</type><parameter>arrayassoc</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>opzioni</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_delete</function> cancella le tuple indicate dalle condizioni specificate da
-     <literal>arrayassoc</literal> composto da
-     <literal>campo=>valore</literal>. Se <literal>opzioni</literal> è
-     specificato, <function>pg_convert</function> viene applicata
-     a <literal>arrayassoc</literal> con l'opzione data.
-    </para>
-    <example>
-     <title>pg_delete</title>
-     <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: c2eca73ef79ebe78cebb34053e41b565af504c4f Maintainer: pastore Status: ready -->
+<!-- CREDITS: fabio,cortesi,denny,cucinato -->
+<refentry xml:id="function.pg-delete" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_delete</refname>
+  <refpurpose>
+   Elimina record
+  </refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>bool</type></type><methodname>pg_delete</methodname>
+   <methodparam><type>PgSql\Connection</type><parameter>connection</parameter></methodparam>
+   <methodparam><type>string</type><parameter>table_name</parameter></methodparam>
+   <methodparam><type>array</type><parameter>conditions</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>flags</parameter><initializer><constant>PGSQL_DML_EXEC</constant></initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_delete</function> elimina i record da una tabella
+   specificati dalle chiavi e dai valori in <parameter>conditions</parameter>.
+  </para>
+  <para>
+   Se <parameter>flags</parameter> è specificato,
+   <function>pg_convert</function> viene applicata a
+   <parameter>conditions</parameter> con i flag specificati.
+  </para>
+  <para>
+   Per impostazione predefinita <function>pg_delete</function> passa i valori grezzi.
+   Occorre effettuare l'escape dei valori oppure specificare il flag <constant>PGSQL_DML_ESCAPE</constant>
+   in <parameter>flags</parameter>.
+   <constant>PGSQL_DML_ESCAPE</constant> mette tra virgolette ed effettua l'escape di parametri/identificatori.
+   Di conseguenza, i nomi di tabelle/colonne diventano sensibili a maiuscole e minuscole.
+  </para>
+  <para>
+   Si noti che né l'escape né le query preparate possono proteggere le query LIKE,
+   JSON, Array, Regex, ecc. Questi parametri devono essere gestiti
+   in base al loro contesto, ad esempio effettuando l'escape/la validazione dei valori.
+  </para>
+ </refsect1>
+
+<refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>connection</parameter></term>
+     <listitem>
+      &pgsql.parameter.connection;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>table_name</parameter></term>
+     <listitem>
+      <para>
+       Nome della tabella da cui eliminare le righe.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>conditions</parameter></term>
+     <listitem>
+      <para>
+       Un <type>array</type> le cui chiavi sono nomi di campi della tabella <parameter>table_name</parameter>,
+       e i cui valori sono i valori di quei campi da eliminare.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>flags</parameter></term>
+     <listitem>
+      <para>
+       Una qualsiasi combinazione di <constant>PGSQL_CONV_FORCE_NULL</constant>,
+       <constant>PGSQL_DML_NO_CONV</constant>,
+       <constant>PGSQL_DML_ESCAPE</constant>,
+       <constant>PGSQL_DML_EXEC</constant>,
+       <constant>PGSQL_DML_ASYNC</constant> o
+       <constant>PGSQL_DML_STRING</constant>. Se <constant>PGSQL_DML_STRING</constant> è parte dei
+       <parameter>flags</parameter>, viene restituita la stringa della query. Quando <constant>PGSQL_DML_NO_CONV</constant>
+       o <constant>PGSQL_DML_ESCAPE</constant> è impostato, <function>pg_convert</function> non viene chiamata internamente.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;  Restituisce una <type>string</type> se <constant>PGSQL_DML_STRING</constant> viene passato
+   tramite <parameter>flags</parameter>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &pgsql.changelog.connection-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>pg_delete</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php 
-    $db = pg_connect ('dbname=foo');
-    // Questo è sicuro, dal momento che $_POST è convertita automaticamente
-    $ris = pg_delete($db, 'post_log', $_POST);
-    if ($ris) {
-       echo "I dati inviati in POST sono stati cancellati: $ris\n";
-    }
-    else {
-        echo "L'utente ha inviato dati sbagliati\n";
-    }
+  $db = pg_connect('dbname=foo');
+  // Questo è abbastanza sicuro, poiché viene effettuato l'escape di tutti i valori.
+  // Tuttavia PostgreSQL supporta JSON/Array. Questi non sono
+  // protetti né dall'escape né dalle query preparate.
+  $res = pg_delete($db, 'post_log', $_POST, PG_DML_ESCAPE);
+  if ($res) {
+      echo "I dati POST sono stati eliminati: $res\n";
+  } else {
+      echo "L'utente deve aver inviato input errati\n";
+  }
 ?>
 ]]>
-     </programlisting>
-    </example>
-    <note>
-     <para>
-      Questa funzione è sperimentale.
-     </para>
-    </note>
-    <para>
-     Vedere anche <function>pg_convert</function>
-    </para>    
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_convert</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

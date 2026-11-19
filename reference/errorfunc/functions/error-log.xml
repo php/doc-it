@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 145c270caa79d01243871cb8cd581f1b35c6998f Maintainer: cucinato Status: ready -->
+<!-- EN-Revision: 769812c12f00c1978bf7dd711dca38dbf05462da Maintainer: cucinato Status: ready -->
 <refentry xml:id="function.error-log" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>error_log</refname>
-  <refpurpose>invia un messaggio di errore</refpurpose>
+  <refpurpose>Invia un messaggio di errore alle routine di gestione degli errori definite</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -12,8 +12,8 @@
    <type>bool</type><methodname>error_log</methodname>
    <methodparam><type>string</type><parameter>message</parameter></methodparam>
    <methodparam choice="opt"><type>int</type><parameter>message_type</parameter><initializer>0</initializer></methodparam>
-   <methodparam choice="opt"><type>string</type><parameter>destination</parameter></methodparam>
-   <methodparam choice="opt"><type>string</type><parameter>extra_headers</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>destination</parameter><initializer>&null;</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>additional_headers</parameter><initializer>&null;</initializer></methodparam>
   </methodsynopsis>
   <para>
    Invia un messaggio di errore al log del server web o ad un file
@@ -59,7 +59,7 @@
             <parameter>message</parameter> è inviato via posta elettronica
             all'indirizzo indicato nel parametro <parameter>destination</parameter>.
             Questo è l'unico tipo di messaggio nel quale viene usato il quarto
-            parametro, <parameter>extra_headers</parameter>.
+            parametro, <parameter>additional_headers</parameter>.
            </entry>
           </row>
           <row>
@@ -99,7 +99,7 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>extra_headers</parameter></term>
+     <term><parameter>additional_headers</parameter></term>
      <listitem>
       <para>
        Gli header supplementari. Viene usato quando il parametro <parameter>message_type</parameter>
@@ -117,31 +117,32 @@
   &reftitle.returnvalues;
   <para>
    &return.success;
+   Se <parameter>message_type</parameter> è zero, questa funzione restituisce sempre &true;,
+   indipendentemente dal fatto che l'errore sia stato registrato o meno.
   </para>
  </refsect1>
 
  <refsect1 role="changelog">
   &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
      <row>
-       <entry>5.2.7</entry>
-       <entry>
-        Aggiunto il valore 4 per <parameter>message_type</parameter>
-       </entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </informaltable>
-  </para>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>destination</parameter> e
+       <parameter>additional_headers</parameter> ora sono nullable.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
  </refsect1>
 
  <refsect1 role="examples">
@@ -172,8 +173,22 @@ error_log ("Problema!", 3, "/var/tmp/my-errors.log");
    </example>
   </para>
  </refsect1>
-</refentry>
 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <warning>
+   <simpara>
+    <function>error_log</function> non è binary safe. <parameter>message</parameter> verrà troncato in corrispondenza del carattere null.
+   </simpara>
+  </warning>
+  <tip>
+   <simpara>
+    <parameter>message</parameter> non dovrebbe contenere il carattere null. Si noti che <parameter>message</parameter> può essere inviato a un file, per posta elettronica, a syslog, ecc. Usare un'appropriata funzione di conversione/escape, <function>base64_encode</function>, <function>rawurlencode</function> o <function>addslashes</function>, prima di chiamare <function>error_log</function>.
+   </simpara>
+  </tip>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

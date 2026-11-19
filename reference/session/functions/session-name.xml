@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: 93edd6c0cc2861808afb845e5744e0c3321609a8 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: d7a77b5f850d5077f75d0c8c0d22cd60f099965d Maintainer: pastore Status: ready -->
 <!-- CREDITS: penzo -->
-<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.session-name">
+<refentry xml:id="function.session-name" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>session_name</refname>
   <refpurpose>Recupera e/o imposta il nome della sessione corrente</refpurpose>
@@ -10,8 +10,8 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type>string</type><methodname>session_name</methodname>
-   <methodparam choice="opt"><type>string</type><parameter>name</parameter></methodparam>
+   <type class="union"><type>string</type><type>false</type></type><methodname>session_name</methodname>
+   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>name</parameter><initializer>&null;</initializer></methodparam>
   </methodsynopsis>
   <para>
    <function>session_name</function> ritorna il nome della sessione 
@@ -20,11 +20,20 @@
    il <emphasis>vecchio</emphasis> nome della sessione.
   </para>
   <para>
+   Se viene fornito un nuovo <parameter>name</parameter> di sessione,
+   <function>session_name</function> modifica il cookie HTTP
+   (e produce l'output del contenuto quando <link linkend="ini.session.use-trans-sid">session.use_trans_sid</link> è
+   abilitato). Una volta che il cookie HTTP è stato
+   inviato, la chiamata a <function>session_name</function> genera un <constant>E_WARNING</constant>.
+   <function>session_name</function> deve essere chiamata
+   prima di <function>session_start</function> affinché la sessione funzioni
+   correttamente.
+  </para>
+  <para>
    Il nome di sessione è ripristinato al valore memorizzato in
    <literal>session.name</literal> al momento della request. Quindi, si deve
    chiamare <function>session_name</function> ad ogni richiesta (e prima che
-   <function>session_start</function> o <function>session_register</function>
-   vengano chiamate).
+   <function>session_start</function> venga chiamata).
   </para>
  </refsect1>
 
@@ -40,7 +49,7 @@
        viene utilizzato nei cookies e negli URL (p.e. <literal>PHPSESSID</literal>).
        Dovrebbe contenere solo caratteri alfanumerici; dovrebbe essere corto e
        descrittivo (p.e. per utenti con l'avviso di cookie attivo).
-       Se <parameter>name</parameter> è specificato, il nome della
+       Se <parameter>name</parameter> è specificato e non è &null;, il nome della
        sessione corrente viene cambiato al suo valore.
       </para>
       <para>
@@ -62,7 +71,42 @@
   <para>
    Restituisce il nome della sessione corrente. Se viene passato il <parameter>name</parameter>
    e la funzione aggiorna il nome della sessione, viene restituito il nome della
-   <emphasis>vecchia</emphasis> sessione.
+   <emphasis>vecchia</emphasis> sessione, oppure &return.falseforfailure;.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        <parameter>name</parameter> ora è nullable.
+       </entry>
+      </row>
+      <row>
+       <entry>7.2.0</entry>
+       <entry>
+        <function>session_name</function> controlla lo stato della sessione,
+        mentre in precedenza controllava solo lo stato del cookie. Pertanto,
+        le versioni precedenti di <function>session_name</function> consentivano di
+        chiamare <function>session_name</function>
+        dopo <function>session_start</function>, il che poteva causare il crash di PHP
+        e comportamenti anomali.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
   </para>
  </refsect1>
 
@@ -92,15 +136,14 @@ echo "Il precedente nome di sessione è $previous_name<br />";
   <para>
    <simplelist>
     <member>
-     La direttiva di configurazione <link linkend="ini.session.name">session.name</link>
-
+     La direttiva di configurazione
+     <link linkend="ini.session.name">session.name</link>
     </member>
    </simplelist>
   </para>
  </refsect1>
 
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

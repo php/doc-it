@@ -1,186 +1,239 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-  <refentry xml:id="function.socket-select" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>socket_select</refname>
-    <refpurpose>
-       Esegue la system call select() su un set di socket con un dato timeout 
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>socket_select</methodname>
-      <methodparam><type>array</type><parameter>lettura</parameter></methodparam>
-      <methodparam><type>array</type><parameter>scrittura</parameter></methodparam>
-      <methodparam><type>array</type><parameter>except</parameter></methodparam>
-      <methodparam><type>int</type><parameter>tv_sec</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>tv_usec</parameter></methodparam>
-     </methodsynopsis>
-     &warn.experimental.func;
-    <para>
-     La funzione <function>socket_select</function> accetta un array di socket e si mette
-     in attesa di una variazione di stato su questi. Questa, derivando come background dai socket BSD,
-     riconoscerà che questi array di risorse socket sono in realtà 
-     dei set di descrittori di file. Saranno monitorati 3 set di 
-     socket.
-    </para>  
-    <para>  
-     I socket indicati nell'array <parameter>lettura</parameter>, saranno monitorati in
-     attesa dell'arrivo di caratteri disponibili per la lettura (più precisamente, per verificare
-     che una lettura non sia bloccata, una risorsa socket viene definita pronta anche su
-     fine file, in questo caso la funzione <function>socket_read</function> restituirà
-     una stringa di lunghezza zero).
-    </para>  
-    <para>  
-     I socket indicati nell'array di <parameter>scrittura</parameter>, sarranno monitorati
-     per verificare che una scrittura non si blocchi.
-    </para>  
-    <para>  
-     I socket indicati nell'array <parameter>except</parameter> saranno monitorati
-     per rilevare delle eccezioni.
-    </para>  
-    <warning> 
-     <para>  
-      In uscita, gli array sarrano modificati in modo da indicare quale risorsa di tipo socket
-      ha variato il proprio stato.
-     </para>  
-    </warning> 
-    <para>  
-     Non si è obbligati a passare tutti gli array a
-     <function>socket_select</function>. Se ne possono tralasciare, al loro posto utilizzare
-     un array vuoto oppure &null;. Inoltre non si dimentichi che gli array sono passati
-     <emphasis>per riferimento</emphasis> e che saranno modificati all'uscita
-     dalla funzione <function>socket_select</function>.
-    </para>  
-    <para>  
-     <example>
-      <title>Esempio di <function>socket_select</function></title>
-      <programlisting role="php">  
-<![CDATA[  
-<?php
-/* Preparo l'array di lettura */  
-$read = array($socket1, $socket2);  
-  
-$num_changed_sockets = socket_select($read, $write = NULL, $except = NULL, 0);
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 3e6082f609ead63cfa7b33a06d8e0c723d51bc65 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.socket-select" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>socket_select</refname>
+  <refpurpose>Esegue la chiamata di sistema select() sugli array di socket indicati con un timeout specificato</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>int</type><type>false</type></type><methodname>socket_select</methodname>
+   <methodparam><type class="union"><type>array</type><type>null</type></type><parameter role="reference">read</parameter></methodparam>
+   <methodparam><type class="union"><type>array</type><type>null</type></type><parameter role="reference">write</parameter></methodparam>
+   <methodparam><type class="union"><type>array</type><type>null</type></type><parameter role="reference">except</parameter></methodparam>
+   <methodparam><type class="union"><type>int</type><type>null</type></type><parameter>seconds</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>microseconds</parameter><initializer>0</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>socket_select</function> accetta array di socket e attende che
+   cambino stato. Chi proviene dai socket BSD
+   riconoscerà che questi array di socket sono in realtà i cosiddetti
+   insiemi di descrittori di file (file descriptor set). Vengono monitorati tre array di socket indipendenti.
+  </para>
+ </refsect1>
 
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>read</parameter></term>
+     <listitem>
+      <para>
+       I socket elencati nell'array <parameter>read</parameter> verranno
+       monitorati per verificare se diventano disponibili caratteri da leggere (più
+       precisamente, per verificare se una lettura non sarà bloccante; in particolare, un socket
+       è pronto anche in caso di end-of-file, nel qual caso
+       <function>socket_read</function> restituirà una stringa di lunghezza zero).
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>write</parameter></term>
+     <listitem>
+      <para>
+       I socket elencati nell'array <parameter>write</parameter> verranno
+       monitorati per verificare se una scrittura non sarà bloccante.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>except</parameter></term>
+     <listitem>
+      <para>
+       I socket elencati nell'array <parameter>except</parameter> verranno
+       monitorati per rilevare eccezioni.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>seconds</parameter></term>
+     <listitem>
+      <simpara>
+       I parametri <parameter>seconds</parameter> e <parameter>microseconds</parameter>
+       insieme formano il parametro <literal>timeout</literal>. Il
+       <literal>timeout</literal> è il limite massimo di tempo
+       che può trascorrere prima che <function>socket_select</function> termini.
+       <parameter>seconds</parameter> può essere zero, il che fa sì che
+       <function>socket_select</function> termini immediatamente. Ciò è utile
+       per il polling. Se <parameter>seconds</parameter> è &null; (nessun timeout),
+       <function>socket_select</function> può bloccarsi a tempo indefinito.
+      </simpara>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>microseconds</parameter></term>
+     <listitem>
+      <simpara>
+       Si veda la descrizione di <parameter>seconds</parameter>.
+      </simpara>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+  <warning>
+   <simpara>
+    In uscita, gli array vengono modificati per indicare quali socket
+    hanno effettivamente cambiato stato.
+    Le chiavi originali degli &array; vengono preservate.
+   </simpara>
+  </warning>
+  <simpara>
+   Occorre passare tutti e tre gli array, ma un array che non è di
+   interesse può essere un &array; vuoto o &null;; almeno uno di essi deve essere
+   un &array; non vuoto. Vengono passati
+   <emphasis>per riferimento</emphasis> e vengono modificati quando
+   <function>socket_select</function> termina.
+  </simpara>
+  <note>
+   <para>
+    A causa di una limitazione dell'attuale Zend Engine, non è possibile passare un
+    modificatore costante come &null; direttamente come parametro a una funzione
+    che si aspetta che questo parametro venga passato per riferimento. Si usi invece una
+    variabile temporanea o un'espressione il cui membro più a sinistra sia una
+    variabile temporanea:
+    <example>
+     <title>Uso di &null; con <function>socket_select</function></title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+$e = NULL;
+socket_select($r, $w, $e, 0);
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <simpara>
+   In caso di successo <function>socket_select</function> restituisce il numero di
+   socket contenuti negli array modificati, che può essere zero se
+   il timeout scade prima che accada qualcosa di interessante. In caso di errore viene restituito
+   &false;. Il codice di errore può essere ottenuto con
+   <function>socket_last_error</function>.
+  </simpara>
+  <note>
+   <para>
+    Assicurarsi di usare l'operatore <literal>===</literal> quando si verifica la presenza di un
+    errore. Poiché <function>socket_select</function> può restituire 0, il
+    confronto con <literal>==</literal> verrebbe valutato come &true;:
+    <example>
+     <title>Comprensione del risultato di <function>socket_select</function></title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+$e = NULL;
+if (false === socket_select($r, $w, $e, 0)) {
+    echo "socket_select() fallita, motivo: " .
+        socket_strerror(socket_last_error()) . "\n";
+}
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>socket_select</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+/* Prepara l'array di lettura */
+$read   = array($socket1, $socket2);
+$write  = NULL;
+$except = NULL;
+$num_changed_sockets = socket_select($read, $write, $except, 0);
 
 if ($num_changed_sockets === false) {
-    /* Gestione dell'errore */  
+    /* Gestione dell'errore */
 } else if ($num_changed_sockets > 0) {
-    /* Su almeno un socket è accaduto qualcosa di interessante */  
-}  
+    /* Su almeno uno dei socket è accaduto qualcosa di interessante */
+}
 ?>
-]]>  
-      </programlisting>  
-     </example>
-    </para>  
-    <note>  
-     <para> 
-      A causa delle limitazioni della versione attuale del Zend Engine, non è possibile passare 
-      direttamente una costante, ad esempio &null;, come parametro ad una funzione che
-      si aspetti questo passato per riferimento. Si utilizzi, invece, una 
-      variabile temporanea oppura una espressione il cui membro di sinistra sia una
-      variabile temporanea:
-      <example>
-       <title>Uso di &null; con <function>socket_select</function></title>
-       <programlisting role="php">  
-<![CDATA[  
-<?php
-socket_select($r, $w, $e = NULL, 0);  
-?>
-]]>  
-       </programlisting>  
-      </example>
-     </para>  
-    </note>  
-    <para>  
-     I parametri <parameter>tv_sec</parameter> ed <parameter>tv_usec</parameter> 
-     insieme indicano il <emphasis>timeout</emphasis>. Il 
-     <emphasis>timeout</emphasis> indica il limite superiore di tempo 
-     che deve trascorrere prima che la funzione <function>socket_select</function> esca.
-     <parameter>tv_sec</parameter> può essere a zero, ciò causa una
-     uscita immediata di <function>socket_select</function>. Ciò risulta utile nei
-     casi di polling. Se <parameter>tv_sec</parameter> viene impostato a &null; (nessun timeout),
-     la funzione resta in attesa per un tempo indefinito.
-    </para>  
-    <para>  
-     Se ha successo <function>socket_select</function> restituisce il numero
-     di risorse socket contenute nell'array modificato, tale valore può essere zero
-     se scade il timeout prima che sia accaduto qualcosa. La funzione restituisce &false;
-     se si verifica un errore. Il codice di errore può essere recuperato tramite la funzione
-     <function>socket_last_error</function>.  
-    </para>  
-    <note>  
-     <para> 
-     Si utilizzi l'operatore <literal>===</literal> quanto si eseguono dei test per 
-     rilevare un errore. Poiché la funzione <function>socket_select</function> può restituire 0
-     il confronto eseguito con <literal>==</literal> sarebbe valutato come &true;:  
-      <example>
-       <title>Comprensione dei risultati di <function>socket_select</function></title>
-       <programlisting role="php">  
-<![CDATA[  
-<?php
-if (false === socket_select($r, $w, $e = NULL, 0)) {  
-    echo "socket_select() failed, reason: " . socket_strerror(socket_last_error()) . "\n";  
-}  
-?>
-]]>  
-       </programlisting>  
-      </example>
-     </para>  
-    </note>  
-    <note>  
-     <para> 
-      Si presti attenzione alle implementazioni di certi socket che richiedono di
-      essere gestiti molto attentamente. Alcune regole di base: 
-      <itemizedlist>  
-       <listitem>  
-        <simpara>  
-         Si cerchi di utilizzare sempre <function>socket_select</function>
-         senza il timeout. Il programma non dovrebbe avere nulla da fare se non ci sono
-         dati disponibili. Il codice basato sui timeout solitamente non è migrabile
-         ed è difficile da testare.
-        </simpara>  
-       </listitem>  
-       <listitem>  
-        <simpara> 
-         Nei tre set, non inserire una risorsa socket di cui non si intende
-         controllarne il risultato dopo la chiamata a <function>socket_select</function>,
-         e ne si intende rispondere in modo appropriato. Dopo la chiamata a <function>socket_select</function>,
-         occorre verificare tutti i socket in tutti gli array. Si deve scrivere
-         su qualsiasi socket disponibile per la scrittura, e deve essere letto qualsiasi 
-         socket diponibile per la lettura.
-        </simpara>  
-       </listitem>  
-       <listitem>  
-        <simpara> 
-         Se si ha il ritorno della disponibilità di un socket, sia in lettura che in scrittura,
-         non è detto che sia disponile per l'intero ammontare dei dati da scrivere/leggere.
-         Occorre essere preparati a gestire il caso in cui la disponibilità sia limitata
-         anche ad un solo byte. 
-        </simpara>  
-       </listitem>  
-       <listitem>  
-        <simpara>  
-         Nella maggior parte delle implementazioni dei socket, l'unica eccezione 
-         catturata con il parametro <parameter>except</parameter> è l'arrivo
-         di dati fuori banda.
-        </simpara>  
-       </listitem>  
-      </itemizedlist>  
-     </para>  
-    </note>  
-    <para>  
-     Vedere anche  
-     <function>socket_read</function>,  
-     <function>socket_write</function>,  
-     <function>socket_last_error</function> e  
-     <function>socket_strerror</function>.  
-    </para>
-   </refsect1>
-  </refentry>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    Si tenga presente che alcune implementazioni dei socket devono essere gestite con molta
+    attenzione. Alcune regole di base:
+    <itemizedlist>
+     <listitem>
+      <simpara>
+       Si dovrebbe sempre cercare di usare <function>socket_select</function>
+       senza timeout. Il programma non dovrebbe avere nulla da fare se non ci sono
+       dati disponibili. Il codice che dipende dai timeout di solito non è
+       portabile ed è difficile da debuggare.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       Nessun socket deve essere aggiunto a un insieme se non si intende
+       verificarne il risultato dopo la chiamata a <function>socket_select</function>
+       e rispondere in modo appropriato. Dopo che <function>socket_select</function>
+       termina, occorre verificare tutti i socket in tutti gli array. Occorre
+       scrivere su ogni socket disponibile per la scrittura e
+       leggere da ogni socket disponibile per la lettura.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       Quando si legge da o si scrive su un socket restituito negli array,
+       si tenga presente che non necessariamente viene letta o scritta l'intera quantità
+       di dati richiesta. Occorre essere pronti a gestire anche un singolo byte.
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       Nella maggior parte delle implementazioni dei socket, l'unica eccezione
+       intercettata con l'array <parameter>except</parameter> è costituita dai dati out-of-band
+       ricevuti su un socket.
+      </simpara>
+     </listitem>
+    </itemizedlist>
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <simplelist>
+   <member><function>socket_read</function></member>
+   <member><function>socket_write</function></member>
+   <member><function>socket_last_error</function></member>
+   <member><function>socket_strerror</function></member>
+   <member><function>stream_select</function></member>
+  </simplelist>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

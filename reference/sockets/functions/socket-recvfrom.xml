@@ -1,34 +1,228 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/sockets.xml, last change in rev 1.4 -->
-<!-- last change to 'socket-recvfrom' in en/ tree in rev 1.27 -->
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- OLD-Revision: 1.34/EN.1.27 -->
-  <refentry xml:id="function.socket-recvfrom" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>socket_recvfrom</refname>
-    <refpurpose>Riceve i dati da un socket, che sia connesso o meno </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>socket_recvfrom</methodname>
-      <methodparam><type>resource</type><parameter>socket</parameter></methodparam>
-      <methodparam><type>string</type><parameter>&amp;buf</parameter></methodparam>
-      <methodparam><type>int</type><parameter>len</parameter></methodparam>
-      <methodparam><type>int</type><parameter>flags</parameter></methodparam>
-      <methodparam><type>string</type><parameter>&amp;name</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>&amp;port</parameter></methodparam>
-     </methodsynopsis>
-     &warn.experimental.func;
-    <para>
-     &warn.undocumented.func;
-    </para>
-    <para>
-     La funzione <function>socket_recvfrom</function> gestisce i dati binari dal PHP 4.3.0
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: de9c65c91ff1710d8b2d2ec955caea0162679305 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.socket-recvfrom" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>socket_recvfrom</refname>
+  <refpurpose>Riceve dati da un socket, che sia orientato alla connessione o meno</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>int</type><type>false</type></type><methodname>socket_recvfrom</methodname>
+   <methodparam><type>Socket</type><parameter>socket</parameter></methodparam>
+   <methodparam><type>string</type><parameter role="reference">data</parameter></methodparam>
+   <methodparam><type>int</type><parameter>length</parameter></methodparam>
+   <methodparam><type>int</type><parameter>flags</parameter></methodparam>
+   <methodparam><type>string</type><parameter role="reference">address</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter role="reference">port</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   La funzione <function>socket_recvfrom</function> riceve
+   <parameter>length</parameter> byte di dati in <parameter>data</parameter> da
+   <parameter>address</parameter> sulla porta <parameter>port</parameter> (se il
+   socket non è di tipo <constant>AF_UNIX</constant>) usando
+   <parameter>socket</parameter>. <function>socket_recvfrom</function> può essere
+   usata per raccogliere dati sia dai socket connessi sia da quelli non connessi.
+   Inoltre, è possibile specificare uno o più flag per modificare il comportamento della
+   funzione.
+  </para>
+  <para>
+   I parametri <parameter>address</parameter> e <parameter>port</parameter> devono essere
+   passati per riferimento. Se il socket non è orientato alla connessione,
+   <parameter>address</parameter> verrà impostato all'indirizzo del protocollo internet
+   dell'host remoto o al percorso del socket UNIX. Se il socket è
+   orientato alla connessione, <parameter>address</parameter> è &null;. Inoltre,
+   <parameter>port</parameter> conterrà la porta dell'host remoto nel
+   caso di un socket <constant>AF_INET</constant> o
+   <constant>AF_INET6</constant> non connesso.
+  </para>
+  &note.bin-safe;
+ </refsect1>
 
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>socket</parameter></term>
+     <listitem>
+      <para>
+       Il <parameter>socket</parameter> deve essere un'istanza di <classname>Socket</classname> creata in precedenza
+       con socket_create().
+      </para>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term><parameter>data</parameter></term>
+     <listitem>
+      <para>
+       I dati ricevuti verranno inseriti nella variabile specificata con
+       <parameter>data</parameter>.
+      </para>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term><parameter>length</parameter></term>
+     <listitem>
+      <para>
+       Verranno letti fino a <parameter>length</parameter> byte dall'host remoto.
+      </para>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term><parameter>flags</parameter></term>
+     <listitem>
+      <para>
+       Il valore di <parameter>flags</parameter> può essere una qualsiasi combinazione dei
+       flag seguenti, uniti con l'operatore OR
+       binario (<literal>|</literal>).
+      </para>
+      
+      <table>
+       <title>Valori possibili per <parameter>flags</parameter></title>
+       <tgroup cols="2">
+        <thead>
+         <row>
+          <entry>Flag</entry>
+          <entry>Descrizione</entry>
+         </row>
+        </thead>
+        <tbody>
+         <row>
+          <entry><constant>MSG_OOB</constant></entry>
+          <entry>
+           Elabora i dati out-of-band.
+          </entry>
+         </row>
+         <row>
+          <entry><constant>MSG_PEEK</constant></entry>
+          <entry>
+           Riceve i dati dall'inizio della coda di ricezione senza
+           rimuoverli dalla coda.
+          </entry>
+         </row>
+         <row>
+          <entry><constant>MSG_WAITALL</constant></entry>
+          <entry>
+           Si blocca finché non vengono ricevuti almeno <parameter>length</parameter> byte.
+           Tuttavia, se viene intercettato un segnale o l'host remoto si disconnette, la
+           funzione potrebbe restituire meno dati.
+          </entry>
+         </row>
+         <row>
+          <entry><constant>MSG_DONTWAIT</constant></entry>
+          <entry>
+           Con questo flag impostato, la funzione termina anche se normalmente
+           si sarebbe bloccata.
+          </entry>
+         </row>
+        </tbody>
+       </tgroup>
+      </table>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term><parameter>address</parameter></term>
+     <listitem>
+      <para>
+       Se il socket è di tipo <constant>AF_UNIX</constant>,
+       <parameter>address</parameter> è il percorso del file. Altrimenti, per i
+       socket non connessi, <parameter>address</parameter> è l'indirizzo IP
+       dell'host remoto, oppure &null; se il socket è orientato alla connessione.
+      </para>
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+     <term><parameter>port</parameter></term>
+     <listitem>
+      <para>
+       Questo argomento si applica solo ai socket <constant>AF_INET</constant> e
+       <constant>AF_INET6</constant> e specifica la porta remota
+       da cui vengono ricevuti i dati. Se il socket è orientato alla connessione,
+       <parameter>port</parameter> sarà &null;.
+      </para>
+     </listitem>
+    </varlistentry>
+    
+   </variablelist>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   <function>socket_recvfrom</function> restituisce il numero di byte ricevuti
+   o &false; in caso di errore. Il codice di errore effettivo può essere ottenuto
+   chiamando <function>socket_last_error</function>. Questo codice di errore può essere
+   passato a <function>socket_strerror</function> per ottenere una spiegazione testuale
+   dell'errore.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &sockets.changelog.socket-param;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>socket_recvfrom</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+$socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+socket_bind($socket, '127.0.0.1', 1223);
+
+$from = '';
+$port = 0;
+socket_recvfrom($socket, $buf, 12, 0, $from, $port);
+
+echo "Ricevuto $buf dall'indirizzo remoto $from e dalla porta remota $port" . PHP_EOL;
+?>
+]]>
+    </programlisting>
+    <para>
+     Questo esempio avvierà un socket UDP sulla porta 1223 di 127.0.0.1
+     e stamperà al massimo 12 caratteri ricevuti da un host remoto.
+    </para>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>socket_recv</function></member>
+    <member><function>socket_send</function></member>
+    <member><function>socket_sendto</function></member>
+    <member><function>socket_create</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

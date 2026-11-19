@@ -1,156 +1,631 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/sockets.xml, last change in rev 1.27 -->
-  <refentry xml:id="function.socket-get-option" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>socket_get_option</refname>
-    <refpurpose>Ottiene le opzioni per un socket</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>mixed</type><methodname>socket_get_option</methodname>
-      <methodparam><type>resource</type><parameter>socket</parameter></methodparam>
-      <methodparam><type>int</type><parameter>level</parameter></methodparam>
-      <methodparam><type>int</type><parameter>optname</parameter></methodparam>
-     </methodsynopsis>
-     &warn.experimental.func;
-    <para>
-     La funzione <function>socket_get_option</function> restituisce i valori per il parametro
-     indicato in <parameter>optname</parameter> per il socket indicato
-     da <parameter>socket</parameter>. La funzione restituisce
-     &false; se non riesce.
-    </para>
-    <para>
-     Il parametro  <parameter>level</parameter> specifica a quale livello di protocollo
-     risiede l'opzione cercata. Ad esempio, per recuperare le informzioni su opzioni a livello di socket,
-     il parametro <parameter>level</parameter> deve essere impostato a SOL_SOCKET. Altri livelli
-     tipo TCP, possono essere utilizzati specificando il numero del livello.
-     I numeri dei livelli dei protocolli possono essere ottenuti tramite <function>getprotobyname</function>.
-    </para>
-    <table>
-    <title>Opzioni per i socket disponibili</title>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>Opzione</entry>
-       <entry>Descrizione</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>SO_DEBUG</entry>
-       <entry>
-        Riporta informazioni per il debug.
-       </entry>
-      </row>
-      <row>
-       <entry>SO_ACCEPTCONN</entry>
-       <entry>
-        Indica se il socket è abilitato in ascolto. 
-       </entry>
-      </row>
-      <row>
-       <entry>SO_BROADCAST</entry>
-       <entry>
-        Indica se sono supportate le trasmissioni dei messaggi di broadcast. 
-       </entry>
-      </row>
-      <row>
-       <entry>SO_REUSEADDR</entry>
-       <entry>
-        Riporta se gli indirizzi locali possono essere riutilizzati. 
-       </entry>
-      </row>
-      <row>
-       <entry>SO_KEEPALIVE</entry>
-       <entry>
-        Riporta se la connesisone deve essere mantenuta attiva tramite la trasmissione 
-        periodica di messaggi. Se il socket connesso non risponde a questi messaggi,
-        la connessione viene interrotta ed i processi che stavano scrivendo in quel socket riceveranno
-        il segnale SIGPIPE.
-       </entry>
-      </row>
-      <row>
-       <entry>SO_LINGER</entry>
-       <entry>
-        Indice se il <parameter>socket</parameter> debba ritardare il <function>socket_close</function> se vi sono dati.
-       </entry>
-      </row>
-      <row>
-       <entry>SO_OOBINLINE</entry>
-       <entry>
-        Indica se il <parameter>socket</parameter> gestisce i dati fuori-banda.
-       </entry>
-      </row>
-      <row>
-       <entry>SO_SNDBUF</entry>
-       <entry>
-        Riporta le dimensioni del buffer di trasmissione. 
-       </entry>
-      </row>
-      <row>
-       <entry>SO_RCVBUF</entry>
-       <entry>
-        Riporta le dimensioni del buffer di ricezione. 
-       </entry>
-      </row>
-      <row>
-       <entry>SO_ERROR</entry>
-       <entry>
-        Restituisce informaizoni sugli stati di errore e li ripulisce. 
-       </entry>
-      </row>
-      <row>
-       <entry>SO_TYPE</entry>
-       <entry>
-        Restituisce il tipo di<parameter>socket</parameter>.
-       </entry>
-      </row>
-      <row>
-       <entry>SO_DONTROUTE</entry>
-       <entry>
-        Indica se i messaggi in uscita ignorano i parametri standard di routing.
-       </entry>
-      </row>
-      <row>
-       <entry>SO_RCVLOWAT</entry>
-       <entry>
-        Indica il numero minimo di byte da processare da parte del  <parameter>socket</parameter> per le operazioni
-        di input (default 1).
-       </entry>
-      </row>
-      <row>
-       <entry>SO_RCVTIMEO</entry>
-       <entry>
-        Tempo di timeout per le operazioni di input. 
-       </entry>
-      </row>
-      <row>
-       <entry>SO_SNDLOWAT</entry>
-       <entry>
-        Riporta il numero minimo di byte da processare da parte del <parameter>socket</parameter> per le operazioni di output.
-       </entry>
-      </row>
-      <row>
-       <entry>SO_SNDTIMEO</entry>
-       <entry>
-        Indica il tempo di timeout specificando il tempo che una funzione di output
-        resti bloccata in attesa di potere inviare i dati. 
-       </entry>
-      </row>
-     </tbody>
-    </tgroup>
-    </table>
-    <note>
-     <para>
-      Nelle versioni di PHP antecedenti la 4.3.0, questa funzione 
-      era chiamata <literal>socket_getopt()</literal>.
-     </para>
-    </note>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: e50e79746736dbdfbabe9bd3566793b3ddf38f58 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.socket-get-option" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>socket_get_option</refname>
+  <refpurpose>Ottiene le opzioni di un socket</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>array</type><type>int</type><type>false</type></type><methodname>socket_get_option</methodname>
+   <methodparam><type>Socket</type><parameter>socket</parameter></methodparam>
+   <methodparam><type>int</type><parameter>level</parameter></methodparam>
+   <methodparam><type>int</type><parameter>option</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   La funzione <function>socket_get_option</function> recupera il valore
+   dell'opzione indicata dal parametro <parameter>option</parameter> per il
+   <parameter>socket</parameter> specificato.
+  </para>
+ </refsect1>
 
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>socket</parameter></term>
+     <listitem>
+      <para>
+       Un'istanza di <classname>Socket</classname> creata con <function>socket_create</function>
+       o <function>socket_accept</function>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>level</parameter></term>
+     <listitem>
+      <para>
+       Il parametro <parameter>level</parameter> specifica il livello di protocollo
+       in cui risiede l'opzione. Ad esempio, per recuperare le opzioni a
+       livello di socket, si userebbe un parametro <parameter>level</parameter> pari a
+       <constant>SOL_SOCKET</constant>. Altri livelli, come
+       <constant>TCP</constant>, possono essere usati
+       specificando il numero di protocollo di quel livello. I numeri di protocollo possono essere
+       trovati usando la funzione <function>getprotobyname</function>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>option</parameter></term>
+     <listitem>
+      <table>
+       <title>Opzioni dei Socket disponibili</title>
+       <tgroup cols="3">
+        <thead>
+         <row>
+          <entry>Opzione</entry>
+          <entry>Descrizione</entry>
+          <entry>Tipo</entry>
+         </row>
+        </thead>
+        <tbody>
+         <row>
+          <entry><constant>SO_DEBUG</constant></entry>
+          <entry>
+           Indica se le informazioni di debug vengono registrate.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_BROADCAST</constant></entry>
+          <entry>
+           Indica se è supportata la trasmissione di messaggi broadcast.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_REUSEADDR</constant></entry>
+          <entry>
+           Indica se gli indirizzi locali possono essere riutilizzati.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_REUSEPORT</constant></entry>
+          <entry>
+           Indica se le porte locali possono essere riutilizzate.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_KEEPALIVE</constant></entry>
+          <entry>
+           Indica se le connessioni vengono mantenute attive con la trasmissione periodica
+           di messaggi. Se il socket connesso non risponde a questi messaggi,
+           la connessione viene interrotta e i processi che scrivono su quel socket ricevono
+           una notifica tramite il segnale SIGPIPE.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_LINGER</constant></entry>
+          <entry>
+           <para>
+            Indica se il <parameter>socket</parameter> attende (linger) durante
+            <function>socket_close</function> se sono presenti dati. Per impostazione predefinita,
+            quando il socket viene chiuso, tenta di inviare tutti i dati non ancora inviati.
+            Nel caso di un socket orientato alla connessione,
+            <function>socket_close</function> attenderà che il peer
+            confermi la ricezione dei dati.
+           </para>
+           <para>
+            Se <varname>l_onoff</varname> è diverso da zero e
+            <varname>l_linger</varname> è zero, tutti i
+            dati non inviati verranno scartati e verrà inviato un RST (reset) al
+            peer nel caso di un socket orientato alla connessione.
+           </para>
+           <para>
+            D'altra parte, se <varname>l_onoff</varname> è
+            diverso da zero e <varname>l_linger</varname> è diverso da zero,
+            <function>socket_close</function> si bloccherà finché tutti i dati
+            non saranno inviati o non sarà trascorso il tempo specificato in <varname>l_linger</varname>.
+            Se il socket è non bloccante,
+            <function>socket_close</function> fallirà e restituirà un errore.
+           </para>
+          </entry>
+          <entry>
+           <type>array</type>. L'array conterrà due chiavi:
+           <varname>l_onoff</varname> e
+           <varname>l_linger</varname>.
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_OOBINLINE</constant></entry>
+          <entry>
+           Indica se il <parameter>socket</parameter> lascia i dati out-of-band in linea.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_SNDBUF</constant></entry>
+          <entry>
+           Indica la dimensione del buffer di invio.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>          
+         </row>
+         <row>
+          <entry><constant>SO_RCVBUF</constant></entry>
+          <entry>
+           Indica la dimensione del buffer di ricezione.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>         
+         </row>
+         <row>
+          <entry><constant>SO_ERROR</constant></entry>
+          <entry>
+           Fornisce informazioni sullo stato di errore e lo azzera.
+          </entry>
+          <entry>
+           <type>int</type> (non può essere impostato da <function>socket_set_option</function>)
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_TYPE</constant></entry>
+          <entry>
+           Indica il tipo di <parameter>socket</parameter> (ad es.
+           <constant>SOCK_STREAM</constant>).
+          </entry>
+          <entry>
+           <type>int</type> (non può essere impostato da <function>socket_set_option</function>)
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_DONTROUTE</constant></entry>
+          <entry>
+           Indica se i messaggi in uscita aggirano i normali meccanismi di instradamento.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_RCVLOWAT</constant></entry>
+          <entry>
+           Indica il numero minimo di byte da elaborare per le operazioni
+           di input del <parameter>socket</parameter>.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_RCVTIMEO</constant></entry>
+          <entry>
+           Indica il valore di timeout per le operazioni di input.
+          </entry>
+          <entry>
+           <type>array</type>. L'array conterrà due chiavi:
+           <varname>sec</varname>, che è la parte in secondi del valore
+           di timeout, e <varname>usec</varname>, che è la parte in microsecondi
+           del valore di timeout.
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_SNDTIMEO</constant></entry>
+          <entry>
+           Indica il valore di timeout che specifica per quanto tempo una funzione
+           di output resta bloccata perché il controllo di flusso impedisce l'invio dei dati.
+          </entry>
+          <entry>
+           <type>array</type>. L'array conterrà due chiavi:
+           <varname>sec</varname>, che è la parte in secondi del valore
+           di timeout, e <varname>usec</varname>, che è la parte in microsecondi
+           del valore di timeout.
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_SNDLOWAT</constant></entry>
+          <entry>
+           Indica il numero minimo di byte da elaborare per le operazioni di output del <parameter>socket</parameter>.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>TCP_NODELAY</constant></entry>
+          <entry>
+           Indica se l'algoritmo TCP di Nagle è disabilitato.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>MCAST_JOIN_GROUP</constant></entry>
+          <entry>
+           Si unisce a un gruppo multicast.
+          </entry>
+          <entry>
+           <type>array</type> con le chiavi <literal>"group"</literal>, che specifica
+           una <type>string</type> con un indirizzo multicast IPv4 o IPv6, e
+           <literal>"interface"</literal>, che specifica un numero di
+           interfaccia (di tipo <type>int</type>) o una <literal>string</literal> con
+           il nome dell'interfaccia, come <literal>"eth0"</literal>.
+           È possibile specificare <literal>0</literal> per indicare che l'interfaccia
+           deve essere selezionata in base alle regole di instradamento. (può essere usato solo in
+           <function>socket_set_option</function>)
+          </entry>
+         </row>
+         <row>
+          <entry><constant>MCAST_LEAVE_GROUP</constant></entry>
+          <entry>
+           Abbandona un gruppo multicast.
+          </entry>
+          <entry>
+           <type>array</type>. Si veda <constant>MCAST_JOIN_GROUP</constant> per
+           maggiori informazioni. (può essere usato solo in
+           <function>socket_set_option</function>)
+          </entry>
+         </row>
+         <row>
+          <entry><constant>MCAST_BLOCK_SOURCE</constant></entry>
+          <entry>
+           Blocca i pacchetti provenienti da una specifica sorgente e diretti a uno specifico
+           gruppo multicast, al quale ci si deve essere uniti in precedenza.
+          </entry>
+          <entry>
+           <type>array</type> con le stesse chiavi di
+           <constant>MCAST_JOIN_GROUP</constant>, più una chiave aggiuntiva,
+           <literal>source</literal>, che corrisponde a una <type>string</type>
+           che specifica un indirizzo IPv4 o IPv6 della sorgente da bloccare.
+           (può essere usato solo in <function>socket_set_option</function>)
+          </entry>
+         </row>
+         <row>
+          <entry><constant>MCAST_UNBLOCK_SOURCE</constant></entry>
+          <entry>
+           Sblocca (ricomincia a ricevere) i pacchetti provenienti da uno specifico
+           indirizzo sorgente e diretti a uno specifico gruppo multicast, al quale ci si deve essere
+           uniti in precedenza.
+          </entry>
+          <entry>
+           <type>array</type> con lo stesso formato di
+           <constant>MCAST_BLOCK_SOURCE</constant>.
+           (può essere usato solo in <function>socket_set_option</function>)
+          </entry>
+         </row>
+         <row>
+          <entry><constant>MCAST_JOIN_SOURCE_GROUP</constant></entry>
+          <entry>
+           Riceve i pacchetti destinati a uno specifico gruppo multicast il cui indirizzo
+           sorgente corrisponde a un valore specifico.
+          </entry>
+          <entry>
+           <type>array</type> con lo stesso formato di
+           <constant>MCAST_BLOCK_SOURCE</constant>.
+           (può essere usato solo in <function>socket_set_option</function>)
+          </entry>
+         </row>
+         <row>
+          <entry><constant>MCAST_LEAVE_SOURCE_GROUP</constant></entry>
+          <entry>
+           Smette di ricevere i pacchetti destinati a uno specifico gruppo multicast il cui
+           indirizzo sorgente corrisponde a un valore specifico.
+          </entry>
+          <entry>
+           <type>array</type> con lo stesso formato di
+           <constant>MCAST_BLOCK_SOURCE</constant>.
+           (può essere usato solo in <function>socket_set_option</function>)
+          </entry>
+         </row>
+         <row>
+          <entry><constant>IP_MULTICAST_IF</constant></entry>
+          <entry>
+           L'interfaccia in uscita per i pacchetti multicast IPv4.
+          </entry>
+          <entry>
+           Un <type>int</type> che specifica il numero dell'interfaccia o una
+           <type>string</type> con il nome di un'interfaccia, come
+           <literal>eth0</literal>. Il valore <type>0</type> può essere usato per
+           indicare che per la selezione dell'interfaccia deve essere usata la tabella di instradamento.
+           La funzione <function>socket_get_option</function> restituisce un
+           indice di interfaccia.
+           Si noti che, a differenza dell'API C, questa opzione NON accetta un indirizzo
+           IP. Questo elimina la differenza di interfaccia tra
+           <constant>IP_MULTICAST_IF</constant> e
+           <constant>IPV6_MULTICAST_IF</constant>.
+          </entry>
+         </row>
+         <row>
+          <entry><constant>IPV6_MULTICAST_IF</constant></entry>
+          <entry>
+           L'interfaccia in uscita per i pacchetti multicast IPv6.
+          </entry>
+          <entry>
+           Come <constant>IP_MULTICAST_IF</constant>.
+          </entry>
+         </row>
+         <row>
+          <entry><constant>IP_MULTICAST_LOOP</constant></entry>
+          <entry>
+           La politica di loopback multicast per i pacchetti IPv4 abilita o disabilita
+           il loopback dei multicast in uscita, ai quali ci si deve essere uniti in precedenza.
+           L'effetto, tuttavia, è diverso a seconda che si applichi su sistemi unix o su Windows:
+           nei primi agisce sul percorso di ricezione, mentre nel secondo
+           agisce sul percorso di invio.
+          </entry>
+          <entry>
+           <type>int</type> (<literal>0</literal> o
+           <literal>1</literal>). Per <function>socket_set_option</function>
+           verrà accettato qualsiasi valore, che sarà convertito in booleano
+           secondo le consuete regole di PHP.
+          </entry>
+         </row>
+         <row>
+          <entry><constant>IPV6_MULTICAST_LOOP</constant></entry>
+          <entry>
+           Analoga a <constant>IP_MULTICAST_LOOP</constant>, ma per IPv6.
+          </entry>
+          <entry>
+           <type>int</type>. Si veda <constant>IP_MULTICAST_LOOP</constant>.
+          </entry>
+         </row>
+         <row>
+          <entry><constant>IP_MULTICAST_TTL</constant></entry>
+          <entry>
+           Il time-to-live dei pacchetti multicast IPv4 in uscita. Dovrebbe essere
+           un valore compreso tra 0 (non lasciare l'interfaccia) e 255. Il valore
+           predefinito è 1 (viene raggiunta solo la rete locale).
+          </entry>
+          <entry>
+           <type>int</type> compreso tra 0 e 255.
+          </entry>
+         </row>
+         <row>
+          <entry><constant>IPV6_MULTICAST_HOPS</constant></entry>
+          <entry>
+           Analoga a <constant>IP_MULTICAST_TTL</constant>, ma per i pacchetti
+           IPv6. È accettato anche il valore -1, che indica che deve essere usato
+           il valore predefinito della rotta.
+          </entry>
+          <entry>
+           <type>int</type> compreso tra -1 e 255.
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_MARK</constant></entry>
+          <entry>
+           Imposta un identificativo sul socket ai fini del filtraggio dei pacchetti
+           su Linux.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_ACCEPTFILTER</constant></entry>
+          <entry>
+           Aggiunge un accept filter al socket in ascolto (FreeBSD/NetBSD).
+           Su FreeBSD occorre caricare preventivamente un modulo del kernel per l'accept filter
+           (ad es. accf_http).
+          </entry>
+          <entry>
+           <type>string</type> con il nome del filtro (lunghezza massima 15).
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_USER_COOKIE</constant></entry>
+          <entry>
+           Imposta un identificativo sul socket ai fini del filtraggio dei pacchetti
+           su FreeBSD.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_RTABLE</constant></entry>
+          <entry>
+           Imposta un identificativo sul socket ai fini del filtraggio dei pacchetti
+           su OpenBSD.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_DONTTRUNC</constant></entry>
+          <entry>
+           Conserva i dati non letti.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_WANTMORE</constant></entry>
+          <entry>
+           Fornisce un'indicazione quando sono pronti altri dati.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>TCP_DEFER_ACCEPT</constant></entry>
+          <entry>
+           Non notifica un socket in ascolto finché i dati non sono pronti.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_INCOMING_CPU</constant></entry>
+          <entry>
+           Ottiene/Imposta l'affinità di CPU di un socket.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_MEMINFO</constant></entry>
+          <entry>
+           Ottiene tutte le informazioni meminfo di un socket.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_BPF_EXTENSIONS</constant></entry>
+          <entry>
+           Ottiene le estensioni BPF supportate dal kernel da collegare a un socket.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SO_SETFIB</constant></entry>
+          <entry>
+           Imposta la tabella di instradamento (FIB) di un socket. (Solo FreeBSD)
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>SOL_FILTER</constant></entry>
+          <entry>
+           Filtri attribuiti a un socket. (Solo Solaris/Illumos)
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>TCP_KEEPCNT</constant></entry>
+          <entry>
+           Imposta il numero massimo di probe keepalive che TCP deve inviare prima di chiudere la connessione.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>TCP_KEEPIDLE</constant></entry>
+          <entry>
+           Imposta il tempo per cui la connessione deve rimanere inattiva.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>TCP_KEEPINTVL</constant></entry>
+          <entry>
+           Imposta l'intervallo di tempo tra le singole probe keepalive.
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>TCP_KEEPALIVE</constant></entry>
+          <entry>
+           Imposta il tempo per cui la connessione deve rimanere inattiva. (Solo macOS)
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+         <row>
+          <entry><constant>TCP_NOTSENT_LOWAT</constant></entry>
+          <entry>
+           Imposta il limite di dati non inviati nella coda di scrittura dello stream del socket. (Solo Linux)
+          </entry>
+          <entry>
+           <type>int</type>
+          </entry>
+         </row>
+        </tbody>
+       </tgroup>
+      </table>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce il valore dell'opzione indicata &return.falseforfailure;.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &sockets.changelog.socket-param;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>socket_get_option</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$socket = socket_create_listen(1223);
+
+$linger = array('l_linger' => 1, 'l_onoff' => 1);
+socket_set_option($socket, SOL_SOCKET, SO_LINGER, $linger);
+
+var_dump(socket_get_option($socket, SOL_SOCKET, SO_REUSEADDR));
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>socket_create_listen</function></member>
+    <member><function>socket_set_option</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

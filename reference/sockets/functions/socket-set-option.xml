@@ -1,46 +1,163 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/sockets.xml, last change in rev 1.27 -->
-  <refentry xml:id="function.socket-set-option" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>socket_set_option</refname>
-    <refpurpose>Valorizza le opzioni per un socket</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>socket_set_option</methodname>
-      <methodparam><type>resource</type><parameter>socket</parameter></methodparam>
-      <methodparam><type>int</type><parameter>level</parameter></methodparam>
-      <methodparam><type>int</type><parameter>optname</parameter></methodparam>      
-      <methodparam><type>mixed</type><parameter>optval</parameter></methodparam>
-     </methodsynopsis>
-     &warn.experimental.func;
-    <para>
-     La funzione <function>socket_set_option</function> imposta l'opzione specificata dal parametro <parameter>optname</parameter>,
-     per il livello di protocollo indicato da <parameter>level</parameter> sul socket indicato da 
-     <parameter>socket</parameter>, al valore indicato dal parametro <parameter>optval</parameter>.
-     La funzione <function>socket_set_option</function> restituisce &false; se si verifica un errore.
-    </para> 
-    <para> 
-     Il parametro <parameter>level</parameter> indica il livello di protocollo
-     nel quale si trova l'opzione. Ad esempio, per ageire sulle opzioni a livello di socket,
-     occorre impostare il parametro <parameter>level</parameter> a SOL_SOCKET. Si possono utlizzare livelli,
-     tipo TCP, semplicemente impostando il valore di protocollo nel parametro <parameter>level</parameter>.
-     I valori previsti possono essere recuperati tramite la funzione <function>getprotobyname</function>.
-    </para> 
-    <para> 
-     Le oopzioni disponibili per i socket sono le medesime indicate per la funzione <function>socket_get_option</function>.
-    </para>
-    <note>
-     <para>
-      Nelle versioni di PHP antecedenti la 4.3.0, questa funzione 
-      era chiamata <literal>socket_setopt()</literal>.
-     </para>
-    </note>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 890cc22d38fa747c9930fd0d5984c170f2490c1b Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.socket-set-option" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>socket_set_option</refname>
+  <refpurpose>Imposta le opzioni del socket</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>socket_set_option</methodname>
+   <methodparam><type>Socket</type><parameter>socket</parameter></methodparam>
+   <methodparam><type>int</type><parameter>level</parameter></methodparam>
+   <methodparam><type>int</type><parameter>option</parameter></methodparam>
+   <methodparam><type class="union"><type>array</type><type>string</type><type>int</type></type><parameter>value</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   La funzione <function>socket_set_option</function> imposta l'opzione
+   specificata dal parametro <parameter>option</parameter>, al livello di protocollo
+   <parameter>level</parameter> specificato, al valore puntato
+   dal parametro <parameter>value</parameter> per il
+   <parameter>socket</parameter>.
+  </para>
+ </refsect1>
 
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>socket</parameter></term>
+     <listitem>
+      <para>
+       Un'istanza di <classname>Socket</classname> creata con <function>socket_create</function>
+       o <function>socket_accept</function>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>level</parameter></term>
+     <listitem>
+      <para>
+       Il parametro <parameter>level</parameter> specifica il livello di
+       protocollo a cui si trova l'opzione. Ad esempio, per impostare opzioni a
+       livello di socket, si userebbe un parametro <parameter>level</parameter> pari a
+       <constant>SOL_SOCKET</constant>. Altri livelli, come
+       TCP, possono essere usati specificando il numero di protocollo di quel livello.
+       I numeri di protocollo possono essere trovati usando la
+       funzione <function>getprotobyname</function>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>option</parameter></term>
+     <listitem>
+      <para>
+       Le opzioni disponibili per i socket sono le stesse della
+       funzione <function>socket_get_option</function>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>value</parameter></term>
+     <listitem>
+      <para>
+       Il valore dell'opzione.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.5.0</entry>
+      <entry>
+       Ora lancia un'eccezione quando si usa <constant>MCAST_LEAVE_GROUP</constant>
+       o <constant>MCAST_LEAVE_SOURCE_GROUP</constant> e il
+       valore non è un oggetto o un array valido, e lancia un
+       <exceptionname>ValueError</exceptionname> quando si usa un'opzione multicast
+       su un socket che non è della famiglia <constant>AF_INET</constant> o
+       <constant>AF_INET6</constant>.
+      </entry>
+     </row>
+     &sockets.changelog.socket-param;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>socket_set_option</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+
+if (!is_resource($socket)) {
+    echo 'Impossibile creare il socket: '. socket_strerror(socket_last_error()) . PHP_EOL;
+}
+
+if (!socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1)) {
+    echo 'Impossibile impostare l\'opzione sul socket: '. socket_strerror(socket_last_error()) . PHP_EOL;
+}
+
+if (!socket_bind($socket, '127.0.0.1', 1223)) {
+    echo 'Impossibile associare il socket: '. socket_strerror(socket_last_error()) . PHP_EOL;
+}
+
+$rval = socket_get_option($socket, SOL_SOCKET, SO_REUSEADDR);
+
+if ($rval === false) {
+    echo 'Impossibile ottenere l\'opzione del socket: '. socket_strerror(socket_last_error()) . PHP_EOL;
+} else if ($rval !== 0) {
+    echo 'SO_REUSEADDR è impostata sul socket!' . PHP_EOL;
+}
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>socket_create</function></member>
+    <member><function>socket_bind</function></member>
+    <member><function>socket_strerror</function></member>
+    <member><function>socket_last_error</function></member>
+    <member><function>socket_get_option</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

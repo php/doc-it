@@ -1,74 +1,139 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-  <refentry xml:id="function.socket-send" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>socket_send</refname>
-    <refpurpose>Invia i dati ad un socket collegato </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>socket_send</methodname>
-      <methodparam><type>resource</type><parameter>socket</parameter></methodparam>
-      <methodparam><type>string</type><parameter>buf</parameter></methodparam>
-      <methodparam><type>int</type><parameter>len</parameter></methodparam>
-      <methodparam><type>int</type><parameter>flags</parameter></methodparam>
-     </methodsynopsis>
-     &warn.experimental.func;
-    <para>
-     La funzione <function>socket_send</function> invia
-     <parameter>len</parameter> bytes nel socket indicato da 
-     <parameter>socket</parameter> dal buffer <parameter>buf</parameter>
-    </para>
-    <para>
-     I valori di <parameter>flags</parameter> può essere una qualsiasi combinazione 
-     <literal>OR</literal> dei seguenti:
-     <table>
-      <title>valori possibili per <parameter>flags</parameter></title>
-      <tgroup cols="2">
-       <tbody>
-        <row>
-         <entry><literal>0x1</literal></entry>
-         <entry>
-          Tratta dati OOB (fuori banda) 
-         </entry>
-        </row>
-        <row>
-         <entry><literal>0x2</literal></entry>
-         <entry>
-          Preleva il messaggio
-         </entry>
-        </row>
-        <row>
-         <entry><literal>0x4</literal></entry>
-         <entry>
-          Ignora il routing, usa l'interfaccia diretta
-         </entry>
-        </row>
-        <row>
-         <entry><literal>0x8</literal></entry>
-         <entry>
-          I dati comletano il record
-         </entry>
-        </row>
-        <row>
-         <entry><literal>0x100</literal></entry>
-         <entry>
-          I dati completano la transazione
-         </entry>
-        </row>
-       </tbody>
-      </tgroup>
-     </table>
-    </para>
-    <para>
-     Vedere anche 
-     <function>socket_sendmsg</function> e
-     <function>socket_sendto</function>.
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 14dc7c47365f2b71f6c907a5ba5bccf42534d5a9 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.socket-send" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>socket_send</refname>
+  <refpurpose>Invia dati a un socket connesso</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>int</type><type>false</type></type><methodname>socket_send</methodname>
+   <methodparam><type>Socket</type><parameter>socket</parameter></methodparam>
+   <methodparam><type>string</type><parameter>data</parameter></methodparam>
+   <methodparam><type>int</type><parameter>length</parameter></methodparam>
+   <methodparam><type>int</type><parameter>flags</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   La funzione <function>socket_send</function> invia
+   <parameter>length</parameter> byte al socket
+   <parameter>socket</parameter> da <parameter>data</parameter>.
+  </para>
+ </refsect1>
 
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>socket</parameter></term>
+     <listitem>
+      <para>
+       Un'istanza di <classname>Socket</classname> creata con <function>socket_create</function>
+       o <function>socket_accept</function>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>data</parameter></term>
+     <listitem>
+      <para>
+       Un buffer contenente i dati che verranno inviati all'host remoto.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>length</parameter></term>
+     <listitem>
+      <para>
+       Il numero di byte che verranno inviati all'host remoto da
+       <parameter>data</parameter>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>flags</parameter></term>
+     <listitem>
+      <para>
+       Il valore di <parameter>flags</parameter> può essere una qualsiasi combinazione
+       dei seguenti flag, uniti con l'operatore OR binario
+       (<literal>|</literal>).
+       <table>
+        <title>Valori possibili per <parameter>flags</parameter></title>
+        <tgroup cols="2">
+         <tbody>
+          <row>
+           <entry><constant>MSG_OOB</constant></entry>
+           <entry>
+            Invia dati OOB (out-of-band).
+           </entry>
+          </row>
+          <row>
+           <entry><constant>MSG_EOR</constant></entry>
+           <entry>
+            Indica un marcatore di record. I dati inviati completano il record.
+           </entry>
+          </row>
+          <row>
+           <entry><constant>MSG_EOF</constant></entry>
+           <entry>
+            Chiude il lato mittente del socket e include un'opportuna
+            notifica di ciò alla fine dei dati inviati. I dati inviati
+            completano la transazione.
+           </entry>
+          </row>
+          <row>
+           <entry><constant>MSG_DONTROUTE</constant></entry>
+           <entry>
+            Ignora l'instradamento, usa l'interfaccia diretta.
+           </entry>
+          </row>
+         </tbody>
+        </tgroup>
+       </table>
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   <function>socket_send</function> restituisce il numero di byte inviati, o &false; in caso di errore.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &sockets.changelog.socket-param;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>socket_sendto</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

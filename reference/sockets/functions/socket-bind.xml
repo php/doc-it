@@ -1,22 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 2a12c0448cbc9941bb4817adf537c27139e8bbe7 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
 <refentry xml:id="function.socket-bind" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>socket_bind</refname>
-  <refpurpose>Bind di un nome ad un socket</refpurpose>
+  <refpurpose>Associa un nome a un socket</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <type>bool</type><methodname>socket_bind</methodname>
-   <methodparam><type>resource</type><parameter>socket</parameter></methodparam>
+   <methodparam><type>Socket</type><parameter>socket</parameter></methodparam>
    <methodparam><type>string</type><parameter>address</parameter></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>port</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>port</parameter><initializer>0</initializer></methodparam>
   </methodsynopsis>
   <para>
-   La funzione <function>socket_bind</function> esegue il bind del nome passato in
-   <parameter>indirizzo</parameter> sul socket indicato da <parameter>socket</parameter>,
+   Associa il nome indicato in <parameter>address</parameter> al socket
+   descritto da <parameter>socket</parameter>. Questo deve essere fatto prima che
+   venga stabilita una connessione usando <function>socket_connect</function>
+   o <function>socket_listen</function>.
   </para>
  </refsect1>
 
@@ -28,7 +31,7 @@
      <term><parameter>socket</parameter></term>
      <listitem>
       <para>
-       Una valida risorsa di tipo socket creata da <function>socket_create</function>.
+       Un'istanza di <classname>Socket</classname> creata con <function>socket_create</function>.
       </para>
      </listitem>
     </varlistentry>
@@ -37,24 +40,28 @@
      <listitem>
       <para>
        Se il socket appartiene alla famiglia <constant>AF_INET</constant>,
-       il parametro <parameter>address</parameter> è un classico indirizzo IP (ad esempio 
-     <literal>127.0.0.1</literal>)
+       <parameter>address</parameter> è un IP in notazione decimale puntata
+       (ad es. <literal>127.0.0.1</literal>).
       </para>
       <para>
        Se il socket appartiene alla famiglia <constant>AF_UNIX</constant>,
-       il parametro <parameter>address</parameter> indica il percorso di un socket
-       nel dominio Unix (ad esempio <filename>/tmp/my.sock</filename>).
+       <parameter>address</parameter> è il percorso di un
+       socket di dominio Unix (ad es. <filename>/tmp/my.sock</filename>).
       </para>
+      <simpara>
+       Se il socket appartiene alla famiglia <constant>AF_PACKET</constant>,
+       <parameter>address</parameter> è il nome di un'interfaccia di rete
+       (ad es. <literal>eth0</literal>).
+      </simpara>
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>port</parameter> (Optional)</term>
+     <term><parameter>port</parameter> (opzionale)</term>
      <listitem>
       <para>
-       Il parametro <parameter>port</parameter>, si utilizza soltanto
-       con le connessioni tramite un socket di tipo <constant>AF_INET</constant>, 
-       ed indica quale porta sul server remoto si debba utilizzare
-       per eseguire la connessione.
+       Il parametro <parameter>port</parameter> viene usato solo quando
+       si associa un socket <constant>AF_INET</constant> e indica
+       la porta su cui rimanere in ascolto di connessioni.
       </para>
      </listitem>
     </varlistentry>
@@ -64,33 +71,65 @@
 
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
-  <para>&return.success;</para>
+  <para>
+   &return.success;
+  </para>
   <para>
    Il codice di errore può essere recuperato con <function>socket_last_error</function>.
-   Questo codice può essere passato alla funzione <function>socket_strerror</function>
-   per ottenere una descrizione dell'errore.
+   Questo codice può essere passato a <function>socket_strerror</function> per ottenere una
+   spiegazione testuale dell'errore.
   </para>
  </refsect1>
 
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.5.0</entry>
+      <entry>
+       Ora supporta l'associazione di socket della famiglia <constant>AF_PACKET</constant>.
+      </entry>
+     </row>
+     <row>
+      <entry>8.5.0</entry>
+      <entry>
+       Ora lancia un <exceptionname>ValueError</exceptionname> quando
+       <parameter>port</parameter> è minore di 0 o maggiore di 65535.
+      </entry>
+     </row>
+     &sockets.changelog.socket-param;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+ 
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title>Utilizzo di <function>socket_bind</function> per impostare un indirizzo sorgente</title>
+    <title>Uso di <function>socket_bind</function> per impostare l'indirizzo di origine</title>
     <programlisting role="php">
 <![CDATA[
 <?php
-// Crea il nuovo socket
+// Crea un nuovo socket
 $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-// Un esempio di elenco di IP del proprio computer
+// Un elenco di esempio di indirizzi IP posseduti dal computer
 $sourceips['kevin']    = '127.0.0.1';
 $sourceips['madcoder'] = '127.0.0.2';
 
-// Bind degli indirizzi
+// Associa l'indirizzo di origine
 socket_bind($sock, $sourceips['madcoder']);
 
-// Connessione all'indirisso di destinazione
+// Connessione all'indirizzo di destinazione
 socket_connect($sock, '127.0.0.1', 80);
 
 // Scrittura
@@ -101,7 +140,7 @@ socket_write($sock, $request);
 // Chiusura
 socket_close($sock);
 
-?> 
+?>
 ]]>
     </programlisting>
    </example>
@@ -112,16 +151,8 @@ socket_close($sock);
   &reftitle.notes;
   <note>
    <para>
-    Questa funzione deve essere utilizzata sui socket prima di
+    Questa funzione deve essere usata sul socket prima di
     <function>socket_connect</function>.
-   </para>
-  </note>
-  <note>
-   <para>
-    Windows 9x/ME nota di compatibilità:
-    <function>socket_last_error</function> può restituire un codice di errore non valido
-    se si tenta il bind del socket ad un indirizzo errato che non appartiene
-    alla propria macchina.
    </para>
   </note>
  </refsect1>
@@ -138,8 +169,8 @@ socket_close($sock);
    </simplelist>
   </para>
  </refsect1>
-</refentry>
 
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

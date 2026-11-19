@@ -1,43 +1,103 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: fernandom Status: ready -->
-<!-- CREDITS: penzo -->
-<!-- splitted from ./en/functions/session.xml, last change in rev 1.38 -->
-  <refentry xml:id='function.session-cache-expire' xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>session_cache_expire</refname>
-    <refpurpose>Ritorna il valore corrente di scadenza della cache</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>session_cache_expire</methodname>
-      <methodparam choice="opt"><type>int</type><parameter>nuova_scadenza_cache</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>session_cache_expire</function> ritorna il valore corrente di
-     <literal>session.cache_expire</literal>. Il valore ritornato deve essere espressio
-     in minuti, di default 180. Se si assegna <parameter>nuova_scadenza_cache</parameter>
-     , il valore corrente di scadenza della cache viene sostituito con
-     <parameter>nuova_scadenza_cache</parameter>.
-    </para>
-    <para>
-     La scadenza della cache viene reimpostata al valore predefinito di 180 memorizzato in
-     <literal>session.cache_limiter</literal> ad ogni richiesta di pagina. Quindi,
-     è necessario chiamare <function>session_cache_expire</function> in ogni pagina
-     (e prima di invocare <function>session_start</function>).
-    </para>
-    <example>
-     <title><function>session_cache_expire</function> esempio</title>
-     <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 151e61773c016edcae8fd4989ad9a86ffd03c283 Maintainer: pastore Status: ready -->
+<!-- CREDITS: penzo,fernandom -->
+<refentry xml:id="function.session-cache-expire" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>session_cache_expire</refname>
+  <refpurpose>Ottiene e/o imposta la scadenza corrente della cache</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>int</type><type>false</type></type><methodname>session_cache_expire</methodname>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>value</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>session_cache_expire</function> restituisce l'impostazione corrente di
+   <literal>session.cache_expire</literal>.
+  </para>
+  <para>
+   La scadenza della cache viene reimpostata al valore predefinito di 180 memorizzato in
+   <link linkend="ini.session.cache-expire">session.cache_expire</link>
+   all'avvio della richiesta. Per questo motivo,
+   occorre chiamare <function>session_cache_expire</function> per ogni
+   richiesta (e prima che venga chiamata <function>session_start</function>).
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>value</parameter></term>
+     <listitem>
+      <para>
+       Se <parameter>value</parameter> è specificato e non è &null;, la scadenza corrente
+       della cache viene sostituita con <parameter>value</parameter>.
+      </para>
+      <para>
+       <note>
+        <simpara>
+         Impostare <parameter>value</parameter> ha effetto solo se
+         <literal>session.cache_limiter</literal> è impostato su un valore
+         <emphasis>diverso</emphasis> da <literal>nocache</literal>.
+        </simpara>
+       </note>
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce l'impostazione corrente di <literal>session.cache_expire</literal>.
+   Il valore restituito è espresso in minuti e il predefinito è 180.
+   Se la modifica del valore fallisce, viene restituito &false;.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>value</parameter> ora è nullable.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>session_cache_expire</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 
-/* assegna il limite della cache su 'private' */
+/* imposta il limitatore di cache a 'private' */
 
 session_cache_limiter('private');
 $cache_limiter = session_cache_limiter();
 
-/* imposta la scadenza della cache su 30 minuti */
+/* imposta la scadenza della cache a 30 minuti */
 session_cache_expire(30);
 $cache_expire = session_cache_expire();
 
@@ -45,27 +105,27 @@ $cache_expire = session_cache_expire();
 
 session_start();
 
-echo "Il limite della cache ora è impostato su $cache_limiter<br />";
-echo "Le pagine di sessione nella cache scadranno dopo $cache_expire minutes";
+echo "Il limitatore di cache è ora impostato a $cache_limiter<br />";
+echo "Le pagine di sessione nella cache scadono dopo $cache_expire minuti";
 ?>
 ]]>
-     </programlisting>
-    </example>
-    <note>
-     <simpara>
-      Impostazione <parameter>nuova_scadenza_cache</parameter> è utile soltanto, se
-      <literal>session.cache_limiter</literal> è impostato su un valore
-      <emphasis>diverso</emphasis> da <literal>nocache</literal>.
-     </simpara>
-    </note>
-    <para>
-     Vedere inoltre le impostazioni di configurazione <link linkend="ini.session.cache-expire">
-     session.cache_expire</link>, <link linkend="ini.session.cache-limiter">
-     session.cache_limiter</link> e <function>session_cache_limiter</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><link linkend="ini.session.cache-expire">session.cache_expire</link></member>
+    <member><link linkend="ini.session.cache-limiter">session.cache_limiter</link></member>
+    <member><function>session_cache_limiter</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

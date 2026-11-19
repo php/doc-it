@@ -1,51 +1,105 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/uodbc.xml, last change in rev 1.10 -->
-<!-- last change to 'odbc-fetch-row' in en/ tree in rev 1.29 -->
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- OLD-Revision: 1.39/EN.1.29 -->
-  <refentry xml:id="function.odbc-fetch-row" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>odbc_fetch_row</refname>
-    <refpurpose>Estrae una riga</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>odbc_fetch_row</methodname>
-      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>numero_riga</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Se <function>odbc_fetch_row</function> ha successo (c'è almeno
-     una riga), la funzione restituisce &true;. Altrimenti, se non vi sono più
-     righe, la funzione restituisce &false;.
-    </para>
-    <para>
-     <function>odbc_fetch_row</function> estrae un record dai dati 
-     restituiti dalle funzioni <function>odbc_do</function> /
-     <function>odbc_exec</function>. Dopo l'esecuzione di 
-     <function>odbc_fetch_row</function>, i campi della riga sono
-     accessibili tramite la funzione <function>odbc_result</function>.
-    </para>
-    <para>
-     Se non viene specificato il parametro <parameter>numero_riga</parameter>,
-     <function>odbc_fetch_row</function> restituisce la riga successiva dal set
-     delle righe risultanti dalla query. Si può intercalare esecuzioni
-     successive di <function>odbc_fetch_row</function> con e senza il parametro
-     <parameter>numero_riga</parameter>.
-    </para> 
-    <para>
-     Per spostarsi attraverso le righe risultanti, si può eseguire
-     <function>odbc_fetch_row</function> con il parametro 
-     <parameter>numero_riga</parameter> impostato a 1, e quindi continuare 
-     ad utilizzare <function>odbc_fetch_row</function> senza
-     <parameter>numero_riga</parameter>.  Se il driver non supporta
-     l'estrazione di una riga per numero, il campo 
-     <parameter>numero_riga</parameter> sarà ignorato.
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 6459ee8883c1f09d2b6af1b22e4149e9d55d4f4a Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.odbc-fetch-row" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>odbc_fetch_row</refname>
+  <refpurpose>Recupera una riga</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>odbc_fetch_row</methodname>
+   <methodparam><type>Odbc\Result</type><parameter>statement</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>int</type><type>null</type></type><parameter>row</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Recupera una riga dei dati restituiti da <function>odbc_do</function>
+   o da <function>odbc_exec</function>. Dopo aver richiamato <function>odbc_fetch_row</function>,
+   è possibile accedere ai campi di quella riga con
+   <function>odbc_result</function>.
+  </para>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>statement</parameter></term>
+     <listitem>
+      <para>
+       &odbc.result.object;.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>row</parameter></term>
+     <listitem>
+      <para>
+       Se <parameter>row</parameter> non viene specificato,
+       <function>odbc_fetch_row</function> tenterà di recuperare la riga successiva nel
+       set di risultati. È possibile alternare chiamate a <function>odbc_fetch_row</function> con e
+       senza <parameter>row</parameter>.
+      </para>
+      <para>
+       Per scorrere il risultato più di una volta, è possibile richiamare
+       <function>odbc_fetch_row</function> con
+       <parameter>row</parameter> uguale a 1, e poi continuare a richiamare
+       <function>odbc_fetch_row</function> senza
+       <parameter>row</parameter> per riesaminare il risultato. Se un driver
+       non supporta il recupero delle righe per numero, il parametro
+       <parameter>row</parameter> viene ignorato.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce &true; se era presente una riga, altrimenti &false;.
+  </para>
+ </refsect1>
 
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <simpara>
+   Viene emesso un <constant>E_WARNING</constant> quando <parameter>row</parameter>
+   è minore o uguale a zero.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &odbc.changelog.result-param;
+     <row>
+      <entry>8.4.0</entry>
+      <entry>
+       Ora viene emesso un <constant>E_WARNING</constant> quando <parameter>row</parameter>
+       è minore o uguale a zero.
+      </entry>
+     </row>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>row</parameter> ora è nullable.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

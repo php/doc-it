@@ -1,31 +1,106 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-  <refentry xml:id="function.odbc-data-source" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>odbc_data_source</refname>
-    <refpurpose>Restituisce informazionisulla connessione corrente</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>array</type><methodname>odbc_data_source</methodname>
-      <methodparam><type>resource</type><parameter>connection_id</parameter></methodparam>
-      <methodparam><type>int</type><parameter>fetch_type</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     La funzione restituisce &false; se si verifica un errore, oppure un array se ha successo.
-    </para>
-    <para>
-     Questa funzione restituisce la listya dei DNS disponibili (
-     dopo essere stata richiamata diverse volte). E' obbligatorio che il parametro
-     <parameter>connection_id</parameter> sia una connessione ODBC
-     valida.  Il parametro <parameter>fetch_type</parameter> può essere impostato ad una delle 
-     seguenti costanti: SQL_FETCH_FIRST oppure SQL_FETCH_NEXT. Utilizzare SQL_FETCH_FIRST
-     la prima volta che si richiama la funzione, SQL_FETCH_NEXT le volte successive.
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: ed1aff13602c94f86344bdd7c4fbc31f5a71bf84 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.odbc-data-source" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>odbc_data_source</refname>
+  <refpurpose>Restituisce informazioni sui DSN disponibili</refpurpose>
+ </refnamediv>
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>array</type><type>null</type><type>false</type></type><methodname>odbc_data_source</methodname>
+   <methodparam><type>Odbc\Connection</type><parameter>odbc</parameter></methodparam>
+   <methodparam><type>int</type><parameter>fetch_type</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Questa funzione restituisce l'elenco dei DSN disponibili (dopo essere stata
+   richiamata più volte).
+  </para>
+ </refsect1>
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>odbc</parameter></term>
+     <listitem>
+      &odbc.connection.id;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>fetch_type</parameter></term>
+     <listitem>
+      <para>
+       Il parametro <parameter>fetch_type</parameter> può assumere uno di due valori costanti:
+       <constant>SQL_FETCH_FIRST</constant>, <constant>SQL_FETCH_NEXT</constant>.
+       Utilizzare <constant>SQL_FETCH_FIRST</constant> la prima volta che si richiama questa
+       funzione, e successivamente <constant>SQL_FETCH_NEXT</constant>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce &false; in caso di errore, un &array; in caso di successo e &null; dopo aver recuperato
+   l'ultimo DSN disponibile.
+  </para>
+ </refsect1>
 
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &odbc.changelog.connection-param;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <example xml:id="odbc-data-source.example.basic">
+   <title>Elencare i DSN disponibili</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$conn = odbc_connect('dsn', 'user', 'pass');
+$dsn_info = odbc_data_source($conn, SQL_FETCH_FIRST);
+while ($dsn_info) {
+    print_r($dsn_info);
+    $dsn_info = odbc_data_source($conn, SQL_FETCH_NEXT);
+}
+?>
+]]>
+   </programlisting>
+   &example.outputs.similar;
+   <screen>
+<![CDATA[
+Array
+(
+    [server] => dsn
+    [description] => ODBC Driver 17 for SQL Server
+)
+Array
+(
+    [server] => other_dsn
+    [description] => Microsoft Access Driver (*.mdb, *.accdb)
+)]]>
+   </screen>
+  </example>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

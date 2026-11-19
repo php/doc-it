@@ -1,71 +1,127 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/uodbc.xml, last change in rev 1.10 -->
-<!-- last change to 'odbc-result' in en/ tree in rev 1.2 -->
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- OLD-Revision: 1.39/EN.1.2 -->
-  <refentry xml:id="function.odbc-result" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>odbc_result</refname>
-    <refpurpose>Restituisce il contenuto dei campi</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>odbc_result</methodname>
-      <methodparam><type>resource</type><parameter>id_risultato</parameter></methodparam>
-      <methodparam><type>mixed</type><parameter>campo</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Restituisce il contenuto dei campi.
-    </para>
-    <para>
-     Il parametro <parameter>campo</parameter> può essere sia un intero
-     indicante il numero di colonna del campo desiderato; sia una stringa
-     contenente il nome del campo. Ad esempio:
-     <informalexample>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: ed1aff13602c94f86344bdd7c4fbc31f5a71bf84 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.odbc-result" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>odbc_result</refname>
+  <refpurpose>Restituisce i dati del risultato</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>bool</type><type>null</type></type><methodname>odbc_result</methodname>
+   <methodparam><type>Odbc\Result</type><parameter>statement</parameter></methodparam>
+   <methodparam><type class="union"><type>string</type><type>int</type></type><parameter>field</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Restituisce i dati del risultato
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>statement</parameter></term>
+     <listitem>
+      <para>
+       &odbc.result.object;.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>field</parameter></term>
+     <listitem>
+      <para>
+       Il nome del campo da recuperare. Può essere un intero contenente
+       il numero di colonna del campo desiderato oppure una stringa
+       contenente il nome del campo.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce il contenuto del campo come stringa, &false; in caso di errore, &null; per
+   i dati NULL, oppure &true; per i dati binari.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      &odbc.changelog.result-param;
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   La prima chiamata a <function>odbc_result</function> restituisce il
+   valore del terzo campo nel record corrente del risultato della
+   query. La seconda chiamata a
+   <function>odbc_result</function> restituisce il valore del campo
+   il cui nome è "val" nel record corrente del risultato della
+   query. Si verifica un errore se il parametro numero di colonna di un campo
+   è minore di uno o supera il numero di colonne (o campi) presenti nel
+   record corrente. Analogamente, si verifica un errore se viene indicato un campo con un
+   nome che non è tra i nomi dei campi della tabella o delle tabelle
+   oggetto della query.
+  </para>
+  <para>
+   <example>
+    <title>Esempi di <function>odbc_result</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$item_3 = odbc_result($Query_ID, 3);
+$item_3   = odbc_result($Query_ID, 3);
 $item_val = odbc_result($Query_ID, "val");
 ?>
 ]]>
-      </programlisting>
-     </informalexample>
-    </para>
-    <para>
-     Nel primo caso l'esecuzione di <function>odbc_result</function> restituisce 
-     il valore del terzo campo del record corrente della 
-     query. Nel secondo, la funzione 
-     <function>odbc_result</function> restituisce il valore del campo 
-     il cui nome è "val", sempre utilizzando i dati dal record 
-     corrente. Si ha un errore qualora il numero di colonna fornito sia minore di 1
-     oppure sia superiore al numero delle colonne (o campi) presenti 
-     nel record corrente. Analogamente, si ottiene un errore se il nome del campo 
-     richiesto non sia presente nella tabella/e 
-     oggetto della ricerca.
-    </para>
-    <para>
-     L'indice dei campi parte da 1. Per quanto riguarda la gestione dei campi
-     di tipo binario o long fare riferimento a 
-     <function>odbc_binmode</function> e a 
-     <function>odbc_longreadlen</function>.
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
-<!--
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <para>
+   Gli indici dei campi partono da 1. Per il modo in cui vengono restituiti i dati
+   delle colonne binarie o long, si consultino
+   <function>odbc_binmode</function> e
+   <function>odbc_longreadlen</function>.
+   <!--
 
-Se il campo richiesto contiene dati binari o
-    è un campo di tipo LONG, più lungo di 4096 bytes,
-    il contenuto non viene restituito, ma invece viene
-    inviato direttamente al client. Se si ha necessità di avere restituiti i dati binari, utilizzare
-    la funzione SQL HEX(), in modo da ottenere i dati del campo in 
-     notazione esadecimale. Ad esempio: "SELECT
-     HEX(binary_col) FROM mytable"
--->
+   Se il campo richiesto contiene
+      dati binari o è di tipo LONG,
+   più lungo di 4096 byte, il contenuto non viene
+      restituito, ma viene inviato direttamente al client. Suggerimento: se
+      occorre ottenere i dati binari, si usi la funzione SQL HEX() per
+      recuperare il campo in notazione esadecimale. Ad es. "SELECT
+      HEX(binary_col) FROM mytable"
+   -->
+  </para>
+ </refsect1>
 
-    </para>
-   </refsect1>
-  </refentry>
-
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

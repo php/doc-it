@@ -1,38 +1,115 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: b984d790ebed20eb65c7d746dd9bc54b0b356174 Maintainer: pastore Status: ready -->
+<!-- CREDITS: fabio,cortesi,denny,cucinato -->
 <!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.2 -->
-<!-- CREDITS: fabio,cortesi,denny -->
-  <refentry xml:id="function.pg-free-result" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_free_result</refname> 
-    <refpurpose>Libera la memoria allocata per i risultati</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>pg_free_result</methodname>
-      <methodparam><type>resource</type><parameter>risultato</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_free_result</function> deve essere chiamata solo se si è 
-     preoccupati di aver usato troppa memoria durante l'esecuzione dello
-     script. Normalmente tutte le aree di memoria allocate per i risultati sono automaticamente deallocate
-     alla fine dell'esecuzione. Se invece si è sicuri di non dover più
-     utilizzare i dati del risultato, è possibile chiamare
-     <function>pg_free_result</function> con la 
-     risorsa <parameter>result</parameter> come argomento e la
-     memoria associata verrà liberata. &return.success;
-    </para>
-    <note>
-     <para>
-      Questa funzione si chiamava <literal>pg_freeresult()</literal>.
-     </para>
-    </note>
-    <para>
-     See also <function>pg_query</function>.
-    </para>
-   </refsect1>
-  </refentry>
+<refentry xml:id="function.pg-free-result" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_free_result</refname> 
+  <refpurpose>Libera la memoria del risultato</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>pg_free_result</methodname>
+   <methodparam><type>PgSql\Result</type><parameter>result</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_free_result</function> libera la memoria e i dati associati
+   all'istanza di <classname>PgSql\Result</classname> specificata.
+  </para>
+  <para>
+   È necessario chiamare questa funzione solo se il consumo
+   di memoria durante l'esecuzione dello script è un problema. Altrimenti, tutta la memoria dei risultati
+   verrà liberata automaticamente al termine dello script.
+  </para>
+  <note>
+   <para>
+    Questa funzione si chiamava <function>pg_freeresult</function>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>result</parameter></term>
+     <listitem>
+      &pgsql.parameter.result;
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &pgsql.changelog.result-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>pg_free_result</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$db = pg_connect("dbname=users user=me");
+
+$res = pg_query($db, "SELECT 1 UNION ALL SELECT 2");
+
+$val = pg_fetch_result($res, 1, 0);
+
+echo "Il primo campo nella seconda riga è: ", $val, "\n";
+
+pg_free_result($res);
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+Il primo campo nella seconda riga è: 2
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_query</function></member>
+    <member><function>pg_query_params</function></member>
+    <member><function>pg_execute</function></member>
+    <member><function>pg_result_memory_size</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

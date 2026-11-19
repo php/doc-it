@@ -1,38 +1,145 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/pgsql.xml, last change in rev 1.16 -->
-<!-- last change to 'pg-copy-from' in en/ tree in rev 1.82 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.70/EN.1.82 -->
-<!-- CREDITS: fabio,cortesi,denny -->
-  <refentry xml:id='function.pg-copy-from' xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_copy_from</refname>
-    <refpurpose>
-     Inserisce le tuple in una tabella prendendole da un array
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>pg_copy_from</methodname>
-      <methodparam><type>resource</type><parameter>connessione</parameter></methodparam>
-      <methodparam><type>string</type><parameter>nometabella</parameter></methodparam>
-      <methodparam><type>array</type><parameter>tuple</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>delimitatore</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>null_as</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_copy_from</function> inserisce le tuple in una tabella etraendole
-     dall'array <parameter>tuple</parameter>. Utilizza internamente il comando <literal>OPY</literal>
-     per inserire i record.
-     &return.success;
-    </para>
-    <para>
-     Vedere anche <function>pg_copy_to</function>
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: aa120f36c5762e99f9ee121d8caf910e0a67121e Maintainer: pastore Status: ready -->
+<!-- CREDITS: fabio,cortesi,denny,cucinato -->
+<!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.82 -->
+<refentry xml:id="function.pg-copy-from" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_copy_from</refname>
+  <refpurpose>
+   Inserisce record in una tabella a partire da un array
+  </refpurpose>
+ </refnamediv>
 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>pg_copy_from</methodname>
+   <methodparam><type>PgSql\Connection</type><parameter>connection</parameter></methodparam>
+   <methodparam><type>string</type><parameter>table_name</parameter></methodparam>
+   <methodparam><type class="union"><type>array</type><type>Traversable</type></type><parameter>rows</parameter></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>separator</parameter><initializer>"\t"</initializer></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>null_as</parameter><initializer>"\\\\N"</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_copy_from</function> inserisce record in una tabella a partire da
+   <parameter>rows</parameter>. Per inserire i record esegue internamente un comando SQL
+   <literal>COPY FROM</literal>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>connection</parameter></term>
+     <listitem>
+      &pgsql.parameter.connection;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>table_name</parameter></term>
+     <listitem>
+      <para>
+       Nome della tabella in cui copiare le righe di <parameter>rows</parameter>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>rows</parameter></term>
+     <listitem>
+      <para>
+       Un <type>iterable</type> di dati da copiare in <parameter>table_name</parameter>.
+       Ogni valore in <parameter>rows</parameter> diventa una riga in <parameter>table_name</parameter>.
+       Ogni valore in <parameter>rows</parameter> dovrebbe essere una stringa delimitata dei valori
+       da inserire in ciascun campo. I valori dovrebbero terminare con un carattere di nuova riga.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>separator</parameter></term>
+     <listitem>
+      <para>
+       Il token che separa i valori di ciascun campo in ogni elemento di
+       <parameter>rows</parameter>. Il valore predefinito è <literal>\t</literal>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>null_as</parameter></term>
+     <listitem>
+      <para>
+       Come vengono rappresentati i valori SQL <literal>NULL</literal> in
+       <parameter>rows</parameter>. Il valore predefinito è <literal>\\N</literal> (<literal>"\\\\N"</literal>).
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+   <para>
+    &return.success;
+   </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.5.0</entry>
+      <entry>
+       <parameter>rows</parameter> ora è di tipo <type>iterable</type>.
+       In precedenza era di tipo <type>array</type>.
+      </entry>
+     </row>
+     &pgsql.changelog.connection-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>pg_copy_from</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+   $db = pg_connect("dbname=publisher") or die("Impossibile connettersi");
+   
+   $rows = pg_copy_to($db, $table_name);
+   
+   pg_query($db, "DELETE FROM $table_name");
+   
+   pg_copy_from($db, $table_name, $rows);
+?>
+]]>
+    </programlisting>
+   </example> 
+  </para>
+ </refsect1>
+  
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_copy_to</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

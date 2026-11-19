@@ -1,43 +1,116 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: c2eca73ef79ebe78cebb34053e41b565af504c4f Maintainer: pastore Status: ready -->
+<!-- CREDITS: fabio,cortesi,denny,cucinato -->
 <!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.2 -->
-<!-- CREDITS: fabio,cortesi,denny -->
-  <refentry xml:id="function.pg-last-error" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_last_error</refname>
-    <refpurpose>Restituisce l'ultimo messaggio d'errore di una connessione</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>pg_last_error</methodname>
-      <methodparam choice="opt"><type>resource</type><parameter>connessione</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_last_error</function> restituisce l'ultimo messaggio di errore
-     della <parameter>connessione</parameter> specificata.
-    </para>
-    <para>
-     I messaggi di errore possono essere sovrascritti da chiamate a funzioni interne a
-     PostgreSQL(libpq). Quindi questa funzione potrebbe non restituire il messaggio di errore corretto, se
-     più errori si sono verificati in una funzione interna di PostgreSQL.
-    </para>
-    <para>
-     Utilizzare <function>pg_result_error</function>,
-     <function>pg_result_status</function> e
-     <function>pg_connection_status</function> per una migliore gestione degli errori.
-    </para>
-    <note>
-     <para>
-      Questa funzione si chiamava <literal>pg_errormessage()</literal>.
-     </para>
-    </note>
-    <para>
-     Vedere anche <function>pg_result_error</function>.
-    </para>
-   </refsect1>
-  </refentry>
+<refentry xml:id="function.pg-last-error" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_last_error</refname>
+  <refpurpose>Ottiene la stringa dell'ultimo messaggio di errore di una connessione</refpurpose>
+ </refnamediv>
 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>pg_last_error</methodname>
+   <methodparam choice="opt"><type class="union"><type>PgSql\Connection</type><type>null</type></type><parameter>connection</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_last_error</function> restituisce l'ultimo messaggio di errore
+   per la <parameter>connection</parameter> specificata.
+  </para>
+  <para>
+   I messaggi di errore possono essere sovrascritti dalle chiamate a funzioni interne
+   di PostgreSQL (libpq). Potrebbe non restituire un messaggio di errore appropriato se
+   si verificano più errori all'interno di una funzione del modulo PostgreSQL.
+  </para>
+  <para>
+   Per una migliore gestione degli errori, utilizzare <function>pg_result_error</function>, <function>pg_result_error_field</function>,
+   <function>pg_result_status</function> e
+   <function>pg_connection_status</function>.
+  </para>
+  <note>
+   <para>
+    Questa funzione si chiamava <function>pg_errormessage</function>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>connection</parameter></term>
+     <listitem>
+      &pgsql.parameter.connection-with-nullable-default;
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Una <type>string</type> contenente l'ultimo messaggio di errore sulla
+   <parameter>connection</parameter> specificata.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &pgsql.changelog.connection-object;
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>connection</parameter> ora è nullable.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>pg_last_error</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+  $dbconn = pg_connect("dbname=publisher") or die("Impossibile connettersi");
+
+  // Query che fallisce
+  $res = pg_query($dbconn, "select * from doesnotexist");
+  
+  echo pg_last_error($dbconn);
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_result_error</function></member>
+    <member><function>pg_result_error_field</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml
@@ -58,4 +131,3 @@ vim600: syn=xml fen fdm=syntax fdl=2 si
 vim: et tw=78 syn=sgml
 vi: ts=1 sw=1
 -->
-

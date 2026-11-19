@@ -1,38 +1,116 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/pgsql.xml, last change in rev 1.16 -->
-<!-- last change to 'pg-escape-string' in en/ tree in rev 1.61 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.70/EN.1.61 -->
-<!-- CREDITS: cortesi,denny,fabio -->
-  <refentry xml:id='function.pg-escape-string' xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_escape_string</refname>
-    <refpurpose>
-     Aggiunge le sequenze di escape nei tipi text/char
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>pg_escape_string</methodname>
-      <methodparam><type>string</type><parameter>dati</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_escape_string</function> aggiunge le sequenze di escape alle stringhe di
-     tipo text/char. Restituisce la stringa modificata con le sequenze per
-     PostgreSQL. L'uso di questa funzione è raccomandato al posto di
-     <function>addslashes</function>.
-    </para>
-    <note>
-     <para>
-      Questa funzione richiede PostgreSQL 7.2 o successivi.
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: c43a3cd9b49627b8d42a4b6ad530e10e26ca30dd Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi,denny,fabio,cucinato -->
+<!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.61 -->
+<refentry xml:id='function.pg-escape-string' xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_escape_string</refname>
+  <refpurpose>
+   Effettua l'escape di una stringa per una query
+  </refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>pg_escape_string</methodname>
+   <methodparam choice="opt"><type>PgSql\Connection</type><parameter>connection</parameter></methodparam>
+   <methodparam><type>string</type><parameter>string</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_escape_string</function> effettua l'escape di una stringa per interrogare
+   il database. Restituisce una stringa con escape nel formato di PostgreSQL
+   senza virgolette. <function>pg_escape_literal</function> è
+   il modo preferibile per effettuare l'escape dei parametri SQL per PostgreSQL.
+   <function>addslashes</function> non deve essere usata con PostgreSQL.
+   Se il tipo della colonna è
+   bytea, occorre invece usare <function>pg_escape_bytea</function>.
+   <function>pg_escape_identifier</function> deve essere usata per
+   effettuare l'escape degli identificatori (ad es. nomi di tabelle, nomi di campi)
+  </para>
+ </refsect1>
+
+<refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>connection</parameter></term>
+     <listitem>
+      &pgsql.parameter.connection-with-unspecified-default;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>string</parameter></term>
+     <listitem>
+      <para>
+       Una <type>string</type> contenente il testo di cui effettuare l'escape.
       </para>
-    </note>
-    <para>
-     Vedere anche <function>pg_escape_bytea</function>
-    </para>
-   </refsect1>
-  </refentry>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Una <type>string</type> contenente i dati con escape.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &pgsql.changelog.connection-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>pg_escape_string</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php 
+  // Connessione al database
+  $dbconn = pg_connect('dbname=foo');
+  
+  // Legge un file di testo (contenente apostrofi e backslash)
+  $data = file_get_contents('letter.txt');
+  
+  // Effettua l'escape dei dati testuali
+  $escaped = pg_escape_string($data);
+  
+  // Li inserisce nel database
+  pg_query("INSERT INTO correspondence (name, data) VALUES ('La mia lettera', '{$escaped}')");
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_escape_bytea</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

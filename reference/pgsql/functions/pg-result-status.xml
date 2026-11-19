@@ -1,35 +1,127 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/pgsql.xml, last change in rev 1.16 -->
-<!-- last change to 'pg-result-status' in en/ tree in rev 1.58 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.70/EN.1.58 -->
-<!-- CREDITS: fabio,cortesi,denny -->
-  <refentry xml:id='function.pg-result-status' xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_result_status</refname>
-    <refpurpose>
-     Recupera lo stato del risultato di una query
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>pg_result_status</methodname>
-      <methodparam><type>resource</type><parameter>risultato</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_result_status</function> restituisce lo stato di una risorsa
-     risultato. I valori di ritorno posso essere PGSQL_EMPTY_QUERY,
-     PGSQL_COMMAND_OK, PGSQL_TUPLES_OK, PGSQL_COPY_TO,
-     PGSQL_COPY_FROM, PGSQL_BAD_RESPONSE, PGSQL_NONFATAL_ERROR e
-     PGSQL_FATAL_ERROR.
-    </para>
-    <para>
-     Vedere anche <function>pg_connection_status</function>.
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 3c6c95fcfd7d9eaa603df40327693ea8dff89d53 Maintainer: pastore Status: ready -->
+<!-- CREDITS: fabio,cortesi,denny,cucinato -->
+<!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.58 -->
+<refentry xml:id="function.pg-result-status" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_result_status</refname>
+  <refpurpose>
+   Ottiene lo stato del risultato di una query
+  </refpurpose>
+ </refnamediv>
 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>int</type></type><methodname>pg_result_status</methodname>
+   <methodparam><type>PgSql\Result</type><parameter>result</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>mode</parameter><initializer><constant>PGSQL_STATUS_LONG</constant></initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_result_status</function> restituisce lo stato dell'istanza di <classname>PgSql\Result</classname>,
+   o il tag di completamento del comando PostgreSQL associato al risultato
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>result</parameter></term>
+     <listitem>
+      &pgsql.parameter.result;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>mode</parameter></term>
+     <listitem>
+      <para>
+       <constant>PGSQL_STATUS_LONG</constant> per restituire lo stato numerico 
+       di <parameter>result</parameter>, oppure <constant>PGSQL_STATUS_STRING</constant> 
+       per restituire il tag del comando di <parameter>result</parameter>.
+       Se non specificato, il valore predefinito è <constant>PGSQL_STATUS_LONG</constant>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   I possibili valori restituiti sono <constant>PGSQL_EMPTY_QUERY</constant>,
+   <constant>PGSQL_COMMAND_OK</constant>, <constant>PGSQL_TUPLES_OK</constant>, <constant>PGSQL_TUPLES_CHUNK</constant>, <constant>PGSQL_COPY_OUT</constant>,
+   <constant>PGSQL_COPY_IN</constant>, <constant>PGSQL_BAD_RESPONSE</constant>, <constant>PGSQL_NONFATAL_ERROR</constant> e
+   <constant>PGSQL_FATAL_ERROR</constant> se viene specificato
+   <constant>PGSQL_STATUS_LONG</constant>. Altrimenti, viene restituita una <type>string</type> contenente il tag del comando PostgreSQL.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &pgsql.changelog.result-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>pg_result_status</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+// Connessione al database
+$conn = pg_pconnect("dbname=publisher");
+
+// Esecuzione di un COPY
+$result = pg_query($conn, "COPY authors FROM STDIN;");
+
+// Ottiene lo stato del risultato
+$status = pg_result_status($result);
+
+// Determina lo stato
+if ($status == PGSQL_COPY_IN)
+   echo "Copia iniziata.";
+else
+   echo "Copia fallita.";
+ 
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+Copia iniziata.
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_connection_status</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

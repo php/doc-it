@@ -1,38 +1,140 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: c2eca73ef79ebe78cebb34053e41b565af504c4f Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
 <!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.pg-field-size" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_field_size</refname> 
-    <refpurpose>
-     Restituisce la reale dimensione di memorizzazione del campo
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>pg_field_size</methodname>
-      <methodparam><type>resource</type><parameter>risultato</parameter></methodparam>
-      <methodparam><type>int</type><parameter>indice_campo</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_field_size</function> restituisce la dimensione di memorizzazione
-     (in bytes) del campo indicato all'interno di 
-     <parameter>risultato</parameter>. La numerazione dei campi comincia da 0. Una
-     dimension del campo di -1 indica un campo a lunghezza variabile. Questa funzione
-     restituisce &false; in caso di errore.
-    </para>
-    <note>
-     <para>
-      Questa funzione si chiamava <literal>pg_fieldsize()</literal>.
-     </para>
-    </note>
-    <para>
-     Vedere anche <function>pg_field_prtlen</function> e <function>pg_field_type</function>.
-    </para>
-   </refsect1>
-  </refentry>
+<refentry xml:id="function.pg-field-size" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_field_size</refname> 
+  <refpurpose>
+   Restituisce la dimensione di memorizzazione interna del campo indicato
+  </refpurpose>
+ </refnamediv>
 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>int</type><methodname>pg_field_size</methodname>
+   <methodparam><type>PgSql\Result</type><parameter>result</parameter></methodparam>
+   <methodparam><type>int</type><parameter>field</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_field_size</function> restituisce la dimensione di memorizzazione
+   interna (in byte) del numero di campo nel <parameter>result</parameter>
+   PostgreSQL indicato.
+  </para>
+  <note>
+   <para>
+    Questa funzione si chiamava <function>pg_fieldsize</function>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>result</parameter></term>
+     <listitem>
+      &pgsql.parameter.result;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>field</parameter></term>
+      <listitem>
+       <para>
+        Numero del campo, a partire da 0.
+       </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   La dimensione di memorizzazione interna del campo (in byte). -1 indica un campo
+   a lunghezza variabile.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &pgsql.changelog.result-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Ottenere informazioni sui campi</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+  $dbconn = pg_connect("dbname=publisher") or die("Impossibile connettersi");
+
+  $res = pg_query($dbconn, "select * from authors where author = 'Orwell'");
+  $i = pg_num_fields($res);
+  for ($j = 0; $j < $i; $j++) {
+      echo "colonna $j\n";
+      $fieldname = pg_field_name($res, $j);
+      echo "nome del campo: $fieldname\n";
+      echo "lunghezza stampata: " . pg_field_prtlen($res, $fieldname) . " caratteri\n";
+      echo "lunghezza di memorizzazione: " . pg_field_size($res, $j) . " byte\n";
+      echo "tipo del campo: " . pg_field_type($res, $j) . " \n\n";
+  }
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+colonna 0
+nome del campo: author
+lunghezza stampata: 6 caratteri
+lunghezza di memorizzazione: -1 byte
+tipo del campo: varchar 
+
+colonna 1
+nome del campo: year
+lunghezza stampata: 4 caratteri
+lunghezza di memorizzazione: 2 byte
+tipo del campo: int2 
+
+colonna 2
+nome del campo: title
+lunghezza stampata: 24 caratteri
+lunghezza di memorizzazione: -1 byte
+tipo del campo: varchar 
+]]>
+    </screen>
+   </example> 
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_field_prtlen</function></member>
+    <member><function>pg_field_type</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml
@@ -53,4 +155,3 @@ vim600: syn=xml fen fdm=syntax fdl=2 si
 vim: et tw=78 syn=sgml
 vi: ts=1 sw=1
 -->
-

@@ -1,38 +1,125 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: c2eca73ef79ebe78cebb34053e41b565af504c4f Maintainer: pastore Status: ready -->
+<!-- CREDITS: fabio,denny,cortesi,cucinato -->
 <!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.52 -->
-<!-- CREDITS: fabio,denny,cortesi -->
-  <refentry xml:id="function.pg-field-type" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_field_type</refname> 
-    <refpurpose>
-     Restituisce il nome del tipo del campo specificato
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>pg_field_type</methodname>
-      <methodparam><type>resource</type><parameter>risultato</parameter></methodparam>
-      <methodparam><type>int</type><parameter>numero_campo</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_field_type</function> restituisce una stringa contenente il
-     nome del tipo del campo specificato da <parameter>numero_campo</parameter> nella
-     risorsa PostgreSQL specificata da <parameter>risultato</parameter>.  La numerazione
-     dei campi comincia da 0.
-    </para>
-    <note>
-     <para>
-      Questa funzione si chiamava <literal>pg_fieldtype()</literal>.
-     </para>
-    </note>
-    <para>
-     Vedere anche <function>pg_field_prtlen</function> e <function>pg_field_name</function>.
-    </para>
-   </refsect1>
-  </refentry>
+<refentry xml:id="function.pg-field-type" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_field_type</refname> 
+  <refpurpose>
+   Restituisce il nome del tipo per il numero di campo corrispondente
+  </refpurpose>
+ </refnamediv>
 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>pg_field_type</methodname>
+   <methodparam><type>PgSql\Result</type><parameter>result</parameter></methodparam>
+   <methodparam><type>int</type><parameter>field</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_field_type</function> restituisce una stringa contenente il
+   nome del tipo di base del <parameter>field</parameter> specificato
+   nell'istanza <parameter>result</parameter> specificata.
+  </para>
+  <note>
+   <para>
+    Se il campo usa un dominio PostgreSQL (anziché un tipo di base),
+    viene restituito il nome del tipo sottostante al dominio, anziché il
+    nome del dominio stesso.
+   </para>
+  </note>
+  <note>
+   <para>
+    Questa funzione si chiamava <function>pg_fieldtype</function>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>result</parameter></term>
+     <listitem>
+      &pgsql.parameter.result;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>field</parameter></term>
+      <listitem>
+       <para>
+        Numero del campo, a partire da 0.
+       </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Una <type>string</type> contenente il nome di base del tipo del campo.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &pgsql.changelog.result-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Ottenere informazioni sui campi</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+  $dbconn = pg_connect("dbname=publisher") or die("Impossibile connettersi");
+
+  // Si supponga che 'title' sia di tipo varchar
+  $res = pg_query($dbconn, "select title from authors where author = 'Orwell'");
+
+  echo "Tipo del campo title: ", pg_field_type($res, 0);
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+Tipo del campo title: varchar
+]]>
+    </screen>
+   </example> 
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_field_prtlen</function></member>
+    <member><function>pg_field_name</function></member>
+    <member><function>pg_field_type_oid</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

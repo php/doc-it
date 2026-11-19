@@ -1,36 +1,136 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/pgsql.xml, last change in rev 1.10 -->
-<!-- last change to 'pg-fieldisnull' in en/ tree in rev 1.1 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- CREDITS: cortesi,denny,fabio -->
-<!-- OLD-Revision: 1.70/EN.1.1 -->
-  <refentry xml:id="function.pg-field-is-null" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_field_is_null</refname>
-    <refpurpose>Verifica se un campo è &null;</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>pg_field_is_null</methodname>
-      <methodparam><type>resource</type><parameter>risultato</parameter></methodparam>
-      <methodparam><type>int</type><parameter>tupla</parameter></methodparam>
-      <methodparam><type>mixed</type><parameter>campo</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_field_is_null</function> controlla se un campo è &null; o
-     meno. Restituisce se il campo nella tupla data è &null;. Restituisce
-     0 se il campo nella tupla NON è &null;. Il campo può
-     essere specificato con un indice di colonna (numero) o come un nome di campo (stringa). La
-     numerazione comincia da 0.
-    </para>
-    <note>
-     <para>
-      Questa funzione si chiamava <literal>g_fieldisnull()</literal>.
-     </para>
-    </note>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 91183ddf1c54c6ce3051fdf0f5b9987272d51fbe Maintainer: pastore Status: ready -->
+<!-- CREDITS: cortesi,denny,fabio,cucinato -->
+<!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.2 -->
+<refentry xml:id="function.pg-field-is-null" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_field_is_null</refname>
+  <refpurpose>Verifica se un campo è SQL <literal>NULL</literal></refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>int</type><methodname>pg_field_is_null</methodname>
+   <methodparam><type>PgSql\Result</type><parameter>result</parameter></methodparam>
+   <methodparam><type class="union"><type>string</type><type>false</type><type>null</type></type><parameter>row</parameter></methodparam>
+   <methodparam><type>mixed</type><parameter>field</parameter></methodparam>
+  </methodsynopsis>
+  <methodsynopsis>
+   <type>int</type><methodname>pg_field_is_null</methodname>
+   <methodparam><type>PgSql\Result</type><parameter>result</parameter></methodparam>
+   <methodparam><type>mixed</type><parameter>field</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_field_is_null</function> verifica se un campo in un'istanza di <classname>PgSql\Result</classname>
+   è SQL <literal>NULL</literal> o meno.
+  </para>
+  <note>
+   <para>
+    Questa funzione si chiamava <function>pg_fieldisnull</function>.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>result</parameter></term>
+     <listitem>
+      &pgsql.parameter.result;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>row</parameter></term>
+     <listitem>
+      <para>
+       Numero della riga del risultato da recuperare. Le righe sono numerate a partire da 0. Se omesso,
+       viene recuperata la riga corrente.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>field</parameter></term>
+      <listitem>
+       <para>
+        Numero del campo (a partire da 0) come <type>int</type> o
+        nome del campo come <type>string</type>.
+       </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce <literal>1</literal> se il campo nella riga specificata è SQL <literal>NULL</literal>, <literal>0</literal>
+   altrimenti. Viene restituito &false; se la riga è fuori dall'intervallo, o in caso di qualsiasi altro errore.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.4.0</entry>
+      <entry>
+       La firma a due argomenti di
+       <function>pg_field_is_null</function>
+       (<parameter>result</parameter>,
+       <parameter>field</parameter>) è ora deprecata.
+       Usare invece la firma a tre argomenti con
+       <parameter>row</parameter> impostato a &null;.
+      </entry>
+     </row>
+     <row>
+      <entry>8.3.0</entry>
+      <entry>
+       <parameter>row</parameter> ora è nullable.
+      </entry>
+     </row>
+     &pgsql.changelog.result-object;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>pg_field_is_null</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+  $dbconn = pg_connect("dbname=publisher") or die ("Impossibile connettersi");
+  $res = pg_query($dbconn, "select * from authors where author = 'Orwell'");
+  if ($res) {
+      if (pg_field_is_null($res, 0, "year") == 1) {
+          echo "Il valore del campo year è null.\n";
+      }
+      if (pg_field_is_null($res, 0, "year") == 0) {
+          echo "Il valore del campo year non è null.\n";
+    }
+ }
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+</refentry>
 
 <!-- Keep this comment at the end of the file
 Local variables:

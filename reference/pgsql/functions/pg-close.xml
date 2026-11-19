@@ -1,38 +1,116 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- splitted from ./it/functions/pgsql.xml, last change in rev 1.10 -->
-<!-- last change to 'pg-close' in en/ tree in rev 1.82 -->
-<!-- EN-Revision: n/a Maintainer: cucinato Status: ready -->
-<!-- OLD-Revision: 1.70/EN.1.82 -->
-  <refentry xml:id="function.pg-close" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>pg_close</refname>
-    <refpurpose>Chiude una connessione PostgreSQL</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>bool</type><methodname>pg_close</methodname>
-      <methodparam><type>resource</type><parameter>connessione</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>pg_close</function> chiude la connessione
-     non persistente verso un database PostgreSQL, identificata dalla risorsa
-     <parameter>connessione</parameter>. &return.success;
-    </para>
-    <note>
-     <para>
-      iL'uso di <function>pg_close</function> non è normalmente necessario,
-      dal momento che le connessioni non persistenti vengono chiuse automaticamente alla fine
-      dell'esecuzione dello script.
-     </para>
-    </note>
-    <para>
-     Se c'è una risorsa large object aperta sulla connessione, non
-     chiudere quest'ultima finché la risorsa non è stata chiusa a sua volta.
-    </para>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 93338e59c429aaace224cec8359c81b03f3f3b9d Maintainer: pastore Status: ready -->
+<!-- CREDITS: cucinato -->
+<!-- splitted from ./en/functions/pgsql.xml, last change in rev 1.82 -->
+<refentry xml:id="function.pg-close" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>pg_close</refname>
+  <refpurpose>Chiude una connessione PostgreSQL</refpurpose>
+ </refnamediv>
 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>true</type><methodname>pg_close</methodname>
+   <methodparam choice="opt"><type class="union"><type>PgSql\Connection</type><type>null</type></type><parameter>connection</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>pg_close</function> chiude la connessione non persistente
+   a un database PostgreSQL associata all'istanza
+   <parameter>connection</parameter> specificata.
+  </para>
+  <note>
+   <para>
+    Di solito l'uso di <function>pg_close</function> non è necessario, dal momento che
+    le connessioni aperte non persistenti vengono chiuse automaticamente alla fine
+    dello script.
+   </para>
+  </note>
+  <para>
+   Se sulla connessione è aperta un'istanza di <classname>PgSql\Lob</classname>, non
+   chiudere la connessione prima di aver chiuso tutte le istanze di <classname>PgSql\Lob</classname>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>connection</parameter></term>
+     <listitem>
+      &pgsql.parameter.connection-with-nullable-default;
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.true.always;
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &return.type.true.83;
+     &pgsql.changelog.connection-object;
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>connection</parameter> ora è nullable.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+ 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>pg_close</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$dbconn = pg_connect("host=localhost port=5432 dbname=mary")
+   or die("Impossibile connettersi");
+echo "Connessione riuscita";
+pg_close($dbconn);
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+Connessione riuscita
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>pg_connect</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

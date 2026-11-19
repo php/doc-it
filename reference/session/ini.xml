@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 3e08a8aae657492bdcdc7c550099ddf072042fa9 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: a9acd542301e9720e5d5d87aa730cc3990f93960 Maintainer: pastore Status: ready -->
 <!-- CREDITS: cucinato,reghe -->
 <section xml:id="session.configuration" xmlns="http://docbook.org/ns/docbook">
  &reftitle.runtime;
@@ -85,15 +85,21 @@
     </row>
     <row>
      <entry><link linkend="ini.session.cookie-secure">session.cookie_secure</link></entry>
-     <entry>""</entry>
+     <entry>"0"</entry>
      <entry><constant>INI_ALL</constant></entry>
-     <entry></entry>
+     <entry>Prima di PHP 7.2.0, il valore predefinito era <literal>""</literal>.</entry>
     </row>
     <row>
      <entry><link linkend="ini.session.cookie-httponly">session.cookie_httponly</link></entry>
-     <entry>""</entry>
+     <entry>"0"</entry>
      <entry><constant>INI_ALL</constant></entry>
-     <entry></entry>
+     <entry>Prima di PHP 7.2.0, il valore predefinito era <literal>""</literal>.</entry>
+    </row>
+    <row>
+     <entry><link linkend="ini.session.cookie-partitioned">session.cookie_partitioned</link></entry>
+     <entry>"0"</entry>
+     <entry><constant>INI_ALL</constant></entry>
+     <entry>Disponibile da PHP 8.5.0.</entry>
     </row>
     <row>
      <entry><link linkend="ini.session.cookie-samesite">session.cookie_samesite</link></entry>
@@ -117,13 +123,13 @@
      <entry><link linkend="ini.session.use-only-cookies">session.use_only_cookies</link></entry>
      <entry>"1"</entry>
      <entry><constant>INI_ALL</constant></entry>
-     <entry></entry>
+     <entry>Disabilitare questa impostazione è deprecato a partire da PHP 8.4.0.</entry>
     </row>
     <row>
      <entry><link linkend="ini.session.referer-check">session.referer_check</link></entry>
      <entry>""</entry>
      <entry><constant>INI_ALL</constant></entry>
-     <entry></entry>
+     <entry>Impostare un valore non vuoto è deprecato a partire da PHP 8.4.0.</entry>
     </row>
     <row>
      <entry><link linkend="ini.session.cache-limiter">session.cache_limiter</link></entry>
@@ -141,31 +147,43 @@
      <entry><link linkend="ini.session.use-trans-sid">session.use_trans_sid</link></entry>
      <entry>"0"</entry>
      <entry><constant>INI_ALL</constant></entry>
-     <entry></entry>
+     <entry>Abilitare questa impostazione è deprecato a partire da PHP 8.4.0.</entry>
     </row>
     <row>
      <entry><link linkend="ini.session.trans-sid-tags">session.trans_sid_tags</link></entry>
      <entry>"a=href,area=href,frame=src,form="</entry>
      <entry><constant>INI_ALL</constant></entry>
-     <entry>Disponibile da PHP 7.1.0.</entry>
+     <entry>
+      Disponibile da PHP 7.1.0.
+      Modificare questa impostazione è deprecato a partire da PHP 8.4.0.
+     </entry>
     </row>
     <row>
      <entry><link linkend="ini.session.trans-sid-hosts">session.trans_sid_hosts</link></entry>
      <entry><literal>$_SERVER['HTTP_HOST']</literal></entry>
      <entry><constant>INI_ALL</constant></entry>
-     <entry>Disponibile da PHP 7.1.0.</entry>
+     <entry>
+      Disponibile da PHP 7.1.0.
+      Impostare un valore non vuoto è deprecato a partire da PHP 8.4.0.
+     </entry>
     </row>
     <row>
      <entry><link linkend="ini.session.sid-length">session.sid_length</link></entry>
      <entry>"32"</entry>
      <entry><constant>INI_ALL</constant></entry>
-     <entry>Disponibile da PHP 7.1.0.</entry>
+     <entry>
+      Disponibile da PHP 7.1.0.
+      Modificare questa impostazione è deprecato a partire da PHP 8.4.0.
+     </entry>
     </row>
     <row>
      <entry><link linkend="ini.session.sid-bits-per-character">session.sid_bits_per_character</link></entry>
      <entry>"4"</entry>
      <entry><constant>INI_ALL</constant></entry>
-     <entry>Disponibile da PHP 7.1.0.</entry>
+     <entry>
+      Disponibile da PHP 7.1.0.
+      Modificare questa impostazione è deprecato a partire da PHP 8.4.0.
+     </entry>
     </row>
     <row>
      <entry><link linkend="ini.session.upload-progress.enabled">session.upload_progress.enabled</link></entry>
@@ -231,7 +249,7 @@
      <entry><link linkend="ini.session.entropy-length">session.entropy_length</link></entry>
      <entry>"0"</entry>
      <entry><constant>INI_ALL</constant></entry>
-     <entry>Rimossa da PHP 7.1.0</entry>
+     <entry>Rimossa da PHP 7.1.0.</entry>
     </row>
    </tbody>
   </tgroup>
@@ -368,8 +386,7 @@
      <literal>php_binary</literal>) e WDDX (nome
      <literal>wddx</literal>). WDDX è disponibile solo se PHP è
      compilato con il supporto <link linkend="ref.wddx">WDDX
-     </link>. <literal>php_serialize</literal> è disponibile
-     da PHP 5.5.4. <literal>php_serialize</literal> utilizza semplici
+     </link>. <literal>php_serialize</literal> utilizza semplici
      funzioni serialize/unserialize internamente e non ha
      limitazioni che <literal>php</literal>
      e <literal>php_binary</literal> hanno. Vecchi identificativi per serializzare
@@ -392,7 +409,7 @@
      <literal>session.gc_probability</literal> in combinazione con
      <literal>session.gc_divisor</literal> è usato per gestire la probabilità
      che la routine gc (garbage collection) venga eseguita.
-     Il valore predefinito è <literal>1</literal>. Vedere <link
+     Il valore predefinito è <literal>1</literal>. Deve essere maggiore o uguale a <literal>0</literal>. Vedere <link
      linkend="ini.session.gc-divisor">session.gc_divisor</link> per i dettagli.
     </simpara>
    </listitem>
@@ -413,6 +430,7 @@
      es. 1/100 significa che c'è la probabilità del 1% che il processo GC parta
      ad ogni richiesta.
      <literal>session.gc_divisor</literal> ha come valore predefinito <literal>100</literal>.
+     Deve essere maggiore di <literal>0</literal>.
     </simpara>
    </listitem>
   </varlistentry>
@@ -428,8 +446,9 @@
      di secondi dopo i quali i dati verranno visti come 'spazzatura' e
      potenzialmente ripuliti. La ripulitura (Garbage Collection) avviene durante l'avvio della sessione
      (in base a <link
-     linkend="ini.session.gc-probability">session.gc_probability</link> and
+     linkend="ini.session.gc-probability">session.gc_probability</link> e
      <link linkend="ini.session.gc-divisor">session.gc_divisor</link>).
+     Il valore predefinito è <literal>1440</literal> (24 minuti).
     </simpara>
     <note>
      <simpara>
@@ -456,6 +475,12 @@
      trovata, il session id incorporato viene segnato come non valido.
      Il valore predefinito è la stringa vuota.
     </simpara>
+    <warning>
+     <simpara>
+      Impostare <literal>session.referer_check</literal> a un valore non vuoto
+      è deprecato a partire da PHP 8.4.0.
+     </simpara>
+    </warning>
    </listitem>
   </varlistentry>
 
@@ -473,7 +498,7 @@
      che sono disponibili in molti sistemi Unix.
     </simpara>
     <simpara>
-     Questa funzionalità è supportata su Winows dalla versione PHP 5.3.3. Impostare
+     Questa funzionalità è supportata su Windows. Impostare
      <literal>session.entropy_length</literal> a un valore diverso da zero
      farà sì che PHP utilizzi come sorgente di entropia la Windows Random API.
     </simpara>
@@ -482,9 +507,9 @@
       Rimossa in PHP 7.1.0
      </simpara>
      <simpara>
-      In PHP 5.4.0 <literal>session.entropy_file</literal> ha come valore predefinito
+      <literal>session.entropy_file</literal> ha come valore predefinito
       <literal>/dev/urandom</literal> o <literal>/dev/arandom</literal>
-      se è disponibile. In PHP 5.3.0 questa direttiva è lasciata vuota per impostazione predefinita.
+      se è disponibile.
      </simpara>
     </note>
    </listitem>
@@ -566,10 +591,16 @@
      <literal>session.use_only_cookies</literal> specifica se
      il modulo userà <emphasis role="strong">solo</emphasis> i
      cookie per salvare il session id sul client.
-     L'abilitazione di questa impostazione previene gli attacchi che passano
-     session id nelle URL.
-     Il valore predefinito è <literal>1</literal> (abilitato) da PHP 5.3.0.
+     L'abilitazione di questa impostazione previene gli attacchi che comportano il passaggio
+     degli ID di sessione nelle URL.
+     Il valore predefinito è <literal>1</literal> (abilitato).
     </simpara>
+    <warning>
+     <simpara>
+      Disabilitare <literal>session.use_only_cookies</literal> è deprecato
+      a partire da PHP 8.4.0.
+     </simpara>
+    </warning>
    </listitem>
   </varlistentry>
 
@@ -636,8 +667,10 @@
    <listitem>
     <simpara>
      <literal>session.cookie_secure</literal> specifica se i
-     cookie devono essere mandati solo su connessioni sicure. Il valore predefinito è
-     <literal>off</literal>.
+     cookie devono essere mandati solo su connessioni sicure. Con questa opzione impostata
+     a <literal>on</literal>, le sessioni funzionano solo con connessioni HTTPS.
+     Se è <literal>off</literal>, le sessioni funzionano sia con connessioni HTTP sia con
+     connessioni HTTPS. Il valore predefinito è <literal>off</literal>.
      Vedere anche
      <function>session_get_cookie_params</function> e
      <function>session_set_cookie_params</function>.
@@ -656,6 +689,25 @@
      che il cookie non sarà accessibile dai linguaggi di scripting, come
      JavaScript. Questa impostazione aiuta efficacemente a ridurre i furti di identità
      attraverso attacchi XSS (anche se non è accettato da tutti i browser).
+    </simpara>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry xml:id="ini.session.cookie-partitioned">
+   <term>
+    <parameter>session.cookie_partitioned</parameter>
+    <type>bool</type>
+   </term>
+   <listitem>
+    <simpara>
+     Contrassegna il cookie come partizionato (CHIPS), il che significa che il cookie sarà
+     isolato in un contesto di prima parte. Questa impostazione può aiutare a mitigare
+     il tracciamento cross-site (anche se non è supportata da tutti i browser).
+    </simpara>
+    <simpara>
+     Se abilitata, deve essere abilitata anche <link linkend="ini.session.cookie-secure">session.cookie_secure</link>,
+     altrimenti il cookie di sessione non verrà inviato e verrà
+     emesso un avviso.
     </simpara>
    </listitem>
   </varlistentry>
@@ -725,8 +777,14 @@
     <simpara>
      <literal>session.use_trans_sid</literal> Specifica se il supporto trasparente
      del sid è abilitato o no. Il valore predefinito è
-     <literal>0</literal> (disabled).
+     <literal>0</literal> (disabilitato).
     </simpara>
+    <warning>
+     <simpara>
+      Abilitare <literal>session.use_trans_sid</literal> è deprecato
+      a partire da PHP 8.4.0.
+     </simpara>
+    </warning>
     <note>
      <simpara>
       La gestione della sessione basata sulle URL ha dei rischi di sicurezza maggiori
@@ -756,12 +814,18 @@
      <literal>session.trans_sid_tags</literal> specifica quali tag HTML
      devono essere riscritti per includere l'id della sessione quando il supporto transparent sid
      è abilitato. Il valore predefinito è
-     <literal>a=href,area=href,frame=src,input=src,form=</literal>
+     <literal>a=href,area=href,frame=src,form=</literal>
     </simpara>
     <simpara>
      <literal>form</literal> è un tag speciale. Viene aggiunto
       <literal>&lt;input hidden="session_id" name="session_name"&gt;</literal> come variabile del form.
     </simpara>
+    <warning>
+     <simpara>
+      Modificare <literal>session.trans_sid_tags</literal> rispetto al suo valore
+      predefinito è deprecato a partire da PHP 8.4.0.
+     </simpara>
+    </warning>
     <note>
      <simpara>
       Prima di PHP 7.1.0, per questo scopo veniva utilizzato
@@ -785,6 +849,12 @@
      Possono essere specificati host multipli con ",", non è permesso nessuno spazio
      tra gli host. p.es. <literal>php.net,wiki.php.net,bugs.php.net</literal>
     </simpara>
+    <warning>
+     <simpara>
+      Impostare <literal>session.trans_sid_hosts</literal> a un valore
+      non vuoto è deprecato a partire da PHP 8.4.0.
+     </simpara>
+    </warning>
    </listitem>
   </varlistentry>
 
@@ -800,30 +870,17 @@
      e 256.
     </simpara>
     <simpara>
-     Il valore predefinito è 32. Se si necessita di compatibilità si può specificare 32,
-     40, ecc. Un ID di sessione più lungo è più difficile da indovinare. È raccomandato utilizzare
-     almeno 32 caratteri.
+     Il valore predefinito è 32. Un ID di sessione più lungo è più difficile da indovinare.
     </simpara>
-    <tip>
-     <para>
-      Note di compatibilità: Utilizzare 32 invece di
-      <literal>session.hash_function</literal>=0 (MD5) e
-      <literal>session.hash_bits_per_character</literal>=4,
-      <literal>session.hash_function</literal>=1 (SHA1) e
-      <literal>session.hash_bits_per_character</literal>=6. Utilizzare 26 invece di
-      <literal>session.hash_function</literal>=0 (MD5) e
-      <literal>session.hash_bits_per_character</literal>=5. Utilizzare 22 invece di
-      <literal>session.hash_function</literal>=0 (MD5) e
-      <literal>session.hash_bits_per_character</literal>=6. È necessario
-      configurare i valori INI per avere almeno 128 bit nell'ID della sessione. È importante non
-      dimenticare di impostare un valore appropriato a
-      <literal>session.sid_bits_per_character</literal>, altrimenti si
-      avrà un'ID di sessione più debole.
-     </para>
-    </tip> 
+    <warning>
+     <simpara>
+      Modificare <literal>session.sid_length</literal> rispetto al suo valore
+      predefinito è deprecato a partire da PHP 8.4.0.
+     </simpara>
+    </warning>
     <note>
      <simpara>
-      Questa impostazione è stata introdotta in PHP 7.1.0.
+      Disponibile da PHP 7.1.0.
      </simpara>
     </note>
    </listitem>
@@ -836,19 +893,22 @@
    </term>
    <listitem>
     <simpara>
-     <literal>session.sid_per_character</literal> permette di specificare il
+     <literal>session.sid_bits_per_character</literal> permette di specificare il
      numero di bit dei caratteri dell'ID della sessione codificata. I valori possibili sono 
      '4' (0-9, a-f), '5' (0-9, a-v), e '6' (0-9, a-z, A-Z, "-", ",").
     </simpara>
     <simpara>
-     Il valore predefinito è 4. Più bit porteranno ad un ID della sessione più forte. 5 è
-     il valore raccomandato per la maggior parte degli ambienti.
+     Il valore predefinito è 4. Più bit producono un ID di sessione più forte.
     </simpara>
-    <para>
-    </para>
+    <warning>
+     <simpara>
+      Modificare <literal>session.sid_bits_per_character</literal> rispetto al suo
+      valore predefinito è deprecato a partire da PHP 8.4.0.
+     </simpara>
+    </warning>
     <note>
      <simpara>
-      Questa impostazione è stata introdotta in PHP 7.1.0.
+      Disponibile da PHP 7.1.0.
      </simpara>
     </note>
    </listitem>
@@ -866,7 +926,7 @@
      '1' significa SHA-1 (160 bit).
     </simpara>
     <para>
-     Da PHP 5.3.0 è possibile anche specificare uno degli algoritmi
+     È anche possibile specificare uno degli algoritmi
      forniti dall'<link linkend="ref.hash">estensione hash</link> (se è
      disponibile), come <literal>sha512</literal> o
      <literal>whirlpool</literal>. Una lista completa degli algoritmi disponibili può
@@ -874,7 +934,7 @@
     </para>
     <note>
      <simpara>
-      Questo è stata introdotto in PHP 5. Rimosso in PHP 7.1.0.
+      Rimossa in PHP 7.1.0.
      </simpara>
     </note>
    </listitem>
@@ -907,9 +967,20 @@
    </term>
    <listitem>
     <simpara>
-     Abilita il monitoraggio dell'avanzamento dell'upload, popolando la varibile <varname>$_SESSION</varname>.
+     Abilita il monitoraggio dell'avanzamento dell'upload, popolando la variabile <varname>$_SESSION</varname>.
      Il valore predefinito è 1, abilitato.
     </simpara>
+    <warning>
+      <simpara>
+          Il monitoraggio dell'avanzamento dell'upload scrive il nome del file e il nome del campo forniti dal client
+          nell'archivio della sessione mentre l'upload è in corso, per consentire di interrogare lo stato del processo
+          da una richiesta separata. Nelle applicazioni che non utilizzano barre di avanzamento
+          dell'upload, si consiglia di disabilitare questa opzione; i nomi dei file e dei campi non sono
+          validati e possono contenere codice PHP, rendendo qualsiasi
+          <link xlink:href="&url.session.lfi;">vulnerabilità di local file inclusion</link>
+          banale da sfruttare.
+        </simpara>
+      </warning>
    </listitem>
   </varlistentry>
 

@@ -1,56 +1,156 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.ucwords" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>ucwords</refname> 
-    <refpurpose>
-     Converte in maiuscolo il primo carattere di ogni parola di una stringa
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>ucwords</methodname>
-      <methodparam><type>string</type><parameter>str</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Restituisce un testo in cui la lettera iniziale di ogni parola è
-     convertita in maiuscolo, se il carattere è alfabetico.
-    </para>
-    <simpara>
-     Definizione di parola: sequenza di caratteri immediatamente
-     seguita da un carattere di delimitazione (i delimitatori sono:
-     spazio, form-feed, newline, carriage return, tab orizzontale
-     e tab verticale).
-    </simpara>
-    <para>
-     <example>
-      <title>Esempio di uso di <function>ucwords</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 45042fef652f1b4e904e809fcbfcf31f6c60670b Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.ucwords" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>ucwords</refname>
+  <refpurpose>Converte in maiuscolo il primo carattere di ogni parola di una stringa</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>ucwords</methodname>
+   <methodparam><type>string</type><parameter>string</parameter></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>separators</parameter><initializer>" \t\r\n\f\v"</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Restituisce una stringa con il primo carattere di ogni parola di
+   <parameter>string</parameter> convertito in maiuscolo, se tale carattere è un carattere
+   ASCII compreso tra <literal>"a"</literal> (0x61) e <literal>"z"</literal>
+   (0x7a).
+  </para>
+  <para>
+   Per questa funzione, una parola è una sequenza di caratteri che non sono elencati nel
+   parametro <parameter>separators</parameter>. Per impostazione predefinita, questi sono:
+   spazio, tabulazione orizzontale, ritorno a capo, nuova riga, avanzamento pagina e tabulazione verticale.
+  </para>
+  <para>
+   Per effettuare una conversione simile su stringhe multibyte, utilizzare
+   <function>mb_convert_case</function> con la modalità
+   <constant>MB_CASE_TITLE</constant>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>string</parameter></term>
+     <listitem>
+      <para>
+       La stringa di input.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>separators</parameter></term>
+     <listitem>
+      <para>
+       Il parametro opzionale <parameter>separators</parameter> contiene i caratteri separatori di parola.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce la stringa modificata.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &strings.changelog.ascii-case-conversion;
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>ucwords</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$foo = 'hello world!';
-$foo = ucwords($foo);             // Hello World! 
+$foo = 'ciao mondo!';
+echo ucwords($foo), PHP_EOL;             // Ciao Mondo!
 
-$bar = 'HELLO WORLD!';
-$bar = ucwords($bar);             // HELLO WORLD!
-$bar = ucwords(strtolower($bar)); // Hello World!
+$bar = 'CIAO MONDO!';
+echo ucwords($bar), PHP_EOL;             // CIAO MONDO!
+echo ucwords(strtolower($bar)), PHP_EOL; // Ciao Mondo!
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
+    </programlisting>
+   </example>
+  </para>
 
-    &note.bin-safe;
+  <para>
+   <example>
+    <title>Esempio di <function>ucwords</function> con delimitatore personalizzato</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$foo = 'ciao|mondo!';
+echo ucwords($foo), PHP_EOL;             // Ciao|mondo!
 
-    <para>
-     Vedere anche <function>strtoupper</function>,
-     <function>strtolower</function> e <function>ucfirst</function>.
-    </para>
-   </refsect1>
-  </refentry>
+echo ucwords($foo, "|"), PHP_EOL;        // Ciao|Mondo!
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
 
+  <para>
+   <example>
+    <title>Esempio di <function>ucwords</function> con delimitatori aggiuntivi</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+$foo = "mario d'amico";
+echo ucwords($foo), PHP_EOL;                 // Mario D'amico
+
+echo ucwords($foo, " \t\r\n\f\v'"), PHP_EOL; // Mario D'Amico
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.bin-safe;
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>strtoupper</function></member>
+    <member><function>strtolower</function></member>
+    <member><function>ucfirst</function></member>
+    <member><function>mb_convert_case</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,41 +1,123 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.similar-text" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>similar_text</refname>
-    <refpurpose>
-     Calcola la similitudine tra due stringhe
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>similar_text</methodname>
-      <methodparam><type>string</type><parameter>first</parameter></methodparam>
-      <methodparam><type>string</type><parameter>second</parameter></methodparam>
-      <methodparam choice="opt"><type>float</type><parameter role="reference">percent</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Questa funzione calcola la similitudine tra due stringhe come descritto
-     in Oliver [1993]. Attenzione che questa implementazione non utilizza
-     lo stack come nel psuedo codice di Oliver, ma utilizza chiamate ricorsive che possono
-     o non possono velocizzare l'intero processo. Occorre anche rilevare che la 
-     complessità di questo algoritmo è O(N**3) dove N è la lunghezza della
-     stringa più lunga.
-    </para>
-    <para>
-     Passando per riferimento il terzo argomento,
-     <function>similar_text</function> la funzione calcolerà la similitudine
-     in percentuale. La funzione restituisce il numero di caratteri corrispondenti in entrambe
-     le stringhe.
-    </para>
-    <simpara>
-     Vedere anche <function>levenshtein</function> e <function>soundex</function>.
-    </simpara>
-   </refsect1>
-  </refentry>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 873f4a3d5027bd1b584f1d1e590e22cd4a08ae84 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.similar-text" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>similar_text</refname>
+  <refpurpose>Calcola la somiglianza tra due stringhe</refpurpose>
+ </refnamediv>
 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>int</type><methodname>similar_text</methodname>
+   <methodparam><type>string</type><parameter>string1</parameter></methodparam>
+   <methodparam><type>string</type><parameter>string2</parameter></methodparam>
+   <methodparam choice="opt"><type>float</type><parameter role="reference">percent</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Calcola la somiglianza tra due stringhe come descritto in
+   &book.programming.classics;. Si noti che questa implementazione non usa uno
+   stack come nello pseudocodice di Oliver, ma chiamate ricorsive che possono o meno
+   velocizzare l'intero processo. Si noti inoltre che la complessità di questo algoritmo
+   è O(N**3), dove N è la lunghezza della stringa più lunga.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>string1</parameter></term>
+     <listitem>
+      <para>
+       La prima stringa.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>string2</parameter></term>
+     <listitem>
+      <para>
+       La seconda stringa.
+      </para>
+      <note>
+       <para>
+        Scambiare <parameter>string1</parameter> e
+        <parameter>string2</parameter> può produrre un risultato diverso; si veda
+        l'esempio seguente.
+       </para>
+      </note> 
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>percent</parameter></term>
+     <listitem>
+      <para>
+       Passando un riferimento come terzo argomento,
+       <function>similar_text</function> calcolerà la somiglianza in
+       percentuale, dividendo il risultato di <function>similar_text</function> per
+       la media delle lunghezze delle stringhe fornite e moltiplicandolo per
+       <literal>100</literal>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce il numero di caratteri corrispondenti in entrambe le stringhe.
+  </para>
+  <para>
+   Il numero di caratteri corrispondenti viene calcolato trovando la prima sottostringa
+   comune più lunga, e ripetendo poi l'operazione sui prefissi e sui suffissi,
+   ricorsivamente. Le lunghezze di tutte le sottostringhe comuni trovate vengono sommate.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <example xml:id="similar_text.example.swapping">
+   <title>Esempio di scambio degli argomenti di <function>similar_text</function></title>
+   <para>
+    Questo esempio mostra che scambiare gli argomenti <parameter>string1</parameter> e
+    <parameter>string2</parameter> può produrre risultati diversi.
+   </para>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$sim = similar_text('bafoobar', 'barfoo', $perc);
+echo "somiglianza: $sim ($perc %)\n";
+$sim = similar_text('barfoo', 'bafoobar', $perc);
+echo "somiglianza: $sim ($perc %)\n";
+]]>
+   </programlisting>
+   &example.outputs.similar;
+   <screen>
+<![CDATA[
+somiglianza: 5 (71.428571428571 %)
+somiglianza: 3 (42.857142857143 %)
+]]>
+   </screen>
+  </example>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>levenshtein</function></member>
+    <member><function>metaphone</function></member>
+    <member><function>soundex</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

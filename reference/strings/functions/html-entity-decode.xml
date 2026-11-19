@@ -1,117 +1,208 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.html-entity-decode" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>html_entity_decode</refname>
-    <refpurpose>
-     Converte le entità HTML nei corrispondenti caratteri
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>html_entity_decode</methodname>
-      <methodparam><type>string</type><parameter>string</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>quote_style</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>charset</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     La funzione <function>html_entity_decode</function> è l'opposto di
-     <function>htmlentities</function> converte tutte le entità HTML presenti
-     nel parametro <parameter>string</parameter> nel corrispondente carattere.
-    </para>
-    <para>
-     Il secondo parametro,
-     <parameter>quote_style</parameter>, opzionale, indica cosa occorre fare per gli apici
-     'singoli' e "doppi". Sono possibili tre scelte indicate da tre
-     costanti con default <constant>ENT_COMPAT</constant>:
-     <table>
-      <title>Costanti disponibili per <parameter>quote_style</parameter></title>
-      <tgroup cols="2">
-       <thead>
-        <row>
-         <entry>Nome della costante</entry>
-         <entry>Descrizione</entry>
-        </row>
-       </thead>
-       <tbody>
-        <row>
-         <entry><constant>ENT_COMPAT</constant></entry>
-         <entry>Converte gli apici doppi e lascia inalterati gli apici singoli.</entry>
-        </row>
-        <row>
-         <entry><constant>ENT_QUOTES</constant></entry>
-         <entry>Converte sia gli apici doppi sia gli apici singoli.</entry>
-        </row>
-        <row>
-         <entry><constant>ENT_NOQUOTES</constant></entry>
-         <entry>Lascia entrambi i tipi di apici inalterati.</entry>
-        </row>
-       </tbody>
-      </tgroup>
-     </table>
-    </para>
-    <para>
-     Per il terzo parametro opzionale, <parameter>charset</parameter>, si utilizza
-     come default il set di caratteri ISO-8859-1. Questo parametro indica quale
-     set di caratteri utilizzare per la conversione.
-    </para>
-    &reference.strings.charsets;    
-    <para>
-     <example>
-      <title>Decodifica delle entità HTML</title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 45042fef652f1b4e904e809fcbfcf31f6c60670b Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.html-entity-decode" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>html_entity_decode</refname>
+  <refpurpose>Converte le entità HTML nei caratteri corrispondenti</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>html_entity_decode</methodname>
+   <methodparam><type>string</type><parameter>string</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>flags</parameter><initializer>ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>encoding</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>html_entity_decode</function> è l'opposto di
+   <function>htmlentities</function>, in quanto converte le entità HTML
+   presenti in <parameter>string</parameter> nei caratteri corrispondenti.
+  </para>
+  <para>
+   Più precisamente, questa funzione decodifica tutte le entità (incluse tutte le entità
+   numeriche) che a) sono necessariamente valide per il tipo di documento scelto — cioè,
+   per XML, questa funzione non decodifica le entità con nome che potrebbero essere definite
+   in qualche DTD — e b) il cui carattere o i cui caratteri appartengono al set di caratteri codificato
+   associato alla codifica scelta e sono consentiti nel tipo di
+   documento scelto. Tutte le altre entità vengono lasciate invariate.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>string</parameter></term>
+     <listitem>
+      <para>
+       La stringa in input.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>flags</parameter></term>
+     <listitem>
+      <para>
+       Una maschera di bit di uno o più dei seguenti flag, che specificano come gestire gli apici e
+       quale tipo di documento utilizzare. Il valore predefinito è <literal>ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401</literal>.
+       <table>
+        <title>Costanti disponibili per <parameter>flags</parameter></title>
+        <tgroup cols="2">
+         <thead>
+          <row>
+           <entry>Nome della costante</entry>
+           <entry>Descrizione</entry>
+          </row>
+         </thead>
+         <tbody>
+          <row>
+           <entry><constant>ENT_COMPAT</constant></entry>
+           <entry>Converte le virgolette doppie e lascia invariati gli apici singoli.</entry>
+          </row>
+          <row>
+           <entry><constant>ENT_QUOTES</constant></entry>
+           <entry>Converte sia le virgolette doppie sia gli apici singoli.</entry>
+          </row>
+          <row>
+           <entry><constant>ENT_NOQUOTES</constant></entry>
+           <entry>Non converte né le virgolette doppie né gli apici singoli.</entry>
+          </row>
+          <row>
+           <entry><constant>ENT_SUBSTITUTE</constant></entry>
+           <entry>
+            Sostituisce le sequenze di unità di codice non valide con un carattere di sostituzione Unicode
+            U+FFFD (UTF-8) o &amp;#xFFFD; (altrimenti) invece di restituire una stringa vuota.
+           </entry>
+          </row>
+          <row>
+           <entry><constant>ENT_HTML401</constant></entry>
+           <entry>
+            Gestisce il codice come HTML 4.01.
+           </entry>
+          </row>
+          <row>
+           <entry><constant>ENT_XML1</constant></entry>
+           <entry>
+            Gestisce il codice come XML 1.
+           </entry>
+          </row>
+          <row>
+           <entry><constant>ENT_XHTML</constant></entry>
+           <entry>
+            Gestisce il codice come XHTML.
+           </entry>
+          </row>
+          <row>
+           <entry><constant>ENT_HTML5</constant></entry>
+           <entry>
+            Gestisce il codice come HTML 5.
+           </entry>
+          </row>
+         </tbody>
+        </tgroup>
+       </table>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>encoding</parameter></term>
+     <listitem>
+      &strings.parameter.encoding;
+      &reference.strings.charsets;
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce la stringa decodificata.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.1.0</entry>
+      <entry>
+       Il valore predefinito di <parameter>flags</parameter> è cambiato da <constant>ENT_COMPAT</constant> a <constant>ENT_QUOTES</constant> | <constant>ENT_SUBSTITUTE</constant> | <constant>ENT_HTML401</constant>.
+      </entry>
+     </row>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>encoding</parameter> ora è nullable.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Decodifica delle entità HTML</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$orig = "I'll \"walk\" the <b>dog</b> now";
+$orig = "Ora porto \"a spasso\" l'amico <b>cane</b>";
 
 $a = htmlentities($orig);
 
 $b = html_entity_decode($a);
 
-echo $a; // I'll &quot;walk&quot; the &lt;b&gt;dog&lt;/b&gt; now
+echo $a, PHP_EOL; // Ora porto &quot;a spasso&quot; l&#039;amico &lt;b&gt;cane&lt;/b&gt;
 
-echo $b; // I'll "walk" the <b>dog</b> now
-
-
-// Per utilizzatori di versioni di PHP antecedenti alla 4.3.0:
-function unhtmlentities($string) 
-{
-    $trans_tbl = get_html_translation_table(HTML_ENTITIES);
-    $trans_tbl = array_flip($trans_tbl);
-    return strtr($string, $trans_tbl);
-}
-
-$c = unhtmlentities($a);
-
-echo $c; // I'll "walk" the <b>dog</b> now
-
+echo $b, PHP_EOL; // Ora porto "a spasso" l'amico <b>cane</b>
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     <note>
-      <para>
-       Ci si può chiedere come mai la sequenza trim(html_entity_decode('&amp;nbsp;')); non
-       produca una stringa vuota; questo accade perché l'intità '&amp;nbsp;'
-       non corrisponde al codice ASCII 32 (che verrebbe rimosso
-       da <function>trim</function>), ma, nella codifica di default ISO-8859-1, corrisponde
-       al carattere ASCII 160 (0xa0).
-      </para>
-     </note>
-    </para>
-    <para>
-     Vedere anche <function>htmlentities</function>,
-     <function>htmlspecialchars</function>,
-     <function>get_html_translation_table</function>, 
-     and <function>urldecode</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>   
+  </para>
+ </refsect1>
 
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    Ci si potrebbe chiedere perché trim(html_entity_decode('&amp;nbsp;')); non
+    riduca la stringa a una stringa vuota: ciò accade perché l'entità '&amp;nbsp;'
+    non corrisponde al codice ASCII 32 (che viene rimosso da
+    <function>trim</function>) ma al codice ASCII 160 (0xa0) nella codifica predefinita ISO
+    8859-1.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>htmlentities</function></member>
+    <member><function>htmlspecialchars</function></member>
+    <member><function>get_html_translation_table</function></member>
+    <member><function>urldecode</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

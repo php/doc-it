@@ -1,33 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 25ec27a80ca17bf72bbe7a3ea65b0a1038c15025 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
 <refentry xml:id="function.str-word-count" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>str_word_count</refname>
   <refpurpose>
-   Restituisce informazioni sulle parole utilizzate in una stringa
+   Restituisce informazioni sulle parole usate in una stringa
   </refpurpose>
  </refnamediv>
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type>mixed</type><methodname>str_word_count</methodname>
+   <type class="union"><type>array</type><type>int</type></type><methodname>str_word_count</methodname>
    <methodparam><type>string</type><parameter>string</parameter></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>format</parameter></methodparam>
-   <methodparam choice="opt"><type>string</type><parameter>charlist</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>format</parameter><initializer>0</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>characters</parameter><initializer>&null;</initializer></methodparam>
   </methodsynopsis>
   <para>
-   Conta il numero di parole presenti in <parameter>string</parameter>. 
-   Se non viene indicato il parametro opzionale <parameter>format</parameter>,
-   allora la funzione restituirà un intero indicante il numero di parole trovate.
-   Nel caso in cui sia specificato <parameter>format</parameter>, la funzione restituisce
-   una matrice il cui contenuto dipende dal parametro
-   <parameter>format</parameter>. I possibili valori per 
-   <parameter>format</parameter> ed i rispettivi output sono elencati di seguito.
+   Conta il numero di parole contenute in <parameter>string</parameter>.
+   Se il parametro opzionale <parameter>format</parameter> non viene specificato,
+   il valore restituito sarà un intero che rappresenta il numero di parole
+   trovate. Se invece <parameter>format</parameter> viene specificato, il valore
+   restituito sarà un array, il cui contenuto dipende da
+   <parameter>format</parameter>. I possibili valori di
+   <parameter>format</parameter> e i risultati corrispondenti sono elencati di seguito.
   </para>
   <para>
-   Per gli scopi di questa funzione 'parola' è definita come testo dipendente dalle
-   impostazioni locali, contenente caratteri alfabetici, che può contenere, ma non cominciare,
-   con i caratteri &quot;'&quot; and &quot;-&quot;.
+   Ai fini di questa funzione, una 'parola' è definita come una stringa dipendente dal locale
+   contenente caratteri alfabetici, che può contenere anche, ma non iniziare
+   con, i caratteri &quot;'&quot; e &quot;-&quot;.
+   Si noti che i locale multibyte non sono supportati.
   </para>
  </refsect1>
 
@@ -47,8 +49,8 @@
      <term><parameter>format</parameter></term>
      <listitem>
       <para>
-       Indica il tipo di valore restituito dalla funzione. Le attuali impostazioni ammesse
-       per il parametro sono:
+       Specifica il valore restituito da questa funzione. I valori attualmente supportati
+       sono:
        <itemizedlist>
         <listitem>
          <simpara>
@@ -57,15 +59,15 @@
         </listitem>
         <listitem>
          <simpara>
-          1 - restituisce una matrice contenente tutte le parole trovate all'interno di
-        <parameter>string</parameter>.
+          1 - restituisce un array contenente tutte le parole trovate all'interno di
+          <parameter>string</parameter>
          </simpara>
         </listitem>
         <listitem>
          <simpara>
-          2 - restituisce una matrice associativa, in cui le chiavi sono la posizione
-          numerica della parola in <parameter>string</parameter> ed
-          il valore è la parola stessa.
+          2 - restituisce un array associativo, in cui la chiave è la posizione
+          numerica della parola all'interno di <parameter>string</parameter> e
+          il valore è la parola stessa
          </simpara>
         </listitem> 
        </itemizedlist>
@@ -73,10 +75,10 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>charlist</parameter></term>
+     <term><parameter>characters</parameter></term>
      <listitem>
       <para>
-       Lista di caratteri addizionali da considerare come 'parole'
+       Un elenco di caratteri aggiuntivi che verranno considerati come 'parola'
       </para>
      </listitem>
     </varlistentry>
@@ -87,46 +89,60 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce un intero od una matrice in base al valore di
-   <parameter>format</parameter>.
+   Restituisce un array o un intero, a seconda del valore di
+   <parameter>format</parameter> scelto.
   </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <simpara>
+   Lancia un <exceptionname>ValueError</exceptionname> se <parameter>format</parameter>
+   non è <literal>0</literal>, <literal>1</literal> o <literal>2</literal>.
+  </simpara>
  </refsect1>
 
  <refsect1 role="changelog">
   &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>5.1.0</entry>
-       <entry>
-        Aggiunto il parametro <parameter>charlist</parameter>
-       </entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </informaltable>
-  </para>
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       Ora lancia un <exceptionname>ValueError</exceptionname> se <parameter>format</parameter>
+       non è valido.
+       In precedenza, veniva emesso un <constant>E_WARNING</constant> e veniva restituito &false;.
+      </entry>
+     </row>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       <parameter>characters</parameter> ora è nullable.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
  </refsect1>
 
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
-    <title>Esempio di uso di <function>str_word_count</function></title>
+    <title>Esempio di <function>str_word_count</function></title>
     <programlisting role="php">
 <![CDATA[
 <?php
 
-$str = "Hello fri3nd, you're
-       looking          good today!";
+$str = "Ciao am3co, quest'oggi
+       sembri          in forma!";
 
 print_r(str_word_count($str, 1));
 print_r(str_word_count($str, 2));
@@ -142,36 +158,33 @@ echo str_word_count($str);
 <![CDATA[
 Array
 (
-    [0] => Hello
-    [1] => fri
-    [2] => nd
-    [3] => you're
-    [4] => looking
-    [5] => good
-    [6] => today
+    [0] => Ciao
+    [1] => am
+    [2] => co
+    [3] => quest'oggi
+    [4] => sembri
+    [5] => in
+    [6] => forma
 )
-
 Array
 (
-    [0] => Hello
-    [6] => fri
-    [10] => nd
-    [14] => you're
-    [29] => looking
-    [46] => good
-    [51] => today
+    [0] => Ciao
+    [5] => am
+    [8] => co
+    [12] => quest'oggi
+    [30] => sembri
+    [46] => in
+    [49] => forma
 )
-
 Array
 (
-    [0] => Hello
-    [1] => fri3nd
-    [2] => you're
-    [3] => looking
-    [4] => good
-    [5] => today
+    [0] => Ciao
+    [1] => am3co
+    [2] => quest'oggi
+    [3] => sembri
+    [4] => in
+    [5] => forma
 )
-
 7
 ]]>
     </screen>
@@ -185,14 +198,12 @@ Array
    <simplelist>
     <member><function>explode</function></member>
     <member><function>preg_split</function></member>
-    <member><function>split</function></member>
     <member><function>count_chars</function></member>
     <member><function>substr_count</function></member>
    </simplelist>
   </para>
  </refsect1>
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

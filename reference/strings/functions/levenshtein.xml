@@ -1,190 +1,206 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.12 -->
-  <refentry xml:id="function.levenshtein" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>levenshtein</refname>
-    <refpurpose>
-     Calcola la distanza Levenshtein tra due stringhe
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>levenshtein</methodname>
-      <methodparam><type>string</type><parameter>str1</parameter></methodparam>
-      <methodparam><type>string</type><parameter>str2</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>cost_ins</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>cost_rep</parameter></methodparam>     
-      <methodparam><type>int</type><parameter>cost_del</parameter></methodparam>
-     </methodsynopsis>
-     <!-- Callback function not yet implemented, see bug #29552
-     <methodsynopsis>
-      <type>int</type><methodname>levenshtein</methodname>
-      <methodparam><type>string</type><parameter>str1</parameter></methodparam>
-      <methodparam><type>string</type><parameter>str2</parameter></methodparam>
-      <methodparam><type>callback</type><parameter>cost</parameter></methodparam>
-     </methodsynopsis>
-     -->
-    <para>
-     Questa funzione restituisce la distanza Levenshtein tra due
-     stringhe o -1 se uno degli argomenti è più
-     lungo del limite di 255 caratteri.
-    </para>
-    <para>
-     La distanza Levenshtein è definita come il numero minimo di
-     caratteri da sostituire, inserire o cancellare per trasformare
-     <parameter>str1</parameter> in <parameter>str2</parameter>.
-     La complessità dell'algoritmo è <literal>O(m*n)</literal>,
-     dove <literal>n</literal> e <literal>m</literal> sono rispettivamente
-     la lunghezza di <parameter>str1</parameter> e di
-     <parameter>str2</parameter> (valore piuttosto buono se confrontato con
-     <function>similar_text</function>, che è O(max(n,m)**3),
-     ma comunque costoso).
-    </para>
-    <para>
-     Nella sua versione più semplice la funzione richiede come parametri due 
-     stringhe e calcola il numero di caratteri da inserire, sostituire
-     o rimuovere necessari a trasformare
-     <parameter>str1</parameter> in <parameter>str2</parameter>.
-    </para>
-    <para> 
-     La seconda variante utilizza tre parametri addizionali che definiscono il
-     costo delle operazioni di inserimento, sostituzione e di cancellazione.
-     Questa versione è più generale e adattabile della precedente, ma non è
-     altrettanto efficiente.
-    </para>
-    <!--  Callback function not yet implemented, see bug #29552
-    <para> 
-     La terza versione (che non è ancora implementata) sarè la più generale,
-     ma anche l'alternativa più lenta. Utilizzerà una funzione
-     utente per determinare il costo di
-     ogni possibile operazione.
-    </para>
-    <para>
-     La funzione utente sarà chiamata con i seguenti
-     parametri:
-     <itemizedlist>
-      <listitem>
-       <simpara>
-        operazione da applicare: 'I', 'R' oppure 'D'
-       </simpara>
-      </listitem>
-      <listitem>
-       <simpara>
-        attuale carattere in stringa 1
-       </simpara>
-      </listitem>
-      <listitem>
-       <simpara>
-        attuale carattere in stringa 2
-       </simpara>
-      </listitem>
-      <listitem>
-       <simpara>
-        posizione in stringa 1
-       </simpara>
-      </listitem>
-      <listitem>
-       <simpara>
-        posizione in stringa 2
-       </simpara>
-      </listitem>
-      <listitem>
-       <simpara>
-        caratteri rimanenti in stringa 1
-       </simpara>
-      </listitem>
-      <listitem>
-       <simpara>
-        caratteri rimanenti in stringa 2
-       </simpara>
-      </listitem>
-     </itemizedlist>
-     La funzione utente deve restituire un intero positivo
-     per descrivere il costo della particolare operazione, ma può decidere
-     di utilizzare solo alcuni degli argomenti forniti.
-    </para>
-    <para> 
-     L'utilizzo della funzione utente offre la possibilità di
-     tenere conto dell'importanza e/o della differenza tra
-     particolari simboli (caratteri), del contesto in cui questi simboli
-     appaiono, per determinare il costo delle operazioni di inserimento, sostituzione e cancellazione;
-     il tutto al costo della perdita delle ottimizzazioni
-     nell'uso dei registri della cpu e della cache fatte
-     per le altre due varianti.
-    </para>
-    -->
-    <para>
-     <example>
-      <title>Esempio di uso di <function>levenshtein</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 873f4a3d5027bd1b584f1d1e590e22cd4a08ae84 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.levenshtein" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <refnamediv>
+  <refname>levenshtein</refname>
+  <refpurpose>Calcola la distanza di Levenshtein tra due stringhe</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>int</type><methodname>levenshtein</methodname>
+   <methodparam><type>string</type><parameter>string1</parameter></methodparam>
+   <methodparam><type>string</type><parameter>string2</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>insertion_cost</parameter><initializer>1</initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>replacement_cost</parameter><initializer>1</initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>deletion_cost</parameter><initializer>1</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   La distanza di Levenshtein è definita come il numero minimo di
+   caratteri da sostituire, inserire o eliminare per trasformare
+   <parameter>string1</parameter> in <parameter>string2</parameter>.
+   La complessità dell'algoritmo è <literal>O(m*n)</literal>,
+   dove <literal>n</literal> e <literal>m</literal> sono le
+   lunghezze di <parameter>string1</parameter> e
+   <parameter>string2</parameter> (piuttosto buona se confrontata con
+   <function>similar_text</function>, che è <literal>O(max(n,m)**3)</literal>,
+   ma comunque onerosa).
+  </para>
+  <para>
+   Se <parameter>insertion_cost</parameter>, <parameter>replacement_cost</parameter>
+   e/o <parameter>deletion_cost</parameter> sono diversi da <literal>1</literal>,
+   l'algoritmo si adatta scegliendo le trasformazioni meno costose.
+   Ad esempio, se <code>$insertion_cost + $deletion_cost &lt; $replacement_cost</code>,
+   non verrà effettuata alcuna sostituzione, ma al loro posto inserimenti ed eliminazioni.
+  </para>
+ </refsect1>
+
+<refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>string1</parameter></term>
+     <listitem>
+      <para>
+       Una delle stringhe di cui valutare la distanza di Levenshtein.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>string2</parameter></term>
+     <listitem>
+      <para>
+       Una delle stringhe di cui valutare la distanza di Levenshtein.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>insertion_cost</parameter></term>
+     <listitem>
+      <para>
+       Definisce il costo di un inserimento.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>replacement_cost</parameter></term>
+     <listitem>
+      <para>
+       Definisce il costo di una sostituzione.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>deletion_cost</parameter></term>
+     <listitem>
+      <para>
+       Definisce il costo di un'eliminazione.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Questa funzione restituisce la distanza di Levenshtein tra le
+   due stringhe passate come argomenti.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       Prima di questa versione, <function>levenshtein</function> doveva essere chiamata
+       con due o con cinque argomenti.
+      </entry>
+     </row>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       Prima di questa versione, <function>levenshtein</function> restituiva <literal>-1</literal>
+       se una delle stringhe passate come argomenti era più lunga di 255 caratteri.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>levenshtein</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-// input parola errata
+// parola inserita con un errore di ortografia
 $input = 'carrrot';
- 
-// matrice di parole con cui verificare
+
+// array di parole con cui confrontarla
 $words  = array('apple','pineapple','banana','orange',
                 'radish','carrot','pea','bean','potato');
- 
-// non ancora trovata la distanza più breve
+
+// nessuna distanza minima ancora trovata
 $shortest = -1;
- 
-// loop su tutte le parole per trovare la più simile
+
+// scorre le parole per trovare la più vicina
 foreach ($words as $word) {
- 
-    // calcola la distanza tra la parola di input
-    // e la corrente
+
+    // calcola la distanza tra la parola inserita
+    // e la parola corrente
     $lev = levenshtein($input, $word);
- 
-    // è la parola esatta?
+
+    // controlla se c'è una corrispondenza esatta
     if ($lev == 0) {
- 
-        // la più simile è questa
+
+        // la parola più vicina è questa (corrispondenza esatta)
         $closest = $word;
         $shortest = 0;
- 
-        // esce dal loop, l'abbiamo trovata
+
+        // esce dal ciclo; è stata trovata una corrispondenza esatta
         break;
     }
- 
-    // se la distanza è inferiore rispetto alla precendete più corta
-    // o non ne abbiamo ancora trovata una
+
+    // se questa distanza è minore della distanza minima
+    // trovata finora, OPPURE se non è ancora stata trovata una parola più vicina
     if ($lev <= $shortest || $shortest < 0) {
-        // imposta la parola più simile e la distanza più breve
+        // imposta la corrispondenza più vicina e la distanza minima
         $closest  = $word;
         $shortest = $lev;
     }
 }
- 
-echo "Input word: $input\n";
+
+echo "Parola inserita: $input\n";
 if ($shortest == 0) {
-    echo "Exact match found: $closest\n";
+    echo "Trovata corrispondenza esatta: $closest\n";
 } else {
-    echo "Did you mean: $closest?\n";
+    echo "Forse si intendeva: $closest?\n";
 }
- 
+
 ?>
 ]]>
-      </programlisting>
-      &example.outputs;
-      <screen>
+    </programlisting>
+    &example.outputs;
+    <screen>
 <![CDATA[
-Input word: carrrot
-Did you mean: carrot?
+Parola inserita: carrrot
+Forse si intendeva: carrot?
 ]]>
-      </screen>
-     </example>
-    </para>
-    <para>
-     Vedere anche <function>soundex</function>,
-     <function>similar_text</function> e
-     <function>metaphone</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>soundex</function></member>
+    <member><function>similar_text</function></member>
+    <member><function>metaphone</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

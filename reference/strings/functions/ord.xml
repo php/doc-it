@@ -1,45 +1,130 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.ord" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
-   <refnamediv>
-    <refname>ord</refname>
-    <refpurpose>Restituisce il valore ASCII di un carattere</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>ord</methodname>
-      <methodparam><type>string</type><parameter>string</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Restituisce il valore ASCII del primo carattere di
-     <parameter>string</parameter>.  Questa è la funzione complementare di
-     <function>chr</function>.
-     <example>
-      <title>Esempio di uso di <function>ord</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: e5c8e7add9291c70be2ecd046de6ecfd034545a9 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://docbook.org/ns/docbook" xml:id="function.ord">
+ <refnamediv>
+  <refname>ord</refname>
+  <refpurpose>Converte il primo byte di una stringa in un valore compreso tra 0 e 255</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>int</type><methodname>ord</methodname>
+   <methodparam><type>string</type><parameter>character</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Interpreta il valore binario del primo byte di
+   <parameter>character</parameter> come intero senza segno compreso tra 0 e 255.
+  </para>
+  <para>
+   Se la stringa è in una codifica a singolo byte, come ASCII, ISO-8859 o Windows 1252, ciò equivale a restituire la posizione di un carattere nella tabella di corrispondenza del set di caratteri. Tuttavia, si noti che questa funzione non tiene conto di alcuna codifica delle stringhe e, in particolare, non identificherà mai un code point Unicode in una codifica multibyte come UTF-8 o UTF-16.
+  </para>
+  <para>
+   Questa funzione è complementare a <function>chr</function>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>character</parameter></term>
+     <listitem>
+      <para>
+       Un carattere.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Un intero compreso tra 0 e 255.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.5.0</entry>
+      <entry>
+       Il passaggio di una stringa che non sia composta da un singolo byte è ora deprecato.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>ord</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 $str = "\n";
 if (ord($str) == 10) {
-    echo "The first character of \$str is a line feed.\n";
+    echo "Il primo carattere di \$str è un line feed.\n";
 }
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Qui si può reperire la tabella ASCII: <link xlink:href="&url.asciitable;"
-     >&url.asciitable;</link>.
-    </para>
-    <simpara>
-     Vedere anche <function>chr</function>.
-    </simpara> 
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+ </para>
+ <para> 
+   <example>
+    <title>Esame dei singoli byte di una stringa UTF-8</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$str = "🐘";
+for ( $pos=0; $pos < strlen($str); $pos ++ ) {
+ $byte = substr($str, $pos);
+ echo 'Il byte ' . $pos . ' di $str ha valore ' . ord($byte) . PHP_EOL;
+}
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+Il byte 0 di $str ha valore 240
+Il byte 1 di $str ha valore 159
+Il byte 2 di $str ha valore 144
+Il byte 3 di $str ha valore 152
+    </screen>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>chr</function></member>
+    <member>Una <link xlink:href="&url.asciitable;">tabella ASCII</link></member>
+    <member><function>mb_ord</function></member>
+    <member><function>IntlChar::ord</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,116 +1,204 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.str-replace" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>str_replace</refname>
-    <refpurpose>
-     Sostituisce tutte le occorrenze della stringa cercata con la stringa di sostituzione
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>mixed</type><methodname>str_replace</methodname>
-      <methodparam><type>mixed</type><parameter>search</parameter></methodparam>
-      <methodparam><type>mixed</type><parameter>replace</parameter></methodparam>
-      <methodparam><type>mixed</type><parameter>subject</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter role="reference">count</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Questa funzione restituisce una stringa, od un array, con tutte le occorrenze
-     di <parameter>search</parameter> nella stringa <parameter>subject</parameter>
-     sostituite con il valore del parametro <parameter>replace</parameter>. Se non occorrono
-     particolari capacità di sostituzione (tipo le espressioni regolari), si dovrebbe utilizzare
-     questa funzione invece di <function>ereg_replace</function> o
-     <function>preg_replace</function>.
-    </para>
-    <para>
-     Dal PHP 4.0.5, ogni parametro di <function>str_replace</function>
-     può essere un <type>array</type>. 
-    </para>
-    <warning>
-     <simpara>
-      Nelle versioni di PHP antecedenti la 4.3.3 esisteva un errore quando si utilizzano
-      gli array per <parameter>search</parameter> e <parameter>replace</parameter>
-      che faceva ignorare gli indici vuoti di <parameter>search</parameter>
-      avanzando il puntatore interno di 
-      <parameter>replace</parameter>, questo è stato corretto dal
-      PHP 4.3.3, ogni script che si basava su questo errore,
-      per potere simulare il comportamento originale,
-      dovrebbe rimuovere gli elementi vuoti prima di richiamare questa funzione.
-     </simpara>
-    </warning>
-    <para>
-     Se <parameter>subject</parameter> è un array, allora la ricerca e la 
-     sostituzione sono eseguite su ogni elemento di
-     <parameter>subject</parameter>, ed il valore restituito è pure un
-     array.
-    </para>
-    <para>
-     Se <parameter>search</parameter> e
-     <parameter>replace</parameter> sono array, allora
-     <function>str_replace</function> prende i valori da ciascun array
-     e li usa per svolgere la ricerca e la sostituzione in
-     <parameter>subject</parameter>. Se
-     <parameter>replace</parameter> ha meno valori di
-     <parameter>search</parameter>, allora si utilizzeranno delle stringhe vuote
-     per completare i rimanenti valori da sostituire. Se <parameter>search</parameter>
-     è un array e <parameter>replace</parameter> è una stringa, allora
-     questa stringa di sostituzione sarà utilizzata per ogni valore di 
-     <parameter>search</parameter>. Il contrario non avrebbe 
-     senso.
-    </para>
-    <para>
-     <example>
-      <title>Esempi di uso di <function>str_replace</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 45042fef652f1b4e904e809fcbfcf31f6c60670b Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.str-replace" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>str_replace</refname>
+  <refpurpose>Sostituisce tutte le occorrenze della stringa cercata con la stringa di sostituzione</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>array</type></type><methodname>str_replace</methodname>
+   <methodparam><type class="union"><type>array</type><type>string</type></type><parameter>search</parameter></methodparam>
+   <methodparam><type class="union"><type>array</type><type>string</type></type><parameter>replace</parameter></methodparam>
+   <methodparam><type class="union"><type>string</type><type>array</type></type><parameter>subject</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter role="reference">count</parameter><initializer>&null;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Questa funzione restituisce una stringa o un array con tutte le occorrenze di
+   <parameter>search</parameter> in <parameter>subject</parameter>
+   sostituite con il valore <parameter>replace</parameter> indicato.
+  </para>
+  <para>
+   Per sostituire del testo in base a un pattern invece che a una stringa
+   fissa, si usi <function>preg_replace</function>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   Se <parameter>search</parameter> e <parameter>replace</parameter> sono
+   array, <function>str_replace</function> prende un valore da ciascun array
+   e li usa per cercare e sostituire in <parameter>subject</parameter>. Se
+   <parameter>replace</parameter> ha meno valori di
+   <parameter>search</parameter>, per i rimanenti valori di sostituzione viene
+   usata una stringa vuota. Se <parameter>search</parameter> è un array e
+   <parameter>replace</parameter> è una stringa, questa stringa di sostituzione viene
+   usata per ogni valore di <parameter>search</parameter>. Il contrario, invece,
+   non avrebbe senso.
+  </para>
+  <para>
+   Se <parameter>search</parameter> o <parameter>replace</parameter>
+   sono array, i loro elementi vengono elaborati dal primo all'ultimo.
+  </para>
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>search</parameter></term>
+     <listitem>
+      <para>
+       Il valore da cercare, detto anche <emphasis>needle</emphasis>.
+       È possibile usare un array per indicare più needle.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>replace</parameter></term>
+     <listitem>
+      <para>
+       Il valore di sostituzione che sostituisce i valori <parameter>search</parameter>
+       trovati. È possibile usare un array per indicare più sostituzioni.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>subject</parameter></term>
+     <listitem>
+      <para>
+       La stringa o l'array in cui cercare e sostituire,
+       detto anche <emphasis>haystack</emphasis>.
+      </para>
+      <para>
+       Se <parameter>subject</parameter> è un array, la ricerca e la
+       sostituzione vengono eseguite su ogni elemento di
+       <parameter>subject</parameter>, e anche il valore restituito è un
+       array.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>count</parameter></term>
+     <listitem>
+      <para>
+       Se passato, verrà impostato al numero di sostituzioni effettuate.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Questa funzione restituisce una stringa o un array con i valori sostituiti.
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempi di base di <function>str_replace</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-// Provides: <body text='black'>
+// Produce: <body text='black'>
 $bodytag = str_replace("%body%", "black", "<body text='%body%'>");
+echo $bodytag, PHP_EOL;
 
-// Provides: Hll Wrld f PHP
+// Produce: C Mnd dl PHP
 $vowels = array("a", "e", "i", "o", "u", "A", "E", "I", "O", "U");
-$onlyconsonants = str_replace($vowels, "", "Hello World of PHP");
+$onlyconsonants = str_replace($vowels, "", "Ciao Mondo del PHP");
+echo $onlyconsonants, PHP_EOL;
 
-// Provides: You should eat pizza, beer, and ice cream every day
-$phrase  = "You should eat fruits, vegetables, and fiber every day.";
-$healthy = array("fruits", "vegetables", "fiber");
-$yummy   = array("pizza", "beer", "ice cream");
+// Produce: Si dovrebbero mangiare pizza, birra e gelato ogni giorno.
+$phrase  = "Si dovrebbero mangiare frutta, verdura e fibre ogni giorno.";
+$healthy = array("frutta", "verdura", "fibre");
+$yummy   = array("pizza", "birra", "gelato");
 
 $newphrase = str_replace($healthy, $yummy, $phrase);
+echo $newphrase, PHP_EOL;
 
-// Use of the count parameter is available as of PHP 5.0.0
-$str = str_replace("ll", "", "good golly miss molly!", $count);
-echo $count; // 2
+// Produce: 2
+$str = str_replace("ll", "", "che bella palla!", $count);
+echo $count, PHP_EOL;
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    
-    &note.bin-safe;
-    
-    <note>
-     <simpara>
-      Dal PHP 5.0.0 il numero di stringhe trovate e
-      e sostituite, sarà restituito nel parametro, passato per riferimento,
-      <parameter>count</parameter>.
-      Nelle versioni antecedenti al PHP 5.0.0 questo parametro non è disponibile.
-     </simpara>
-    </note>
-    <para>
-     Vedere anche:
-     <function>str_ireplace</function>,
-     <function>substr_replace</function>,
-     <function>ereg_replace</function>,
-     <function>preg_replace</function> e
-     <function>strtr</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Esempi di potenziali insidie di <function>str_replace</function></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// Ordine di sostituzione
+$str     = "Riga 1\nRiga 2\rRiga 3\r\nRiga 4\n";
+$order   = array("\r\n", "\n", "\r");
+$replace = '<br />';
 
+// Elabora prima i \r\n in modo che non vengano convertiti due volte.
+$newstr = str_replace($order, $replace, $str);
+echo $newstr, PHP_EOL;
+
+// Restituisce F perché A viene sostituita con B, poi B viene sostituita con C, e così via...
+// Alla fine E viene sostituita con F, perché le sostituzioni avvengono da sinistra a destra.
+$search  = array('A', 'B', 'C', 'D', 'E');
+$replace = array('B', 'C', 'D', 'E', 'F');
+$subject = 'A';
+echo str_replace($search, $replace, $subject), PHP_EOL;
+
+// Restituisce: perarancia arancia
+// Per lo stesso motivo indicato sopra
+$letters = array('p', 'a');
+$fruit   = array('pera', 'arancia');
+$text    = 'p a';
+$output  = str_replace($letters, $fruit, $text);
+echo $output, PHP_EOL;
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.bin-safe;
+  <caution>
+   <title>Insidia dell'ordine di sostituzione</title>
+   <para>
+    Poiché <function>str_replace</function> effettua le sostituzioni da sinistra a destra, potrebbe
+    sostituire un valore inserito in precedenza quando effettua più sostituzioni.
+    Si vedano anche gli esempi in questo documento.
+   </para>
+  </caution>
+  <note>
+   <para>
+    Questa funzione è sensibile alle maiuscole/minuscole. Si usi <function>str_ireplace</function>
+    per una sostituzione non sensibile alle maiuscole/minuscole.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>str_ireplace</function></member>
+    <member><function>substr_replace</function></member>
+    <member><function>preg_replace</function></member>
+    <member><function>strtr</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

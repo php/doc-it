@@ -1,85 +1,217 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.8 -->
-  <refentry xml:id="function.strpos" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>strpos</refname>
-    <refpurpose>
-     Trova la posizione della prima occorrenza di una stringa
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>int</type><methodname>strpos</methodname>
-      <methodparam><type>string</type><parameter>haystack</parameter></methodparam>
-      <methodparam><type>mixed</type><parameter>needle</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>offset</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Restituisce la posizione numerica della prima occorrenza di
-     <parameter>needle</parameter> nella stringa
-     <parameter>haystack</parameter>. Differentemente rispetto a 
-     <function>strrpos</function>, questa funzione considera tutta la stringa
-     <parameter>needle</parameter>, e, quindi, cercherà tutta
-     la stringa.
-    </para>
-    <para>
-     Se <parameter>needle</parameter> non viene trovato
-     <function>strpos</function> restituirà <type>boolean</type> &false;.
-    </para>
-    
-    &return.falseproblem;
-    &note.bin-safe;
-    <para>
-     <example>
-     <title>Esempio di uso di <function>strpos</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: dd5db7c6b22c45108b19ca815a0bdf07909bf14a Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.strpos" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>strpos</refname>
+  <refpurpose>Trova la posizione della prima occorrenza di una sottostringa in una stringa</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>int</type><type>false</type></type><methodname>strpos</methodname>
+   <methodparam><type>string</type><parameter>haystack</parameter></methodparam>
+   <methodparam><type>string</type><parameter>needle</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>offset</parameter><initializer>0</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Trova la posizione numerica della prima occorrenza di
+   <parameter>needle</parameter> nella stringa <parameter>haystack</parameter>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>haystack</parameter></term>
+     <listitem>
+      <para>
+       La stringa in cui cercare.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>needle</parameter></term>
+     <listitem>
+      <simpara>
+       La stringa da cercare.
+      </simpara>
+      <simpara>
+       Passare una stringa vuota come <parameter>needle</parameter> produce una corrispondenza in
+       ogni posizione. <function>strpos</function> restituisce
+       <parameter>offset</parameter> se è specificato, oppure
+       <literal>0</literal> altrimenti.
+      </simpara>
+      &strings.parameter.needle.non-string;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>offset</parameter></term>
+     <listitem>
+      <para>
+       Se specificato, la ricerca inizierà dopo questo numero di caratteri contati a partire
+       dall'inizio della stringa. Se l'offset è negativo, la ricerca inizierà
+       dopo questo numero di caratteri contati a partire dalla fine della stringa.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce la posizione in cui needle si trova rispetto all'inizio della
+   stringa <parameter>haystack</parameter> (indipendentemente da <parameter>offset</parameter>).
+   Si noti inoltre che le posizioni nella stringa iniziano da <literal>0</literal> e non da <literal>1</literal>.
+  </para>
+  <para>
+   Restituisce &false; se needle non viene trovato.
+  </para>
+  &return.falseproblem;
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <itemizedlist>
+   <listitem>
+    <simpara>
+     Se <parameter>offset</parameter> è maggiore della lunghezza di
+     <parameter>haystack</parameter>, verrà lanciato un
+     <classname>ValueError</classname>.
+    </simpara>
+   </listitem>
+  </itemizedlist>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     &strings.changelog.needle-empty;
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       Il passaggio di un &integer; come <parameter>needle</parameter> non è più supportato.
+      </entry>
+     </row>
+     <row>
+      <entry>7.3.0</entry>
+      <entry>
+       Il passaggio di un &integer; come <parameter>needle</parameter> è stato deprecato.
+      </entry>
+     </row>
+     <row>
+      <entry>7.1.0</entry>
+      <entry>
+       È stato aggiunto il supporto per valori negativi di <parameter>offset</parameter>.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Uso di <literal>===</literal></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
 $mystring = 'abc';
 $findme   = 'a';
 $pos = strpos($mystring, $findme);
 
-// Notate l'uso di ===.  Il == non avrebbe risposto come atteso
-// poiché la posizione di 'a' è nel primo carattere.
+// Si noti l'uso di ===.  Un semplice == non funzionerebbe come previsto
+// perché la posizione di 'a' era il carattere 0 (il primo).
 if ($pos === false) {
-    echo "The string '$findme' was not found in the string '$mystring'";
+    echo "La stringa '$findme' non è stata trovata nella stringa '$mystring'";
 } else {
-    echo "The string '$findme' was found in the string '$mystring'";
-    echo " and exists at position $pos";
+    echo "La stringa '$findme' è stata trovata nella stringa '$mystring'";
+    echo " e si trova alla posizione $pos";
 }
-
-// Ricerca di un carattere ignorando qualsiasi cosa prima di offset
-$newstring = 'abcdef abcdef';
-$pos = strpos($newstring, 'a', 1); // $pos = 7, not 0
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Se <parameter>needle</parameter> non è una stringa, viene convertito
-     in un intero e utilizzato come valore ordinale di un carattere.
-    </para>
-    <para>
-     Il parametro opzionale <parameter>offset</parameter> permette di indicare
-     da quale carattere in <parameter>haystack</parameter> 
-     iniziare la ricerca. La posizione restituita è, comunque, relativa 
-     all'inizio di <parameter>haystack</parameter>.
-    </para>
-    <para>
-     Vedere anche <function>strrpos</function>, 
-     <function>stripos</function>,
-     <function>strripos</function>,
-     <function>strrchr</function>, 
-     <function>substr</function>,
-     <function>stristr</function> e
-     <function>strstr</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
 
+   <example>
+    <title>Uso di !==</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$mystring = 'abc';
+$findme   = 'a';
+$pos = strpos($mystring, $findme);
+
+// È possibile usare anche l'operatore !==.  Usare != non funzionerebbe come previsto
+// perché la posizione di 'a' è 0. L'espressione (0 != false) viene valutata
+// come false.
+if ($pos !== false) {
+     echo "La stringa '$findme' è stata trovata nella stringa '$mystring'";
+         echo " e si trova alla posizione $pos";
+} else {
+     echo "La stringa '$findme' non è stata trovata nella stringa '$mystring'";
+}
+?>
+]]>
+    </programlisting>
+   </example>
+
+   <example>
+    <title>Uso di un offset</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+// È possibile cercare il carattere, ignorando tutto ciò che precede l'offset
+$newstring = 'abcdef abcdef';
+$pos = strpos($newstring, 'a', 1); // $pos = 7, non 0
+
+echo $pos, PHP_EOL;
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.bin-safe;
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>stripos</function></member>
+    <member><function>str_contains</function></member>
+    <member><function>str_ends_with</function></member>
+    <member><function>str_starts_with</function></member>
+    <member><function>strrpos</function></member>
+    <member><function>strripos</function></member>
+    <member><function>strstr</function></member>
+    <member><function>strpbrk</function></member>
+    <member><function>substr</function></member>
+    <member><function>preg_match</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

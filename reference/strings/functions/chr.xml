@@ -1,48 +1,168 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.chr" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
-   <refnamediv>
-    <refname>chr</refname>
-    <refpurpose>Restituisce un carattere specifico</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>chr</methodname>
-      <methodparam><type>int</type><parameter>ascii</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     La funzione restituisce una stringa di un carattere contenente il carattere
-     indicato come codifica ASCII nel parametro <parameter>ascii</parameter>.
-     <example>
-      <title>Esempio di uso di <function>chr</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: e5c8e7add9291c70be2ecd046de6ecfd034545a9 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://docbook.org/ns/docbook" xml:id="function.chr">
+ <refnamediv>
+  <refname>chr</refname>
+  <refpurpose>Genera una stringa di un singolo byte a partire da un numero</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>chr</methodname>
+   <methodparam><type>int</type><parameter>codepoint</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   Restituisce una stringa di un carattere contenente il carattere specificato
+   interpretando <parameter>codepoint</parameter> come intero senza segno.
+  </para>
+  <para>
+   Può essere utilizzata per creare una stringa di un carattere in una codifica a singolo byte come ASCII, ISO-8859 o Windows 1252, passando la posizione del carattere desiderato nella tabella di corrispondenza della codifica. Tuttavia, si noti che questa funzione non tiene conto di alcuna codifica delle stringhe e, in particolare, non è possibile passarle il valore di un code point Unicode per generare una stringa in una codifica multibyte come UTF-8 o UTF-16.
+  </para>
+  <para>
+   Questa funzione è complementare a <function>ord</function>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>codepoint</parameter></term>
+     <listitem>
+      <para>
+       Un intero compreso tra 0 e 255.
+      </para>
+      <para>
+       I valori al di fuori dell'intervallo valido (0..255) vengono combinati con 255 tramite un AND bit a bit,
+       il che equivale al seguente algoritmo:
+       <programlisting role="php">
+<![CDATA[
+while ($bytevalue < 0) {
+    $bytevalue += 256;
+}
+$bytevalue %= 256;
+]]>
+       </programlisting>
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Una stringa di un singolo carattere contenente il byte specificato.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.5.0</entry>
+      <entry>
+       Il passaggio di interi al di fuori dell'intervallo <literal>[0, 255]</literal>
+       è ora deprecato.
+      </entry>
+     </row>
+     <row>
+      <entry>7.4.0</entry>
+      <entry>
+       La funzione non accetta più silenziosamente valori di <parameter>codepoint</parameter> non supportati
+       convertendoli in <literal>0</literal>.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>chr</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
+// Si presuppone che la stringa venga utilizzata come ASCII o in una codifica compatibile con ASCII
+
 $str = "La stringa termina con un escape: ";
-$str .= chr(27); /* aggiunge il carattere di escape al termine di $str */
+$str .= chr(27); /* aggiunge un carattere di escape alla fine di $str */
+echo $str, PHP_EOL;
 
-/* Spesso è più pratico */
-
-$str = sprintf("The string ends in escape: %c", 27);
+/* Spesso questo è più utile */
+$str = sprintf("La stringa termina con un escape: %c", 27);
+echo $str, PHP_EOL;
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     A questo link <link xlink:href="&url.asciitable;"
-     >&url.asciitable;</link> si può trovare una tavola delle codifiche ASCII.
-    </para>
-    <para>
-     Questa funzione è complementare rispetto a <function>ord</function>. Vedere anche
-     <function>sprintf</function> con la stringa di formato
-     <literal>%c</literal>.
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Comportamento in caso di overflow</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+echo chr(-159), chr(833), PHP_EOL;
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+aA
+]]>
+    </screen>
+   </example>
+  </para>
+  <para> 
+   <example>
+    <title>Costruzione di una stringa UTF-8 a partire dai singoli byte</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$str = chr(240) . chr(159) . chr(144) . chr(152);
+echo $str, PHP_EOL;
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+🐘
+    </screen>
+   </example>
+  </para>
+ </refsect1>
 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>sprintf</function> con una stringa di formato <literal>%c</literal></member>
+    <member><function>ord</function></member>
+    <member>Una <link xlink:href="&url.asciitable;">tabella ASCII</link></member>
+    <member><function>mb_chr</function></member>
+    <member><function>IntlChar::chr</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

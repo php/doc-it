@@ -1,90 +1,158 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.8 -->
-  <refentry xml:id="function.stristr" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>stristr</refname>
-    <refpurpose>
-     Versione insensibile alle maiuscole/minuscole di <function>strstr</function>
-    </refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>stristr</methodname>
-      <methodparam><type>string</type><parameter>haystack</parameter></methodparam>
-      <methodparam><type>string</type><parameter>needle</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Restituisce il contenuto di <parameter>haystack</parameter> dalla prima occorrenza
-     di <parameter>needle</parameter> fino alla fine.
-     <parameter>needle</parameter> e <parameter>haystack</parameter>
-     sono esaminati senza distinguere tra lettere maiuscole e minuscole.
-    </para>
-    <para>
-     Se <parameter>needle</parameter> non viene trovato, la funzione restituisce &false;.
-    </para>
-    <para>
-     Se <parameter>needle</parameter> non è una stringa, viene convertito in 
-     un intero e si utilizza il valore ordinale del carattere.
-    </para>
-    <para>
-     <example>
-      <title>Esempio di uso di <function>stristr</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 45042fef652f1b4e904e809fcbfcf31f6c60670b Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.stristr" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>stristr</refname>
+  <refpurpose>Versione non sensibile alle maiuscole/minuscole di <function>strstr</function></refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>false</type></type><methodname>stristr</methodname>
+   <methodparam><type>string</type><parameter>haystack</parameter></methodparam>
+   <methodparam><type>string</type><parameter>needle</parameter></methodparam>
+   <methodparam choice="opt"><type>bool</type><parameter>before_needle</parameter><initializer>&false;</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Restituisce tutto <parameter>haystack</parameter> a partire dalla prima
+   occorrenza di <parameter>needle</parameter>, inclusa, fino alla fine.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>haystack</parameter></term>
+     <listitem>
+      <para>
+       La stringa in cui cercare
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>needle</parameter></term>
+     <listitem>
+      <para>
+       La stringa da cercare.
+      </para>
+      &strings.parameter.needle.non-string;
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>before_needle</parameter></term>
+     <listitem>
+      <para>
+       Se &true;, <function>stristr</function>
+       restituisce la parte di <parameter>haystack</parameter> che precede la
+       prima occorrenza di <parameter>needle</parameter> (needle escluso).
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+  <para>
+   <parameter>needle</parameter> e <parameter>haystack</parameter>
+   vengono esaminati in modo non sensibile alle maiuscole/minuscole.
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce la sottostringa trovata. Se <parameter>needle</parameter> non
+   viene trovato, restituisce &false;.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      &strings.changelog.ascii-case-folding;
+      &strings.changelog.needle-empty;
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        Il passaggio di un &integer; come <parameter>needle</parameter> non è più supportato.
+       </entry>
+      </row>
+      <row>
+       <entry>7.3.0</entry>
+       <entry>
+        Il passaggio di un &integer; come <parameter>needle</parameter> è stato deprecato.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>stristr</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
   $email = 'USER@EXAMPLE.com';
-  echo stristr($email, 'e');
-// outputs ER@EXAMPLE.com
+  echo stristr($email, 'e'), PHP_EOL; // visualizza ER@EXAMPLE.com
+  echo stristr($email, 'e', true), PHP_EOL; // visualizza US
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     <example>
-      <title>Verifica se una stringa esiste o meno</title>
-      <programlisting role="php">
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Verificare se una stringa viene trovata o meno</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-  $string = 'Hello World!';
-  if(stristr($string, 'earth') === FALSE) {
-    echo '"earth" not found in string';
+  $string = 'Ciao Mondo!';
+  if (stristr($string, 'terra') === FALSE) {
+    echo '"terra" non trovato nella stringa';
   }
-// outputs: "earth" not found in string
+// visualizza: "terra" non trovato nella stringa
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     <example>
-      <title>Utilizzo di un dato non stringa da cercare</title>
-      <programlisting role="php">
-<![CDATA[
-<?php
-  $string = 'APPLE';
-  echo stristr($string, 97); // 97 = lowercase a
-// outputs: APPLE
-?>
-]]>
-      </programlisting>
-     </example> 
-    </para>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
 
-    &note.bin-safe;
+ <refsect1 role="notes">
+  &reftitle.notes;
+  &note.bin-safe;
+ </refsect1>
 
-    <para>
-     Vedere anche
-     <function>strstr</function>,
-     <function>strrchr</function>, 
-     <function>substr</function> e
-     <function>ereg</function>.
-    </para>
-   </refsect1>
-  </refentry>
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>strstr</function></member>
+    <member><function>strrchr</function></member>
+    <member><function>stripos</function></member>
+    <member><function>strpbrk</function></member>
+    <member><function>preg_match</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
 
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

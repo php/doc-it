@@ -1,89 +1,195 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/math.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.number-format" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>number_format</refname>
-    <refpurpose>Formatta un numero con i gruppi delle migliaia</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>number_format</methodname>
-      <methodparam><type>float</type><parameter>number</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>decimals</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>dec_point</parameter></methodparam>
-      <methodparam><type>string</type><parameter>thousands_sep</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     La funzione <function>number_format</function> restituisce una versione formattata
-     di <parameter>number</parameter>.  Questa funzione accetta uno,
-     due, o quattro parametri (non tre).
-    </para>
-    <para>Se si specifica soltanto un parametro, il
-     <parameter>number</parameter> sarà formattato senza decimali,
-     ma con la virgola (",") per suddividere le migliaia.
-    </para>
-    <para>
-     Se sono specdificati due parametri, il <parameter>number</parameter> sarà
-     formattato con tante cifre decimali quanto indicato in <parameter>decimals</parameter>,
-     precedute dal punto ("."), e con la virgola (",") come separatore delle
-     migliaia.
-    </para>
-    <para>
-     Se sono indicati tutti i quattro parametri, il <parameter>number</parameter>
-     sarà formattato con <parameter>decimals</parameter> cifre decimali,
-     identificate dal carattere <parameter>dec_point</parameter> anziché dal punto (".")
-     e con <parameter>thousands_sep</parameter>, invece della virgola (",")
-     come separatore delle migliaia.
-    </para>
-    <para>
-     Sarà utilizzato solo il primo carattere di <parameter>thousands_sep</parameter>.
-     Ad esempio, se si indica <literal>foo</literal> come
-     <parameter>thousands_sep</parameter> per il numero
-     <literal>1000</literal>, la funzione <function>number_format</function> restituirà
-     <literal>1f000</literal>.
-    </para>
-    <para>
-     <example>
-      <title>Esempio di uso di <function>number_format</function></title>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 45042fef652f1b4e904e809fcbfcf31f6c60670b Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.number-format" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <refnamediv>
+  <refname>number_format</refname>
+  <refpurpose>Formatta un numero raggruppando le migliaia</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>number_format</methodname>
+   <methodparam><type>float</type><parameter>num</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>decimals</parameter><initializer>0</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>decimal_separator</parameter><initializer>"."</initializer></methodparam>
+   <methodparam choice="opt"><type class="union"><type>string</type><type>null</type></type><parameter>thousands_separator</parameter><initializer>","</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Formatta un numero raggruppando le migliaia e, opzionalmente, con cifre decimali, usando la regola di arrotondamento della metà per eccesso.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>num</parameter></term>
+     <listitem>
       <para>
-       Ad esempio, la notazione francese solitamente utilizza due decimali,
-       la virgola (',') come separatore decimale, e lo spazio (' ')
-       come separatore delle migliaia. Questo può essere ottenuto con:
+       Il numero da formattare.
       </para>
-      <programlisting role="php">
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>decimals</parameter></term>
+     <listitem>
+      <para>
+       Imposta il numero di cifre decimali.
+       Se è <literal>0</literal>, il <parameter>decimal_separator</parameter> viene
+       omesso dal valore restituito.
+       A partire da PHP 8.3.0, quando il valore è negativo, <parameter>num</parameter>
+       viene arrotondato a <parameter>decimals</parameter> cifre significative prima
+       del punto decimale.
+       Prima di PHP 8.3.0, i valori negativi venivano ignorati e trattati
+       come <literal>0</literal>.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>decimal_separator</parameter></term>
+     <listitem>
+      <para>
+       Imposta il separatore per il punto decimale.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>thousands_separator</parameter></term>
+     <listitem>
+      <para>
+       Imposta il separatore delle migliaia.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Una versione formattata di <parameter>num</parameter>.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>8.3.0</entry>
+       <entry>
+        Aggiunta la gestione dei valori negativi di <parameter>decimals</parameter>.
+       </entry>
+      </row>
+      <row>
+       <entry>8.0.0</entry>
+       <entry>
+        In precedenza, <function>number_format</function> accettava
+        uno, due o quattro parametri (ma non tre).
+       </entry>
+      </row>
+      <row>
+       <entry>7.2.0</entry>
+       <entry>
+        <function>number_format</function> è stata modificata per non poter restituire
+        <literal>-0</literal>; in precedenza poteva essere restituito <literal>-0</literal>
+        in casi come quello in cui <parameter>num</parameter> valeva <literal>-0.01</literal>.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>number_format</function></title>
+    <para>
+     Ad esempio, la notazione francese di solito usa due decimali,
+     la virgola (',') come separatore decimale e lo spazio (' ') come
+     separatore delle migliaia. L'esempio seguente mostra vari modi di formattare un numero:
+    </para>
+    <programlisting role="php">
 <![CDATA[
 <?php
 
 $number = 1234.56;
 
-// Notazione inglese (default)
-$english_format_number = number_format($number);
+// notazione inglese (predefinita)
+echo number_format($number), PHP_EOL;
 // 1,235
 
-// Notazione francese
-$nombre_format_francais = number_format($number, 2, ',', ' ');
+// notazione francese
+echo number_format($number, 2, ',', ' '), PHP_EOL;
 // 1 234,56
 
 $number = 1234.5678;
 
 // notazione inglese senza separatore delle migliaia
-$english_format_number = number_format($number, 2, '.', '');
+echo number_format($number, 2, '.', ''), PHP_EOL;
 // 1234.57
 
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Vedere anche <function>sprintf</function>,
-     <function>printf</function> e <function>sscanf</function>.
-    </para>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+  <example>
+   <title>Un valore negativo per <parameter>decimals</parameter></title>
+   <simpara>
+    A partire da PHP 8.3.0, un valore negativo per <parameter>decimals</parameter>
+    viene usato per arrotondare il numero di cifre significative prima del punto
+    decimale.
+   </simpara>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$number = "1234.5678";
+var_dump(number_format($number, -1));
+var_dump(number_format($number, -2));
+var_dump(number_format($number, -3));
+?>
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+string(5) "1,230"
+string(5) "1,200"
+string(5) "1,000"
+]]>
+   </screen>
+  </example>
+ </refsect1>
 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>money_format</function></member>
+    <member><function>sprintf</function></member>
+    <member><function>printf</function></member>
+    <member><function>sscanf</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

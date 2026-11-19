@@ -1,46 +1,132 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.chunk-split" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
-   <refnamediv>
-    <refname>chunk_split</refname>
-    <refpurpose>Divide una stringa in segmento più piccoli</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>chunk_split</methodname>
-      <methodparam><type>string</type><parameter>body</parameter></methodparam>
-      <methodparam choice="opt"><type>int</type><parameter>chunklen</parameter></methodparam>
-      <methodparam choice="opt"><type>string</type><parameter>end</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     Questa funzione può essere utilizzata per suddividere una stringa in segmenti più ridotti, per
-     possono essere utili, ad esempio, nel convertire l'output della funzione <function>base64_encode</function> in modo
-     da aderire alle specifiche indicate nella RFC 2045. La funzione inserisce <parameter>end</parameter> (il default
-     è "\r\n") ad ogni <parameter>chunklen</parameter> caratteri (default è 
-     76). La funzione restituisce una nuova stringa lasciando inalterata la stringa originale.
-     <example>
-      <title>Esempio di uso di <function>chunk_split</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 25ec27a80ca17bf72bbe7a3ea65b0a1038c15025 Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://docbook.org/ns/docbook" xml:id="function.chunk-split">
+ <refnamediv>
+  <refname>chunk_split</refname>
+  <refpurpose>Divide una stringa in segmenti più piccoli</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>string</type><methodname>chunk_split</methodname>
+   <methodparam><type>string</type><parameter>string</parameter></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>length</parameter><initializer>76</initializer></methodparam>
+   <methodparam choice="opt"><type>string</type><parameter>separator</parameter><initializer>"\r\n"</initializer></methodparam>
+  </methodsynopsis>
+  <para>
+   Può essere utilizzata per dividere una stringa in segmenti più piccoli, il che è utile per
+   esempio per convertire l'output di <function>base64_encode</function> in modo da rispettare la semantica della RFC
+   2045. Inserisce <parameter>separator</parameter> ogni
+   <parameter>length</parameter> caratteri.
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>string</parameter></term>
+     <listitem>
+      <para>
+       La stringa da dividere in segmenti.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>length</parameter></term>
+     <listitem>
+      <para>
+       La lunghezza dei segmenti.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>separator</parameter></term>
+     <listitem>
+      <para>
+       La sequenza di fine riga.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Restituisce la stringa divisa in segmenti.
+  </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <simpara>
+   Lancia un <exceptionname>ValueError</exceptionname> se <parameter>length</parameter>
+   è minore di <literal>1</literal>.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       Ora lancia un <exceptionname>ValueError</exceptionname> se <parameter>length</parameter>
+       è minore di <literal>1</literal>.
+       In precedenza, veniva emesso un <constant>E_WARNING</constant> e veniva restituito &false;.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>chunk_split</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-// format $data using RFC 2045 semantics
+$data = 'Questa è una stringa piuttosto lunga, che verrà spezzata perché la riga diventerà troppo lunga dopo la codifica in base64.';
+
+// formatta $data usando la semantica della RFC 2045
 $new_string = chunk_split(base64_encode($data));
+echo $new_string, PHP_EOL;
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <simpara>
-     Vedere anche <function>str_split</function>,
-     <function>explode</function>, <function>split</function>, 
-     <function>wordwrap</function> e
-     <link xlink:href="&url.rfc;2045">RFC 2045</link>.
-    </simpara>
-   </refsect1>
-  </refentry>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>str_split</function></member>
+    <member><function>explode</function></member>
+    <member><function>wordwrap</function></member>
+    <member><link xlink:href="&url.rfc;2045">RFC 2045</link></member>
+   </simplelist>
+  </para>
+ </refsect1>
 
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

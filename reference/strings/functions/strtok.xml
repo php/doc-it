@@ -1,107 +1,204 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: n/a Maintainer: darvina Status: ready -->
-<!-- splitted from ./en/functions/strings.xml, last change in rev 1.2 -->
-  <refentry xml:id="function.strtok" xmlns="http://docbook.org/ns/docbook">
-   <refnamediv>
-    <refname>strtok</refname>
-    <refpurpose>Suddivide una stringa in token</refpurpose>
-   </refnamediv>
-   <refsect1>
-    <title>Descrizione</title>
-     <methodsynopsis>
-      <type>string</type><methodname>strtok</methodname>
-      <methodparam><type>string</type><parameter>str</parameter></methodparam>
-      <methodparam><type>string</type><parameter>token</parameter></methodparam>
-     </methodsynopsis>
-    <para>
-     <function>strtok</function> suddivide la stringa(<parameter>str</parameter>)
-     in piccole stringhe (tokens), in cui ciascun token è delimitato dal
-     carattere indicato in <parameter>token</parameter>.
-     Perciò, se si ha la stringa  "This is an example string" la si può
-     dividere nelle singole parole utilizzando come separatore
-     lo spazio.
-     <example>
-      <title>Esempio di uso di <function>strtok</function></title>
-      <programlisting role="php">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 17c238517825dfb7ec3edfef5972acd944ffbc1e Maintainer: pastore Status: ready -->
+<!-- CREDITS: darvina -->
+<refentry xml:id="function.strtok" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <refnamediv>
+  <refname>strtok</refname>
+  <refpurpose>Divide una stringa in token</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>false</type></type><methodname>strtok</methodname>
+   <methodparam><type>string</type><parameter>string</parameter></methodparam>
+   <methodparam><type>string</type><parameter>token</parameter></methodparam>
+  </methodsynopsis>
+  <simpara>Firma alternativa (non supportata con gli argomenti con nome):</simpara>
+  <methodsynopsis>
+   <type class="union"><type>string</type><type>false</type></type><methodname>strtok</methodname>
+   <methodparam><type>string</type><parameter>token</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   <function>strtok</function> divide una stringa (<parameter>string</parameter>)
+   in stringhe più piccole (token), ciascuna delimitata da uno qualsiasi
+   dei caratteri di <parameter>token</parameter>.
+   Ad esempio, se si ha una stringa come "Questa è una stringa di esempio",
+   è possibile suddividerla nelle singole parole usando il
+   carattere spazio come <parameter>token</parameter>.
+  </para>
+  <para>
+   Si noti che solo la prima chiamata a strtok usa l'argomento <parameter>string</parameter>.
+   Ogni chiamata successiva a strtok necessita solo del <parameter>token</parameter> da usare, poiché
+   tiene traccia della posizione raggiunta nella stringa corrente. Per ricominciare
+   da capo, o per suddividere una nuova stringa, è sufficiente chiamare di nuovo strtok con
+   l'argomento <parameter>string</parameter> per inizializzarla. Si noti che è possibile inserire
+   più token nel parametro <parameter>token</parameter>. La stringa verrà
+   suddivisa quando viene trovato uno qualsiasi dei caratteri
+   dell'argomento <parameter>token</parameter>.
+  </para>
+  <note>
+   <para>
+    Questa funzione si comporta in modo leggermente diverso da quanto ci si potrebbe aspettare
+    se si ha familiarità con <function>explode</function>.
+    Innanzitutto, una sequenza di due o più caratteri <parameter>token</parameter> contigui
+    nella stringa analizzata è considerata un unico delimitatore.
+    Inoltre, un <parameter>token</parameter> posto all'inizio o alla fine della
+    stringa viene ignorato.
+    Ad esempio, se si usa la stringa <literal>";aaa;;bbb;"</literal>, chiamate
+    successive a <function>strtok</function> con <literal>";"</literal> come
+    <parameter>token</parameter> restituirebbero le stringhe
+    "aaa" e "bbb", e poi &false;.
+    Di conseguenza, la stringa verrà divisa in soli due elementi, mentre
+    <literal>explode(";", $string)</literal> restituirebbe un array di 5 elementi.
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>string</parameter></term>
+     <listitem>
+      <para>
+       La <type>string</type> da dividere in stringhe più piccole (token).
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>token</parameter></term>
+     <listitem>
+      <para>
+       Il delimitatore usato per dividere <parameter>string</parameter>.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+ 
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   Un token di tipo <type>string</type>, o &false; se non ci sono altri token disponibili.
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>8.3.0</entry>
+       <entry>
+        Ora emette un <constant>E_WARNING</constant> quando <parameter>token</parameter> non viene fornito.
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title>Esempio di <function>strtok</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$string = "This is\tan example\nstring";
-/* Use tab and newline as tokenizing characters as well  */
+$string = "Questa è\tuna stringa\ndi esempio";
+/* Usa anche tabulazione e a capo come caratteri di separazione */
 $tok = strtok($string, " \n\t");
+
 while ($tok !== false) {
-    echo "Word=$tok<br />";
+    echo "Parola={$tok}\n";
     $tok = strtok(" \n\t");
 }
 ?>
 ]]>
-      </programlisting>
-     </example>
-    </para>
-    <para>
-     Soltanto la prima chiamata a <function>strtok</function> utilizza il parametro stringa.
-     Ogni chiamata successiva richiede solo il carattere da utilizzare, poiché
-     la funzione tiene traccia di dove è arrivata nella stringa corrente. Per ripartire da capo
-     o iniziare con una nuova stringa ri-chiamare <function>strtok</function>
-     con il parametro stringa. Nota: si possono mettere più caratteri
-     come separatori di stringhe. Il testo iniziale verrà suddiviso
-     quando viene trovato uno qualsiasi di questi caratteri.
-     Attenzione che soltanto la prima chiamata di strtok userà l'argomento stringa.
-    </para>
-    <para>
-     Il comportamento su segmenti vuoti è cambiato dal PHP 4.1.0. La vecchia
-     versione restituiva una stringa vuota, mentre la nuova, più correttamente,
-     salta quella parte di stringa:
-     <example>
-      <title>Vecchio comportamento di <function>strtok</function></title>
-      <programlisting role="php">
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Comportamento di <function>strtok</function> quando trova una parte vuota</title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$first_token  = strtok('/something', '/');
+$first_token  = strtok('/qualcosa', '/');
 $second_token = strtok('/');
 var_dump($first_token, $second_token);
 ?>
 ]]>
-      </programlisting>
-      <para>
-       Output:
-      </para>
-      <screen>
+    </programlisting>
+    &example.outputs;
+    <screen>
 <![CDATA[
-    string(0) ""
-    string(9) "something"
+string(8) "qualcosa"
+bool(false)
 ]]>
-      </screen>
-     </example>
-     <example>
-      <title>Nuovo comportamento di <function>strtok</function></title>
-      <programlisting role="php">
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>La differenza tra <function>strtok</function> ed <function>explode</function></title>
+    <programlisting role="php">
 <![CDATA[
 <?php
-$first_token  = strtok('/something', '/');
-$second_token = strtok('/');
-var_dump($first_token, $second_token);
-?>
-]]>
-      </programlisting>
-      <para>
-       Output:
-      </para>
-      <screen>
-<![CDATA[
-    string(9) "something"
-    bool(false)
-]]>
-      </screen>
-     </example>
-    </para>
-    &return.falseproblem;
-    <para>
-     Vedere anche: <function>split</function> e
-     <function>explode</function>.
-    </para>
-   </refsect1>
-  </refentry>
+$string = ";aaa;;bbb;";
 
+$parts = [];
+$tok = strtok($string, ";");
+while ($tok !== false) {
+    $parts[] = $tok;
+    $tok = strtok(";");
+}
+echo json_encode($parts),"\n";
+
+$parts = explode(";", $string);
+echo json_encode($parts),"\n";
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+["aaa","bbb"]
+["","aaa","","bbb",""]
+]]>
+    </screen>
+   </example>
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  
+  &return.falseproblem;
+ </refsect1>
+ 
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>explode</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

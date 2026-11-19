@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 65716f4761484e314ee86fa23493f00f7823ace1 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: c7b445ec851969e669026cfa483b104ea2de5d95 Maintainer: pastore Status: ready -->
 <!-- CREDITS: darvina -->
 <section xml:id="errorfunc.configuration" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  &reftitle.runtime;
@@ -22,6 +22,14 @@
      <entry>NULL</entry>
      <entry><constant>INI_ALL</constant></entry>
      <entry></entry>
+    </row>
+    <row>
+     <entry><link linkend="ini.fatal-error-backtraces">fatal_error_backtraces</link></entry>
+     <entry>"1"</entry>
+     <entry><constant>INI_ALL</constant></entry>
+     <entry>
+      Disponibile a partire da PHP 8.5.0
+     </entry>
     </row>
     <row>
      <entry><link linkend="ini.display-errors">display_errors</link></entry>
@@ -47,7 +55,7 @@
      <entry><link linkend="ini.log-errors-max-len">log_errors_max_len</link></entry>
      <entry>"1024"</entry>
      <entry><constant>INI_ALL</constant></entry>
-     <entry></entry>
+     <entry>Non ha più effetto a partire da PHP 8.0.0, rimosso a partire da PHP 8.1.0.</entry>
     </row>
     <row>
      <entry><link linkend="ini.ignore-repeated-errors">ignore_repeated_errors</link></entry>
@@ -65,7 +73,7 @@
      <entry><link linkend="ini.report-memleaks">report_memleaks</link></entry>
      <entry>"1"</entry>
      <entry><constant>INI_ALL</constant></entry>
-     <entry></entry>
+     <entry>Deprecato a partire da PHP 8.5.0</entry>
     </row>
     <row>
      <entry><link linkend="ini.track-errors">track_errors</link></entry>
@@ -164,7 +172,7 @@
      <para>
       Imposta il livello di errore da visualizzare. Il parametro è sia un intero
       rappresentante un campo di bit, o una costante nominale. I livelli
-      ri report degli errori e le costanti previste sono descritte in
+      di report degli errori e le costanti previste sono descritte in
       <link linkend="errorfunc.constants">Costanti Predefinite</link>,
       e in &php.ini;. Per impostare il livello in fase di esecuzione utilizzare la funzione
       <function>error_reporting</function>. Vedere anche il parametro
@@ -186,7 +194,7 @@
      <note>
       <title>Costanti PHP fuori da PHP</title>
       <para>
-       L'utilizzo di constanti PHP fuori da PHP, come ad esempio in <filename>httpd.conf</filename>,
+       L'utilizzo di costanti PHP fuori da PHP, come ad esempio in <filename>httpd.conf</filename>,
        non ha senso tranne nei casi in cui siano richiesti valori di tipo <type>int</type>. 
        Inoltre, poiché i livelli di error sono aggiunti nel tempo, il valore massimo
        (per <constant>E_ALL</constant>) molto probabilmente cambierà. Quindi, al posto di
@@ -199,6 +207,23 @@
     </listitem>
    </varlistentry>
 
+   <varlistentry xml:id="ini.fatal-error-backtraces">
+    <term>
+     <parameter>fatal_error_backtraces</parameter>
+     <type>bool</type>
+    </term>
+    <listitem>
+     <simpara>
+      Controlla se gli errori fatali devono includere un backtrace.
+      Gli errori fatali sono <constant>E_ERROR</constant>,
+      <constant>E_CORE_ERROR</constant>, <constant>E_COMPILE_ERROR</constant>,
+      <constant>E_USER_ERROR</constant>,
+      <constant>E_RECOVERABLE_ERROR</constant> e
+      <constant>E_PARSE</constant>.
+     </simpara>
+    </listitem>
+   </varlistentry>
+
    <varlistentry xml:id="ini.display-errors">
     <term>
      <parameter>display_errors</parameter>
@@ -208,20 +233,38 @@
      <para>
       Questo parametro determina se gli errori devono essere visualizzati sullo schermo
       come parte dell'output o se devono essere nascosti all'utente.
+      <itemizedlist>
+       <listitem>
+        <simpara>
+         <literal>Off</literal> - non visualizza alcun errore.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         <literal>On</literal> o <literal>stdout</literal> - visualizza gli errori su <literal>stdout</literal>. Questo è il valore predefinito.
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         <literal>stderr</literal> - visualizza gli errori su <literal>stderr</literal>. Ha effetto solo per le SAPI <literal>CLI</literal>, <literal>phpdbg</literal> e <literal>CGI</literal>.
+        </simpara>
+       </listitem>
+      </itemizedlist>
      </para>
-     <para>
-      Il valore <literal>"stderr"</literal> invia gli errori a <literal>stderr</literal>
-      invece che a <literal>stdout</literal>.
-     </para>
+     <simpara>
+       Il file <literal>php.ini-development</literal> fornito imposta questo valore a
+       <literal>On</literal>; <literal>php.ini-production</literal> lo imposta
+       a <literal>Off</literal>.
+     </simpara>
      <note>
-      <para>
+      <simpara>
       Questa opzione è di supporto allo sviluppo, e non deve mai essere utilizzata
       nei sistemi di produzione (ad esempio collegati ad Internet).
-      </para>
+      </simpara>
      </note>
      <note>
       <para>
-       Anche se display_error può essere impostata a runtime (con la funzione <function>ini-set</function>),
+       Anche se display_errors può essere impostata a runtime (con la funzione <function>ini_set</function>),
        non avrà alcun effetto se lo script ha errori fatali,
        perché l'azione desiderata a runtime non sarà eseguita.
       </para>
@@ -291,7 +334,7 @@
     </term>
     <listitem>
      <para>
-      Non registra i messaggi ripetuti. Gli errori ripetutti sono gli errori che si verificano
+      Non registra i messaggi ripetuti. Gli errori ripetuti sono gli errori che si verificano
       nel medesimo file nella linea, e vengono riportati sino a quando
       <link linkend="ini.ignore-repeated-source">ignore_repeated_source</link>
       non viene impostato a true.
@@ -307,7 +350,7 @@
     <listitem>
      <para>
       Ignora la fonte del messaggio quando si ignora i messaggi ripetuti. Quando questa impostazione è
-      a On non saranno registrati messaggi ripetutida differenti linee
+      a On non saranno registrati messaggi ripetuti da differenti linee
       del codice.
      </para>
     </listitem>
@@ -319,16 +362,17 @@
      <type>bool</type>
     </term>
     <listitem>
-     <para>
+     <simpara>
       Se questo parametro è impostato a On (il valore predefinito), verrà mostrato un
       rapporto delle fughe di memoria identificate dal gestore di memoria di Zend. Questo rapporto
       verrà inviato a stderr sulle piattaforme Posix. Su Windows, verrà inviato
       al debugger usando OutputDebugString() e può essere visualizzato con strumenti
       come <link xlink:href="&url.dbgview;">DbgView</link>.
       Questa impostazione ha effetto solo in un build di debug e se
-      error_reporting include <constant>iE_WARNING</constant>
+      error_reporting include <constant>E_WARNING</constant>
       nell'elenco degli errori abilitati.
-     </para>
+     </simpara>
+     &warn.deprecated.feature-8-5-0;
     </listitem>
    </varlistentry>
 
@@ -400,7 +444,7 @@
       Nel nuovo formato degli errori è previsto un riferimento alla pagina che descrive l'errore
       o alla funzione che ha generato l'errore. Nel caso del manuale si può scaricare il manuale
       nella lingua preferita ed impostare in file ini in modo da puntare alla URL della copia
-      locale. Se la copia locale è raggiungibile tramite '/manual/' si può
+      locale. Se la copia locale è raggiungibile tramite <literal>"/manual/"</literal> si può
       utilizzare <userinput>docref_root=/manual/</userinput>. In aggiunta si
       può impostare docref_ext a riconoscere l'estensione dei file nella copia, es.
       <userinput>docref_ext=.html</userinput>. E' possibile utilizzare riferimenti
@@ -410,8 +454,8 @@
       &amp;url=http%3A%2F%2Fwww.php.net%2F"</userinput>
      </para>
      <para>
-      Il più delle volte si imposta docref_root ad un valore che termina con value to end with a slash '/'.
-      But see the second example above which does not have nor need it.
+      Nella maggior parte dei casi il valore di docref_root dovrebbe terminare con una barra <literal>"/"</literal>.
+      Si veda però il secondo esempio sopra, che non la contiene né ne ha bisogno.
      </para>
      <note>
       <para>

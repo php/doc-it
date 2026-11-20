@@ -1,52 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 5b5ab43c78ecf2d9b8c678569afceff8b5e79c5f Maintainer: pastore Status: ready -->
+<!-- EN-Revision: dff848b17dafaabfb7662ffb5fecfcb04e3b771d Maintainer: pastore Status: ready -->
 <!-- CREDITS: khelaz -->
  <sect1 xml:id="language.oop5.autoload" xmlns="http://docbook.org/ns/docbook">
-  <title>Caricamento automatico delle classi</title>
+  <title>Caricamento automatico delle Classi</title>
   <para>
    Molti sviluppatori che producono applicazioni orientate agli oggetti creano
    un file sorgente PHP per ogni classe definita. Uno dei più grossi inconvenienti
-   di questo approccio è la necessità di mantenere una lunga lista di
-   inclusioni all'inizio di ogni script (un'inclusione per ogni classe).
+   è la necessità di scrivere una lunga lista di inclusioni necessarie
+   all'inizio di ogni script (un'inclusione per ogni classe).
   </para>
+  <simpara>
+   La funzione <function>spl_autoload_register</function> registra un numero qualsiasi di
+   autoloader, permettendo a classi e interfacce di essere caricate automaticamente
+   se non sono attualmente definite. Registrando degli autoloader, PHP ha
+   un'ultima possibilità di caricare la classe o l'interfaccia prima di fallire con un errore.
+  </simpara>
   <para>
-   In PHP 5, ciò non è più necessario, in quanto è possibile definire una funzione
-   <function>__autoload</function> che viene automaticamente
-   invocata in caso si stia cercando di usare una classe/interfaccia che non sia stata
-   ancora definita. Chiamando questa funzione, il motore di scripting ha una ultima
-   possibilità di caricare la classe prima che PHP termini l'esecuzione con un errore.
+   Qualsiasi costrutto simile a una classe può essere caricato automaticamente allo stesso modo. Questo include classi,
+   interfacce, trait ed enumerazioni.
   </para>
-  <tip>
-   <para>
-    La funzione <function>spl_autoload_register</function> fornisce una alternative più flessibile
-    per l'autocaricamento delle classi. Per questa ragione, usare 
-    la funzione <function>__autoload</function> è sconsigliato dato che in futuro potrà essere 
-    rimossa o diventare deprecata.
-   </para>
-  </tip>
+  <caution>
+   <simpara>
+    Prima di PHP 8.0.0, era possibile usare <function>__autoload</function>
+    per caricare automaticamente classi e interfacce. Tuttavia, è un'alternativa meno flessibile
+    rispetto a <function>spl_autoload_register</function> e
+    <function>__autoload</function> è deprecata a partire da PHP 7.2.0, e rimossa
+    a partire da PHP 8.0.0.
+   </simpara>
+  </caution>
   <note>
    <para>
-    Prima di 5.3.0, le eccezioni sollevate dalla funzione __autoload non potevano essere
-    intercettate nel blocco <link linkend="language.exceptions">catch</link> e
-    avrebbero portato ad un errore fatale. Da 5.3.0+ le eccezioni sollevate nella
-    funzione __autoload possono essere intercettate nel blocco <link linkend="language.exceptions">
-    catch</link>, con la sola precisazione che se si sta sollevando un'eccezione definita dall'utente
-    la classe in cui l'eccezione viene definita deve essere disponibile. La funzione __autoload può
-    essere usata ricorsivamente per caricare la classe dell'eccezione personalizzata.
-   </para>
-  </note>
-  <note>
-   <para>
-    La funzionalità di autocaricamento non è disponibile se si sta usando PHP nella
-    <link linkend="features.commandline">modalità interattiva</link> di CLI.
-   </para>
-  </note>
-  <note>
-   <para>
-    Se il nome di classe è usato ad esempio in <function>call_user_func</function> esso
-    può contenere alcuni caratteri pericolosi come <literal>../</literal>.
-    Si raccomanda di non usare direttamente valori inputati dall'utente in tali funzioni, o quanto meno di
-    verificare l'input <function>__autoload</function>.
+    <function>spl_autoload_register</function> può essere chiamata più volte per
+    registrare più autoloader. Tuttavia, lanciare un'eccezione da una funzione di autoload
+    interromperà quel processo e non permetterà l'esecuzione di ulteriori funzioni di
+    autoload. Per questo motivo, lanciare eccezioni da una funzione di autoload è fortemente
+    sconsigliato.
    </para>
   </note>
   <para>
@@ -57,12 +45,12 @@
      e <literal>MyClass2</literal> rispettivamente dai file <filename>MyClass1.php</filename>
      e <filename>MyClass2.php</filename>.
     </para>
-    <programlisting role="php">
+    <programlisting role="php" annotations="interactive">
 <![CDATA[
 <?php
-function __autoload($class_name) {
+spl_autoload_register(function ($class_name) {
     include $class_name . '.php';
-}
+});
 
 $obj  = new MyClass1();
 $obj2 = new MyClass2(); 
@@ -79,9 +67,9 @@ $obj2 = new MyClass2();
 <![CDATA[
 <?php
 
-function __autoload($name) {
+spl_autoload_register(function ($name) {
     var_dump($name);
-}
+});
 
 class Foo implements ITest {
 }
@@ -96,64 +84,24 @@ Fatal error: Interface 'ITest' not found in ...
     </programlisting>
    </example>
    <example>
-    <title>Autocaricamento con gestione delle eccezioni per 5.3.0+</title>
-    <para>
-     Questo esempio solleva un'eccezione e dimostra come intercettarla con il blocco try/catch.
-    </para>
-    <programlisting role="php">
+    <title>Utilizzo dell'autoloader di Composer</title>
+    <simpara>
+     &link.composer; genera un file <literal>vendor/autoload.php</literal>
+     configurato per caricare automaticamente i pacchetti gestiti
+     da Composer. Includendo questo file, tali pacchetti possono essere usati senza
+     alcun lavoro aggiuntivo.
+    </simpara>
+    <programlisting role="php" annotations="interactive">
 <![CDATA[
 <?php
-function __autoload($name) {
-    echo "Si vuole caricare $name.\n";
-    throw new Exception("Impossibile caricare $name.");
-}
+require __DIR__ . '/vendor/autoload.php';
 
-try {
-    $obj = new NonLoadableClass();
-} catch (Exception $e) {
-    echo $e->getMessage(), "\n";
-}
+$uuid = Ramsey\Uuid\Uuid::uuid7();
+
+echo "Generato nuovo UUID -> ", $uuid->toString(), "\n";
 ?>
 ]]>
     </programlisting>
-    &example.outputs;
-    <screen>
-<![CDATA[
-Si vuole caricare NonLoadableClass.
-Impossibile caricare NonLoadableClass.
-]]>
-    </screen>
-   </example>
-   <example>
-    <title>Autocaricamento con gestione delle eccezioni per 5.3.0+ - Classe dell'eccezione personalizzata mancante</title>
-    <para>
-     Questo esempio solleva un'eccezione per una eccezione personalizzata non caricabile.
-    </para>
-    <programlisting role="php">
-<![CDATA[
-<?php
-function __autoload($name) {
-    echo "Si vuole caricare $name.\n";
-    throw new MissingException("Impossibile $name.");
-}
-
-try {
-    $obj = new NonLoadableClass();
-} catch (Exception $e) {
-    echo $e->getMessage(), "\n";
-}
-?>
-]]>
-    </programlisting>
-    &example.outputs;
-    <screen>
-<![CDATA[
-Si vuole caricare NonLoadableClass.
-Si vuole caricare MissingException.
-
-Fatal error: Class 'MissingException' not found in testMissingException.php on line 4
-]]>
-    </screen>
    </example>
   </para>
 
@@ -162,9 +110,11 @@ Fatal error: Class 'MissingException' not found in testMissingException.php on l
    <para>
     <simplelist>
      <member><function>unserialize</function></member>
-     <member><link linkend="unserialize-callback-func">unserialize_callback_func</link></member>
-     <member><function>spl_autoload</function></member>
+     <member><link linkend="ini.unserialize-callback-func">unserialize_callback_func</link></member>
+     <member><link linkend="ini.unserialize-max-depth">unserialize_max_depth</link></member>
      <member><function>spl_autoload_register</function></member>
+     <member><function>spl_autoload</function></member>
+     <member><function>__autoload</function></member>
     </simplelist>
    </para>
   </simplesect>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 9e0f03ac354d797d1d16c0fcc1663e5e170f2727 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: befe2b9fbe37b0925498f336632742651386b151 Maintainer: pastore Status: ready -->
 
 <refentry xml:id="function.taint" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>taint</refname>
-  <refpurpose>Contamina una stringa</refpurpose>
+  <refpurpose>Contrassegna stringhe come contaminate</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -12,11 +12,21 @@
   <methodsynopsis>
    <type>bool</type><methodname>taint</methodname>
    <methodparam><type>string</type><parameter role="reference">string</parameter></methodparam>
-   <methodparam rep="repeat"><type>string</type><parameter>strings</parameter></methodparam>
+   <methodparam rep="repeat"><type>string</type><parameter role="reference">strings</parameter></methodparam>
   </methodsynopsis>
-  <para>
-   Rende una stringa contaminata. Questo è usato solo per scopo di testing.
-  </para>
+  <simpara>
+   Contrassegna manualmente le stringhe fornite come contaminate, come se fossero arrivate
+   dall'input dell'utente. Le variabili sono passate per riferimento, ma il contrassegno
+   stesso è memorizzato sulla stringa anziché sulla variabile: ogni
+   variabile che condivide la stessa stringa diventa contaminata in una volta sola.
+  </simpara>
+  <simpara>
+   È utile principalmente per i test e per simulare l'input dell'utente negli
+   script CLI, dove le superglobali <link linkend="reserved.variables.get">$_GET</link>,
+   <link linkend="reserved.variables.post">$_POST</link> e
+   <link linkend="reserved.variables.cookies">$_COOKIE</link>
+   non vengono popolate.
+  </simpara>
  </refsect1>
 
  <refsect1 role="parameters">
@@ -25,16 +35,17 @@
    <varlistentry>
     <term><parameter>string</parameter></term>
     <listitem>
-     <para>
-      
-     </para>
+     <simpara>
+      Una variabile contenente la stringa da contrassegnare.
+     </simpara>
     </listitem>
    </varlistentry>
    <varlistentry>
     <term><parameter>strings</parameter></term>
     <listitem>
-     <para>
-     </para>
+     <simpara>
+      Ulteriori variabili da contrassegnare.
+     </simpara>
     </listitem>
    </varlistentry>
   </variablelist>
@@ -42,12 +53,60 @@
 
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
-  <para>
-      Restituisce TRUE se la trasformazione viene effettuata. Restituisce sempre TRUE se l'estensione
-      taint non è abilitata.    
-  </para>
+  <simpara>
+   Restituisce sempre &true;. Quando
+   <link linkend="ini.taint.enable">taint.enable</link> è disattivato, la
+   funzione non fa nulla e restituisce comunque &true;.
+  </simpara>
  </refsect1>
 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <example>
+   <title>Esempio di <function>taint</function></title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$name = "mondo";
+taint($name);
+var_dump(is_tainted($name));
+?>
+]]>
+   </programlisting>
+   &example.outputs.similar;
+   <screen>
+<![CDATA[
+bool(true)
+]]>
+   </screen>
+  </example>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <simpara>
+    Vengono contrassegnate solo le stringhe non vuote; le variabili contenenti altri tipi, o
+    stringhe vuote, vengono ignorate silenziosamente.
+   </simpara>
+  </note>
+  <note>
+   <simpara>
+    Le stringhe interned, persistenti e permanenti (stringhe letterali, stringhe condivise
+    di opcache) non possono mai portare il contrassegno e vengono saltate silenziosamente.
+   </simpara>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>untaint</function></member>
+    <member><function>is_tainted</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
 
 </refentry>
 

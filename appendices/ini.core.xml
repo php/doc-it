@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 90787fda14dcb0976a9738423e6c6013c037d048 Maintainer: pastore Status: ready -->   
+<!-- EN-Revision: 8c42bb41c9ecc3b278c4be82e4280f7bc9c36283 Maintainer: pastore Status: ready -->
 <!-- CREDITS: cucinato -->
+
  <section xml:id="ini.core" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
   <title>Descrizione dei parametri core  di &php.ini;</title>
   <para>
@@ -60,7 +61,7 @@
         <entry><link linkend="ini.disable-classes">disable_classes</link></entry>
         <entry>""</entry>
         <entry>Solo &php.ini;</entry>
-        <entry></entry>
+        <entry>Rimosso a partire da PHP 8.5.0</entry>
        </row>
        <row>
         <entry><link linkend="ini.exit-on-timeout">exit_on_timeout</link></entry>
@@ -138,9 +139,9 @@
       </term>
       <listitem>
        <para>
-        Indica se abilitare o meno la forma abbreviata dei tag di apertura del PHP
-        (<userinput>&lt;? ?&gt;</userinput>). Se si desidera utilizzare il PHP 
-        in combinazione con l'XML, occorre disabilitare questa opzione per poter
+        Indica se abilitare o meno la forma abbreviata (<userinput>&lt;? ?&gt;</userinput>)
+        dei tag di apertura del PHP. Se si desidera utilizzare il PHP
+        in combinazione con l'XML, è possibile disabilitare questa opzione per poter
         utilizzare <userinput>&lt;?xml ?&gt;</userinput>. In alternativa si può
         stampare il testo con il PHP, ad esempio: <userinput>&lt;?php echo '&lt;?xml 
         version="1.0"?&gt;'; ?&gt;</userinput>.  Inoltre, se disabilitato, occorre utilizzare
@@ -203,11 +204,12 @@
       </term>
       <listitem>
        <simpara>
-        Questa direttiva permette di disabilitare alcune funzioni.
-        Riceve una lista di nomi di funzione separati da virgole.
-        A partire da PHP 8.0.0, disabilitare una funzione ne rimuove la definizione
+        Questa direttiva permette di disabilitare determinate funzioni.
+        Accetta un elenco di nomi di funzioni separati da virgola.
+        A partire da PHP 8.0.0, disabilitare una funzione ne rimuove la definizione,
         consentendo allo spazio utente di ridefinirla.
-        Prima di PHP 8.0.0, disabilitare una funzione impediva semplicemente di invocare la funzione.
+        Prima di PHP 8.0.0, disabilitare una funzione impediva soltanto che la funzione
+        venisse invocata.
        </simpara>
        <simpara>
         Solo <link linkend="functions.internal">le funzioni interne</link> possono
@@ -217,8 +219,14 @@
        </simpara>
        <simpara>
         Questa direttiva deve essere impostata in &php.ini;.
-        Può essere impostata in &httpd.conf;.
+        Non può essere impostata in &httpd.conf;.
        </simpara>
+       <warning>
+        <simpara>
+         Questa direttiva può essere aggirata e non deve essere considerata una
+         misura di sicurezza sufficiente per gli ambienti di hosting condiviso.
+        </simpara>
+       </warning>
       </listitem>
      </varlistentry>
      
@@ -228,19 +236,26 @@
        <type>string</type>
       </term>
       <listitem>
-       <para>
-        Questa direttiva permette di disabilitare alcune classi.
-        Riceve una lista di nomi di classi separati da virgole.
-        Disabilitare una classe impedisce semplicemente di istanziarla.
-       </para>
-       <para>
+       <simpara>
+        Questa direttiva permette di disabilitare determinate classi.
+        Accetta un elenco di nomi di classi separati da virgola.
+        Disabilitare una classe ne impedisce soltanto l'istanziazione.
+       </simpara>
+       <simpara>
         Solo le classi interne possono essere disabilitate usando questa direttiva.
         Le classi definite dall'utente non sono interessate.
-       </para>
+       </simpara>
        <simpara>
         Questa direttiva deve essere impostata in &php.ini;.
-        Può essere impostata in &httpd.conf;.
+        Non può essere impostata in &httpd.conf;.
        </simpara>
+       <warning>
+        <simpara>
+         Questa direttiva può essere aggirata e non deve essere considerata una
+         misura di sicurezza sufficiente per gli ambienti di hosting condiviso.
+        </simpara>
+       </warning>
+       &warn.removed.feature-8-5-0;
        </listitem>
      </varlistentry>
 
@@ -424,6 +439,18 @@ Fatal error: Maximum execution time of 30+2 seconds exceeded (terminated) in Unk
         <entry><constant>INI_ALL</constant></entry>
         <entry></entry>
        </row>
+       <row>
+        <entry><link linkend="ini.max-memory-limit">max_memory_limit</link></entry>
+        <entry>"-1"</entry>
+        <entry><constant>INI_SYSTEM</constant></entry>
+        <entry>Disponibile a partire da PHP 8.5.0</entry>
+       </row>
+       <row>
+        <entry><link linkend="ini.memory-hard-limit-percent">memory_hard_limit_percent</link></entry>
+        <entry>&null;</entry>
+        <entry><constant>INI_ALL</constant></entry>
+        <entry>Disponibile a partire da PHP 8.5.12, 8.4.27, 8.3.36 e 8.2.35</entry>
+       </row>
       </tbody>
      </tgroup>
     </table>
@@ -445,15 +472,140 @@ Fatal error: Maximum execution time of 30+2 seconds exceeded (terminated) in Unk
         utilizzino tutta la memoria del server. Si noti che per non avere
         limitazioni di memoria si deve impostare questo parametro a <literal>-1</literal>.
        </para>
-       
+       <simpara>
+        A partire da PHP 8.5.12, 8.4.27, 8.3.36 e 8.2.35, questo è un limite soft:
+        a un'allocazione che lo supera è, nella maggior parte dei casi, consentito di completarsi
+        prima che venga generato l'errore fatale, quindi l'utilizzo di memoria di un processo può
+        superare brevemente <parameter>memory_limit</parameter>. Un limite hard separato,
+        controllato da
+        <link linkend="ini.memory-hard-limit-percent">memory_hard_limit_percent</link>,
+        stabilisce di quanto può essere superato.
+       </simpara>
+
        &ini.shorthandbytes;
-       
+
+      </listitem>
+     </varlistentry>
+     <varlistentry xml:id="ini.max-memory-limit">
+      <term>
+       <parameter>max_memory_limit</parameter>
+       <type>int</type>
+      </term>
+      <listitem>
+       <simpara>
+        Disponibile a partire da PHP 8.5.0. Questa impostazione, valida solo all'avvio, controlla il
+        valore massimo che può essere configurato per <link linkend="ini.memory-limit">memory_limit</link>,
+        sia all'avvio sia in fase di esecuzione (ad es. tramite
+        <function>ini_set</function>). Impostare
+        <link linkend="ini.memory-limit">memory_limit</link> a un valore
+        superiore a <parameter>max_memory_limit</parameter> genera un
+        warning e il valore viene limitato. Impostare a <literal>-1</literal>
+        (il valore predefinito) per non imporre alcun limite superiore.
+       </simpara>
+
+       &ini.shorthandbytes;
+
+      </listitem>
+     </varlistentry>
+     <varlistentry xml:id="ini.memory-hard-limit-percent">
+      <term>
+       <parameter>memory_hard_limit_percent</parameter>
+       <type>int</type>
+      </term>
+      <listitem>
+       <simpara>
+        Disponibile a partire da PHP 8.5.12, 8.4.27, 8.3.36 e 8.2.35. Imposta un limite
+        di memoria hard, espresso come percentuale di
+        <link linkend="ini.memory-limit">memory_limit</link>.
+        Ad esempio, con <literal>memory_limit=128M</literal> e
+        <literal>memory_hard_limit_percent=150</literal>, il limite hard è
+        <literal>192M</literal>. A differenza di
+        <link linkend="ini.memory-limit">memory_limit</link>, il limite hard
+        non può mai essere superato.
+       </simpara>
+       <warning>
+        <simpara>
+         Questa direttiva è stata introdotta nei rilasci di sicurezza del
+         21 ottobre 2026, che correggono due vulnerabilità critiche
+         (CVE-2026-109618, CVE-2026-109619) che possono consentire l'esecuzione remota
+         di codice senza autenticazione, una delle quali attivata tramite la gestione
+         dell'esaurimento della memoria. Se questa direttiva non viene riconosciuta, la versione di PHP in
+         uso è affetta da queste vulnerabilità e deve essere aggiornata
+         immediatamente. Si consulti
+         l'<link xlink:href="&url.php;archive/2026.php#2026-10-21-5">avviso di sicurezza</link>
+         per i dettagli.
+        </simpara>
+       </warning>
+       <simpara>
+        Quando un'allocazione supera <link linkend="ini.memory-limit">memory_limit</link>
+        (il limite soft), la memoria viene comunque allocata e il consueto
+        errore fatale viene generato quando il motore raggiunge un punto sicuro.
+        Le funzioni di shutdown registrate con
+        <function>register_shutdown_function</function> vengono comunque eseguite.
+       </simpara>
+       <simpara>
+        Quando un'allocazione supererebbe il limite hard, il processo viene
+        terminato immediatamente con codice di uscita <literal>137</literal>.
+        Un messaggio viene scritto direttamente sullo standard error, simile
+        a questo:
+       </simpara>
+       <screen>
+<![CDATA[
+Hard memory limit of 201326592 bytes exhausted
+]]>
+       </screen>
+       <simpara>
+        Il messaggio non passa attraverso il meccanismo di gestione degli errori, quindi
+        non viene passato ai gestori degli errori né scritto
+        nell'<link linkend="ini.error-log">error_log</link>. Non viene eseguito altro codice
+        PHP: le funzioni di shutdown, i distruttori e i gestori dei buffer di output vengono
+        tutti saltati.
+       </simpara>
+       <simpara>
+        Il valore deve essere <literal>100</literal> o superiore, oppure
+        <literal>-1</literal>.
+       </simpara>
+       <simpara>
+        Quando non è impostato (il valore predefinito) o è impostato a <literal>-1</literal>, il limite
+        hard è il doppio di <link linkend="ini.memory-limit">memory_limit</link>
+        se <link linkend="ini.memory-limit">memory_limit</link> è
+        <literal>1G</literal> o meno, e
+        <link linkend="ini.memory-limit">memory_limit</link> più
+        <literal>1G</literal> altrimenti. Ad esempio, con il valore predefinito
+        <literal>memory_limit=128M</literal>, il limite hard è
+        <literal>256M</literal>, e con <literal>memory_limit=4G</literal>
+        è <literal>5G</literal>. Se
+        <link linkend="ini.memory-limit">memory_limit</link> è impostato a
+        <literal>-1</literal>, non c'è nemmeno un limite hard.
+       </simpara>
+       <caution>
+        <simpara>
+         Un valore di <literal>100</literal> rende il limite hard uguale a
+         <link linkend="ini.memory-limit">memory_limit</link>, il che trasforma
+         la maggior parte delle condizioni di memoria esaurita in una terminazione immediata del
+         processo invece che in un errore fatale. Le operazioni in fase di shutdown come
+         il logging, il rilascio dei lock o il completamento di una risposta non verranno quindi mai
+         eseguite in caso di memoria esaurita.
+        </simpara>
+       </caution>
+       <note>
+        <simpara>
+         Poiché il processo termina senza produrre output, negli
+         ambienti multi-richiesta come PHP-FPM il worker che serve la
+         richiesta viene terminato e il client non riceve alcuna risposta da
+         PHP; il process manager avvia un worker sostitutivo. Il codice di uscita
+         <literal>137</literal> è anche quello riportato per un processo
+         terminato da <literal>SIGKILL</literal>, ad esempio dall'OOM killer del
+         kernel o da un runtime di container, quindi controllare lo standard
+         error per distinguere i casi.
+        </simpara>
+       </note>
       </listitem>
      </varlistentry>
     </variablelist>
    </para>
    <para>
-    Vedi anche: <link linkend="ini.max-execution-time">max_execution_time</link>.
+    Vedere anche: <link linkend="ini.max-execution-time">max_execution_time</link>.
    </para>
   </section>
   
@@ -586,7 +738,7 @@ Fatal error: Maximum execution time of 30+2 seconds exceeded (terminated) in Unk
         <entry><link linkend="ini.register-argc-argv">register_argc_argv</link></entry>
         <entry>"1"</entry>
         <entry><constant>INI_PERDIR</constant></entry>
-        <entry></entry>
+        <entry>Deprecato a partire da PHP 8.5.0</entry>
        </row>
        <row>
         <entry><link linkend="ini.enable-post-data-reading">enable_post_data_reading</link></entry>
@@ -696,7 +848,7 @@ Fatal error: Maximum execution time of 30+2 seconds exceeded (terminated) in Unk
         <varname>$_POST</varname>, ma non creerà
         <varname>$_ENV</varname>, <varname>$_GET</varname> e
         <varname>$_COOKIE</varname>. L'impostazione "" significa che
-        non verranno impostati $link.superglobals;.
+        non verranno impostati &link.superglobals;.
        </para>
        <warning>
         <para>
@@ -774,8 +926,18 @@ Fatal error: Maximum execution time of 30+2 seconds exceeded (terminated) in Unk
         (che contengono le informazioni GET).
        </simpara>
        <simpara>
-        Vedere anche <link linkend="features.commandline">command line</link>.
+        Vedere anche <link linkend="features.commandline">riga di comando</link>.
        </simpara>
+       &warn.deprecated.feature-8-5-0;
+       <note>
+        <simpara>
+         Ricavare <code>$_SERVER['argc']</code> e <code>$_SERVER['argv']</code>
+         dalla query string per le SAPI non CLI è stato deprecato.
+         Configurare <literal>register_argc_argv=0</literal> e passare a
+         <varname>$_GET</varname> o a <code>$_SERVER['QUERY_STRING']</code>
+         per accedere alle informazioni, dopo aver verificato che l'utilizzo sia sicuro.
+        </simpara>
+       </note>
       </listitem>
      </varlistentry>
 
@@ -787,11 +949,12 @@ Fatal error: Maximum execution time of 30+2 seconds exceeded (terminated) in Unk
       <listitem>
        <simpara>
         Disabilitando questa opzione le variabili <varname>$_POST</varname> e
-        <varname>$_FILES</varname> <emphasis>non</emphasis> sono popolate.
-        L'unico modo per leggere i postdata è quindi quello di usare il
-        wrapper dello stream <link linkend="wrappers.php">php://input</link>.
-        Questa soluzione può essere utile nelle richieste via proxy o per processare
-        i dati POST in una maniera più efficiente per la memoria.
+        <varname>$_FILES</varname> <emphasis>non</emphasis> vengono popolate. Il
+        corpo della richiesta rimane non consumato in
+        <link linkend="wrappers.php">php://input</link> e può essere letto manualmente
+        o analizzato tramite <function>request_parse_body</function>.
+        Questo può essere utile per fare da proxy alle richieste o per elaborare i dati POST in modo
+        efficiente in termini di memoria.
        </simpara>
       </listitem>
      </varlistentry>
@@ -1013,10 +1176,10 @@ Fatal error: Maximum execution time of 30+2 seconds exceeded (terminated) in Unk
      <tgroup cols="4">
       <thead>
        <row>
-        <entry>Nome</entry>
-        <entry>Default</entry>
-        <entry>Modificabile</entry>
-        <entry>Cronologia</entry>
+        <entry>&Name;</entry>
+        <entry>&Default;</entry>
+        <entry>&Changeable;</entry>
+        <entry>&Changelog;</entry>
        </row>
       </thead>
       <tbody>
@@ -1286,6 +1449,15 @@ include_path = ".:${USER}/pear/php"
          a <literal>0</literal> e quindi <emphasis>disabiliterà</emphasis> la cache di realpath.
         </para>
        </note>
+       <warning>
+        <simpara>
+         <option>open_basedir</option> non limita l'accesso ai socket di dominio Unix.
+         Le funzioni socket di PHP come <function>stream_socket_client</function> e
+         <function>fsockopen</function> possono connettersi al percorso di un socket Unix
+         (ad es. <filename>unix:///var/run/docker.sock</filename>)
+         indipendentemente dall'impostazione <option>open_basedir</option>.
+        </simpara>
+       </warning>
        <caution>
         <para>
          <literal>open_basedir</literal> è solo una rete di sicurezza aggiuntiva, che non è in alcun modo
@@ -1506,8 +1678,8 @@ include_path = ".:${USER}/pear/php"
         Indica al PHP quale tipo di intestazione utilizzare quando si inviano risposte HTTP.
         Se è disabilitato, PHP invia un'intestazione <link xlink:href="&url.rfc;3875">RFC 3875</link>
         "Status:", che è supportata da Apache ed altri server web. Quando il parametro
-        è abilitato, PHP invia una intestazione conforme alle specifiche indicate in
-        <link xlink:href="&url.rfc;2616">RFC 2616</link>.
+        è abilitato, PHP invia, in conformità con <link xlink:href="&url.rfc;2616">RFC 2616</link>,
+        le intestazioni.
        </para>
        <para>
         Se questa opzione è abilitata, e si sta eseguendo PHP in un ambiente CGI (es. PHP-FPM)

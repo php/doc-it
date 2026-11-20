@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: ee73d0055757da9bf56cc2df7a155caacf8c254d Maintainer: pastore Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 20c2abcc58470191542aaf3235acb7b495d8f359 Maintainer: pastore Status: ready -->
 <!-- CREDITS: cortesi,fernando -->
 <refentry xml:id="function.curl-version" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
@@ -10,8 +10,8 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type>array</type><methodname>curl_version</methodname>
-   <methodparam choice="opt"><type>int</type><parameter>age</parameter><initializer>CURLVERSION_NOW</initializer></methodparam>
+   <type class="union"><type>array</type><type>false</type></type><methodname>curl_version</methodname>
+   <void/>
   </methodsynopsis>
   <para>
    Restituisce informazioni sulla versione di cURL.
@@ -20,51 +20,41 @@
 
  <refsect1 role="parameters">
   &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>age</parameter></term>
-     <listitem>
-      <para>
-      </para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </para>
+  &no.function.parameters;
  </refsect1>
 
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce un array associativo con i seguenti elementi: 
+   Restituisce un array associativo con i seguenti elementi:
    <informaltable>
     <tgroup cols="2">
      <thead>
       <row>
-       <entry>Indice</entry>
+       <entry>Chiave</entry>
        <entry>Descrizione valore</entry>
       </row>
      </thead>
      <tbody>
       <row>
        <entry>version_number</entry>
-       <entry>numero della versione di 24 bit di cURL</entry>
+       <entry>Numero della versione di 24 bit di cURL</entry>
       </row>
       <row>
        <entry>version</entry>
-       <entry>numero della versione di cURL, come una stringa</entry>
+       <entry>Numero della versione di cURL, come stringa</entry>
       </row>
       <row>
        <entry>ssl_version_number</entry>
-       <entry>Numero della versione di 24 bit di OpenSSL</entry>
+       <entry>Sempre <literal>0</literal>, libcurl non lo imposta più</entry>
       </row>
       <row>
        <entry>ssl_version</entry>
-       <entry>Numero della versione di OpenSSL, come una stringa</entry>
+       <entry>Numero della versione di OpenSSL, come stringa</entry>
       </row>
       <row>
        <entry>libz_version</entry>
-       <entry>Numero della versione di zlib, come una stringa</entry>
+       <entry>Numero della versione di zlib, come stringa</entry>
       </row>
       <row>
        <entry>host</entry>
@@ -72,15 +62,53 @@
       </row>
       <row>
        <entry>age</entry>
-       <entry></entry>
+       <entry>
+        L'età delle informazioni sulla versione restituite da libcurl. Le versioni
+        più recenti di libcurl hanno un'età maggiore
+       </entry>
       </row>
       <row>
        <entry>features</entry>
-       <entry>Una maschera di bit delle costanti <literal>CURL_VERSION_XXX</literal></entry>
+       <entry>Una maschera di bit delle costanti <constant>CURL_VERSION_<replaceable>*</replaceable></constant></entry>
       </row>
       <row>
        <entry>protocols</entry>
        <entry>Un array dei nomi dei protocolli supportati da cURL</entry>
+      </row>
+      <row>
+       <entry>feature_list</entry>
+       <entry>
+        Un array associativo di tutte le funzionalità di cURL conosciute, e se
+        sono supportate (&true;) o no (&false;)
+       </entry>
+      </row>
+      <row>
+       <entry>ares</entry>
+       <entry>Versione di c-ares, come stringa, o una stringa vuota se cURL è stato compilato senza c-ares</entry>
+      </row>
+      <row>
+       <entry>ares_num</entry>
+       <entry>Numero della versione di c-ares, o <literal>0</literal> se cURL è stato compilato senza c-ares</entry>
+      </row>
+      <row>
+       <entry>libidn</entry>
+       <entry>Versione di libidn2, come stringa, o una stringa vuota se cURL è stato compilato senza libidn2</entry>
+      </row>
+      <row>
+       <entry>iconv_ver_num</entry>
+       <entry>Numero della versione di iconv, o <literal>0</literal> se cURL è stato compilato senza iconv</entry>
+      </row>
+      <row>
+       <entry>libssh_version</entry>
+       <entry>Nome e versione della libreria SSH, come stringa, o una stringa vuota se cURL è stato compilato senza il supporto SSH</entry>
+      </row>
+      <row>
+       <entry>brotli_ver_num</entry>
+       <entry>Numero della versione di Brotli, o <literal>0</literal> se cURL è stato compilato senza Brotli</entry>
+      </row>
+      <row>
+       <entry>brotli_version</entry>
+       <entry>Versione di Brotli, come stringa, o una stringa vuota se cURL è stato compilato senza Brotli</entry>
       </row>
      </tbody>
     </tgroup>
@@ -88,24 +116,59 @@
   </para>
  </refsect1>
 
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.4.0</entry>
+      <entry>
+       Aggiunto <literal>feature_list</literal>.
+      </entry>
+     </row>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       Il parametro opzionale <parameter>age</parameter> è stato rimosso.
+      </entry>
+     </row>
+     <row>
+      <entry>7.4.0</entry>
+      <entry>
+       Il parametro opzionale <parameter>age</parameter> è stato deprecato;
+       se viene passato un valore, viene ignorato.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
+ </refsect1>
+
  <refsect1 role="examples">
   &reftitle.examples;
   <para>
    <example>
     <title>Esempio di <function>curl_version</function></title>
-    <para>
-     Questo esempio controllerà quali funzionalità sono disponibili 
-     nel build di cURL utilizzando la maschera di bit <literal>'features'</literal> restituita 
+    <simpara>
+     Questo esempio controllerà quali funzionalità sono disponibili
+     nel build di cURL utilizzando la maschera di bit <literal>'features'</literal> restituita
      da <function>curl_version</function>.
-    </para>
+    </simpara>
     <programlisting role="php">
 <![CDATA[
 <?php
 // Ottiene l'array delle versioni di curl
 $version = curl_version();
 
-// Questo sono i bitfield che possono essere usati 
-// per verificare le caratteristiche nella build di curl
+// Questi sono i bitfield che possono essere usati
+// per verificare le funzionalità nel build di curl
 $bitfields = Array(
             'CURL_VERSION_IPV6', 
             'CURL_VERSION_KERBEROS4', 
@@ -116,7 +179,7 @@ $bitfields = Array(
 
 foreach($bitfields as $feature)
 {
-    echo $feature . ($version['features'] & constant($feature) ? ' matches' : ' does not match');
+    echo $feature . ($version['features'] & constant($feature) ? ' corrisponde' : ' non corrisponde');
     echo PHP_EOL;
 }
 ?>
@@ -126,7 +189,6 @@ foreach($bitfields as $feature)
   </para>
  </refsect1>
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

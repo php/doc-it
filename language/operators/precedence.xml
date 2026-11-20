@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 52407313885d27a4e891e08dd2e2481bcc39e244 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 7c915c0c28b8e2e4306333c64602ee4800c73754 Maintainer: pastore Status: ready -->
 <!-- CREDITS: cucinato -->
 <sect1 xml:id="language.operators.precedence">
  <title>Precedenza degli operatori</title>
+ <titleabbrev>Precedenza degli operatori</titleabbrev>
  <para>
   La precedenza di un operatore specifica come esso tenga legate assieme "strettamente" due
   espressioni. Per esempio, nell'espressione <literal>1 +
@@ -41,7 +42,7 @@
  <para>
   La seguente tabella fornisce una lista della precedenza degli operatori con gli
   operatori a più alta precedenza elencati prima. Gli operatori presenti nella medesima linea
-  hanno uguale precedenza, in questi casi la loro associativià decide il raggruppamento.
+  hanno uguale precedenza, in questi casi la loro associatività decide il raggruppamento.
   <table>
    <title>Precedenza degli operatori</title>
    <tgroup cols="2">
@@ -143,6 +144,13 @@
       <entry><literal>.</literal></entry>
       <entry>
        <link linkend="language.operators.string">stringhe</link> (a partire da PHP 8.0.0)
+      </entry>
+     </row>
+     <row>
+      <entry>sinistra</entry>
+      <entry><literal>|&gt;</literal></entry>
+      <entry>
+       <link linkend="language.operators.functional">pipe</link>
       </entry>
      </row>
      <row>
@@ -252,6 +260,13 @@
      </row>
      <row>
       <entry>(n/a)</entry>
+      <entry><literal>=&gt;</literal></entry>
+      <entry>
+       <link linkend="language.generators.syntax">yield con chiavi</link>
+      </entry>
+     </row>
+     <row>
+      <entry>(n/a)</entry>
       <entry><literal>yield</literal></entry>
       <entry>
        <link linkend="control-structures.yield">yield</link>
@@ -283,10 +298,49 @@
        <link linkend="language.operators.logical">operatori logici</link>
       </entry>
      </row>
+     <row>
+      <entry>(n/a)</entry>
+      <entry>
+       <literal>include</literal>
+       <literal>include_once</literal>
+       <literal>require</literal>
+       <literal>require_once</literal>
+      </entry>
+      <entry>
+       <function>include</function>,
+       <function>include_once</function>,
+       <function>require</function>&listendand;
+       <function>require_once</function>
+      </entry>
+     </row>
+     <row>
+      <entry>(n/a)</entry>
+      <entry><literal>fn (...) =&gt;</literal></entry>
+      <entry>disambiguazione di <link linkend="functions.arrow">fn arrow</link></entry>
+     </row>
+     <row>
+      <entry>(n/a)</entry>
+      <entry><literal>throw</literal></entry>
+      <entry>
+       <link linkend="control-structures.throw">throw</link>
+      </entry>
+     </row>
     </tbody>
    </tgroup>
   </table>
  </para>
+ <note>
+  <simpara>
+   Gli operatori unari che condividono la riga con gli operatori di cast
+   (<literal>~</literal>, <literal>@</literal> e
+   <literal>+</literal>/<literal>-</literal> unari) hanno una precedenza maggiore di
+   <literal>instanceof</literal>, mentre <literal>!</literal> ha una precedenza
+   minore. Di conseguenza <literal>(int) $x instanceof Foo</literal> viene raggruppato
+   come <literal>((int) $x) instanceof Foo</literal>, mentre
+   <literal>!$x instanceof Foo</literal> viene raggruppato come
+   <literal>!($x instanceof Foo)</literal>.
+  </simpara>
+ </note>
  <para>
   <example>
    <title>Associatività</title>
@@ -294,17 +348,37 @@
 <![CDATA[
 <?php
 $a = 3 * 3 % 5; // (3 * 3) % 5 = 4
-// l'associatività dell'operatore ternario differisce da quella di C/C++
-$a = true ? 0 : true ? 1 : 2; // (true ? 0 : true) ? 1 : 2 = 2 (prima di PHP 8.0.0)
+var_dump($a);
 
 $a = 1;
 $b = 2;
 $a = $b += 3; // $a = ($b += 3) -> $a = 5, $b = 5
+var_dump($a, $b);
 ?>
 ]]>
    </programlisting>
   </example>
-  </para>
+ </para>
+ <para>
+  L'operatore ternario richiede specificamente l'uso delle parentesi per
+  rendere non ambigua la precedenza.
+ </para>
+ <para>
+  <example>
+   <title>Precedenza Esplicita</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$a = true ? 0 : (true ? 1 : 2);
+var_dump($a);
+
+// questo non è consentito a partire da PHP 8
+// $a = true ? 0 : true ? 1 : 2;
+?>
+]]>
+   </programlisting>
+  </example>
+ </para>
  <para>
   La precedenza e l'associatività dell'operatore determinano solo come le espressioni
   sono raggruppate, esse non specificano un ordine di valutazione. PHP non
@@ -314,7 +388,7 @@ $a = $b += 3; // $a = ($b += 3) -> $a = 5, $b = 5
   codice circostante.
   <example>
    <title>Ordine di valutazione indefinito</title>
-   <programlisting role="php">
+   <programlisting role="php" annotations="non-interactive">
 <![CDATA[
 <?php
 $a = 1;
@@ -327,15 +401,43 @@ $array[$i] = $i++; // può impostare l'indice 1 o 2
    </programlisting>
   </example>
   <example>
-   <title><literal>+</literal>, <literal>-</literal> e <literal>.</literal> hanno la stessa precedenza (prima di PHP 8.0.0)</title>
+   <title>Precedenza di <literal>+</literal>, <literal>-</literal> e <literal>.</literal></title>
    <programlisting role="php">
 <![CDATA[
 <?php
 $x = 4;
 // questa linea potrebbe causare un risultato inaspettato:
 echo "x minus one equals " . $x-1 . ", or so I hope\n";
+
+// la precedenza desiderata può essere forzata usando le parentesi:
+echo "x minus one equals " . ($x-1) . ", or so I hope\n";
+
+// questo non è consentito e lancia un TypeError:
+echo (("x minus one equals " . $x) - 1) . ", or so I hope\n";
+?>
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+-1, or so I hope
+-1, or so I hope
+Fatal error: Uncaught TypeError: Unsupported operand types: string - int
+]]>
+   </screen>
+  </example>
+  <example>
+   <title>Prima di PHP 8, <literal>+</literal>, <literal>-</literal> e <literal>.</literal> avevano la stessa precedenza</title>
+   <programlisting role="php" annotations="non-interactive">
+<![CDATA[
+<?php
+$x = 4;
+// questa linea potrebbe causare un risultato inaspettato:
+echo "x minus one equals " . $x-1 . ", or so I hope\n";
+
 // perché è valutata come questa linea (prima di PHP 8.0.0):
 echo (("x minus one equals " . $x) - 1) . ", or so I hope\n";
+
 // la precedenza desiderata può essere forzata usando le parentesi:
 echo "x minus one equals " . ($x-1) . ", or so I hope\n";
 ?>
@@ -359,6 +461,15 @@ x minus one equals 3, or so I hope
    in questo caso l'output di <literal>foo()</literal> viene
    inserito in <varname>$a</varname>.
   </para>
+  <simpara>
+   Ciò è possibile perché il lato sinistro di un'assegnazione deve essere una
+   variabile, quindi l'assegnazione viene raggruppata con quella variabile anziché con
+   l'operatore prefisso circostante di precedenza maggiore. Lo stesso vale per gli
+   altri operatori prefissi che accettano un'espressione come operando, come
+   <literal>clone</literal>, gli operatori di cast, <literal>@</literal> e
+   <literal>~</literal>: per esempio <literal>clone $a = $b</literal> viene raggruppato
+   come <literal>clone ($a = $b)</literal>, non <literal>(clone $a) = $b</literal>.
+  </simpara>
  </note>
  <sect2 role="changelog">
   &reftitle.changelog;
@@ -391,8 +502,8 @@ x minus one equals 3, or so I hope
      <row>
       <entry>7.4.0</entry>
       <entry>
-       Fare affidamento sulla precedenza della concatenazione di stringhe (<literal>.</literal>) rispetto all'
-       addizione/sottrazione aritmetica (<literal>+</literal> o <literal>-</literal>) o
+       Fare affidamento sulla precedenza della concatenazione di stringhe (<literal>.</literal>) rispetto all'addizione/sottrazione
+       aritmetica (<literal>+</literal> o <literal>-</literal>) o
        lo spostamento bit a bit a sinistra/destra (<literal>&lt;&lt;</literal> o <literal>&gt;&gt;</literal>),
        ovvero utilizzarli insieme in un'espressione senza parentesi, è deprecato.
       </entry>

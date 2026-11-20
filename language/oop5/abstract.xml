@@ -1,82 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 9b5b5b7285b7c0da554909d9a6869ea33841a93c Maintainer: pastore Status: ready -->
+<!-- EN-Revision: c1f37a6c270aadbbb3da56a3973ffd62197adf2b Maintainer: pastore Status: ready -->
 <!-- CREDITS: butera -->
  <sect1 xml:id="language.oop5.abstract" xmlns="http://docbook.org/ns/docbook">
   <title>Astrazione delle classi</title>
 
   <para>
-   PHP 5 introduce classi e metodi astratti. Le classi definite come
-   astratte non possono essere istanziate, e qualsiasi classe che
-   contenga almeno un metodo astratto deve anch'essa essere astratta. I metodi
-   definiti come astratti dichiarano unicamente la propria firma - non possono
-   dichiarare un'implementazione.
+   PHP dispone di classi, metodi e proprietà astratti.
+   Le classi definite come astratte non possono essere istanziate, e qualsiasi classe che
+   contenga almeno un metodo o una proprietà astratta deve anch'essa essere astratta.
+   I metodi definiti come astratti dichiarano semplicemente la firma del metodo e se è pubblico o protetto;
+   non possono definirne l'implementazione. Le proprietà definite come astratte
+   possono dichiarare un requisito per il comportamento <literal>get</literal> o <literal>set</literal>,
+   e possono fornire un'implementazione per una delle due operazioni, ma non per entrambe.
   </para>
 
   <para>
-   Quando ereditati da una classe astratta, tutti i metodi segnalati come astratti nella
-   dichiarazione della classe padre devono essere definiti dalla classe figlio; inoltre,
-   questi metodi devono essere definiti con la stessa or a
-   <link linkend="language.oop5.visibility">visibilità</link> (o con una meno ristretta). Per esempio,
-   se il metodo astratto è definito come protetto, l'implementazione della funzione
-   può essere definita come protetta o publica, ma non privata. Inoltre
-   le firme dei metodi devono corrispondere, cioè il tipo e il numero
-   degli argomenti richiesti deve essere lo stesso. Per esempio, se la classe figlio
-   definisce un argomento opzionale, mentre la firma del metodo astratto non lo
-   fa, non ci sono conflitti nella firma. Questo vale anche per i costruttori
-   a partire da PHP 5.4. Prima della 5.4 le firme dei costruttori possono essere differenti.
+   Quando si eredita da una classe astratta, tutti i metodi segnalati come astratti nella
+   dichiarazione della classe padre devono essere definiti dalla classe figlia,
+   e seguire le consuete regole di
+   <link linkend="language.oop5.inheritance">ereditarietà</link> e di
+   <link linkend="language.oop.lsp">compatibilità delle firme</link>.
   </para>
 
+  <simpara>
+   A partire da PHP 8.4, una classe astratta può dichiarare una proprietà astratta, pubblica o protetta.
+   Una proprietà astratta protetta può essere soddisfatta da una proprietà leggibile/scrivibile dallo scope
+   protetto o da quello pubblico.
+  </simpara>
+  <simpara>
+   Una proprietà astratta può essere soddisfatta sia da una proprietà standard sia da una proprietà
+   con <link linkend="language.oop5.property-hooks">hook</link> definiti, corrispondenti all'operazione richiesta.
+  </simpara>
+
   <example>
-   <title>Esempio di classe astratta</title>
-    <programlisting role="php">
+   <title>Esempio di metodo astratto</title>
+   <programlisting role="php">
 <![CDATA[
 <?php
+
 abstract class AbstractClass
 {
     // Forza la classe estendente a definire questo metodo
     abstract protected function getValue();
     abstract protected function prefixValue($prefix);
 
-    // Metodi comuni
-    public function printOut() {
+    // Metodo comune
+    public function printOut()
+    {
         print $this->getValue() . "\n";
     }
 }
 
 class ConcreteClass1 extends AbstractClass
 {
-    protected function getValue() {
+    protected function getValue()
+    {
         return "ConcreteClass1";
     }
 
-    public function prefixValue($prefix) {
+    public function prefixValue($prefix)
+    {
         return "{$prefix}ConcreteClass1";
     }
 }
 
 class ConcreteClass2 extends AbstractClass
 {
-    public function getValue() {
+    public function getValue()
+    {
         return "ConcreteClass2";
     }
 
-    public function prefixValue($prefix) {
+    public function prefixValue($prefix)
+    {
         return "{$prefix}ConcreteClass2";
     }
 }
 
-$class1 = new ConcreteClass1;
+$class1 = new ConcreteClass1();
 $class1->printOut();
-echo $class1->prefixValue('FOO_') ."\n";
+echo $class1->prefixValue('FOO_'), "\n";
 
-$class2 = new ConcreteClass2;
+$class2 = new ConcreteClass2();
 $class2->printOut();
-echo $class2->prefixValue('FOO_') ."\n";
+echo $class2->prefixValue('FOO_'), "\n";
+
 ?>
 ]]>
-    </programlisting>
-    &example.outputs;
-    <screen>
+   </programlisting>
+   &example.outputs;
+   <screen>
 <![CDATA[
 ConcreteClass1
 FOO_ConcreteClass1
@@ -87,22 +100,22 @@ FOO_ConcreteClass2
   </example>
 
   <example>
-   <title>Abstract class example</title>
+   <title>Esempio di metodo astratto</title>
     <programlisting role="php">
 <![CDATA[
 <?php
+
 abstract class AbstractClass
 {
-    // Il nostro metodo astratto ha solo bisogno di definire gli argomenti richiesti
+    // Un metodo astratto ha solo bisogno di definire gli argomenti richiesti
     abstract protected function prefixName($name);
-
 }
 
 class ConcreteClass extends AbstractClass
 {
-
-    // La nostra classe figlio può definire argomenti opzionali non presenti nella firma del padre
-    public function prefixName($name, $separator = ".") {
+    // Una classe figlia può definire parametri opzionali non presenti nella firma del padre
+    public function prefixName($name, $separator = ".")
+    {
         if ($name == "Pacman") {
             $prefix = "Mr";
         } elseif ($name == "Pacwoman") {
@@ -110,13 +123,15 @@ class ConcreteClass extends AbstractClass
         } else {
             $prefix = "";
         }
+
         return "{$prefix}{$separator} {$name}";
     }
 }
 
-$class = new ConcreteClass;
+$class = new ConcreteClass();
 echo $class->prefixName("Pacman"), "\n";
 echo $class->prefixName("Pacwoman"), "\n";
+
 ?>
 ]]>
    </programlisting>
@@ -126,15 +141,83 @@ echo $class->prefixName("Pacwoman"), "\n";
 Mr. Pacman
 Mrs. Pacwoman
 ]]>
-    </screen>
-   </example>
+   </screen>
+  </example>
+  <example>
+   <title>Esempio di proprietà astratta</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
 
-  <para>
-   Codice vecchio che non ha classi definite dall'utente o funzioni dichiarate come
-   'abstract' dovrebbe poter essere eseguito senza necessità di modifiche.
-  </para>
+abstract class A
+{
+    // Le classi estendenti devono avere una proprietà leggibile pubblicamente
+    abstract public string $readable {
+        get;
+    }
+
+    // Le classi estendenti devono avere una proprietà scrivibile in modo protetto o pubblico
+    abstract protected string $writeable {
+        set;
+    }
+
+    // Le classi estendenti devono avere una proprietà simmetrica protetta o pubblica
+    abstract protected string $both {
+        get;
+        set;
+    }
+}
+
+class C extends A
+{
+    // Questo soddisfa il requisito e la rende anche scrivibile, il che è valido
+    public string $readable;
+
+    // Questo NON soddisferebbe il requisito, poiché non è leggibile pubblicamente
+    protected string $readable;
+
+    // Questo soddisfa esattamente il requisito, quindi è sufficiente.
+    // Può essere solo scritta, e solo dallo scope protetto
+    protected string $writeable {
+        set => $value;
+    }
+
+    // Questo estende la visibilità da protetta a pubblica, il che va bene
+    public string $both;
+}
+
+?>
+]]>
+   </programlisting>
+  </example>
+  <simpara>
+   Una proprietà astratta in una classe astratta può fornire implementazioni per qualsiasi hook,
+   ma deve avere <literal>get</literal> o <literal>set</literal> dichiarato ma non definito (come nell'esempio precedente).
+  </simpara>
+  <example>
+   <title>Esempio di proprietà astratta con hook</title>
+   <programlisting role="php" annotations="non-interactive">
+<![CDATA[
+<?php
+
+abstract class A
+{
+    // Questo fornisce un'implementazione di set predefinita (ma sovrascrivibile),
+    // e richiede che le classi figlie forniscano un'implementazione di get
+    abstract public string $foo {
+        get;
+
+        set {
+            $this->foo = $value;
+        }
+    }
+}
+
+?>
+ ]]>
+   </programlisting>
+  </example>
  </sect1>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 9e0f03ac354d797d1d16c0fcc1663e5e170f2727 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: befe2b9fbe37b0925498f336632742651386b151 Maintainer: pastore Status: ready -->
 
 <refentry xml:id="function.untaint" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>untaint</refname>
-  <refpurpose>Decontamina stringhe</refpurpose>
+  <refpurpose>Rimuove il contrassegno di contaminazione dalle stringhe</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -12,11 +12,17 @@
   <methodsynopsis>
    <type>bool</type><methodname>untaint</methodname>
    <methodparam><type>string</type><parameter role="reference">string</parameter></methodparam>
-   <methodparam rep="repeat"><type>string</type><parameter>strings</parameter></methodparam>
+   <methodparam rep="repeat"><type>string</type><parameter role="reference">strings</parameter></methodparam>
   </methodsynopsis>
-  <para>
-    Decontamina stringhe
-  </para>
+  <simpara>
+   Rimuove il contrassegno di contaminazione dalle stringhe fornite.
+  </simpara>
+  <simpara>
+   Il contrassegno è memorizzato sulla stringa stessa, non sulla variabile, quindi questa funzione
+   lo rimuove in una volta sola per ogni variabile che condivide la stessa stringa. Utilizzarla per
+   considerare attendibili valori che sono stati validati autonomamente, ad esempio dopo un rigoroso
+   controllo con una lista di valori ammessi.
+  </simpara>
  </refsect1>
 
  <refsect1 role="parameters">
@@ -25,17 +31,17 @@
    <varlistentry>
     <term><parameter>string</parameter></term>
     <listitem>
-     <para>
-      
-     </para>
+     <simpara>
+      Una variabile contenente la stringa da ripulire.
+     </simpara>
     </listitem>
    </varlistentry>
    <varlistentry>
     <term><parameter>strings</parameter></term>
     <listitem>
-     <para>
-      
-     </para>
+     <simpara>
+      Ulteriori variabili da ripulire.
+     </simpara>
     </listitem>
    </varlistentry>
   </variablelist>
@@ -43,11 +49,58 @@
 
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
-  <para>
-
-  </para>
+  <simpara>
+   Restituisce sempre &true;. Quando
+   <link linkend="ini.taint.enable">taint.enable</link> è disattivato, la
+   funzione non fa nulla e restituisce comunque &true;.
+  </simpara>
  </refsect1>
 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <example>
+   <title>Esempio di <function>untaint</function></title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$id = "42";
+taint($id);
+if (preg_match('/^\d+$/', $id)) {
+    // validato rigorosamente come cifre: è sicuro fidarsi
+    untaint($id);
+}
+var_dump(is_tainted($id));
+?>
+]]>
+   </programlisting>
+   &example.outputs.similar;
+   <screen>
+<![CDATA[
+bool(false)
+]]>
+   </screen>
+  </example>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <simpara>
+    Solo i valori stringa possono portare il contrassegno; passare un valore non stringa non
+    ha alcun effetto.
+   </simpara>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>taint</function></member>
+    <member><function>is_tainted</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
 
 </refentry>
 

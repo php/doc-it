@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: b7f8c11e56ff1c57a2993e2ed7e5c5ace18637fd Maintainer: pastore Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: fa9bae0f65aec476264cf4f828ac9fe253f9839b Maintainer: pastore Status: ready -->
 <!-- CREDITS: cortesi -->
 <refentry xml:id="function.curl-error" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
@@ -33,6 +33,18 @@
    Restituisce il messaggio di errore o <literal>''</literal> (la stringa vuota) se non
    si verifica nessun errore.
   </para>
+  <note>
+   <simpara>
+    Quando un <type>CurlHandle</type> viene eseguito tramite
+    <function>curl_multi_exec</function>, questa funzione restituisce
+    <literal>''</literal> (la stringa vuota) finché
+    <function>curl_multi_info_read</function> non ha restituito il messaggio per
+    quel gestore. Per ottenere la stringa di errore di ogni singolo gestore,
+    passare la chiave <literal>result</literal> restituita da
+    <function>curl_multi_info_read</function> a
+    <function>curl_strerror</function>.
+   </simpara>
+  </note>
  </refsect1>
 
  <refsect1 role="changelog">
@@ -66,15 +78,12 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 if(curl_exec($ch) === false)
 {
-    echo 'Curl error: ' . curl_error($ch);
+    echo 'Errore curl: ' . curl_error($ch);
 }
 else
 {
-    echo 'Operation completed without any errors';
+    echo 'Operazione completata senza errori';
 }
-
-// Chiude il gestore
-curl_close($ch);
 ?>
 ]]>
     </programlisting>
@@ -87,6 +96,8 @@ curl_close($ch);
   <para>
    <simplelist>
     <member><function>curl_errno</function></member>
+    <member><function>curl_strerror</function></member>
+    <member><function>curl_multi_info_read</function></member>
     <member><link xlink:href="&url.curl.error;">Codici di errore di curl</link></member>
    </simplelist>
   </para>

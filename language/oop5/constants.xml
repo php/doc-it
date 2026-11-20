@@ -1,87 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: f11cc3162cfe3307657c5886316f0278c7edbc7b Maintainer: pastore Status: ready -->
+<!-- EN-Revision: dff848b17dafaabfb7662ffb5fecfcb04e3b771d Maintainer: pastore Status: ready -->
 <!-- CREDITS: butera -->
 <sect1 xml:id="language.oop5.constants" xmlns="http://docbook.org/ns/docbook">
  <title>Costanti di classe</title>
+ <simpara>
+  È possibile definire <link linkend="language.constants">costanti</link>
+  relative a ciascuna classe.
+  La visibilità predefinita delle costanti di classe è <literal>public</literal>.
+ </simpara>
+ <note>
+  <para>
+   Le costanti di classe possono essere ridefinite da una classe figlia.
+   A partire da PHP 8.1.0, le costanti di classe non possono essere ridefinite da una classe figlia
+   se sono definite come <link linkend="language.oop5.final">final</link>.
+  </para>
+ </note>
  <para>
-  Si possono definire valori costanti relativi ad una classe che rimangano 
-  non modificabili. Le costanti si distinguono dalle normali variabili poiché
-  non si utilizza il simbolo <varname>$</varname> per dichiararle o riferirsi ad esse. 
+  È inoltre possibile che le interfacce abbiano delle costanti. Fare riferimento
+  alla <link linkend="language.oop5.interfaces">documentazione delle interfacce</link>
+  per degli esempi.
  </para>
  <para>
-  Il valore deve essere un'espressione costante, non (ad esempio) una variabile, una
-  proprietà, o la chiamata ad una funzione.
+  È possibile fare riferimento alla classe utilizzando una variabile.
+  Il valore della variabile non può essere una parola chiave (ad esempio <literal>self</literal>,
+  <literal>parent</literal> e <literal>static</literal>).
  </para>
  <para>
-  È inoltre possibile dichiarare <literal>constants</literal> relative alle interfacce. Fare riferimento  
-  alla <link linkend="language.oop5.interfaces">documentazione interfacce</link> per
- degli esempi.
+  Si noti che le costanti di classe sono allocate una volta per classe, e non per ogni
+  istanza della classe.
  </para>
  <para>
-  A partire da PHP 5.3.0, è possibile fare riferimento alla classe utilizzando una variabile.
-  Il valore della variabile non può essere una parola chiave (ad esempio, <literal> self </literal>
-  <literal> parent </literal> o <literal> static </literal> ).
- </para>   
+  A partire da PHP 8.3.0, le costanti di classe possono avere un tipo scalare come <literal>bool</literal>,
+  <literal>int</literal>, <literal>float</literal>, <literal>string</literal>, o anche
+  <literal>array</literal>. Quando si usa <literal>array</literal>, il contenuto può essere costituito solo
+  da altri tipi scalari.
+ </para>
  <example>
   <title>Definire ed usare una costante</title>
   <programlisting role="php">
 <![CDATA[
 <?php
-class MiaClasse
+class MyClass
 {
-    const COSTANTE = 'valore costante';
+    const CONSTANT = 'valore costante';
 
-    function mostraConstante() {
-        echo  self::COSTANTE . "\n";
+    function showConstant() {
+        echo  self::CONSTANT . "\n";
     }
 }
 
-echo MiaClasse::COSTANTE . "\n";
+echo MyClass::CONSTANT . "\n";
 
-$nomeclasse = "MiaClasse";
-echo $nomeclasse::COSTANTE . "\n"; // PHP 5.3.0
+$classname = "MyClass";
+echo $classname::CONSTANT . "\n";
 
-$classe = new MiaClasse();
-$classe->mostraConstante();
+$class = new MyClass();
+$class->showConstant();
 
-echo $classe::COSTANTE."\n"; // PHP 5.3.0
+echo $class::CONSTANT."\n";
 ?>
 ]]>
   </programlisting>
  </example>
+ <para>
+  La costante speciale <constant>::class</constant> consente
+  la risoluzione del nome completamente qualificato della classe in fase di compilazione,
+  il che è utile per le classi con namespace:
+ </para>
  <example>
-  <title>Esempio di dati statici</title>
+  <title>Esempio di ::class con namespace</title>
   <programlisting role="php">
 <![CDATA[
 <?php
-class foo {
-    // PHP 5.3.0
-    const BAR = <<<'EOT'
-bar
-EOT;
-    // PHP 5.3.0
-    const BAZ = <<<EOT
-baz
-EOT;
+namespace foo {
+    class bar {
+    }
+
+    echo bar::class; // foo\bar
 }
 ?>
 ]]>
   </programlisting>
  </example>
- <note>
-  <para>
-   Il supporto per l'inizializzazione di costanti con la sintassi Heredoc e Nowdoc è stato aggiunto in PHP 5.3.0.
-  </para>
- </note>
+
  <example>
-  <title>Esempio di espressione delle costanti</title>
+  <title>Esempio di espressione nelle costanti di classe</title>
   <programlisting role="php">
 <![CDATA[
 <?php
 const ONE = 1;
-
 class foo {
-    // PHP 5.6.0
     const TWO = ONE * 2;
     const THREE = ONE + self::TWO;
     const SENTENCE = 'Il valore di THREE è '.self::THREE;
@@ -89,15 +97,132 @@ class foo {
 ?>
 ]]>
   </programlisting>
-  <para>
-   È possibile fornire un'espressione scalare che coinvolge numeri e stringhe e/o costanti nel contesto di una costante di una classe.
-  </para>
+ </example>
+
+ <example>
+  <title>Modificatori di visibilità delle costanti di classe, a partire da PHP 7.1.0</title>
+  <programlisting role="php">
+<![CDATA[
+<?php
+class Foo {
+    public const BAR = 'bar';
+    private const BAZ = 'baz';
+}
+echo Foo::BAR, PHP_EOL;
+echo Foo::BAZ, PHP_EOL;
+?>
+]]>
+  </programlisting>
+   &example.outputs.71;
+   <screen>
+<![CDATA[
+bar
+
+Fatal error: Uncaught Error: Cannot access private const Foo::BAZ in …
+]]>
+   </screen>
  </example>
  <note>
   <para>
-   Il supporto per le espressioni delle costanti è stato aggiunto in PHP 5.3.0.
+   A partire da PHP 7.1.0 i modificatori di visibilità sono consentiti per le costanti di classe.
   </para>
  </note>
+ <example>
+  <title>Controllo della varianza della visibilità delle costanti di classe, a partire da PHP 8.3.0</title>
+  <programlisting role="php">
+<![CDATA[
+<?php
+
+interface MyInterface
+{
+    public const VALUE = 42;
+}
+
+class MyClass implements MyInterface
+{
+    protected const VALUE = 42;
+}
+?>
+]]>
+  </programlisting>
+  &example.outputs.83;
+  <screen>
+<![CDATA[
+Fatal error: Access level to MyClass::VALUE must be public (as in interface MyInterface) …
+]]>
+  </screen>
+ </example>
+ <note>
+  <simpara>
+   A partire da PHP 8.3.0 la varianza della visibilità viene controllata in modo più rigoroso.
+   Prima di questa versione, la visibilità di una costante di classe poteva essere diversa
+   dalla visibilità della costante nell'interfaccia implementata.
+  </simpara>
+ </note>
+ <example>
+  <title>Sintassi per il recupero delle costanti di classe, a partire da PHP 8.3.0</title>
+  <programlisting role="php">
+<![CDATA[
+<?php
+class Foo {
+    public const BAR = 'bar';
+    private const BAZ = 'baz';
+}
+
+$name = 'BAR';
+echo Foo::{$name}, PHP_EOL; // bar
+?>
+]]>
+  </programlisting>
+ </example>
+ <note>
+  <para>
+   A partire da PHP 8.3.0, le costanti di classe possono essere recuperate dinamicamente usando una
+   variabile.
+  </para>
+ </note>
+ <example>
+  <title>Assegnazione di tipi alle costanti di classe, a partire da PHP 8.3.0</title>
+  <programlisting role="php">
+<![CDATA[
+<?php
+
+class MyClass {
+    public const bool MY_BOOL = true;
+    public const int MY_INT = 1;
+    public const float MY_FLOAT = 1.01;
+    public const string MY_STRING = 'uno';
+    public const array MY_ARRAY = [self::MY_BOOL, self::MY_INT, self::MY_FLOAT, self::MY_STRING];
+}
+
+var_dump(MyClass::MY_BOOL);
+var_dump(MyClass::MY_INT);
+var_dump(MyClass::MY_FLOAT);
+var_dump(MyClass::MY_STRING);
+var_dump(MyClass::MY_ARRAY);
+?>
+]]>
+  </programlisting>
+  &example.outputs.83;
+  <screen>
+<![CDATA[
+bool(true)
+int(1)
+float(1.01)
+string(3) "uno"
+array(4) {
+  [0]=>
+  bool(true)
+  [1]=>
+  int(1)
+  [2]=>
+  float(1.01)
+  [3]=>
+  string(3) "uno"
+}
+   ]]>
+  </screen>
+ </example>
 </sect1>
 <!-- Keep this comment at the end of the file
 Local variables:

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 512670405c88acf7f0c9124f98c249e530ecd3cb Maintainer: pastore Status: ready -->
-<!-- Reviewed: yes Maintainer: cucinato -->
+<!-- EN-Revision: e4676cd5278b301e0f83938a4d5798ab29198868 Maintainer: pastore Status: ready -->
 <!-- CREDITS: montefoschi,cucinato -->
+
  <sect1 xml:id="language.oop5.basic" xmlns="http://docbook.org/ns/docbook">
   <title>Nozioni di base</title>
 
@@ -15,11 +15,13 @@
    </para>
    <para>
     Il nome della classe può essere una qualunque etichetta valida che non 
-    sia una <link linkend="reserved">parola riservata</link> di PHP. 
-    Un nome di classe valido inizia con una lettera o un underscore, seguiti da 
-    lettere, numeri, o underscores. Questa regola può essere rappresentata 
-    dalla seguente espressione regolare:
-    <literal>^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$</literal>.
+    sia una <link linkend="reserved">parola riservata</link> di PHP.
+    A partire da PHP 8.4.0, l'utilizzo di un singolo underscore <literal>_</literal> come
+    nome di classe è deprecato.
+    Un nome di classe valido inizia con una lettera o un underscore,
+    seguiti da un numero qualsiasi di lettere, numeri o underscore.
+    Questa regola può essere rappresentata dalla seguente espressione regolare:
+    <code>^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$</code>.
    </para>
    <para>
     Una classe può contenere le proprie 
@@ -27,7 +29,7 @@
     (chiamate "proprietà"), e funzioni (chiamate "methods").
    </para>
    <example>
-    <title>Semplice definizione di una classe</title>
+    <title>Semplice definizione di una Classe</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -37,7 +39,7 @@ class SimpleClass
     public $var = 'un valore di default';
 
     // dichiarazione di metodi
-    public function mostraVar() {
+    public function displayVar() {
         echo $this->var;
     }
 }
@@ -185,6 +187,11 @@ readonly class Foo
 ]]>
      </programlisting>
     </informalexample>
+    <simpara>
+     A partire da PHP 8.6.0, le proprietà di una classe <modifier>readonly</modifier>
+     possono dichiarare
+     <link linkend="language.oop5.properties.readonly-properties">valori predefiniti</link>.
+    </simpara>
     <para>
      Una classe <modifier>readonly</modifier> può essere
      <link linkend="language.oop5.basic.extends">estesa</link>
@@ -196,16 +203,16 @@ readonly class Foo
 
   <sect2 xml:id="language.oop5.basic.new">
    <title>new</title>
-   <para>
+   <simpara>
     Per creare un'istanza di una classe, deve essere usata la parola chiave <literal>new</literal>.
     Un oggetto sarà sempre creato a meno che la classe abbia un 
-    <link linkend="language.oop5.decon">costruttore</link> definito il quale sollevi un'
-    <link linkend="language.exceptions">eccezione</link> in caso di errore. Le classi 
+    <link linkend="language.oop5.decon">costruttore</link> definito il quale sollevi
+    un'<exceptionname>Exception</exceptionname> in caso di errore. Le classi 
     dovrebbero essere definite prima dell'istanziazione (in alcuni casi questo è un 
     requisito).
-   </para>
+   </simpara>
    <para>
-    Se viene usata una <type>stringa</type> contenente il nome di una classe con
+    Se viene usata una variabile contenente una <type>string</type> con il nome di una classe con
     <literal>new</literal>, verrà creata una nuova istanza di quella classe. Se
     la classe appartiene ad un namespace, deve essere utilizzato il suo nome completamente 
     qualificato.
@@ -223,11 +230,16 @@ readonly class Foo
     <programlisting role="php">
 <![CDATA[
 <?php
+class SimpleClass {
+}
+
 $instance = new SimpleClass();
+var_dump($instance);
 
 // è anche possibile istanziare una classe il cui nome sia contenuto in una variabile:
 $className = 'SimpleClass';
 $instance = new $className(); // new SimpleClass()
+var_dump($instance);
 ?>
 ]]>
     </programlisting>
@@ -295,13 +307,16 @@ object(ClassD)#1 (0) {
     <programlisting role="php">
 <![CDATA[
 <?php
+class SimpleClass {
+    public string $var;
+}
 
 $instance = new SimpleClass();
 
 $assigned   =  $instance;
 $reference  =& $instance;
 
-$istance->var = '$assigned avrà questo valore';
+$instance->var = '$assigned avrà questo valore';
 
 $instance = null; // $instance e $reference diventano null
 
@@ -317,8 +332,8 @@ var_dump($assigned);
 NULL
 NULL
 object(SimpleClass)#1 (1) {
-   ["var"]=>
-     string(30) "$assigned avrà questo valore"
+  ["var"]=>
+  string(29) "$assigned avrà questo valore"
 }
 ]]>
     </screen>
@@ -331,26 +346,27 @@ object(SimpleClass)#1 (1) {
     <programlisting role="php">
 <![CDATA[
 <?php
+
 class Test
 {
-    static public function getNew()
+    public static function getNew()
     {
-        return new static;
+        return new static();
     }
 }
 
-class Child extends Test
-{}
+class Child extends Test {}
 
-$obj1 = new Test();
-$obj2 = new $obj1;
+$obj1 = new Test(); // Tramite il nome della classe
+$obj2 = new $obj1(); // Tramite la variabile contenente un oggetto
 var_dump($obj1 !== $obj2);
 
-$obj3 = Test::getNew();
+$obj3 = Test::getNew(); // Tramite il metodo della classe
 var_dump($obj3 instanceof Test);
 
-$obj4 = Child::getNew();
+$obj4 = Child::getNew(); // Tramite un metodo della classe figlia
 var_dump($obj4 instanceof Child);
+
 ?>
 ]]>
     </programlisting>
@@ -373,14 +389,18 @@ bool(true)
     <programlisting role="php">
 <![CDATA[
 <?php
-echo (new DateTime())->format('Y');
+echo (new DateTime())->format('Y'), PHP_EOL;
+
+// le parentesi esterne sono opzionali a partire da PHP 8.4.0
+echo new DateTime()->format('Y'), PHP_EOL;
 ?>
 ]]>
     </programlisting>
     &example.outputs.similar;
     <screen>
 <![CDATA[
-2016
+2025
+2025
 ]]>
     </screen>
    </example>
@@ -494,9 +514,17 @@ echo ($obj->bar)(), PHP_EOL;
     <programlisting role="php">
 <![CDATA[
 <?php
+class SimpleClass
+{
+    function displayVar()
+    {
+        echo "Classe padre\n";
+    }
+}
+
 class ExtendClass extends SimpleClass
 {
-    // Ridefinisce il metodo presente in ClasseSemplice
+    // Ridefinisce il metodo padre
     function displayVar()
     {
         echo "Classe figlia\n";
@@ -513,7 +541,7 @@ $extended->displayVar();
     <screen>
 <![CDATA[
 Classe figlia
-un valore di default
+Classe padre
 ]]>
     </screen>
    </example>
@@ -526,7 +554,8 @@ un valore di default
      generato un errore di livello <constant>E_WARNING</constant>.
      Una firma è compatibile se rispetta le
      regole di <link linkend="language.oop5.variance">varianza</link>, rende
-     facoltativo un parametro obbligatorio e se i nuovi parametri sono opzionali.
+     facoltativo un parametro obbligatorio, aggiunge solo nuovi parametri opzionali e
+     non restringe ma solo allarga la visibilità.
      Questo è noto come Principio di Sostituzione di Liskov, o LSP in breve.
      I metodi <link linkend="language.oop5.decon.constructor">costruttore</link>
      e <literal>privati</literal> sono esenti da queste regole di
@@ -740,7 +769,7 @@ Does\Not\Exist
     </example>
    </note>
    <para>
-    A partire da PHP 8.0.0, la costante <literal>::class</literal> può essere utilizzata anche sugli
+    A partire da PHP 8.0.0, <literal>::class</literal> può essere utilizzata anche sugli
     oggetti. Questa risoluzione avviene in fase di esecuzione, non in fase di compilazione. Il suo effetto è
     lo stesso della chiamata di <function>get_class</function> sull'oggetto.
    </para>
@@ -752,9 +781,10 @@ Does\Not\Exist
 namespace NS {
     class ClassName {
     }
+
+    $c = new ClassName();
+    print $c::class;
 }
-$c = new ClassName();
-print $c::class;
 ?>
 ]]>
     </programlisting>
@@ -765,14 +795,57 @@ NS\ClassName
 ]]>
     </screen>
    </example>
+   <simpara>
+    L'utilizzo di <literal>::class</literal> su un valore che non è un oggetto lancia un
+    <exceptionname>TypeError</exceptionname>. Questo include una
+    <type>string</type> contenente il nome di una classe, che può essere usata direttamente
+    al suo posto.
+   </simpara>
+   <example xml:id="language.oop5.basic.class.class.non-object">
+    <title>Utilizzo di <literal>::class</literal> su una stringa</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$className = 'stdClass';
+
+try {
+    echo $className::class;
+} catch (TypeError $e) {
+    echo $e->getMessage();
+}
+?>
+]]>
+    </programlisting>
+    &example.outputs.83;
+    <screen>
+<![CDATA[
+Cannot use "::class" on string
+]]>
+    </screen>
+    &example.outputs.82;
+    <screen>
+<![CDATA[
+Cannot use "::class" on value of type string
+]]>
+    </screen>
+   </example>
+   <note>
+    <simpara>
+     Quando viene utilizzata su una stringa letterale, come in
+     <literal>'ClassName'::class</literal>, <literal>::class</literal> viene
+     risolta in fase di compilazione, e restituisce il nome della classe contenuto nella stringa
+     considerato come nome completamente qualificato: non viene risolto rispetto al namespace
+     corrente, e un eventuale backslash iniziale viene rimosso.
+    </simpara>
+   </note>
   </sect2>
  <sect2 xml:id="language.oop5.basic.nullsafe">
   <title>Metodi e proprietà nullsafe</title>
   <para>
    A partire da PHP 8.0.0, è possibile accedere alle proprietà e ai metodi anche con
    l'operatore "nullsafe": <literal>?-></literal>. L'operatore nullsafe
-   funziona allo stesso modo dell'accesso alla proprietà o al metodo come sopra, tranne per il fatto che se l'
-   oggetto da dereferenziare è &null; allora &null;
+   funziona allo stesso modo dell'accesso alla proprietà o al metodo come sopra, tranne per il fatto che se
+   l'oggetto da dereferenziare è &null; allora &null;
    verrà restituito piuttosto che un'eccezione generata. Se la dereferenziazione fa parte di una
    catena, il resto della catena viene saltato.
   </para>
@@ -783,7 +856,7 @@ NS\ClassName
   <para>
    <example>
     <title>L'Operatore Nullsafe</title>
-    <programlisting role="php">
+    <programlisting role="php" annotations="non-interactive">
 <![CDATA[
 <?php
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: dec1f8445ab2af7fbafef012fb7907ab2cd349b5 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 5e6ca803fc284739a7b1e7fba58b6b8466d5006f Maintainer: pastore Status: ready -->
 <!-- CREDITS: matteobug,cortesi,cucinato -->
  <chapter xml:id="features.http-auth" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
   <title>Autenticazione HTTP usando PHP</title>
@@ -12,10 +12,10 @@
    l'URL contenente lo script PHP verrà richiamato nuovamente usando le
    <link linkend="reserved.variables">variabili predefinite</link>,
    <varname>PHP_AUTH_USER</varname>, <varname>PHP_AUTH_PW</varname> e
-   <varname>AUTH_TYPE</varname> impostate con nome, password e
+   <varname>AUTH_TYPE</varname> impostate rispettivamente con nome utente, password e
    tipo di autenticazione. Queste variabili predefinite possono essere trovate
-   nell'array <varname>$_SERVER</varname>. Saranno supportati entrambi i
-   metodi di autenticazione, "Basic" e "Digest" (a partire dal PHP 5.1.0).
+   nell'array <varname>$_SERVER</varname>. È supportato <emphasis>solo</emphasis>
+   il metodo di autenticazione "Basic".
    Fare riferimento alla funzione <function>header</function> per ulteriori informazioni.
   </simpara>
 
@@ -30,8 +30,8 @@
 <![CDATA[
 <?php
 if (!isset($_SERVER['PHP_AUTH_USER'])) {
+    header('HTTP/1.1 401 Unauthorized');
     header('WWW-Authenticate: Basic realm="Il mio realm"');
-    header('HTTP/1.0 401 Unauthorized');
     echo 'Messaggio da inviare se si preme il tasto Cancel';
     exit;
 } else {
@@ -44,103 +44,28 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
    </example>
   </para>
 
-  <para>
-   <example>
-    <title>Esempio di autenticazione HTTP "Digest"</title>
-    <para>
-     Questo esempio illustra come implementare una autenticazione
-     Digest. Per maggiori dettagli vedere <link
-      xlink:href="&url.rfc;2617">RFC 2617</link>.
-    </para>
-    <programlisting role="php">
-<![CDATA[
-<?php
-$realm = 'Restricted area';
-
-//user => password
-$users = array('admin' => 'mypass', 'guest' => 'guest');
-
-
-if (empty($_SERVER['PHP_AUTH_DIGEST'])) {
-    header('HTTP/1.1 401 Unauthorized');
-    header('WWW-Authenticate: Digest realm="'.$realm.
-           '",qop="auth",nonce="'.uniqid().'",opaque="'.md5($realm).'"');
-
-    die('Text to send if user hits Cancel button');
-}
-
-
-// analisi della variabile PHP_AUTH_DIGEST
-if (!($data = http_digest_parse($_SERVER['PHP_AUTH_DIGEST'])) ||
-    !isset($users[$data['username']]))
-    die('Wrong Credentials!');
-
-
-// generazione di una risposta valida
-$A1 = md5($data['username'] . ':' . $realm . ':' . $users[$data['username']]);
-$A2 = md5($_SERVER['REQUEST_METHOD'].':'.$data['uri']);
-$valid_response = md5($A1.':'.$data['nonce'].':'.$data['nc'].':'.$data['cnonce'].':'.$data['qop'].':'.$A2);
-
-if ($data['response'] != $valid_response)
-    die('Wrong Credentials!');
-
-// Ok, utente/password validi
-echo 'Your are logged in as: ' . $digest['username'];
-
-
-// funzione che analizza l'header http auth
-function http_digest_parse($txt)
-{
-    // protezione contro i dati mancanti
-    $needed_parts = array('nonce'=>1, 'nc'=>1, 'cnonce'=>1, 'qop'=>1, 'username'=>1, 'uri'=>1, 'response'=>1);
-    $data = array();
-    $keys = implode('|', array_keys($needed_parts));
-
-    preg_match_all('@(' . $keys . ')=(?:([\'"])([^\2]+?)\2|([^\s,]+))@', $txt, $matches, PREG_SET_ORDER);
-
-    foreach ($matches as $m) {
-        $data[$m[1]] = $m[3] ? $m[3] : $m[4];
-        unset($needed_parts[$m[1]]);
-    }
-
-    return $needed_parts ? false : $data;
-}
-?>
-]]>
-    </programlisting>
-   </example>
-  </para>
-
   <note>
-   <title>Note sulla compatibilità</title>
+   <title>Compatibilità</title>
    <para>
     Fare molta attenzione quando si scrive codice per le intestazioni HTTP. Per ottenere la  massima
     compatibilità con tutti i client, la parola-chiave "Basic" deve essere scritta con una
     "B" maiuscola, la stringa realm deve essere racchiusa in virgolette doppie (non singole),
     ed esattamente uno spazio deve precedere il codice <emphasis>401</emphasis> nella linea
-    di intestazione <emphasis>HTTP/1.0 401</emphasis>. I parametri di autenticazione devono
-    essere separati da virgole come si vede nell'esempio qui sopra.
+    di intestazione <emphasis>HTTP/1.1 401</emphasis>. I parametri di autenticazione devono
+    essere separati da virgole.
    </para>
   </note>
 
   <para>
-   Invece di stampare semplicemente <varname>PHP_AUTH_USER</varname> e
-   <varname>PHP_AUTH_PW</varname>, probabilmente si vorrà controllare
-   la validità dello username e della password.
+   Invece di stampare semplicemente <varname>PHP_AUTH_USER</varname>
+   e <varname>PHP_AUTH_PW</varname>, come fatto nell'esempio precedente,
+   probabilmente si vorrà controllare la validità dello username e della password.
    Probabilmente inviando una chiamata al database,
    o cercando un utente in un file dbm.
   </para>
 
-  <para>
-   Si faccia attenzione ad alcune versioni di Internet Explorer. Sembra
-   che siano molto schizzinosi riguardo all'ordine delle intestazioni. Inviare l'intestazione
-   <emphasis>WWW-Authenticate</emphasis> prima dell'intestazione
-   <literal>HTTP/1.0 401</literal> sembra sistemare le cose per
-   il momento.
-  </para>
-
   <note>
-   <title>Nota sulla Configurazione</title>
+   <title>Configurazione di Apache</title>
    <para>
     PHP usa la presenza di una direttiva <literal>AuthType</literal>
     per determinare se viene utilizzata l'autenticazione esterna.
@@ -152,65 +77,32 @@ function http_digest_parse($txt)
    controlla un URL non autenticato di sottrarre password da
    URL autenticati presenti sullo stesso server.
   </simpara>
-  <simpara>
-   Sia Netscape Navigator che Internet Explorer cancellano la cache locale
-   della finestra del browser, per quanto riguarda il realm, al ricevimento
-   di una risposta 401 da parte del server. Questo è effettivamente un meccanismo di "log out" per l'utente,
-   che lo forza a reinserire lo username e la password. Alcune persone
-   usano questo per fare il "time out" dei login, o per rendere disponibili bottoni di "log-out".
-  </simpara>
-  <para>
-   <example>
-    <title>Esempio di Autenticazione HTTP che impone l'inserimento di nuovo username/password</title>
-    <programlisting role="php">
-<![CDATA[
-<?php
-function authenticate() {
-    header('WWW-Authenticate: Basic realm="Prova del Sistema di Autenticazione"');
-    header('HTTP/1.0 401 Unauthorized');
-    echo "Per poter accedere a questa risorsa occorre inserire una coppia login e password valide\n";
-    exit;
-}
- 
-if (!isset($_SERVER['PHP_AUTH_USER']) ||
-    ($_POST['SeenBefore'] == 1 && $_POST['OldAuth'] == $_SERVER['PHP_AUTH_USER'])) {
-    authenticate();
-} else {
-    echo "<p>Benvenuto: " . htmlspecialchars($_SERVER['PHP_AUTH_USER']) . "<br />";
-    echo "Vecchio: " . htmlspecialchars($_REQUEST['OldAuth']);
-    echo "<form action='' method='post'>\n";
-    echo "<input type='hidden' name='SeenBefore' value='1' />\n";
-    echo "<input type='hidden' name='OldAuth' value=\"" . htmlspecialchars($_SERVER['PHP_AUTH_USER']) . "\" />\n";
-    echo "<input type='submit' value='Ri autentifica' />\n";
-    echo "</form></p>\n";
-}
-?>
-]]>
-    </programlisting>
-   </example>
-  </para>
-  <simpara>
-   Questo comportamento non è richiesto dallo standard di autenticazione HTTP
-   Basic, quindi non si dovrebbe mai fare affidamento su di esso. Test effettuati con
-   <literal>Lynx</literal> mostrano che <literal>Lynx</literal> non cancella
-   le credenziali di autenticazione al ricevimento del codice di risposta 401 da parte del server, quindi, premendo indietro
-   e avanti nuovamente, darà nuovamente accesso alla risorsa, ammesso che le rispettive richieste
-   di credenziali non siano cambiate. L'utente può però premere il
-   tasto '_' al fine di cancellare le sue informazioni di autenticazione.
-  </simpara>
-  <simpara>
-   Al fine di far funzionare l'Autenticazione HTTP usando il server IIS con la versione CGI
-   di PHP si deve modificare la configurazione di IIS "<literal>Directory Security</literal>".
-   Cliccare su "<literal>Edit</literal>" e selezionare solo
-   "<literal>Anonymous Access</literal>", tutti gli altri campi
-   devono essere lasciati deselezionati.
-  </simpara>
+
   <note>
-   <title>Nota su IIS:</title>
+   <title>Comportamento dei browser</title>
    <simpara>
-    Al fine di fare funzionare la Autenticazione HTTP con IIS, la direttiva PHP
-    <link linkend="ini.cgi.rfc2616-headers">cgi.rfc2616_headers</link> deve
-    essere impostata al valore <literal>0</literal> (il valore predefinito).
+    L'autenticazione HTTP Basic è davvero basilare, e non è stata progettata per supportare
+    il logout. Poiché HTTP è un protocollo senza stato, la maggior parte dei browser memorizza nella cache
+    le credenziali fornite non appena riceve un codice di stato <literal>2xx</literal>,
+    e le invia in ogni richiesta, finché il browser non viene chiuso. Non esiste un
+    modo definito con cui un server possa richiedere un nuovo inserimento delle credenziali.
+
+    Nel corso degli anni, varie soluzioni alternative si sono diffuse come consigli su internet,
+    ma dipendono tutte da come i diversi browser hanno scelto di gestire casi limite non definiti
+    (o persino violazioni dello standard HTTP). È meglio evitare tali
+    soluzioni alternative e non usare l'autenticazione Basic per nulla di serio.
+   </simpara>
+  </note>
+
+  <note>
+   <title>Configurazione di IIS</title>
+   <simpara>
+    Al fine di far funzionare l'Autenticazione HTTP sul server IIS con la versione CGI di
+    PHP, la direttiva php.ini <link linkend="ini.cgi.rfc2616-headers">cgi.rfc2616_headers</link>
+    deve essere impostata a <literal>0</literal> (il valore predefinito), e si deve modificare la configurazione
+    di IIS "<literal>Directory Security</literal>".
+    Cliccare su "<literal>Edit</literal>" e selezionare solo "<literal>Anonymous Access</literal>",
+    tutti gli altri campi devono essere lasciati deselezionati.
    </simpara>
   </note>
 

@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: 0466dd93f73635c728c6c4707aaf5876692f1ef3 Maintainer: pastore Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 3a8c3e77df070a046c9d5b56b68926ca2d7e5ee3 Maintainer: pastore Status: ready -->
 <!-- CREDITS: curcio_it -->
 <refentry xml:id="function.date" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
@@ -39,6 +39,15 @@
      <para>
       Formato accettato da <methodname>DateTimeInterface::format</methodname>.
      </para>
+      <note>
+       <simpara>
+        <function>date</function> genererà sempre
+        <literal>000000</literal> come microsecondi poiché accetta un parametro
+        <type>int</type>, mentre <methodname>DateTimeInterface::format</methodname>
+        supporta i microsecondi se un oggetto di tipo
+        <interfacename>DateTimeInterface</interfacename> è stato creato con i microsecondi.
+       </simpara>
+      </note>
     </listitem>
    </varlistentry>
 
@@ -50,9 +59,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce una stringa data formattata. Se viene utilizzato un valore non numerico per 
-   <parameter>timestamp</parameter>, viene restituito &false; e viene 
-   emesso un errore di livello <constant>E_WARNING</constant>.
+   Restituisce una stringa data formattata.
   </para>
  </refsect1>
 
@@ -100,21 +107,20 @@ date_default_timezone_set('UTC');
 
 
 // Stampa qualcosa di simile a: Monday
-echo date("l");
+echo date("l") . "\n";
 
 // Stampa qualcosa di simile a: Monday 8th of August 2005 03:12:46 PM
-echo date('l jS \of F Y h:i:s A');
+echo date('l jS \of F Y h:i:s A') . "\n";
 
 // Stampa: July 1, 2000 is on a Saturday
-echo "July 1, 2000 is on a " . date("l", mktime(0, 0, 0, 7, 1, 2000));
+echo "July 1, 2000 is on a " . date("l", mktime(0, 0, 0, 7, 1, 2000)) . "\n";
 
 /* usa le costanti nel parametro format */
 // stampa qualcosa di simile a: Wed, 25 Sep 2013 15:28:57 -0700
-echo date(DATE_RFC2822);
+echo date(DATE_RFC2822) . "\n";
 
 // stampa qualcosa di simile a: 2000-07-01T00:00:00+00:00
 echo date(DATE_ATOM, mktime(0, 0, 0, 7, 1, 2000));
-?>
 ]]>
     </programlisting>
    </example>
@@ -131,34 +137,9 @@ echo date(DATE_ATOM, mktime(0, 0, 0, 7, 1, 2000));
 <?php
 // stampa qualcosa di simile a: Wednesday the 15th
 echo date('l \t\h\e jS');
-?>
 ]]>
     </programlisting>
    </example>
-  </para>
-  <para>
-   È possibile utilizzare insieme <function>date</function> e
-   <function>mktime</function> per trovare date nel futuro
-   o nel passato.
-   <example>
-    <title>Esempio di <function>date</function> e di <function>mktime</function></title>
-    <programlisting role="php">
-<![CDATA[
-<?php
-$tomorrow  = mktime(0, 0, 0, date("m")  , date("d")+1, date("Y"));
-$lastmonth = mktime(0, 0, 0, date("m")-1, date("d"),   date("Y"));
-$nextyear  = mktime(0, 0, 0, date("m"),   date("d"),   date("Y")+1);
-?>
-]]>
-    </programlisting>
-   </example>
-   <note>
-    <para>
-     Questo può essere più affidabile rispetto che semplicemente aggiungere o sottrarre il numero
-     di secondi in un giorno o in un mese ad un timestamp a causa dell'ora
-     legale.
-    </para>
-   </note>
   </para>
   <para>
    Alcuni esempi della formattazione <function>date</function>. Notare che
@@ -172,26 +153,26 @@ $nextyear  = mktime(0, 0, 0, date("m"),   date("d"),   date("Y")+1);
     <programlisting role="php">
 <![CDATA[
 <?php
-// Assumendo che oggi sia Il 10 Marzo, 2001, 5:16:18 pm, e che noi siamo nel
+// Assumendo che oggi sia il 10 marzo 2001, 5:16:18 pm, e che ci si trovi nel
 // Fuso Orario Mountain Standard Time (MST)
+date_default_timezone_set("America/Phoenix");
 
-$today = date("F j, Y, g:i a");                 // March 10, 2001, 5:16 pm
-$today = date("m.d.y");                         // 03.10.01
-$today = date("j, n, Y");                       // 10, 3, 2001
-$today = date("Ymd");                           // 20010310
-$today = date('h-i-s, j-m-y, it is w Day');     // 05-16-18, 10-03-01, 1631 1618 6 Satpm01
-$today = date('\i\t \i\s \t\h\e jS \d\a\y.');   // it is the 10th day.
-$today = date("D M j G:i:s T Y");               // Sat Mar 10 17:16:18 MST 2001
-$today = date('H:m:s \m \i\s\ \m\o\n\t\h');     // 17:03:18 m is month
-$today = date("H:i:s");                         // 17:16:18
-$today = date("Y-m-d H:i:s");                   // 2001-03-10 17:16:18 (the MySQL DATETIME format)
-?>
+echo date("F j, Y, g:i a") . "\n";                 // March 10, 2001, 5:16 pm
+echo date("m.d.y") . "\n";                         // 03.10.01
+echo date("j, n, Y") . "\n";                       // 10, 3, 2001
+echo date("Ymd") . "\n";                           // 20010310
+echo date('h-i-s, j-m-y, it is w Day') . "\n";     // 05-16-18, 10-03-01, 1631 1618 6 Satpm01
+echo date('\i\t \i\s \t\h\e jS \d\a\y.') . "\n";   // it is the 10th day.
+echo date("D M j G:i:s T Y") . "\n";               // Sat Mar 10 17:16:18 MST 2001
+echo date('H:m:s \m \i\s\ \m\o\n\t\h') . "\n";     // 17:03:18 m is month
+echo date("H:i:s") . "\n";                         // 17:16:18
+echo date("Y-m-d H:i:s") . "\n";                   // 2001-03-10 17:16:18 (il formato DATETIME di MySQL)
 ]]>
     </programlisting>
    </example>
   </para>
   <para>
-   Per formattare le date in altri lingue,
+   Per formattare le date in altre lingue,
    può essere utilizzata <methodname>IntlDateFormatter::format</methodname>
    al posto di <function>date</function>.
   </para>

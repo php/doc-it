@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 9af43469f46843451955b8926fe470a9f3d45034 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 0e2dfef689e3b40b8a826a0f64ba741863ee8c2a Maintainer: pastore Status: ready -->
 <refentry xml:id="domdocument.registernodeclass" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>DOMDocument::registerNodeClass</refname>
@@ -7,10 +7,10 @@
  </refnamediv>
  <refsect1 role="description">
   &reftitle.description;
-  <methodsynopsis>
-   <modifier>public</modifier> <type>bool</type><methodname>DOMDocument::registerNodeClass</methodname>
-   <methodparam><type>string</type><parameter>baseclass</parameter></methodparam>
-   <methodparam><type>string</type><parameter>extendedclass</parameter></methodparam>
+  <methodsynopsis role="DOMDocument">
+   <modifier>public</modifier> <type>true</type><methodname>DOMDocument::registerNodeClass</methodname>
+   <methodparam><type>string</type><parameter>baseClass</parameter></methodparam>
+   <methodparam><type class="union"><type>string</type><type>null</type></type><parameter>extendedClass</parameter></methodparam>
   </methodsynopsis>
 
   <para>
@@ -20,6 +20,11 @@
   <para>
    Questo metodo non fa parte dello standard DOM.
   </para>
+  <caution>
+   <simpara>
+    Il costruttore degli oggetti delle classi di nodi registrate non viene chiamato.
+   </simpara>
+  </caution>
  </refsect1>
 
  <refsect1 role="parameters">
@@ -27,7 +32,7 @@
   <para>
    <variablelist>
     <varlistentry>
-     <term><parameter>baseclass</parameter></term>
+     <term><parameter>baseClass</parameter></term>
      <listitem>
       <para>
        La classe DOM che si desidera estendere. Si può trovare un elenco di queste
@@ -36,11 +41,11 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>extendedclass</parameter></term>
+     <term><parameter>extendedClass</parameter></term>
      <listitem>
       <para>
        Il nome della propria classe estesa. Se viene fornito &null;, qualsiasi classe
-       registrata in precedenza che estende <parameter>baseclass</parameter>
+       registrata in precedenza che estende <parameter>baseClass</parameter>
        verrà rimossa.
       </para>
      </listitem>
@@ -52,8 +57,31 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   &return.success;
+   &return.true.always;
   </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.4.0</entry>
+      <entry>
+       <methodname>DOMDocument::registerNodeClass</methodname>
+       ora ha un tipo di ritorno provvisorio <type>true</type>.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
  </refsect1>
 
  <refsect1 role="examples">
@@ -138,33 +166,44 @@ text in child
     <para>
      Quando si crea un'istanza di un <classname>DOMDocument</classname> personalizzato, la
      proprietà <varname>ownerDocument</varname> farà riferimento alla classe
-     istanziata, il che significa che non è necessario (e in realtà non è possibile) utilizzare
+     istanziata. Tuttavia, se tutti i riferimenti a tale classe vengono rimossi, essa
+     verrà distrutta e al suo posto verrà creato un nuovo <classname>DOMDocument</classname>.
+     Per questo motivo si potrebbe utilizzare
      <function>DOMDocument::registerNodeClass</function> con
      <classname>DOMDocument</classname>
     </para>
     <programlisting role="php">
 <![CDATA[
 <?php
-class myDOMDocument extends DOMDocument {
+class MyDOMDocument extends DOMDocument {
 }
 
-class myOtherDOMDocument extends DOMDocument {
+class MyOtherDOMDocument extends DOMDocument {
 }
 
-// Crea myDOMDocument con un po' di XML
-$doc = new myDOMDocument;
+// Crea MyDOMDocument con un po' di XML
+$doc = new MyDOMDocument;
 $doc->loadXML("<root><element><child>text in child</child></element></root>");
 
 $child = $doc->getElementsByTagName("child")->item(0);
 
-// L'attuale proprietario del nodo è myDOMDocument
+// L'attuale proprietario del nodo è MyDOMDocument
+var_dump(get_class($child->ownerDocument));
+// MyDOMDocument viene distrutto
+unset($doc);
+// E viene creata una nuova istanza di DOMDocument
 var_dump(get_class($child->ownerDocument));
 
-// Importa un nodo da myDOMDocument
-$newdoc = new myOtherDOMDocument;
+// Importa un nodo da MyDOMDocument
+$newdoc = new MyOtherDOMDocument;
 $child = $newdoc->importNode($child);
 
-// Il nuovo proprietario del nodo è cambiato in myOtherDOMDocument
+// Registra un DOMDocument personalizzato
+$newdoc->registerNodeClass("DOMDocument", "MyOtherDOMDocument");
+
+var_dump(get_class($child->ownerDocument));
+unset($doc);
+// Viene creato un nuovo MyOtherDOMDocument
 var_dump(get_class($child->ownerDocument));
 ?>
 ]]>
@@ -172,8 +211,50 @@ var_dump(get_class($child->ownerDocument));
     &example.outputs;
     <screen role="xml">
 <![CDATA[
-string(13) "myDOMDocument"
-string(18) "myOtherDOMDocument"
+string(13) "MyDOMDocument"
+string(11) "DOMDocument"
+string(18) "MyOtherDOMDocument"
+string(18) "MyOtherDOMDocument"
+]]>
+    </screen>
+   </example>
+  </para>
+  <para>
+   <example xml:id="domdocument.registernodeclass.example.transient">
+    <title>Gli oggetti personalizzati sono transitori</title>
+    <caution>
+     <simpara>
+      Gli oggetti delle classi di nodi registrate sono transitori, cioè vengono
+      distrutti quando non sono più referenziati dal codice PHP e ricreati
+      quando vengono recuperati nuovamente. Ciò implica che i valori delle proprietà personalizzate andranno
+      persi dopo la ricreazione.
+     </simpara>
+    </caution>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class MyDOMElement extends DOMElement
+{
+    public $myProp = 'valore predefinito';
+}
+
+$doc = new DOMDocument();
+$doc->registerNodeClass('DOMElement', 'MyDOMElement');
+
+$node = $doc->createElement('a');
+$node->myProp = 'valore modificato';
+$doc->appendChild($node);
+
+echo $doc->childNodes[0]->myProp, PHP_EOL;
+unset($node);
+echo $doc->childNodes[0]->myProp, PHP_EOL;
+?>]]>
+    </programlisting>
+    &example.outputs;
+    <screen role="xml">
+<![CDATA[
+valore modificato
+valore predefinito
 ]]>
     </screen>
    </example>
@@ -181,7 +262,6 @@ string(18) "myOtherDOMDocument"
  </refsect1>
 
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

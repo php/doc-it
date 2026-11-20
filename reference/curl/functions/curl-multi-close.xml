@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: 52dc204a77076e1404257cf39f179882b90b5780 Maintainer: pastore Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: fc9a0a8b29a7a099998bdd71fe5350a10b18fe62 Maintainer: pastore Status: ready -->
 <!-- CREDITS: darvina -->
 <refentry xml:id="function.curl-multi-close" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>curl_multi_close</refname>
-  <refpurpose>Chiude un set di gestori cURL</refpurpose>
+  <refpurpose>Rimuove tutti i gestori cURL da un gestore multiplo</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
@@ -13,9 +13,12 @@
    <type>void</type><methodname>curl_multi_close</methodname>
    <methodparam><type>CurlMultiHandle</type><parameter>multi_handle</parameter></methodparam>
   </methodsynopsis>
-  &note.resource-migration-8.0-dead-function;
   <para>
-   Chiude un set di gestori cURL.
+   Rimuove tutti i <classname>CurlHandle</classname> collegati al <classname>CurlMultiHandle</classname>,
+   come se <function>curl_multi_remove_handle</function> fosse chiamata per ciascuno di essi.
+  </para>
+  <para>
+   Prima di PHP 8.0.0 questa funzione chiudeva anche la risorsa del gestore multiplo cURL, rendendola inutilizzabile.
   </para>
  </refsect1>
 
@@ -52,63 +55,11 @@
   </informaltable>
  </refsect1>
 
- <refsect1 role="examples">
-  &reftitle.examples;
-  <para>
-   <example>
-    <title>Esempio di <function>curl_multi_close</function></title>
-    <para>
-     Questo esempio creerà due gestori cURL, li aggiunge ad un gestore
-     multiplo, e dopo li esegue in modo asincrono.
-    </para>
-    <programlisting role="php">
-<![CDATA[
-<?php
-// crea entrambe le risorse di cURL
-$ch1 = curl_init();
-$ch2 = curl_init();
-
-// imposta l'URL e altre opzioni appropriate
-curl_setopt($ch1, CURLOPT_URL, "http://www.example.com/");
-curl_setopt($ch1, CURLOPT_HEADER, 0);
-curl_setopt($ch2, CURLOPT_URL, "http://www.php.net/");
-curl_setopt($ch2, CURLOPT_HEADER, 0);
-
-//crea il gestore cURL multiplo
-$mh = curl_multi_init();
-
-//aggiunge i due gestori
-curl_multi_add_handle($mh,$ch1);
-curl_multi_add_handle($mh,$ch2);
-
-//esegue i gestori multiplo
-do {
-    $status = curl_multi_exec($mh, $active);
-    if ($active) {
-        curl_multi_select($mh);
-    }
-} while ($active && $status == CURLM_OK);
-
-//chiude i gestori
-curl_multi_remove_handle($mh, $ch1);
-curl_close($ch1);
-curl_multi_remove_handle($mh, $ch2);
-curl_close($ch2);
-curl_multi_close($mh);
-
-?>
-]]>
-    </programlisting>
-   </example>
-  </para>
- </refsect1>
- 
  <refsect1 role="seealso">
   &reftitle.seealso;
   <para>
    <simplelist>
     <member><function>curl_multi_init</function></member>
-    <member><function>curl_close</function></member>
    </simplelist>
   </para>
  </refsect1>

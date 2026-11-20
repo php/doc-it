@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 0a3648a71895f35f570573d31ca9e003786aa993 Maintainer: pastore Status: working -->
+<!-- EN-Revision: 9936f6b7df4f01883b41f60d06fb438e9bf7e667 Maintainer: pastore Status: ready -->
 <!-- CREDITS: cortesi -->
 <!-- CREDITS: fernando -->
 <refentry xml:id="function.fgetcsv" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>fgetcsv</refname>
-  <refpurpose>Prende una riga da un puntatore a file e l'analizza in cerca di campi CSV</refpurpose>
+  <refpurpose>Prende una riga dal puntatore al file e l'analizza in cerca di campi CSV</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
@@ -20,7 +20,7 @@
   </methodsynopsis>
   <para>
    Simile a <function>fgets</function> eccetto per il fatto che
-   <function>fgetcsv</function> analizza le riga letta alla ricerca di campi
+   <function>fgetcsv</function> analizza la riga letta alla ricerca di campi
    in formato <acronym>CSV</acronym> e restituisce un array contenente i campi
    letti.
   </para>
@@ -100,7 +100,7 @@
         se una sequenza di caratteri <parameter>escape</parameter> e
         <parameter>enclosure</parameter> appare nell’input,
         entrambi i caratteri saranno presenti nel risultato analizzato.
-        Quindi, per i parametri predefiniti, una riga CVS come
+        Quindi, per i parametri predefiniti, una riga CSV come
         <literal>"a""b","c\"d"</literal> avrà i campi analizzati come
         <literal>a"b</literal> e <literal>c\"d</literal>, rispettivamente.
        </simpara>
@@ -202,19 +202,26 @@
     <programlisting role="php">
 <![CDATA[
 <?php
-$row = 1;
-if (($handle = fopen("test.csv", "r")) !== FALSE) {
-    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-        $num = count($data);
-        echo "<p> $num campi sulla riga $row: <br /></p>\n";
-        $row++;
-        for ($c=0; $c < $num; $c++) {
-            echo $data[$c] . "<br />\n";
+
+if (($handle = fopen("test.csv", "r")) !== false) {
+    $row = 1;
+
+    while (($fields = fgetcsv($handle, 1000, ",", "\"", "\\")) !== false) {
+        $num = count($fields);
+
+        echo "\n<p>$num campi sulla riga $row:</p>\n<ol>";
+
+        for ($c = 0; $c < $num; $c++) {
+            echo "\n\t<li>", $fields[$c], "</li>";
         }
+
+        echo "\n</ol>";
+
+        $row++;
     }
+
     fclose($handle);
 }
-?>
 ]]>
     </programlisting>
    </example>

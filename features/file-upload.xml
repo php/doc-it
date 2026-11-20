@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 3e08a8aae657492bdcdc7c550099ddf072042fa9 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 5e6ca803fc284739a7b1e7fba58b6b8466d5006f Maintainer: pastore Status: ready -->
 <!-- CREDITS: cucinato -->
  <chapter xml:id="features.file-upload" xmlns="http://docbook.org/ns/docbook">
   <title>Gestire i caricamenti di file</title>
@@ -77,12 +77,12 @@
    <note>
     <para>
      Accertarsi che il form di upload abbia l'impostazione <literal>enctype="multipart/form-data"</literal>
-     altrimentio non funzionerà.
+     altrimenti non funzionerà.
     </para>
    </note>
 
    <para>
-    La variabile globale <varname>$ _FILES</varname> conterrà tutte le informazioni sul file caricato.
+    La variabile globale <varname>$_FILES</varname> conterrà tutte le informazioni sul file caricato.
     Il suo contenuto dal form di esempio è il seguente. Notare che ciò presuppone l'uso del
     nome del file caricato <emphasis>userfile</emphasis>, come usato nello script
     di esempio di sopra. Esso può usare qualsiasi nome.
@@ -98,13 +98,13 @@
      <varlistentry>
       <term><varname>$_FILES['userfile']['type']</varname></term>
       <listitem>
-       <para>
+       <simpara>
         Il mime-type del file, se il browser fornisce questa
         informazione. Un esempio potrebbe essere
         <literal>"image/gif"</literal>. Questo mime type comunque
         non è controllato sul lato PHP e quindi non ci si deve fidare
         di questo valore.
-       </para>
+       </simpara>
       </listitem>
      </varlistentry>
      <varlistentry>
@@ -130,6 +130,15 @@
        <para>
         Il <link linkend="features.file-upload.errors">codice di errore</link>
         associato all'upload di questo file.
+       </para>
+      </listitem>
+     </varlistentry>
+     <varlistentry>
+      <term><varname>$_FILES['userfile']['full_path']</varname></term>
+      <listitem>
+       <para>
+        Il percorso completo così come inviato dal browser. Questo valore non sempre contiene una vera struttura di directory, e non è affidabile.
+        Disponibile a partire da PHP 8.1.0.
        </para>
       </listitem>
      </varlistentry>
@@ -253,80 +262,11 @@ foreach ($_FILES["pictures"]["error"] as $key => $error) {
     l'upload del file da parte del PHP. In altre parole l'errore può essere
     trovato in <varname>$_FILES['userfile']['error']</varname>.
    </simpara>
-   <para>
-    <variablelist>
-     <varlistentry>
-      <term><constant>UPLOAD_ERR_OK</constant></term>
-      <listitem>
-       <para>
-        Valore: 0; Non vi sono errori, l'upload è stato eseguito con successo.
-       </para>
-      </listitem>
-     </varlistentry>
-     <varlistentry>
-      <term><constant>UPLOAD_ERR_INI_SIZE</constant></term>
-      <listitem>
-       <para>
-        Valore: 1; Il file inviato eccede le dimensioni specificate nel parametro
-        <link linkend="ini.upload-max-filesize">upload_max_filesize</link> 
-        di &php.ini;.
-       </para>
-      </listitem>
-     </varlistentry>
-     <varlistentry>
-      <term><constant>UPLOAD_ERR_FORM_SIZE</constant></term>
-      <listitem>
-       <para>
-        Valore: 2; Il file inviato eccede le dimensioni specificate
-        nel parametro <emphasis>MAX_FILE_SIZE</emphasis> del form.
-       </para>
-      </listitem>
-     </varlistentry>
-     <varlistentry>
-      <term><constant>UPLOAD_ERR_PARTIAL</constant></term>
-      <listitem>
-       <para>
-        Valore: 3; Upload eseguito parzialmente.
-       </para>
-      </listitem>
-     </varlistentry>
-     <varlistentry>
-      <term><constant>UPLOAD_ERR_NO_FILE</constant></term>
-      <listitem>
-       <para>
-        Valore: 4; Nessun file è stato inviato.
-       </para>
-      </listitem>
-     </varlistentry>
-     <varlistentry>
-      <term><constant>UPLOAD_ERR_NO_TMP_DIR</constant></term>
-      <listitem>
-       <para>
-        Valore: 6; Mancanza della cartella temporanea. Introdotto in PHP 5.0.3.
-       </para>
-      </listitem>
-     </varlistentry>
-     <varlistentry>
-      <term><constant>UPLOAD_ERR_CANT_WRITE</constant></term>
-      <listitem>
-       <para>
-        Valore: 7; Erroe di scrittura su disco. Inserito in PHP 5.1.0.
-       </para>
-      </listitem>
-     </varlistentry>
-     <varlistentry>
-       <term><constant>UPLOAD_ERR_EXTENSION</constant></term>
-       <listitem>
-         <para>
-           Valore: 8; n'estensione di PHP ha interotto il caricamento. PHP non
-           fornisce un modo per capire quale estensione ha causato l'interruzione del
-           caricamento; esaminare l'elenco delle estensioni caricate con <function>phpinfo</function> può essere d'aiuto.
-           Introdotto in PHP 5.2.0.
-         </para>
-       </listitem>
-     </varlistentry>
-    </variablelist>
-   </para>
+   <simpara>
+    Il valore di questo codice di errore è una delle costanti
+    <constant>UPLOAD_ERR_<replaceable>*</replaceable></constant>
+    predefinite.
+   </simpara>
   </sect1>
 
   <sect1 xml:id="features.file-upload.common-pitfalls">
@@ -345,7 +285,7 @@ foreach ($_FILES["pictures"]["error"] as $key => $error) {
    </simpara>
    <simpara>
     Se <link linkend="ini.max-execution-time">max_execution_time</link>
-    è impostato ad un valore basso, l'esecuzione dello script può eccedere tale valore.
+    è impostato ad un valore basso, l'esecuzione dello script può eccedere il valore configurato.
     Ampliare <literal>max_execution_time</literal> ad un tempo sufficiente per l'upload.
    </simpara>
    <note>
@@ -364,7 +304,7 @@ foreach ($_FILES["pictures"]["error"] as $key => $error) {
      <link linkend="ini.max-input-time">max_input_time</link> imposta il tempo massimo,
      in secondi, in cui lo script può ricevere dati; questo comprende
      l'upload di file. Per file di grandi dimensioni o molteplici file, o su connessioni lente,
-     il valore di default <literal>60 seconds</literal> può essere sforato.
+     il valore di default <literal>60</literal> secondi può essere sforato.
     </simpara>
    </warning>
    <simpara>
@@ -373,9 +313,9 @@ foreach ($_FILES["pictures"]["error"] as $key => $error) {
     Impostare <literal>post_max_size</literal> alle dimensioni appropriate.
    </simpara>
    <simpara>
-    Da PHP 5.2.12, il parametro di configurazione
+    Il parametro di configurazione
     <link linkend="ini.max-file-uploads">max_file_uploads</link>
-    controlla il numeo massimo di file che possono essere caricati in una singola
+    controlla il numero massimo di file che possono essere caricati in una singola
     richiesta. Se sono caricati più file del limite fissato, allora
     <varname>$_FILES</varname> smetterà di processare i file una volta che il
     limite è raggiunto. Per esempio, se
@@ -388,25 +328,19 @@ foreach ($_FILES["pictures"]["error"] as $key => $error) {
     accesso a informazioni sensibili contenute in altre directory.
    </simpara>
    <simpara>
-    Si noti che che il server <productname>CERN httpd</productname> sembra eliminare qualsiasi cosa a partire
-    dal primo spazio nell'header mime content-type che riceve dal client.
-    Fino a che questo si verificherà, il server <productname>CERN httpd</productname> non supporterà la possibilità
-    di caricare file.
-   </simpara>
-   <simpara>
     A causa della varietà di formati di directory, non si è in grado di
     garantire che nomi di file strani (ad esempio contenenti spazi) siano gestiti correttamente.
    </simpara>
    <simpara>
-    Un sviluppatore non può mischiare normali campi di input con campi di upload di file con lo
-    stesso nome di campo (utilizzando nomi tipo <literal>foo[]</literal>).
+    Uno sviluppatore non può mischiare normali campi <literal>input</literal> e campi di upload di file nella stessa
+    variabile del form (utilizzando un nome di <literal>input</literal> come <literal>foo[]</literal>).
    </simpara>
   </sect1>
   
   <sect1 xml:id="features.file-upload.multiple">
    <title>Caricamento di più file</title>
    <simpara>
-    È possibile inviare più file contemporanemante utilizzando differenti
+    È possibile inviare più file contemporaneamente utilizzando differenti
     attributi <literal>name</literal> i per <literal>input</literal>.
    </simpara>
    <simpara>
@@ -457,13 +391,49 @@ foreach ($_FILES["pictures"]["error"] as $key => $error) {
    </simpara>
    <warning>
     <simpara>
-     Da PHP 5.2.12, il parametro di configurazione
+     Il parametro di configurazione
      <link linkend="ini.max-file-uploads">max_file_uploads</link>
      limita il numero di file che possono essere
      caricati durante una richiesta. Occorre assicurarsi che il form non
      cerchi di caricare più file di questo limite.
     </simpara>
    </warning>
+   <para>
+    <example>
+     <title>Caricamento di un'intera directory</title>
+     <simpara>
+      Nei campi HTML di caricamento file, è possibile caricare un'intera directory con l'attributo <literal>webkitdirectory</literal>.
+      Questa funzionalità è supportata nella maggior parte dei browser moderni.
+     </simpara>
+     <simpara>
+      Con l'informazione <literal>full_path</literal>, è possibile memorizzare i percorsi relativi,
+      o ricostruire la stessa directory sul server.
+     </simpara>
+     <programlisting role="html">
+<![CDATA[
+<form action="file-upload.php" method="post" enctype="multipart/form-data">
+  Invia questa directory:<br />
+  <input name="userfile[]" type="file" webkitdirectory multiple />
+  <input type="submit" value="Invia i file" />
+</form>
+]]>
+     </programlisting>
+    </example>
+
+    <warning>
+     <simpara>
+      L'attributo <literal>webkitdirectory</literal> non è standard e non è in via di standardizzazione.
+      Non usarlo su siti di produzione esposti sul Web: non funzionerà per tutti gli utenti.
+      Potrebbero esserci anche grandi incompatibilità tra le implementazioni e il comportamento potrebbe cambiare in futuro.
+     </simpara>
+     <simpara>
+      PHP analizza solo le informazioni sul percorso relativo inviate dal browser/user-agent,
+      e passa tali informazioni all'array <varname>$_FILES</varname>.
+      Non c'è alcuna garanzia che i valori nell'array <literal>full_path</literal> contengano una vera struttura di directory,
+      e l'applicazione PHP non deve fidarsi di queste informazioni.
+     </simpara>
+    </warning>
+   </para>
   </sect1>
 
   <sect1 xml:id="features.file-upload.put-method">
@@ -483,15 +453,15 @@ PUT /percorso/nomefile.html HTTP/1.1
    </para>
    <para>
     Questo significa che normalmente il programma remoto intende salvare
-    il contenuto della richesta come : <filename>/path/filename.html</filename> nel filesystem sul server web.
+    il contenuto della richiesta come: <filename>/path/filename.html</filename> nel filesystem sul server web.
     Non è ovviamente una buona idea per Apache o PHP lasciare a un qualsiasi utente la
     possibilità di sovrascrivere file sul server web.  Quindi, per gestire questa
     richiesta si deve chiedere al server web che si vuole che sia un certo script PHP a
     gestire la richiesta stessa. In Apache si ottiene questo con la direttiva
     <emphasis>Script</emphasis>.  Può essere posta quasi ovunque nel file di
     configurazione di Apache.  Un posto frequente è all'interno di un blocco
-     &lt;Directory&gt; oppurte all'interno del blocco
-     &lt;Virtualhost&gt;.  Un linea come la seguente è sufficiente:
+    <literal>&lt;Directory&gt;</literal> oppure all'interno di un blocco
+    <literal>&lt;VirtualHost&gt;</literal>.  Una riga come la seguente è sufficiente:
     <informalexample>
      <programlisting>
 <![CDATA[
@@ -503,7 +473,7 @@ Script PUT /put.php
    <simpara>
     Questo chiede ad Apache di inviare tutte le richieste PUT che soddisfano
     il contesto in cui si è inserito questo comando allo script <filename>put.php</filename>.  Questo
-    richiede, naturalmente, che sia abilitato PHP per l'estensione <filename>.php</filename> e che
+    richiede, naturalmente, che sia abilitato PHP per l'estensione <filename class="extension">.php</filename> e che
     PHP sia attivo. La risorsa di destinazione per tutte le richieste PUT
     verso questo script deve essere lo script stesso, non in nome di file
     che si desidera caricare.

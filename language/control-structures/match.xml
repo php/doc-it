@@ -1,33 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 7104ee97ced1768a3231588dfc0bc0d7eb1117ad Maintainer: pastore Status: ready -->
+<!-- EN-Revision: f0aab5b5f496704a2c21e4960c9f620e19f6d3c4 Maintainer: pastore Status: ready -->
 
 <sect1 xml:id="control-structures.match" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <title>match</title>
  <?phpdoc print-version-for="match"?>
  <para>
-  La valutazione dei rami dell'espressione <literal>match</literal> basata su un
+  L'espressione <literal>match</literal> ramifica la valutazione in base a un
   controllo di identità di un valore.
-  Analogamente a un'istruzione <literal>switch</literal>, un'
-  espressione <literal>match</literal> ha un'espressione soggetto che viene
+  Analogamente a un'istruzione <literal>switch</literal>, un'espressione
+  <literal>match</literal> ha un'espressione soggetto che viene
   confrontata con più alternative. A differenza di <literal>switch</literal>,
   restituirà un valore molto simile alle espressioni ternarie.
   A differenza di <literal>switch</literal>, il confronto è un controllo di identità
   (<code>===</code>) piuttosto che un controllo di uguaglianza debole (<code>==</code>).
-  Le espressioni di corrispondenza sono disponibili a partire da PHP 8.0.0.
+  Le espressioni match sono disponibili a partire da PHP 8.0.0.
  </para>
 
  <example>
-  <title>Structure of a <literal>match</literal> expression</title>
-  <programlisting role="php">
+  <title>Struttura di un'espressione <literal>match</literal></title>
+  <programlisting role="php" annotations="non-interactive">
 <![CDATA[
 <?php
 $return_value = match (subject_expression) {
     single_conditional_expression => return_expression,
     conditional_expression1, conditional_expression2 => return_expression,
 };
-?>
 ]]>
   </programlisting>
+  
+  <example>
+   <title>Utilizzo di base di <literal>match</literal></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$food = 'torta';
+
+$return_value = match ($food) {
+    'mela' => 'Questo cibo è una mela',
+    'barretta' => 'Questo cibo è una barretta',
+    'torta' => 'Questo cibo è una torta',
+};
+
+var_dump($return_value);
+]]>
+  </programlisting>
+  &example.outputs;
+   <screen>
+<![CDATA[
+string(24) "Questo cibo è una torta"
+]]>
+   </screen>
+  </example>
+
+  <example>
+   <title>Esempio di utilizzo di <literal>match</literal> con gli operatori di confronto</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$age = 18;
+
+$output = match (true) {
+    $age < 2 => "Neonato",
+    $age < 13 => "Bambino",
+    $age <= 19 => "Adolescente",
+    $age >= 40 => "Adulto",
+    $age > 19 => "Giovane adulto",
+};
+
+var_dump($output);
+]]>
+  </programlisting>
+  &example.outputs;
+   <screen>
+<![CDATA[
+string(11) "Adolescente"
+]]>
+   </screen>
+  </example>
 
   <note>
    <simpara>
@@ -36,21 +85,22 @@ $return_value = match (subject_expression) {
   </note>
   <note>
    <simpara>
-    Un'espressione <literal>match</literal> <emphasis>deve</emphasis> essere
-    terminata da un punto e virgola <literal>;</literal>.
+    Quando un'espressione <literal>match</literal> viene utilizzata come espressione
+    a sé stante, <emphasis>deve</emphasis> essere terminata
+    da un punto e virgola <literal>;</literal>.
    </simpara>
   </note>
  </example>
 
  <para>
-  L'espressione <literal>match</literal> è simile a un'
-  istruzione <literal>switch</literal> ma presenta alcune differenze fondamentali:
+  L'espressione <literal>match</literal> è simile a un'istruzione
+  <literal>switch</literal> ma presenta alcune differenze fondamentali:
   
   <itemizedlist>
    <listitem>
     <simpara>
      Un braccio <literal>match</literal> confronta i valori rigorosamente (<code>===</code>) invece
-     che vagamente come fa l'istruzione switch.
+     che in modo debole come fa l'istruzione switch.
     </simpara>
    </listitem>
    <listitem>
@@ -60,7 +110,7 @@ $return_value = match (subject_expression) {
    </listitem>
    <listitem>
     <simpara>
-     Le braccia <literal>match</literal> non ricadono in casi successivi come
+     I bracci di <literal>match</literal> non proseguono nei casi successivi come
      fanno le istruzioni <literal>switch</literal>.
     </simpara>
    </listitem>
@@ -73,8 +123,8 @@ $return_value = match (subject_expression) {
  </para>
 
  <para>
-  Come le istruzioni <literal>switch</literal>, le espressioni
-  <literal>match</literal> vengono eseguite braccio di confronto per braccio di confronto.
+  Come le istruzioni <literal>switch</literal>, le espressioni <literal>match</literal>
+  vengono eseguite braccio di confronto per braccio di confronto.
   All'inizio non viene eseguito alcun codice.
   Le espressioni condizionali vengono valutate solo se tutte le espressioni condizionali
   precedenti non sono riuscite a corrispondere all'espressione del soggetto.
@@ -82,29 +132,28 @@ $return_value = match (subject_expression) {
   condizionale corrispondente.
   Per esempio:
   <informalexample>
-   <programlisting role="php">
+   <programlisting role="php" annotations="non-interactive">
 <![CDATA[
 <?php
 $result = match ($x) {
-    foo() => ...,
-    $this->bar() => ..., // bar() non viene chiamata se foo() === $x
-    $this->baz => beep(), // beep() non è chiamata a meno che $x === $this->baz
-    // etc.
+    foo() => 'valore',
+    $this->bar() => 'valore', // $this->bar() non viene chiamata se foo() === $x
+    $this->baz => beep(), // beep() non viene chiamata a meno che $x === $this->baz
+    // ecc.
 };
-?>
 ]]>
    </programlisting>
   </informalexample>
  </para>
 
- <para>
+ <simpara>
   I bracci delle espressioni <literal>match</literal> possono contenere più espressioni
   separate da una virgola.  Questo è un OR logico, ed è una scorciatoia per più
   bracci di corrispondenza con lo stesso lato destro.
- </para>
+ </simpara>
  <para>
   <informalexample>
-   <programlisting role="php">
+   <programlisting role="php" annotations="non-interactive">
 <![CDATA[
 <?php
 $result = match ($x) {
@@ -115,17 +164,16 @@ $result = match ($x) {
     $b => 5,
     $c => 5,
 };
-?>
 ]]>
    </programlisting>
   </informalexample>
  </para>
  <para>
   Un caso speciale è il pattern <literal>default</literal>.
-  Questo modello corrisponde a tutto ciò che non era stato precedentemente trovato.
+  Questo pattern corrisponde a tutto ciò che non è stato precedentemente trovato.
   Per esempio:
   <informalexample>
-   <programlisting role="php">
+   <programlisting role="php" annotations="non-interactive">
 <![CDATA[
 <?php
 $expressionResult = match ($condition) {
@@ -133,26 +181,25 @@ $expressionResult = match ($condition) {
     3, 4 => bar(),
     default => baz(),
 };
-?>
 ]]>
    </programlisting>
   </informalexample>
   <note>
    <simpara>
-    Più pattern predefiniti solleveranno un
+    Più pattern default solleveranno un
     errore <constant>E_FATAL_ERROR</constant>.
    </simpara>
   </note>
  </para>
 
- <para>
-  Un'espressione <literal>match</literal> deve essere esaustiva.  Se l'
-  espressione del soggetto non è gestita da alcun braccio di corrispondenza, viene
+ <simpara>
+  Un'espressione <literal>match</literal> deve essere esaustiva.  Se
+  l'espressione del soggetto non è gestita da alcun braccio di corrispondenza, viene
   lanciato un <classname>UnhandledMatchError</classname>.
- </para>
+ </simpara>
 
  <example>
-  <title>Esempio di un'espressione di corrispondenza non gestita</title>
+  <title>Esempio di un'espressione match non gestita</title>
   <programlisting role="php">
 <![CDATA[
 <?php
@@ -163,10 +210,9 @@ try {
         1, 2 => foo(),
         3, 4 => bar(),
     };
-} catch (\UnhandledMatchError $e) {
+} catch (UnhandledMatchError $e) {
     var_dump($e);
 }
-?>
 ]]>
   </programlisting>
   &example.outputs;
@@ -174,15 +220,15 @@ try {
 <![CDATA[
 object(UnhandledMatchError)#1 (7) {
   ["message":protected]=>
-  string(33) "Unhandled match value of type int"
+  string(22) "Unhandled match case 5"
   ["string":"Error":private]=>
   string(0) ""
   ["code":protected]=>
   int(0)
   ["file":protected]=>
-  string(9) "/in/ICgGK"
+  string(6) "script"
   ["line":protected]=>
-  int(6)
+  int(5)
   ["trace":"Error":private]=>
   array(0) {
   }
@@ -194,7 +240,7 @@ object(UnhandledMatchError)#1 (7) {
  </example>
 
  <sect2>
-  <title>Utilizzo di espressioni di corrispondenza per gestire i controlli non di identità</title>
+  <title>Utilizzo delle espressioni match per gestire i controlli non di identità</title>
   <para>
    È possibile utilizzare un'espressione <literal>match</literal> per gestire
    casi condizionali non di identità utilizzando <code>true</code> come espressione
@@ -202,34 +248,32 @@ object(UnhandledMatchError)#1 (7) {
   </para>
 
   <example>
-   <title>Utilizzo di espressioni di corrispondenza generalizzate per ramificare su intervalli interi</title>
+   <title>Utilizzo di un'espressione match generalizzata per ramificare su intervalli di interi</title>
    <programlisting role="php">
 <![CDATA[
 <?php
-
 $age = 23;
 
 $result = match (true) {
-    $age >= 65 => 'senior',
-    $age >= 25 => 'adult',
-    $age >= 18 => 'young adult',
-    default => 'kid',
+    $age >= 65 => 'anziano',
+    $age >= 25 => 'adulto',
+    $age >= 18 => 'giovane adulto',
+    default => 'ragazzo',
 };
 
 var_dump($result);
-?>
 ]]>
    </programlisting>
    &example.outputs;
    <screen>
 <![CDATA[
-string(11) "young adult"
+string(14) "giovane adulto"
 ]]>
    </screen>
   </example>
 
   <example>
-   <title>Utilizzo di espressioni di corrispondenza generalizzate per ramificare sul contenuto della stringa</title>
+   <title>Utilizzo di un'espressione match generalizzata per ramificare sul contenuto di una stringa</title>
    <programlisting role="php">
 <![CDATA[
 <?php
@@ -237,13 +281,12 @@ string(11) "young adult"
 $text = 'Bienvenue chez nous';
 
 $result = match (true) {
-    str_contains($text, 'Welcome') || str_contains($text, 'Hello') => 'en',
-    str_contains($text, 'Bienvenue') || str_contains($text, 'Bonjour') => 'fr',
+    str_contains($text, 'Welcome'), str_contains($text, 'Hello') => 'en',
+    str_contains($text, 'Bienvenue'), str_contains($text, 'Bonjour') => 'fr',
     // ...
 };
 
 var_dump($result);
-?>
 ]]>
    </programlisting>
    &example.outputs;

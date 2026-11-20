@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: 96c9d88bad9a7d7d44bfb7f26c226df7ee9ddf26 Maintainer: pastore Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: dafe5520d24185756b98d021c52e2df65c523e31 Maintainer: pastore Status: ready -->
 <!-- CREDITS: darvina -->
 <refentry xml:id="function.settype" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
@@ -40,18 +40,17 @@
        <itemizedlist>
         <listitem>
          <simpara>
-          "boolean" (o, da PHP 4.2.0, "bool")
+          "boolean" o "bool"
          </simpara>
         </listitem>
         <listitem>
          <simpara>
-          "integer" (o, da PHP 4.2.0, "int")
+          "integer" o "int"
          </simpara>
         </listitem>
         <listitem>
          <simpara>
-          "float" (possibile solo da PHP 4.2.0, per le versioni più vecchie usare la
-          variante deprecata "double")
+          "float" o "double"
          </simpara>
         </listitem>
         <listitem>
@@ -71,7 +70,7 @@
         </listitem>
         <listitem>
          <simpara>
-          "null" (da PHP 4.2.0)
+          "null"
          </simpara>
         </listitem>
        </itemizedlist>
@@ -84,9 +83,52 @@
 
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
+  <simpara>
+   &return.true.always;
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
   <para>
-   &return.success;
+   Lancia un <exceptionname>ValueError</exceptionname> se il valore di
+   <parameter>type</parameter> non è un tipo valido, a partire da PHP 8.0.0.
+   Prima di PHP 8.0.0, veniva emesso un <constant>E_WARNING</constant>
+   e veniva restituito &false;.
   </para>
+  <simpara>
+   Lancia un <exceptionname>TypeError</exceptionname> se
+   <parameter>var</parameter> è un riferimento a una
+   <link linkend="language.oop5.properties">proprietà tipizzata</link> e il
+   valore convertito non può essere assegnato al tipo dichiarato di tale proprietà
+   nella
+   <link linkend="language.types.declarations.strict">modalità di tipizzazione</link> attiva.
+  </simpara>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <informaltable>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>&Version;</entry>
+      <entry>&Description;</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>8.0.0</entry>
+      <entry>
+       Ora lancia un <exceptionname>ValueError</exceptionname> quando viene passato un
+       tipo non valido a <parameter>type</parameter>. In precedenza, veniva emesso un
+       <constant>E_WARNING</constant> e la funzione restituiva
+       &false;.
+      </entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </informaltable>
  </refsect1>
 
  <refsect1 role="examples">
@@ -102,6 +144,8 @@ $bar = true;   // boolean
 
 settype($foo, "integer"); // $foo ora è 5   (integer)
 settype($bar, "string");  // $bar ora è "1" (string)
+
+var_dump($foo, $bar);
 ?>
 ]]>
     </programlisting>
@@ -115,6 +159,17 @@ settype($bar, "string");  // $bar ora è "1" (string)
    <para>
     Il valore massimo per "int" è <constant>PHP_INT_MAX</constant>.
    </para>
+  </note>
+  <note>
+   <simpara>
+    Il valore convertito viene riassegnato a <parameter>var</parameter>, quindi si
+    applicano le normali regole di assegnazione. Quando <parameter>var</parameter> è un
+    riferimento a una proprietà tipizzata ed è attiva la tipizzazione coercitiva, il
+    valore convertito viene riconvertito nel tipo dichiarato della proprietà quando
+    possibile, quindi il tipo della proprietà non cambia e
+    <function>settype</function> restituisce &true;. Altrimenti viene lanciato un
+    <exceptionname>TypeError</exceptionname>.
+   </simpara>
   </note>
  </refsect1>
 

@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: ee1ce6a0e1875b6851274f8c373ca2bd48630fa0 Maintainer: pastore Status: ready -->
+<sect1 xml:id="migration84.deprecated">
+ <title>Funzionalità deprecate</title>
+
+ <sect2 xml:id="migration84.deprecated.core">
+  <title>PHP Core</title>
+
+  <sect3 xml:id="migration84.deprecated.core.implicitly-nullable-parameter">
+   <!-- RFC: https://wiki.php.net/rfc/deprecate-implicitly-nullable-types -->
+   <title>Parametro implicitamente nullable</title>
+
+   <simpara>
+    Il tipo di un parametro viene implicitamente ampliato per accettare <type>null</type>
+    se il suo valore predefinito è &null;.
+   </simpara>
+
+   <para>
+    Il seguente codice:
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function foo(T1 $a = null) {}
+]]>
+     </programlisting>
+    </informalexample>
+    deve essere convertito in:
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function foo(T1|null $a = null) {}
+]]>
+     </programlisting>
+    </informalexample>
+    oppure
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function foo(?T1 $a = null) {}
+]]>
+     </programlisting>
+    </informalexample>
+   </para>
+
+   <para>
+    Tuttavia, se una tale dichiarazione di parametro è seguita da un parametro
+    obbligatorio:
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function foo(T1 $a, T2 $b = null, T3 $c) {}
+]]>
+     </programlisting>
+    </informalexample>
+    Deve essere convertita in:
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function foo(T1 $a, T2|null $b, T3 $c) {}
+]]>
+     </programlisting>
+    </informalexample>
+    oppure
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function foo(T1 $a, ?T2 $b, T3 $c) {}
+]]>
+     </programlisting>
+    </informalexample>
+    poiché i parametri opzionali prima di quelli obbligatori sono deprecati.
+   </para>
+  </sect3>
+
+  <sect3>
+   <!-- RFC: https://wiki.php.net/rfc/raising_zero_to_power_of_negative_number -->
+   <title>Elevamento di zero a una potenza negativa</title>
+
+   <simpara>
+    Elevare un numero a una potenza negativa equivale a prendere
+    il reciproco del numero elevato all'opposto positivo della potenza.
+    Ovvero, <literal>10<superscript>-2</superscript></literal> equivale a
+    <literal>1 / 10<superscript>2</superscript></literal>.
+    Pertanto elevare <literal>0</literal> a una potenza negativa
+    corrisponde a dividere per <literal>0</literal>, cioè
+    <literal>0<superscript>-2</superscript></literal> equivale a
+    <literal>1 / 0<superscript>2</superscript></literal>, ovvero
+    <literal>1 / 0</literal>. Per questo motivo, questo comportamento è stato deprecato.
+   </simpara>
+
+   <simpara>
+    Ciò riguarda l'operatore di elevamento a potenza <literal>**</literal>
+    e la funzione <function>pow</function>.
+   </simpara>
+
+   <simpara>
+    Se si desidera la semantica IEEE 754, si dovrebbe utilizzare la nuova
+    funzione <function>fpow</function>.
+   </simpara>
+  </sect3>
+
+  <sect3 xml:id="migration84.deprecated.core.underscore-class-name">
+   <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_using_a_single_underscore_as_a_class_name -->
+   <title>Utilizzo del trattino basso <literal>_</literal> come nome di classe</title>
+
+   <para>
+    Assegnare a una classe il nome <literal>_</literal> è ora deprecato:
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+class _ {}
+]]>
+     </programlisting>
+    </informalexample>
+   </para>
+
+   <note>
+    <para>
+     Le classi il cui nome inizia con un trattino basso <emphasis>non</emphasis>
+     sono deprecate:
+     <informalexample>
+      <programlisting role="php">
+<![CDATA[
+<?php
+class _MyClass {}
+]]>
+      </programlisting>
+     </informalexample>
+    </para>
+   </note>
+  </sect3>
+
+  <sect3>
+   <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_passing_e_user_error_to_trigger_error -->
+   <title>
+    Utilizzo di <function>trigger_error</function> con
+    <constant>E_USER_ERROR</constant>
+   </title>
+
+   <simpara>
+    Chiamare <function>trigger_error</function> con
+    <parameter>error_level</parameter> uguale a
+    <constant>E_USER_ERROR</constant> è ora deprecato.
+   </simpara>
+
+   <simpara>
+    Tali utilizzi dovrebbero essere sostituiti lanciando un'eccezione
+    oppure chiamando <function>exit</function>, a seconda di quale sia più appropriato.
+   </simpara>
+  </sect3>
+
+  <sect3>
+   <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#remove_e_strict_error_level_and_deprecate_e_strict_constant -->
+   <title>
+    La costante <constant>E_STRICT</constant>
+   </title>
+
+   <simpara>
+    Poiché il livello di errore <constant>E_STRICT</constant> è stato rimosso,
+    questa costante è ora deprecata.
+   </simpara>
+  </sect3>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.core.curl">
+  <title>cURL</title>
+
+  <simpara>
+   La costante <constant>CURLOPT_BINARYTRANSFER</constant> è ora deprecata.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.core.date">
+  <title>Date</title>
+
+  <simpara>
+   La firma <code> DatePeriod::__construct(string $isostr, int $options = 0)</code>
+   è stata deprecata.
+   Utilizzare invece <methodname>DatePeriod::createFromISO8601String</methodname>.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#constants_sunfuncs_ret_string_sunfuncs_ret_double_sunfuncs_ret_timestamp -->
+  <simpara>
+   Le costanti <constant>SUNFUNCS_RET_TIMESTAMP</constant>,
+   <constant>SUNFUNCS_RET_STRING</constant>
+   e <constant>SUNFUNCS_RET_DOUBLE</constant> sono ora deprecate.
+   Ciò consegue dalla deprecazione delle funzioni <function>date_sunset</function> e
+   <function>date_sunrise</function> in PHP 8.1.0.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.core.dba">
+  <title>DBA</title>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_passing_null_and_false_to_dba_key_split -->
+  <simpara>
+   Passare &null; o &false; a <function>dba_key_split</function> è ora
+   deprecato.
+   In questi casi la funzione restituiva sempre &false;.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.core.dom">
+  <title>DOM</title>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_dom_php_err_constant -->
+  <simpara>
+   La costante <constant>DOM_PHP_ERR</constant> è ora deprecata.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#formally_deprecate_soft-deprecated_domdocument_and_domentity_properties -->
+  <para>
+   Le seguenti proprietà sono state formalmente deprecate:
+   <simplelist>
+    <member><property>DOMDocument::$actualEncoding</property></member>
+    <member><property>DOMDocument::$config</property></member>
+    <member><property>DOMEntity::$actualEncoding</property></member>
+    <member><property>DOMEntity::$encoding</property></member>
+    <member><property>DOMEntity::$version</property></member>
+   </simplelist>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.core.hash">
+  <title>Hash</title>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_passing_incorrect_data_types_for_options_to_exthash_functions -->
+  <simpara>
+   Passare opzioni non valide alle funzioni di hash è ora deprecato.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.intl">
+  <title>Intl</title>
+
+  <simpara>
+   Chiamare <function>intlcal_set</function> o
+   <methodname>IntlCalendar::set</methodname>
+   con più di due argomenti è deprecato.
+   Utilizzare invece <methodname>IntlCalendar::setDate</methodname> o
+   <methodname>IntlCalendar::setDateTime</methodname>.
+  </simpara>
+
+  <simpara>
+   Chiamare <function>intlgregcal_create_instance</function> o
+   <methodname>IntlGregorianCalendar::__construct</methodname>
+   con più di due argomenti è deprecato.
+   Utilizzare invece <methodname>IntlGregorianCalendar::createFromDate</methodname> o
+   <methodname>IntlGregorianCalendar::createFromDateTime</methodname>.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.ldap">
+  <title>LDAP</title>
+
+  <simpara>
+   Chiamare <function>ldap_connect</function>
+   con più di due argomenti è deprecato.
+   Utilizzare invece <function>ldap_connect_wallet</function>.
+  </simpara>
+
+  <simpara>
+   Chiamare <function>ldap_exop</function>
+   con più di quattro argomenti è deprecato.
+   Utilizzare invece <function>ldap_exop_sync</function>.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.core.mysqli">
+  <title>MySQLi</title>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#mysqli_ping_and_mysqliping -->
+  <simpara>
+   La funzione <function>mysqli_ping</function> e il
+   metodo <methodname>mysqli::ping</methodname>
+   sono ora deprecati, poiché la funzionalità di riconnessione è stata rimossa in PHP 8.2.0.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_mysqli_kill -->
+  <simpara>
+   La funzione <function>mysqli_kill</function> e il
+   metodo <methodname>mysqli::kill</methodname>
+   sono ora deprecati.
+   Se questa funzionalità è necessaria, è possibile utilizzare invece
+   il comando SQL <literal>KILL</literal>.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_mysqli_refresh -->
+  <simpara>
+   La funzione <function>mysqli_refresh</function> e il
+   metodo <methodname>mysqli::refresh</methodname>
+   sono ora deprecati.
+   Se questa funzionalità è necessaria, è possibile utilizzare invece
+   il comando SQL <literal>FLUSH</literal>.
+   Anche tutte le costanti <constant>MYSQLI_REFRESH_<replaceable>*</replaceable></constant>
+   sono state deprecate.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_the_second_parameter_to_mysqli_store_result -->
+  <simpara>
+   Passare esplicitamente il parametro <parameter>mode</parameter> a
+   <function>mysqli_store_result</function> è stato deprecato.
+   Poiché la costante <constant>MYSQLI_STORE_RESULT_COPY_DATA</constant> veniva
+   utilizzata solo insieme a questa funzione, anch'essa è stata deprecata.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.core.pdo-pgsql">
+  <title>PDO_PGSQL</title>
+
+  <simpara>
+   L'utilizzo di punti interrogativi con escape (<literal>??</literal>) all'interno
+   di stringhe dollar-quoted è deprecato.
+   Poiché PDO_PGSQL dispone ora di un proprio parser SQL con supporto per le stringhe
+   dollar-quoted, non è più necessario applicare l'escape ai punti interrogativi al loro interno.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.core.pgsql">
+  <title>PGSQL</title>
+
+  <simpara>
+   La firma a 2 argomenti di <function>pg_fetch_result</function>,
+   <function>pg_field_prtlen</function> e
+   <function>pg_field_is_null</function> è ora deprecata.
+   Utilizzare invece la firma a 3 argomenti con <parameter>row</parameter> impostato a
+   &null;.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.random">
+  <title>Random</title>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_lcg_value -->
+  <simpara>
+   <function>lcg_value</function> è ora deprecata,
+   poiché la funzione è difettosa sotto molteplici aspetti.
+   Utilizzare invece <methodname>Random\Randomizer::getFloat</methodname>.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.reflection">
+  <title>Reflection</title>
+
+  <simpara>
+   Chiamare <methodname>ReflectionMethod::__construct</methodname>
+   con un solo argomento è deprecato.
+   Utilizzare invece <methodname>ReflectionMethod::createFromMethodName</methodname>.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.session">
+  <title>Session</title>
+
+  <simpara>
+   Chiamare <function>session_set_save_handler</function>
+   con più di due argomenti è deprecato.
+   Utilizzare invece la firma a due argomenti.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#sessionsid_length_and_sessionsid_bits_per_character -->
+  <simpara>
+   Modificare il valore delle impostazioni INI
+   <link linkend="ini.session.sid-length"><literal>session.sid_length</literal></link> e
+   <link linkend="ini.session.sid-bits-per-character"><literal>session.sid_bits_per_character</literal></link>
+   è deprecato.
+   Aggiornare invece il backend di memorizzazione delle sessioni affinché accetti ID di sessione
+   esadecimali di 32 caratteri e smettere di modificare queste due impostazioni INI.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecate-get-post-sessions -->
+  <simpara>
+   Modificare il valore delle impostazioni INI
+   <link linkend="ini.session.use-only-cookies"><literal>session.use_only_cookies</literal></link>,
+   <link linkend="ini.session.use-trans-sid"><literal>session.use_trans_sid</literal></link>,
+   <link linkend="ini.session.trans-sid-tags"><literal>session.trans_sid_tags</literal></link>,
+   <link linkend="ini.session.trans-sid-hosts"><literal>session.trans_sid_hosts</literal></link> e
+   <link linkend="ini.session.referer-check"><literal>session.referer_check</literal></link>
+   è deprecato.
+   Anche la costante <constant>SID</constant> è deprecata.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.core.soap">
+  <title>SOAP</title>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_soap_functions_all_constant_and_passing_it_to_soapserveraddfunction -->
+  <simpara>
+   Passare un <type>int</type> a
+   <methodname>SoapServer::addFunction</methodname> è ora deprecato.
+   Se è necessario fornire tutte le funzioni PHP, appiattire l'array restituito da
+   <function>get_defined_functions</function>.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_soap_functions_all_constant_and_passing_it_to_soapserveraddfunction -->
+  <simpara>
+   La costante <constant>SOAP_FUNCTIONS_ALL</constant> è ora deprecata.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.core.spl">
+  <title>SPL</title>
+
+  <simpara>
+   Il metodo <methodname>SplFixedArray::__wakeup</methodname> è ora
+   deprecato, poiché la classe implementa
+   <methodname>SplFixedArray::__serialize</methodname> e
+   <methodname>SplFixedArray::__unserialize</methodname>,
+   che devono invece essere sovrascritti.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_proprietary_csv_escaping_mechanism -->
+  <simpara>
+   L'utilizzo del valore predefinito del parametro <parameter>escape</parameter> per
+   <methodname>SplFileObject::setCsvControl</methodname>,
+   <methodname>SplFileObject::fputcsv</methodname> e
+   <methodname>SplFileObject::fgetcsv</methodname> è ora deprecato.
+   <!-- TODO: Link to named arguments feature -->
+   Deve essere passato esplicitamente, in modo posizionale o tramite argomenti con nome.
+   Ciò non si applica a <methodname>SplFileObject::fputcsv</methodname>
+   e <methodname>SplFileObject::fgetcsv</methodname> se
+   <methodname>SplFileObject::setCsvControl</methodname> è stato utilizzato per impostare un
+   nuovo valore predefinito.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.standard">
+  <title>Standard</title>
+
+  <simpara>
+   Chiamare <function>stream_context_set_option</function>
+   con due argomenti è deprecato.
+   Utilizzare invece <function>stream_context_set_options</function>.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#unserialize_s_s_tag -->
+  <simpara>
+   La deserializzazione di stringhe che utilizzano il tag maiuscolo <literal>S</literal>
+   con <function>unserialize</function> è deprecata.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_proprietary_csv_escaping_mechanism -->
+  <simpara>
+   L'utilizzo del valore predefinito del parametro <parameter>escape</parameter> per
+   <function>fputcsv</function>,
+   <function>fgetcsv</function> e
+   <function>str_getcsv</function> è ora deprecato.
+   <!-- TODO: Link to named arguments feature -->
+   Deve essere passato esplicitamente, in modo posizionale o tramite argomenti con nome.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.deprecated.core.xml">
+  <title>XML</title>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#xml_set_object_and_xml_set_handler_with_string_method_names -->
+  <simpara>
+   La funzione <function>xml_set_object</function> è stata deprecata.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecations_php_8_4#xml_set_object_and_xml_set_handler_with_string_method_names -->
+  <simpara>
+   Passare stringhe non <type>callable</type> alle
+   funzioni <function>xml_set_<replaceable>*</replaceable></function>
+   è ora deprecato.
+  </simpara>
+ </sect2>
+
+</sect1>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

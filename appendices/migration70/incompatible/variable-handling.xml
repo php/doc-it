@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 35511ebc54edd56f1653a6a956210b4728570316 Maintainer: pastore Status: ready -->
+
+<sect2 xml:id="migration70.incompatible.variable-handling">
+ <title>Modifiche alla gestione delle variabili</title>
+
+ <para>
+  PHP 7 ora utilizza un albero sintattico astratto durante il parsing dei file sorgente. Ciò ha
+  permesso molti miglioramenti al linguaggio che in precedenza erano
+  impossibili a causa delle limitazioni del parser utilizzato nelle versioni precedenti di
+  PHP, ma ha comportato la rimozione di alcuni casi speciali per motivi di
+  coerenza, il che ha causato delle incompatibilità con le versioni precedenti. Questi casi
+  sono descritti in dettaglio in questa sezione.
+ </para>
+
+ <sect3 xml:id="migration70.incompatible.variable-handling.indirect">
+  <title>
+   Modifiche alla gestione di variabili, proprietà e metodi indiretti
+  </title>
+
+  <para>
+   L'accesso indiretto a variabili, proprietà e metodi sarà ora
+   valutato rigorosamente da sinistra a destra, a differenza del precedente insieme
+   di casi speciali. La tabella seguente mostra come è cambiato l'ordine di
+   valutazione.
+  </para>
+
+  <para>
+   <table>
+    <title>Vecchia e nuova valutazione delle espressioni indirette</title>
+    <tgroup cols="3">
+     <thead>
+      <row>
+       <entry>Espressione</entry>
+       <entry>Interpretazione in PHP 5</entry>
+       <entry>Interpretazione in PHP 7</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>
+        <code>$$foo['bar']['baz']</code>
+       </entry>
+       <entry>
+        <code>${$foo['bar']['baz']}</code>
+       </entry>
+       <entry>
+        <code>($$foo)['bar']['baz']</code>
+       </entry>
+      </row>
+      <row>
+       <entry>
+        <code>$foo-&gt;$bar['baz']</code>
+       </entry>
+       <entry>
+        <code>$foo-&gt;{$bar['baz']}</code>
+       </entry>
+       <entry>
+        <code>($foo-&gt;$bar)['baz']</code>
+       </entry>
+      </row>
+      <row>
+       <entry>
+        <code>$foo-&gt;$bar['baz']()</code>
+       </entry>
+       <entry>
+        <code>$foo-&gt;{$bar['baz']}()</code>
+       </entry>
+       <entry>
+        <code>($foo-&gt;$bar)['baz']()</code>
+       </entry>
+      </row>
+      <row>
+       <entry>
+        <code>Foo::$bar['baz']()</code>
+       </entry>
+       <entry>
+        <code>Foo::{$bar['baz']}()</code>
+       </entry>
+       <entry>
+        <code>(Foo::$bar)['baz']()</code>
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </table>
+  </para>
+
+  <para>
+   Il codice che utilizzava il vecchio ordine di valutazione da destra a sinistra deve essere riscritto per
+   utilizzare esplicitamente tale ordine di valutazione con le parentesi graffe (vedere la
+   colonna centrale qui sopra). In questo modo il codice sarà sia compatibile con le versioni future di PHP
+   7.x sia retrocompatibile con PHP 5.x.
+  </para>
+
+  <para>
+   Ciò riguarda anche la parola chiave &global;. La sintassi con le parentesi graffe può essere
+   utilizzata per emulare il comportamento precedente, se necessario:
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+function f() {
+    // Valido solo in PHP 5.
+    global $$foo->bar;
+
+    // Valido in PHP 5 e 7.
+    global ${$foo->bar};
+}
+?>
+]]>
+   </programlisting>
+  </informalexample>
+ </sect3>
+
+ <sect3 xml:id="migration70.incompatible.variable-handling.list">
+  <title>Modifiche alla gestione di <function>list</function></title>
+
+  <sect4 xml:id="migration70.incompatible.variable-handling.list.order">
+   <title>
+    <function>list</function> non assegna più le variabili in ordine inverso
+   </title>
+
+   <para>
+    <function>list</function> ora assegna i valori alle variabili nell'ordine
+    in cui sono definite, anziché in ordine inverso. In generale, ciò riguarda
+    solo il caso in cui <function>list</function> viene utilizzata in
+    combinazione con l'operatore array <code>[]</code>, come mostrato di seguito:
+   </para>
+
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+list($a[], $a[], $a[]) = [1, 2, 3];
+var_dump($a);
+?>
+]]>
+    </programlisting>
+    &example.outputs.5;
+    <screen>
+<![CDATA[
+array(3) {
+  [0]=>
+  int(3)
+  [1]=>
+  int(2)
+  [2]=>
+  int(1)
+}
+]]>
+    </screen>
+    &example.outputs.7;
+    <screen>
+<![CDATA[
+array(3) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(2)
+  [2]=>
+  int(3)
+}
+]]>
+    </screen>
+   </informalexample>
+
+   <para>
+    In generale, si raccomanda di non fare affidamento sull'ordine in cui
+    avvengono le assegnazioni di <function>list</function>, poiché si tratta di un dettaglio
+    implementativo che potrebbe cambiare di nuovo in futuro.
+   </para>
+  </sect4>
+
+  <sect4 xml:id="migration70.incompatible.variable-handling.list.empty">
+   <title>Le assegnazioni con <function>list</function> vuote sono state rimosse</title>
+
+   <para>
+    I costrutti <function>list</function> non possono più essere vuoti. Le seguenti
+    forme non sono più consentite:
+   </para>
+
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+list() = $a;
+list(,,) = $a;
+list($x, list(), $y) = $a;
+?>
+]]>
+    </programlisting>
+   </informalexample>
+  </sect4>
+
+  <sect4 xml:id="migration70.incompatible.variable-handling.list.string">
+   <title><function>list</function> non può spacchettare le <type>string</type></title>
+
+   <para>
+    <function>list</function> non può più spacchettare variabili di tipo
+    <type>string</type>. Al suo posto si dovrebbe utilizzare <function>str_split</function>.
+   </para>
+  </sect4>
+ </sect3>
+
+ <sect3 xml:id="migration70.incompatible.variable-handling.array-order">
+  <title>
+   L'ordinamento degli array quando gli elementi vengono creati automaticamente durante le
+   assegnazioni per riferimento è cambiato
+  </title>
+
+  <para>
+   L'ordine degli elementi in un array è cambiato quando tali elementi sono
+   stati creati automaticamente facendovi riferimento in un'assegnazione
+   per riferimento. Per esempio:
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$array = [];
+$array["a"] =& $array["b"];
+$array["b"] = 1;
+var_dump($array);
+?>
+]]>
+   </programlisting>
+   &example.outputs.5;
+   <screen>
+<![CDATA[
+array(2) {
+  ["b"]=>
+  &int(1)
+  ["a"]=>
+  &int(1)
+}
+]]>
+   </screen>
+   &example.outputs.7;
+   <screen>
+<![CDATA[
+array(2) {
+  ["a"]=>
+  &int(1)
+  ["b"]=>
+  &int(1)
+}
+]]>
+   </screen>
+  </informalexample>
+ </sect3>
+
+ <sect3 xml:id="migration70.incompatible.variable-handling.parentheses">
+  <title>
+   Le parentesi attorno agli argomenti delle funzioni non influiscono più sul comportamento
+  </title>
+
+  <para>
+   In PHP 5, l'utilizzo di parentesi ridondanti attorno a un argomento di funzione poteva
+   silenziare gli avvisi strict standards quando l'argomento della funzione veniva passato per
+   riferimento. Ora l'avviso viene sempre emesso.
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+function getArray() {
+    return [1, 2, 3];
+}
+
+function squareArray(array &$a) {
+    foreach ($a as &$v) {
+        $v **= 2;
+    }
+}
+
+// Genera un avviso in PHP 7.
+squareArray((getArray()));
+?>
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+Notice: Only variables should be passed by reference in /tmp/test.php on line 13
+]]>
+   </screen>
+  </informalexample>
+ </sect3>
+</sect2>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

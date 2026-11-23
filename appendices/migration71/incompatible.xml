@@ -1,0 +1,646 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 19e8122137a1d42ed60f17fe2c0c2b69b0b2d16b Maintainer: pastore Status: ready -->
+
+<sect1 xml:id="migration71.incompatible">
+ <title>Modifiche incompatibili con le versioni precedenti</title>
+
+ <sect2 xml:id="migration71.incompatible.too-few-arguments-exception">
+  <title>Eccezione lanciata quando si passano troppo pochi argomenti a una funzione</title>
+
+  <para>
+   In precedenza, veniva emesso un avviso quando si invocavano funzioni definite dall'utente
+   con troppo pochi argomenti. Ora, questo avviso è stato promosso a eccezione
+   Error. Questa modifica si applica solo alle funzioni definite dall'utente, non alle funzioni
+   interne. Per esempio:
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+function test($param){}
+test();
+]]>
+   </programlisting>
+   &example.outputs.similar;
+   <screen>
+<![CDATA[
+Fatal error: Uncaught ArgumentCountError: Too few arguments to function test(), 0 passed in %s on line %d and exactly 1 expected in %s:%d
+]]>
+   </screen>
+  </informalexample>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.forbid-dynamic-calls-to-scope-introspection-functions">
+  <title>Divieto di chiamate dinamiche alle funzioni di introspezione dello scope</title>
+
+  <para>
+   Le chiamate dinamiche ad alcune funzioni sono state vietate (nella forma
+   <literal>$func()</literal> o <literal>array_map('extract', ...)</literal>,
+   ecc.). Queste funzioni ispezionano o modificano un altro scope, e comportano
+   un comportamento ambiguo e inaffidabile. Le funzioni sono le seguenti:
+  </para>
+
+  <itemizedlist>
+   <listitem>
+    <simpara>
+     <function>assert</function> - con una stringa come primo argomento
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <function>compact</function>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <function>extract</function>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <function>func_get_args</function>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <function>func_get_arg</function>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <function>func_num_args</function>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <function>get_defined_vars</function>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <function>mb_parse_str</function> - con un solo argomento
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <function>parse_str</function> - con un solo argomento
+    </simpara>
+   </listitem>
+  </itemizedlist>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+(function () {
+    $func = 'func_num_args';
+    $func();
+})();
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+Warning: Cannot call func_num_args() dynamically in %s on line %d
+]]>
+   </screen>
+  </informalexample>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.invalid-class-names">
+  <title>Nomi di classi, interfacce e trait non validi</title>
+
+  <para>
+   I seguenti nomi non possono essere utilizzati per nominare classi, interfacce o trait:
+  </para>
+
+  <itemizedlist>
+   <listitem>
+    <simpara><type>void</type></simpara>
+   </listitem>
+   <listitem>
+    <simpara><type>iterable</type></simpara>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.numerical-strings-scientific-notation">
+  <title>Le conversioni di stringhe numeriche ora rispettano la notazione scientifica</title>
+
+  <para>
+   Le operazioni e le conversioni intere sulle stringhe numeriche ora rispettano
+   la notazione scientifica. Ciò include anche l'operazione di cast <literal>(int)</literal>
+   e le seguenti funzioni: <function>intval</function> (quando
+   la base è 10), <function>settype</function>, <function>decbin</function>,
+   <function>decoct</function> e <function>dechex</function>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.fixes-to-mt_rand-algorithm">
+  <title>Correzioni all'algoritmo di <function>mt_rand</function></title>
+
+  <para>
+   <function>mt_rand</function> utilizzerà ora in modo predefinito la versione corretta
+   dell'algoritmo Mersenne Twister. Se si faceva affidamento sull'output deterministico di
+   <function>mt_rand</function>, è possibile utilizzare
+   <constant>MT_RAND_PHP</constant> come secondo parametro opzionale
+   di <function>mt_srand</function> per preservare la vecchia (errata)
+   implementazione.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.rand-srand-aliases">
+  <title>
+   <function>rand</function> è un alias di <function>mt_rand</function> e
+   <function>srand</function> è un alias di <function>mt_srand</function>
+  </title>
+
+  <para>
+   <function>rand</function> e <function>srand</function> sono ora diventate
+   alias rispettivamente di <function>mt_rand</function> e <function>mt_srand</function>.
+   Ciò significa che l'output delle seguenti funzioni è
+   cambiato: <function>rand</function>, <function>shuffle</function>,
+   <function>str_shuffle</function> e <function>array_rand</function>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.delete-control-character-in-identifiers">
+  <title>Divieto del carattere di controllo ASCII delete negli identificatori</title>
+
+  <para>
+   Il carattere di controllo ASCII delete (<literal>0x7F</literal>) non può più
+   essere utilizzato negli identificatori non racchiusi tra virgolette.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.error_log-syslog">
+  <title>
+   Modifiche di <parameter>error_log</parameter> con il valore
+   <literal>syslog</literal>
+  </title>
+
+  <para>
+   Se l'impostazione ini <parameter>error_log</parameter> è impostata a
+   <literal>syslog</literal>, i livelli di errore di PHP vengono mappati sui livelli di errore
+   di syslog. Ciò consente una differenziazione più fine nei log degli errori, al
+   contrario dell'approccio precedente in cui tutti gli errori venivano registrati
+   solo con il livello notice.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.dont-call-destructors">
+  <title>I distruttori non vengono chiamati sugli oggetti incompleti</title>
+
+  <para>
+   I distruttori non vengono più chiamati per gli oggetti che lanciano un'eccezione durante
+   l'esecuzione del loro costruttore. Nelle versioni precedenti questo comportamento
+   dipendeva dal fatto che l'oggetto fosse referenziato al di fuori del costruttore (ad es.
+   da un backtrace di un'eccezione).
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.call_user_func-with-ref-args">
+  <title>
+   Gestione degli argomenti per riferimento in <function>call_user_func</function>
+  </title>
+
+  <para>
+   <function>call_user_func</function> genererà ora sempre un avviso
+   quando chiama funzioni che si aspettano riferimenti come argomenti. In precedenza
+   ciò dipendeva dal fatto che la chiamata fosse completamente qualificata.
+  </para>
+  <para>
+   Inoltre, <function>call_user_func</function> e
+   <function>call_user_func_array</function> non interromperanno più la chiamata
+   della funzione in questo caso. Verrà emesso l'avviso "expected reference", ma la
+   chiamata procederà normalmente.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.empty-string-index-operator">
+  <title>
+   L'operatore di indice vuoto non è più supportato per le stringhe
+  </title>
+
+  <para>
+   Applicare l'operatore di indice vuoto a una stringa (ad es. <literal>$str[] = $x</literal>)
+   lancia un errore fatale invece di convertirla silenziosamente in array.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.empty-string-modifcation-by-character">
+  <title>Assegnazione tramite accesso per indice su una stringa vuota</title>
+  <para>
+   La modifica per carattere di una stringa vuota ora funziona come per le stringhe
+   non vuote, cioè la scrittura a un offset fuori intervallo riempie la stringa con spazi,
+   i tipi non interi vengono convertiti in interi, e viene utilizzato solo il primo carattere
+   della stringa assegnata. In precedenza, le stringhe vuote venivano trattate silenziosamente come
+   un array vuoto.
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$a = '';
+$a[10] = 'foo';
+var_dump($a);
+?>
+]]>
+    </programlisting>
+    &example.outputs.70;
+    <screen>
+<![CDATA[
+array(1) {
+  [10]=>
+  string(3) "foo"
+}
+]]>
+    </screen>
+    &example.outputs.71;
+    <screen>
+<![CDATA[
+string(11) "          f"
+]]>
+    </screen>
+   </informalexample>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.removed-ini-directives">
+  <title>Direttive ini rimosse</title>
+
+  <para>
+   Le seguenti direttive ini sono state rimosse:
+  </para>
+
+  <itemizedlist>
+   <listitem>
+    <simpara>
+     <parameter>session.entropy_file</parameter>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <parameter>session.entropy_length</parameter>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <parameter>session.hash_function</parameter>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <parameter>session.hash_bits_per_character</parameter>
+    </simpara>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.array-order">
+  <title>
+   L'ordine degli array quando gli elementi vengono creati automaticamente durante le assegnazioni
+   per riferimento è cambiato
+  </title>
+
+  <para>
+   L'ordine degli elementi in un array è cambiato quando tali elementi sono
+   stati creati automaticamente referenziandoli in un'assegnazione
+   per riferimento. Per esempio:
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$array = [];
+$array["a"] =& $array["b"];
+$array["b"] = 1;
+var_dump($array);
+?>
+]]>
+   </programlisting>
+   &example.outputs.70;
+   <screen>
+<![CDATA[
+array(2) {
+  ["a"]=>
+  &int(1)
+  ["b"]=>
+  &int(1)
+}
+]]>
+   </screen>
+   &example.outputs.71;
+   <screen>
+<![CDATA[
+array(2) {
+  ["b"]=>
+  &int(1)
+  ["a"]=>
+  &int(1)
+}
+]]>
+   </screen>
+  </informalexample>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.sort-order">
+  <title>Ordinamento degli elementi uguali</title>
+  <para>
+   L'algoritmo di ordinamento interno è stato migliorato, il che può comportare un
+   ordinamento diverso rispetto a prima degli elementi che risultano uguali nel confronto.
+  </para>
+  <note>
+   <para>
+    Non fare affidamento sull'ordine degli elementi che risultano uguali nel confronto; potrebbe cambiare
+    in qualsiasi momento.
+   </para>
+  </note>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.e-recoverable">
+  <title>Messaggio di errore per gli errori E_RECOVERABLE</title>
+  <para>
+   Il messaggio di errore per gli errori E_RECOVERABLE è stato cambiato da "Catchable
+   fatal error" a "Recoverable fatal error".
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.unserialize">
+  <title>Parametro $options di unserialize()</title>
+  <para>
+   L'elemento <literal>allowed_classes</literal> del parametro $options di
+   <function>unserialize</function> è ora tipizzato rigorosamente, cioè se viene fornito qualcosa
+   di diverso da un <type>array</type> o da un <type>bool</type>,
+   unserialize() restituisce &false; ed emette un <constant>E_WARNING</constant>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.datetime-microseconds">
+  <title>Il costruttore di DateTime incorpora i microsecondi</title>
+  <para>
+   <classname>DateTime</classname> e <classname>DateTimeImmutable</classname>
+   ora incorporano correttamente i microsecondi quando vengono costruiti dall'ora corrente,
+   esplicitamente o con una stringa relativa (ad es. <literal>"first day of next
+   month"</literal>). Ciò significa che i confronti ingenui di due istanze appena create
+   restituiranno ora più probabilmente &false; invece di &true;:
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+new DateTime() == new DateTime();
+?>
+]]>
+    </programlisting>
+   </informalexample>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.fatal-errors-to-error-exceptions">
+  <title>Conversione degli errori fatali in eccezioni <classname>Error</classname></title>
+  <para>
+   Nell'estensione Date, dati di serializzazione non validi per le classi
+   <classname>DateTime</classname> o <classname>DatePeriod</classname>,
+   o il fallimento dell'inizializzazione del fuso orario dai dati serializzati, lanceranno ora
+   un'eccezione <classname>Error</classname> dai metodi
+   <methodname>__wakeup</methodname> o <methodname>__set_state</methodname>,
+   invece di causare un errore fatale.
+  </para>
+
+  <para>
+   Nell'estensione DBA, le funzioni di modifica dei dati (come
+   <function>dba_insert</function>) lanceranno ora un'eccezione
+   <classname>Error</classname> invece di generare un errore fatale
+   catturabile se la chiave non contiene esattamente due elementi.
+  </para>
+
+  <para>
+   Nell'estensione DOM, i contesti di validazione dello schema o RelaxNG non validi
+   lanceranno ora un'eccezione <classname>Error</classname> invece di causare un
+   errore fatale. Analogamente, il tentativo di registrare una classe di nodo che non
+   estende la classe base appropriata, o il tentativo di leggere una proprietà non valida
+   o di scrivere in una proprietà di sola lettura, lanceranno ora anch'essi un'eccezione
+   <classname>Error</classname>.
+  </para>
+
+  <para>
+   Nell'estensione IMAP, gli indirizzi email più lunghi di 16385 byte lanceranno un'eccezione
+   <classname>Error</classname> invece di causare un errore fatale.
+  </para>
+
+  <para>
+   Nell'estensione Intl, la mancata chiamata del costruttore padre in una classe
+   che estende <classname>Collator</classname> prima di invocare i metodi padre
+   lancerà ora un <classname>Error</classname> invece di causare un
+   errore fatale recuperabile. Inoltre, la clonazione di un oggetto
+   <classname>Transliterator</classname> lancerà ora un'eccezione
+   <classname>Error</classname> in caso di fallimento della clonazione del transliterator
+   interno, invece di causare un errore fatale.
+  </para>
+
+  <para>
+   Nell'estensione LDAP, fornire un tipo di modifica sconosciuto a
+   <function>ldap_batch_modify</function> lancerà ora un'eccezione
+   <classname>Error</classname> invece di causare un errore fatale.
+  </para>
+
+  <para>
+   Nell'estensione mbstring, le funzioni <function>mb_ereg</function> e
+   <function>mb_eregi</function> lanceranno ora un'eccezione
+   <classname>ParseError</classname> se viene fornita un'espressione PHP non valida
+   e viene utilizzata l'opzione 'e'.
+  </para>
+
+  <para>
+   Nell'estensione Mcrypt, <function>mcrypt_encrypt</function> e
+   <function>mcrypt_decrypt</function> lanceranno ora un'eccezione
+   <classname>Error</classname> invece di causare un errore fatale
+   se mcrypt non può essere inizializzata.
+  </para>
+
+  <para>
+   Nell'estensione mysqli, il tentativo di leggere una proprietà non valida o di scrivere in
+   una proprietà di sola lettura lancerà ora un'eccezione <classname>Error</classname>
+   invece di causare un errore fatale.
+  </para>
+
+  <para>
+   Nell'estensione Reflection, il fallimento nel recuperare un oggetto reflection o nel
+   recuperare una proprietà di un oggetto lancerà ora un'eccezione <classname>Error</classname>
+   invece di causare un errore fatale.
+  </para>
+
+  <para>
+   Nell'estensione Session, i gestori di sessione personalizzati che non restituiscono stringhe
+   come ID di sessione lanceranno ora un'eccezione <classname>Error</classname>
+   invece di causare un errore fatale quando viene chiamata una funzione che deve
+   generare un ID di sessione.
+  </para>
+
+  <para>
+   Nell'estensione SimpleXML, la creazione di un attributo senza nome o duplicato
+   lancerà ora un'eccezione <classname>Error</classname> invece di causare
+   un errore fatale.
+  </para>
+
+  <para>
+   Nell'estensione SPL, il tentativo di clonare un oggetto
+   <classname>SplDirectory</classname> lancerà ora un'eccezione
+   <classname>Error</classname> invece di causare un errore
+   fatale. Analogamente, chiamare <methodname>ArrayIterator::append</methodname> durante
+   l'iterazione su un oggetto lancerà ora anch'esso un'eccezione
+   <classname>Error</classname>.
+  </para>
+
+  <para>
+   Nell'estensione standard, la funzione <function>assert</function>, quando
+   riceve una stringa come primo parametro, lancerà ora un'eccezione
+   <classname>ParseError</classname> invece di causare un
+   errore fatale catturabile se il codice PHP non è valido. Analogamente, chiamare
+   <function>forward_static_call</function> al di fuori dello scope di una classe lancerà ora
+   un'eccezione <classname>Error</classname>.
+  </para>
+
+  <para>
+   Nell'estensione Tidy, la creazione manuale di un <classname>tidyNode</classname>
+   lancerà ora un'eccezione <classname>Error</classname> invece di
+   causare un errore fatale.
+  </para>
+
+  <para>
+   Nell'estensione WDDX, un riferimento circolare durante la serializzazione lancerà ora
+   un'eccezione <classname>Error</classname> invece di causare un errore
+   fatale.
+  </para>
+
+  <para>
+   Nell'estensione XML-RPC, un riferimento circolare durante la serializzazione lancerà ora
+   un'istanza dell'eccezione <classname>Error</classname> invece di
+   causare un errore fatale.
+  </para>
+
+  <para>
+   Nell'estensione Zip, il metodo <methodname>ZipArchive::addGlob</methodname>
+   lancerà ora un'eccezione <classname>Error</classname> invece di
+   causare un errore fatale se il supporto a glob non è disponibile.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.lexical-names">
+  <title>Le variabili legate lessicalmente non possono riutilizzare i nomi</title>
+
+  <para>
+   Le variabili legate a una <link linkend="functions.anonymous">closure</link> tramite
+   il costrutto <literal>use</literal> non possono utilizzare lo stesso nome di alcuna delle
+   &link.superglobals;, di <varname>$this</varname> o di alcun parametro. Per
+   esempio, tutte queste definizioni di funzione causeranno un errore fatale:
+
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$f = function () use ($_SERVER) {};
+$f = function () use ($this) {};
+$f = function ($param) use ($param) {};
+]]>
+    </programlisting>
+   </informalexample>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.long2ip">
+  <title>Modifica del tipo del parametro di long2ip()</title>
+  <para>
+   <function>long2ip</function> si aspetta ora un <type>int</type> invece di una
+   <type>string</type>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.json">
+  <title>Codifica e decodifica JSON</title>
+  <para>
+   L'impostazione ini <parameter>serialize_precision</parameter> controlla ora la
+   precisione di serializzazione nella codifica dei <type>float</type>.
+  </para>
+  <para>
+   La decodifica di una chiave vuota produce ora un nome di proprietà vuoto, invece di
+   <literal>_empty_</literal> come nome di proprietà.
+
+   <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+var_dump(json_decode(json_encode(['' => 1])));
+]]>
+   </programlisting>
+   &example.outputs.similar;
+   <screen>
+<![CDATA[
+object(stdClass)#1 (1) {
+  [""]=>
+  int(1)
+}
+]]>
+   </screen>
+  </informalexample>
+  </para>
+  <para>
+   Quando si fornisce il flag <constant>JSON_UNESCAPED_UNICODE</constant> a
+   <function>json_encode</function>, le sequenze U+2028 e U+2029 vengono ora
+   sottoposte a escape.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.mbstring">
+  <title>
+   Modifiche alla semantica dei parametri di <function>mb_ereg</function> e
+   <function>mb_eregi</function>
+  </title>
+  <para>
+   Il terzo parametro delle funzioni <function>mb_ereg</function> e
+   <function>mb_eregi</function> (<parameter>regs</parameter>) verrà ora
+   impostato a un array vuoto se non è stata trovata alcuna corrispondenza. In precedenza, il parametro non
+   sarebbe stato modificato.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.openssl">
+  <title>Rimozione del supporto per lo stream sslv2</title>
+  <para>
+   Lo stream sslv2 è stato ora rimosso in OpenSSL.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration71.incompatible.typed-returns-compile-time">
+  <title>Divieto di "return;" per i ritorni tipizzati già in fase di compilazione</title>
+  <para>
+   Le istruzioni return senza argomento nelle funzioni che dichiarano un tipo di ritorno
+   generano ora un <constant>E_COMPILE_ERROR</constant> (a meno che il tipo di ritorno non sia
+   dichiarato come <type>void</type>), anche se l'istruzione return non verrebbe mai
+   raggiunta.
+  </para>
+ </sect2>
+
+</sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

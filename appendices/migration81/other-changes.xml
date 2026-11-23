@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 4d2479dcf35d82aca39ee61f8ab36ceed78a869c Maintainer: pastore Status: ready -->
+<sect1 xml:id="migration81.other-changes" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>Altre Modifiche</title>
+
+ <sect2 xml:id="migration81.other-changes.sapi">
+  <title>Modifiche nei Moduli SAPI</title>
+
+  <sect3 xml:id="migration81.other-changes.sapi.cli">
+   <title>CLI</title>
+
+   <para>
+    L'utilizzo di <option>-a</option> senza l'<link linkend="book.readline">estensione readline</link> ora genererà un errore.
+    In precedenza, <option>-a</option> senza readline aveva lo stesso comportamento della
+    chiamata di <command>php</command> senza alcun argomento, a parte la stampa di un ulteriore
+    messaggio <literal>"Interactive mode enabled"</literal>.
+    Questa modalità <emphasis>non</emphasis> era interattiva.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration81.other-changes.sapi.phpdbg">
+   <title>PHPDBG</title>
+
+   <para>
+    La funzionalità remota di <link linkend="book.phpdbg">phpdbg</link> è stata rimossa.
+   </para>
+  </sect3>
+ </sect2>
+
+ <sect2 xml:id="migration81.other-changes.functions">
+  <title>Funzioni Modificate</title>
+
+  <sect3 xml:id="migration81.other-changes.functions.core">
+   <title>Core</title>
+
+   <para>
+    L'ordine delle proprietà utilizzato in &foreach;, <function>var_dump</function>,
+    <function>serialize</function>, nel confronto tra oggetti, ecc. è stato modificato.
+    Le proprietà sono ora ordinate in modo naturale in base alla loro dichiarazione
+    e all'ereditarietà. Le proprietà dichiarate in una classe base
+    precederanno le proprietà della classe figlia.
+   </para>
+   <para>
+    Questo ordine è coerente con la disposizione interna delle proprietà nella
+    struttura <code>zend_object</code> e ripete l'ordine in
+    <code>default_properties_table[]</code> e <code>properties_info_table[]</code>.
+    Il vecchio ordine non era documentato ed era causato da dettagli implementativi dell'ereditarietà delle classi.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration81.other-changes.functions.filter">
+   <title>Filter</title>
+
+   <para>
+    Il flag <constant>FILTER_FLAG_ALLOW_OCTAL</constant> del
+    filtro <constant>FILTER_VALIDATE_INT</constant>
+    ora accetta stringhe ottali con il prefisso ottale iniziale
+    (<literal>"0o"</literal>/<literal>"0O"</literal>).
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration81.other-changes.functions.gmp">
+   <title>GMP</title>
+
+   <para>
+    Tutte le funzioni <link linkend="book.gmp">GMP</link> ora accettano stringhe ottali con il prefisso ottale iniziale
+    (<literal>"0o"</literal>/<literal>"0O"</literal>).
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration81.other-changes.functions.pdo-odbc">
+   <title>PDO ODBC</title>
+
+   <para>
+    <methodname>PDO::getAttribute</methodname> con
+    <constant>PDO::ATTR_SERVER_INFO</constant> e
+    <constant>PDO::ATTR_SERVER_VERSION</constant>
+    ora restituisce dei valori invece di lanciare <classname>PDOException</classname>.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration81.other-changes.functions.reflection">
+   <title>Reflection</title>
+
+   <para>
+    <methodname>ReflectionProperty::setAccessible</methodname> e
+    <methodname>ReflectionMethod::setAccessible</methodname>
+    non hanno più alcun effetto.
+    Le proprietà e i metodi sono ora sempre considerati accessibili tramite Reflection.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration81.other-changes.functions.standard">
+   <title>Standard</title>
+
+   <para>
+    <function>syslog</function> è ora binary safe.
+   </para>
+  </sect3>
+ </sect2>
+
+ <sect2 xml:id="migration81.other-changes.extensions">
+  <title>Altre Modifiche alle Estensioni</title>
+
+  <sect3 xml:id="migration81.other-changes.extensions.gd">
+   <title>GD</title>
+
+   <para>
+    <function>imagewebp</function> può ora effettuare la codifica WebP lossless
+    passando <constant>IMG_WEBP_LOSSLESS</constant> come qualità.
+   </para>
+   <para>
+    Questa costante è definita solo se la libgd utilizzata supporta
+    la codifica WebP lossless.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration81.other-changes.extensions.mysqli">
+   <title>MySQLi</title>
+
+   <para>
+    <methodname>mysqli_stmt::next_result</methodname> e
+    <methodname>mysqli::fetch_all</methodname>
+    sono ora disponibili quando si effettua il link con libmysqlclient.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration81.other-changes.extensions.openssl">
+   <title>OpenSSL</title>
+
+   <itemizedlist>
+    <listitem>
+     <para>
+      L'<link linkend="book.openssl">estensione OpenSSL</link> ora richiede almeno la versione 1.0.2 di OpenSSL.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      OpenSSL 3.0 è ora supportato. Si tenga presente che molti cifrari non sono più
+      abilitati per impostazione predefinita (fanno parte del provider legacy), e che la validazione
+      dei parametri (ad es. le dimensioni minime delle chiavi) è ora più rigorosa.
+     </para>
+    </listitem>
+   </itemizedlist>
+  </sect3>
+
+  <sect3 xml:id="migration81.other-changes.extensions.phar">
+   <title>Phar</title>
+
+   <itemizedlist>
+    <listitem>
+     <para>
+      SHA256 è ora utilizzato per impostazione predefinita per le firme.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      È stato aggiunto il supporto per le firme OpenSSL_SHA256 e OpenSSL_SHA512.
+     </para>
+    </listitem>
+   </itemizedlist>
+  </sect3>
+
+  <sect3 xml:id="migration81.other-changes.extensions.snmp">
+   <title>SNMP</title>
+
+   <itemizedlist>
+    <listitem>
+     <para>
+      È stato aggiunto il supporto per SHA256 e SHA512 per il protocollo di sicurezza.
+     </para>
+    </listitem>
+   </itemizedlist>
+  </sect3>
+
+  <sect3 xml:id="migration81.other-changes.extensions.standard">
+   <title>Standard</title>
+
+   <para>
+    <code>--with-password-argon2</code> ora utilizza pkg-config per rilevare libargon2.
+    Di conseguenza, una posizione alternativa di libargon2 dovrebbe ora essere specificata utilizzando
+    <envar>PKG_CONFIG_PATH</envar>.
+   </para>
+  </sect3>
+ </sect2>
+
+ <sect2 xml:id="migration81.other-changes.ini">
+  <title>Modifiche alla Gestione dei File INI</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     La direttiva INI <link linkend="ini.log-errors-max-len">log_errors_max_len</link>
+     è stata rimossa.
+     Non aveva più alcun effetto a partire da PHP 8.0.0.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Un simbolo di dollaro iniziale in una stringa tra virgolette può ora essere sottoposto a escape: <literal>"\${"</literal> verrà ora
+     interpretato come una stringa con contenuto <literal>${</literal>.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     I backslash nelle stringhe tra virgolette doppie sono ora trattati in modo più coerente come
+     caratteri di escape. In precedenza, <literal>"foo\\"</literal> seguito da
+     qualcosa di diverso da un ritorno a capo non era considerato una stringa terminata.
+     Ora viene interpretato come una stringa con contenuto <literal>foo\</literal>.
+     Tuttavia, come eccezione, la stringa <literal>"foo\"</literal>
+     seguita da un ritorno a capo continuerà a essere trattata come una stringa valida con
+     contenuto <literal>foo\</literal> anziché come una stringa non terminata.
+     Questa eccezione esiste per supportare utilizzi ingenui dei percorsi di file di Windows come
+     <literal>"C:\foo\"</literal>.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+</sect1>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

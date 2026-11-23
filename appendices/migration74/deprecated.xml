@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 4642b715f374b4220884fa110b6529ac948799b5 Maintainer: pastore Status: ready -->
+
+<sect1 xml:id="migration74.deprecated">
+ <title>Funzionalità deprecate</title>
+
+ <sect2 xml:id="migration74.deprecated.core">
+  <title>PHP Core</title>
+
+  <sect3 xml:id="migration74.deprecated.core.nested-ternary">
+   <title>Operatori ternari annidati senza parentesi esplicite</title>
+
+   <para>
+    Le operazioni ternarie annidate devono usare esplicitamente le parentesi
+    per stabilire l'ordine delle operazioni. In precedenza, quando utilizzate
+    senza parentesi, l'associatività a sinistra non produceva
+    il comportamento atteso nella maggior parte dei casi.
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+1 ? 2 : 3 ? 4 : 5;   // deprecato
+(1 ? 2 : 3) ? 4 : 5; // ok
+1 ? 2 : (3 ? 4 : 5); // ok
+?>
+]]>
+     </programlisting>
+    </informalexample>
+   </para>
+   <para>
+    Le parentesi <emphasis>non</emphasis> sono necessarie quando l'annidamento avviene nell'operando centrale,
+    poiché in questo caso non c'è mai ambiguità e l'associatività non ha effetto:
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+1 ? 2 ? 3 : 4 : 5 // ok
+]]>
+     </programlisting>
+    </informalexample>
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration74.deprecated.core.array-string-access-curly-brace">
+   <title>Accesso agli offset di array e stringhe con le parentesi graffe</title>
+
+   <para>
+    La sintassi di accesso agli offset di array e stringhe con le parentesi graffe è
+    deprecata. Utilizzare <literal>$var[$idx]</literal> invece di
+    <literal>$var{$idx}</literal>.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration74.deprecated.core.real">
+   <title>Cast (real) e funzione <function>is_real</function></title>
+
+   <para>
+    Il cast <literal>(real)</literal> è deprecato,
+    utilizzare invece <literal>(float)</literal>.
+   </para>
+   <para>
+    Anche la funzione <function>is_real</function> è deprecata,
+    utilizzare invece <function>is_float</function>.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration74.deprecated.core.unbind-this">
+   <title>Unbinding di <literal>$this</literal> quando <literal>$this</literal> è utilizzato</title>
+
+   <para>
+    L'unbinding di <literal>$this</literal> di una closure non statica
+    che utilizza <literal>$this</literal> è deprecato.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration74.deprecated.core.parent">
+   <title>Parola chiave <literal>parent</literal> senza classe genitore</title>
+
+   <para>
+    L'utilizzo di <literal>parent</literal> all'interno di una classe senza genitore
+    è deprecato e in futuro lancerà un errore in fase di compilazione.
+    Attualmente un errore viene generato solo se/quando si accede al genitore
+    in fase di esecuzione.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration74.deprecated.core.allow-url-include">
+   <title>Opzione INI allow_url_include</title>
+
+   <para>
+    La direttiva ini <link linkend="ini.allow-url-include">allow_url_include</link>
+    è deprecata. Abilitarla genererà
+    una notifica di deprecazione all'avvio.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration74.deprecated.core.invalid-base-characters">
+   <title>Caratteri non validi nelle funzioni di conversione di base</title>
+
+   <para>
+    Passare caratteri non validi a <function>base_convert</function>,
+    <function>bindec</function>, <function>octdec</function> e
+    <function>hexdec</function> ora genererà una notifica di deprecazione.
+    Il risultato verrà comunque calcolato come se i caratteri non validi non esistessero.
+    Gli spazi iniziali e finali, così come i prefissi del tipo 0x (a seconda della base),
+    continuano a essere consentiti.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration74.deprecated.core.array-key-exists-objects">
+   <title>Uso di <function>array_key_exists</function> sugli oggetti</title>
+
+   <para>
+    L'uso di <function>array_key_exists</function> sugli oggetti è deprecato.
+    Si dovrebbe invece utilizzare <function>isset</function> oppure
+    <function>property_exists</function>.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration74.deprecated.core.magic-quotes-functions">
+   <title>Funzioni magic quotes</title>
+
+   <para>
+    Le funzioni <function>get_magic_quotes_gpc</function> e <function>get_magic_quotes_runtime</function>
+    sono deprecate. Restituiscono sempre &false;.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration74.deprecated.core.hebrevc">
+   <title>Funzione <function>hebrevc</function></title>
+
+   <para>
+    La funzione <function>hebrevc</function> è deprecata.
+    Può essere sostituita con <literal>nl2br(hebrev($str))</literal> o,
+    preferibilmente, con l'uso del supporto Unicode RTL.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration74.deprecated.core.convert-cyr-string">
+   <title>Funzione <function>convert_cyr_string</function></title>
+
+   <para>
+    La funzione <function>convert_cyr_string</function> è deprecata.
+    Può essere sostituita da una tra <function>mb_convert_string</function>,
+    <function>iconv</function> o <classname>UConverter</classname>.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration74.deprecated.core.money-format">
+   <title>Funzione <function>money_format</function></title>
+
+   <para>
+    La funzione <function>money_format</function> è deprecata.
+    Può essere sostituita dalla funzionalità <classname>NumberFormatter</classname> di intl.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration74.deprecated.core.ezmlm-hash">
+   <title>Funzione <function>ezmlm_hash</function></title>
+
+   <para>
+    La funzione <function>ezmlm_hash</function> è deprecata.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration74.deprecated.core.restore-include-path">
+   <title>Funzione <function>restore_include_path</function></title>
+
+   <para>
+    La funzione <function>restore_include_path</function> è deprecata.
+    Può essere sostituita da <literal>ini_restore('include_path')</literal>.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration74.deprecated.core.implode-reverse-parameters">
+   <title>Implode con l'ordine storico dei parametri</title>
+
+   <para>
+    Passare i parametri a <function>implode</function> in ordine inverso
+    è deprecato, utilizzare <literal>implode($glue, $parts)</literal>
+    invece di <literal>implode($parts, $glue)</literal>.
+   </para>
+  </sect3>
+
+ </sect2>
+
+ <sect2 xml:id="migration74.deprecated.com">
+  <title>COM</title>
+
+  <para>
+   L'importazione di librerie di tipi con la registrazione di costanti non sensibili
+   alle maiuscole/minuscole è stata deprecata.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration74.deprecated.filter">
+  <title>Filter</title>
+
+  <para>
+   <constant>FILTER_SANITIZE_MAGIC_QUOTES</constant> è deprecata,
+   utilizzare invece <constant>FILTER_SANITIZE_ADD_SLASHES</constant>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration74.deprecated.mbstring">
+  <title>Multibyte String</title>
+
+  <para>
+   Passare un pattern che non è una stringa a <function>mb_ereg_replace</function>
+   è deprecato. Attualmente, i pattern che non sono stringhe vengono interpretati come
+   codepoint ASCII. In PHP 8, il pattern verrà invece interpretato come
+   stringa.
+  </para>
+  <para>
+   Passare la codifica come 3° parametro a <function>mb_strrpos</function>
+   è deprecato. Passare invece un offset 0 e la codifica come 4° parametro.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration74.deprecated.ldap">
+  <title>Lightweight Directory Access Protocol</title>
+
+  <para>
+   <function>ldap_control_paged_result_response</function> e
+   <function>ldap_control_paged_result</function> sono deprecate.
+   I controlli di paginazione possono invece essere inviati insieme a
+   <function>ldap_search</function>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration74.deprecated.reflection">
+  <title>Reflection</title>
+
+  <para>
+   Le chiamate a <methodname>ReflectionType::__toString</methodname> ora generano
+   una notifica di deprecazione. Questo metodo era stato deprecato a favore di
+   <methodname>ReflectionNamedType::getName</methodname> nella documentazione
+   a partire da PHP 7.1, ma non emetteva una notifica di deprecazione per motivi tecnici.
+  </para>
+  <para>
+   I metodi <literal>export()</literal> di tutte le classi <classname>Reflection</classname>
+   sono deprecati. Costruire invece un oggetto <classname>Reflection</classname> e
+   convertirlo in stringa:
+   <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+// ReflectionClass::export(Foo::class, false) equivale a:
+echo new ReflectionClass(Foo::class), "\n";
+
+// $str = ReflectionClass::export(Foo::class, true) equivale a:
+$str = (string) new ReflectionClass(Foo::class);
+?>
+]]>
+     </programlisting>
+    </informalexample>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration74.deprecated.socket">
+  <title>Socket</title>
+
+  <para>
+   I flag <constant>AI_IDN_ALLOW_UNASSIGNED</constant> e
+   <constant>AI_IDN_USE_STD3_ASCII_RULES</constant> per
+   <function>socket_addrinfo_lookup</function> sono deprecati,
+   a causa di una deprecazione upstream in glibc.
+  </para>
+ </sect2>
+
+</sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

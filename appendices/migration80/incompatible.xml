@@ -1,0 +1,1719 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: b94d63fc0884d83ba43433ab33cc4810d955bf6d Maintainer: pastore Status: ready -->
+
+<sect1 xml:id="migration80.incompatible" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>Modifiche Incompatibili con le versioni precedenti</title>
+
+ <sect2 xml:id="migration80.incompatible.core">
+  <title>PHP Core</title>
+
+  <sect3 xml:id="migration80.incompatible.core.string-number-comparision">
+   <title>Confronto tra Stringhe e Numeri</title>
+
+   <para>
+    I confronti non stretti tra numeri e stringhe non numeriche ora funzionano convertendo il numero in
+    stringa e confrontando le stringhe. I confronti tra numeri e stringhe numeriche continuano a
+    funzionare come prima. In particolare, ciò significa che <code>0 == "not-a-number"</code> è ora considerato
+    falso.
+    <informaltable>
+     <tgroup cols="3">
+      <thead>
+       <row>
+        <entry>Confronto</entry>
+        <entry>Prima</entry>
+        <entry>Dopo</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry><code>0 == "0"</code></entry>
+        <entry>&true;</entry>
+        <entry>&true;</entry>
+       </row>
+       <row>
+        <entry><code>0 == "0.0"</code></entry>
+        <entry>&true;</entry>
+        <entry>&true;</entry>
+       </row>
+       <row>
+        <entry><code>0 == "foo"</code></entry>
+        <entry>&true;</entry>
+        <entry>&false;</entry>
+       </row>
+       <row>
+        <entry><code>0 == ""</code></entry>
+        <entry>&true;</entry>
+        <entry>&false;</entry>
+       </row>
+       <row>
+        <entry><code>42 == "   42"</code></entry>
+        <entry>&true;</entry>
+        <entry>&true;</entry>
+       </row>
+       <row>
+        <entry><code>42 == "42foo"</code></entry>
+        <entry>&true;</entry>
+        <entry>&false;</entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+    <!-- RFC: https://wiki.php.net/rfc/string_to_number_comparison -->
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration80.incompatible.core.other">
+   <title>Altre Modifiche incompatibili</title>
+
+   <itemizedlist>
+    <listitem>
+     <para>
+      <literal>match</literal> è ora una parola chiave riservata.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      <literal>mixed</literal> è ora una parola riservata, quindi non può essere utilizzata per dare un nome a una classe, un'interfaccia o un trait, ed è inoltre vietato utilizzarla nei namespace.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      I fallimenti delle asserzioni ora lanciano un'eccezione per impostazione predefinita. Se si desidera il vecchio comportamento,
+      è possibile impostare <code>assert.exception=0</code> nelle impostazioni INI.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      I metodi con lo stesso nome della classe non vengono più interpretati come costruttori. Si dovrebbe invece utilizzare il
+      metodo <link linkend="object.construct">__construct()</link>.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      La possibilità di chiamare staticamente metodi non statici è stata rimossa. Pertanto
+      <function>is_callable</function> fallirà quando si verifica un metodo non statico con un nome di classe
+      (la verifica deve essere effettuata con un'istanza dell'oggetto).
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      I cast <code>(real)</code> e <code>(unset)</code> sono stati rimossi.
+     </para>
+    </listitem>
+    <listitem>
+      <para>
+       La direttiva ini <link linkend="ini.track-errors">track_errors</link> è stata rimossa. Ciò
+       significa che <varname>php_errormsg</varname> non è più disponibile. Al suo posto è possibile utilizzare la
+       funzione <function>error_get_last</function>.
+      </para>
+    </listitem>
+    <listitem>
+     <para>
+      La possibilità di definire costanti case-insensitive è stata rimossa. Il terzo argomento di
+      <function>define</function> non può più essere &true;.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      La possibilità di specificare un autoloader utilizzando una funzione <function>__autoload</function> è stata
+      rimossa. Al suo posto si dovrebbe utilizzare <function>spl_autoload_register</function>.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      L'argomento <parameter>errcontext</parameter> non verrà più passato ai gestori degli errori personalizzati
+      impostati con <function>set_error_handler</function>.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      <function>create_function</function> è stata rimossa. Al suo posto è possibile utilizzare le funzioni anonime.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      <function>each</function> è stata rimossa. Al suo posto si dovrebbe utilizzare &foreach; o
+      <classname>ArrayIterator</classname>.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      La possibilità di effettuare l'unbind di <varname>this</varname> dalle closure create da un metodo,
+      utilizzando <methodname>Closure::fromCallable</methodname> o
+      <methodname>ReflectionMethod::getClosure</methodname>, è stata rimossa.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Anche la possibilità di effettuare l'unbind di <varname>this</varname> dalle closure vere e proprie che contengono utilizzi di
+      <varname>this</varname> è stata rimossa.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      La possibilità di utilizzare <function>array_key_exists</function> con gli oggetti è stata rimossa.
+      Al suo posto è possibile utilizzare <function>isset</function> o <function>property_exists</function>.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Il comportamento di <function>array_key_exists</function> riguardo al tipo del
+      parametro <parameter>key</parameter> è stato reso coerente con <function>isset</function> e
+      il normale accesso agli array. Tutti i tipi di chiave ora utilizzano le consuete conversioni e le chiavi array/oggetto lanciano un
+      <classname>TypeError</classname>.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Qualsiasi array che abbia un numero <replaceable>n</replaceable> come prima chiave numerica utilizzerà
+      <replaceable>n+1</replaceable> per la successiva chiave implicita, anche se <replaceable>n</replaceable> è
+      negativo.
+      <!-- RFC: https://wiki.php.net/rfc/negative_array_index -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Il livello predefinito di error_reporting è ora <constant>E_ALL</constant>. In precedenza escludeva
+      <constant>E_NOTICE</constant> e <constant>E_DEPRECATED</constant>.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      <link linkend="ini.display-startup-errors">display_startup_errors</link> è ora abilitato per
+      impostazione predefinita.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      L'utilizzo di <type>parent</type> all'interno di una classe che non ha un genitore causerà ora un errore fatale
+      in fase di compilazione.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      L'operatore <literal>@</literal> non silenzierà più gli errori fatali
+      (<constant>E_ERROR</constant>, <constant>E_CORE_ERROR</constant>,
+      <constant>E_COMPILE_ERROR</constant>, <constant>E_USER_ERROR</constant>,
+      <constant>E_RECOVERABLE_ERROR</constant>, <constant>E_PARSE</constant>). I gestori degli errori che
+      si aspettano che error_reporting sia <literal>0</literal> quando si utilizza <literal>@</literal>, dovrebbero essere
+      adattati per utilizzare invece un controllo con maschera:
+     </para>
+     <para>
+      <programlisting role="php">
+<![CDATA[
+<?php
+// Sostituire
+function my_error_handler($err_no, $err_msg, $filename, $linenum) {
+    if (error_reporting() == 0) {
+        return false;
+    }
+    // ...
+}
+
+// Con
+function my_error_handler($err_no, $err_msg, $filename, $linenum) {
+    if (!(error_reporting() & $err_no)) {
+        return false;
+    }
+    // ...
+}
+?>
+]]>
+      </programlisting>
+     </para>
+     <para>
+      Inoltre, è necessario fare attenzione che i messaggi di errore non vengano visualizzati negli ambienti di
+      produzione, poiché ciò può causare fughe di informazioni. Assicurarsi che
+      <code>display_errors=Off</code> venga utilizzato insieme alla registrazione degli errori nei log.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      <literal>#[</literal> non viene più interpretato come l'inizio di un commento,
+      poiché questa sintassi è ora utilizzata per gli attributi.
+      <!-- RFC: https://wiki.php.net/rfc/shorter_attribute_syntax_change -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Gli errori di ereditarietà dovuti a firme di metodi incompatibili (violazioni LSP) genereranno ora sempre
+      un errore fatale. In precedenza in alcuni casi veniva generato un avviso.
+      <!-- RFC: https://wiki.php.net/rfc/lsp_errors -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      La precedenza dell'operatore di concatenazione è cambiata rispetto agli operatori di shift di bit e all'addizione, così come
+      alla sottrazione.
+     </para>
+     <para>
+      <programlisting role="php">
+<![CDATA[
+<?php
+echo "Somma: " . $a + $b;
+// in precedenza veniva interpretato come:
+echo ("Somma: " . $a) + $b;
+// ora viene interpretato come:
+echo "Somma:" . ($a + $b);
+?>
+]]>
+      </programlisting>
+      <!-- RFC: https://wiki.php.net/rfc/concatenation_precedence -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Gli argomenti con un valore predefinito che si risolve in &null; a runtime non contrassegneranno più implicitamente
+      il tipo dell'argomento come nullable. Si deve invece utilizzare un tipo nullable esplicito, oppure un valore predefinito &null;
+      esplicito.
+     </para>
+     <para>
+      <programlisting role="php">
+<![CDATA[
+<?php
+// Sostituire
+function test(int $arg = CONST_RESOLVING_TO_NULL) {}
+// Con
+function test(?int $arg = CONST_RESOLVING_TO_NULL) {}
+// Oppure
+function test(int $arg = null) {}
+?>
+]]>
+      </programlisting>
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Numerosi avvisi sono stati convertiti in eccezioni <classname>Error</classname>:
+     </para>
+     <para>
+      <simplelist>
+       <member>
+        Tentativo di scrivere in una proprietà di un non-oggetto. In precedenza questo
+        creava implicitamente un oggetto stdClass per null, false e stringhe vuote.
+       </member>
+       <member>
+        Tentativo di aggiungere un elemento a un array per il quale la chiave PHP_INT_MAX
+        è già utilizzata.
+       </member>
+       <member>
+        Tentativo di utilizzare un tipo non valido (array o oggetto) come chiave di un array o
+        offset di una stringa.
+       </member>
+       <member>Tentativo di scrivere in un indice di array di un valore scalare.</member>
+       <member>Tentativo di effettuare l'unpacking di un valore non array/Traversable.</member>
+       <member>
+        Tentativo di accedere a costanti non qualificate non definite.
+        In precedenza, gli accessi a costanti non qualificate generavano un avviso e venivano interpretati come stringhe.
+       </member>
+       <member>
+        Il passaggio di un numero errato di argomenti a una funzione nativa non variadica
+        lancerà un <classname>ArgumentCountError</classname>.
+       </member>
+       <member>
+        Il passaggio di tipi countable non validi a <function>count</function> lancerà
+        un <classname>TypeError</classname>.
+       </member>
+      </simplelist>
+     </para>
+     <para>
+      Numerose notifiche sono state convertite in avvisi:
+     </para>
+     <para>
+      <simplelist>
+       <member>Tentativo di leggere una variabile non definita.</member>
+       <member>Tentativo di leggere una proprietà non definita.</member>
+       <member>Tentativo di leggere una chiave di array non definita.</member>
+       <member>Tentativo di leggere una proprietà di un non-oggetto.</member>
+       <member>Tentativo di accedere a un indice di array di un non-array.</member>
+       <member>Tentativo di convertire un array in stringa.</member>
+       <member>Tentativo di utilizzare una risorsa come chiave di un array.</member>
+       <member>Tentativo di utilizzare null, un booleano o un float come offset di una stringa.</member>
+       <member>Tentativo di leggere un offset di stringa fuori dai limiti.</member>
+       <member>Tentativo di assegnare una stringa vuota a un offset di stringa.</member>
+      </simplelist>
+      <!-- RFC: https://wiki.php.net/rfc/engine_warnings -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Il tentativo di assegnare più byte a un offset di stringa emetterà ora un avviso.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      I caratteri inattesi nei file sorgente (come i byte NUL al di fuori delle stringhe) causeranno ora un'eccezione
+      <classname>ParseError</classname> invece di un avviso di compilazione.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Le eccezioni non catturate passano ora per lo "spegnimento pulito", il che significa che i distruttori verranno chiamati
+      dopo un'eccezione non catturata.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      L'errore fatale in fase di compilazione "Only variables can be passed by reference" è stato posticipato
+      fino al runtime, e convertito in un'eccezione
+      <classname>Error</classname> "Argument cannot be passed by reference".
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Alcune notifiche "Only variables should be passed by reference" sono state convertite nell'eccezione "Argument
+      cannot be passed by reference".
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Il nome generato per le classi anonime è cambiato. Includerà ora il nome del primo
+      genitore o della prima interfaccia:
+     </para>
+     <para>
+      <programlisting role="php">
+<![CDATA[
+<?php
+new class extends ParentClass {};
+// -> ParentClass@anonymous
+new class implements FirstInterface, SecondInterface {};
+// -> FirstInterface@anonymous
+new class {};
+// -> class@anonymous
+?>
+]]>
+      </programlisting>
+     </para>
+     <para>
+      Il nome mostrato sopra è ancora seguito da un byte NUL e da un suffisso univoco.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      I riferimenti non assoluti a metodi dei trait negli adattamenti degli alias dei trait devono ora essere
+      non ambigui:
+     </para>
+     <para>
+      <programlisting role="php">
+<![CDATA[
+<?php
+class X {
+    use T1, T2 {
+        func as otherFunc;
+    }
+    function func() {}
+}
+?>
+]]>
+      </programlisting>
+     </para>
+     <para>
+      Se esistono sia <code>T1::func()</code> che <code>T2::func()</code>, questo codice in precedenza veniva
+      accettato silenziosamente, e si assumeva che func facesse riferimento a <code>T1::func</code>. Ora genererà invece un
+      errore fatale, ed è necessario scrivere esplicitamente <code>T1::func</code> o
+      <code>T2::func</code>.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      La firma dei metodi astratti definiti nei trait viene ora verificata rispetto al metodo della classe
+      che li implementa:
+     </para>
+     <para>
+      <programlisting role="php">
+<![CDATA[
+<?php
+trait MyTrait {
+    abstract private function neededByTrait(): string;
+}
+
+class MyClass {
+    use MyTrait;
+
+    // Errore, a causa della mancata corrispondenza del tipo di ritorno.
+    private function neededByTrait(): int { return 42; }
+}
+?>
+]]>
+      </programlisting>
+      <!-- RFC: https://wiki.php.net/rfc/abstract_trait_method_validation -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Le funzioni disabilitate sono ora trattate esattamente come funzioni inesistenti. Chiamare una funzione
+      disabilitata la segnalerà come sconosciuta, ed è ora possibile ridefinire una funzione disabilitata.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Gli stream wrapper <literal>data://</literal> non sono più scrivibili, in accordo con il comportamento
+      documentato.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Gli operatori aritmetici e bit a bit <literal>+</literal>, <literal>-</literal>,
+      <literal>*</literal>, <literal>/</literal>, <literal>**</literal>, <literal>%</literal>,
+      <literal>&lt;&lt;</literal>, <literal>&gt;&gt;</literal>, <literal>&amp;</literal>,
+      <literal>|</literal>, <literal>^</literal>, <literal>~</literal>, <literal>++</literal>,
+      <literal>--</literal> lanceranno ora sempre un <classname>TypeError</classname> quando uno degli
+      operandi è un &array;, una &resource; o un &object; non sovraccaricato. L'unica eccezione è
+      l'operazione di unione array <literal>+</literal> array, che resta supportata.
+      <!-- RFC: https://wiki.php.net/rfc/arithmetic_operator_type_checks -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      La conversione da float a stringa si comporterà ora sempre in modo indipendente dalla localizzazione.
+     </para>
+     <para>
+      <programlisting role="php">
+<![CDATA[
+<?php
+setlocale(LC_ALL, "de_DE");
+$f = 3.14;
+echo $f, "\n";
+// In precedenza: 3,14
+// Ora:           3.14
+?>
+]]>
+      </programlisting>
+     </para>
+     <para>
+      Vedere <function>printf</function>, <function>number_format</function> e
+      <methodname>NumberFormatter</methodname> per i modi di personalizzare la formattazione dei numeri.
+      <!-- RFC: https://wiki.php.net/rfc/locale_independent_float_to_string -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Il supporto per le parentesi graffe deprecate per l'accesso agli offset è stato rimosso.
+     </para>
+     <para>
+      <programlisting role="php">
+<![CDATA[
+<?php
+// Invece di:
+$array{0};
+$array{"key"};
+// Scrivere:
+$array[0];
+$array["key"];
+?>
+]]>
+      </programlisting>
+      <!-- RFC: https://wiki.php.net/rfc/deprecate_curly_braces_array_access -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Applicare il modificatore final a un metodo privato produrrà ora un avviso, a meno che tale metodo non sia
+      il costruttore.
+      <!-- FC: https://wiki.php.net/rfc/inheritance_private_methods -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Se il costruttore di un oggetto chiama <function>exit</function>, il distruttore dell'oggetto non verrà più
+      chiamato. Ciò corrisponde al comportamento di quando il costruttore lancia un'eccezione.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      I nomi con namespace non possono più contenere spazi: mentre <code>Foo\Bar</code> verrà riconosciuto
+      come nome con namespace, <code>Foo \ Bar</code> non lo sarà. Al contrario, le parole chiave riservate sono ora
+      consentite come segmenti di namespace, il che può anche cambiare l'interpretazione del codice:
+      <code>new\x</code> è ora equivalente a <code>constant('new\x')</code>, non a
+      <code>new \x()</code>.
+      <!-- RFC: https://wiki.php.net/rfc/namespaced_names_as_token -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Gli operatori ternari annidati richiedono ora parentesi esplicite.
+      <!-- RFC: https://wiki.php.net/rfc/ternary_associativity -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      <function>debug_backtrace</function> e <methodname>Exception::getTrace</methodname> non
+      forniranno più riferimenti agli argomenti. Non sarà possibile modificare gli argomenti delle funzioni
+      tramite il backtrace.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      La gestione delle stringhe numeriche è stata modificata per essere più intuitiva e meno soggetta a errori. Gli spazi
+      finali sono ora consentiti nelle stringhe numeriche, per coerenza con il modo in cui vengono trattati gli spazi
+      iniziali. Ciò riguarda principalmente:
+     </para>
+     <para>
+      <simplelist>
+       <member>La funzione <function>is_numeric</function></member>
+       <member>I confronti tra stringhe</member>
+       <member>Le dichiarazioni di tipo</member>
+       <member>Le operazioni di incremento e decremento</member>
+      </simplelist>
+     </para>
+     <para>
+      Il concetto di "stringa numerica iniziale" è stato in gran parte abbandonato; i casi in cui permane
+      esistono per facilitare la migrazione. Le stringhe che emettevano un <constant>E_NOTICE</constant> "A non
+      well-formed numeric value encountered" emetteranno ora un <constant>E_WARNING</constant> "A
+      non-numeric value encountered" e tutte le stringhe che emettevano un <constant>E_WARNING</constant> "A
+      non-numeric value encountered" lanceranno ora un
+      <classname>TypeError</classname>. Ciò riguarda principalmente:
+     </para>
+     <para>
+      <simplelist>
+       <member>Le operazioni aritmetiche</member>
+       <member>Le operazioni bit a bit</member>
+      </simplelist>
+     </para>
+     <para>
+      Questa modifica da <constant>E_WARNING</constant> a <classname>TypeError</classname> riguarda anche
+      l'<constant>E_WARNING</constant> "Illegal string offset 'string'" per gli offset di stringa non validi. Il
+      comportamento dei cast espliciti da stringhe a int/float non è stato modificato.
+      <!-- RFC: https://wiki.php.net/rfc/saner-numeric-strings -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      I metodi magici avranno ora i propri argomenti e tipi di ritorno verificati, se dichiarati.
+      Le firme devono corrispondere al seguente elenco:
+     </para>
+     <para>
+      <simplelist>
+       <member><code>__call(string $name, array $arguments): mixed</code></member>
+       <member><code>__callStatic(string $name, array $arguments): mixed</code></member>
+       <member><code>__clone(): void</code></member>
+       <member><code>__debugInfo(): ?array</code></member>
+       <member><code>__get(string $name): mixed</code></member>
+       <member><code>__invoke(mixed $arguments): mixed</code></member>
+       <member><code>__isset(string $name): bool</code></member>
+       <member><code>__serialize(): array</code></member>
+       <member><code>__set(string $name, mixed $value): void</code></member>
+       <member><code>__set_state(array $properties): object</code></member>
+       <member><code>__sleep(): array</code></member>
+       <member><code>__unserialize(array $data): void</code></member>
+       <member><code>__unset(string $name): void</code></member>
+       <member><code>__wakeup(): void</code></member>
+      </simplelist>
+      <!-- RFC: https://wiki.php.net/rfc/magic-methods-signature -->
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Le chiavi dell'array di <function>call_user_func_array</function> verranno ora interpretate come nomi di parametri,
+      invece di essere ignorate silenziosamente.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Dichiarare una funzione chiamata <literal>assert()</literal> all'interno di un namespace
+      non è più consentito, e genera un <constant>E_COMPILE_ERROR</constant>.
+      La funzione <function>assert</function> è soggetta a una gestione speciale da parte del motore,
+      che può portare a un comportamento incoerente quando si definisce una funzione con namespace con lo stesso nome.
+     </para>
+    </listitem>
+   </itemizedlist>
+  </sect3>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.resource2object">
+  <title>Migrazione da Risorse a Oggetti</title>
+
+  <para>
+   Diverse &resource; sono state migrate in &object;.
+   I controlli sul valore restituito che utilizzano <function>is_resource</function> dovrebbero essere sostituiti con controlli per &false;.
+  </para>
+  <itemizedlist>
+    <listitem>
+     <para>
+      <function>curl_init</function> restituirà ora un oggetto <classname>CurlHandle</classname> invece
+      di una &resource;. La funzione <function>curl_close</function> non ha più alcun effetto,
+      invece l'istanza di <classname>CurlHandle</classname> viene distrutta automaticamente quando non è più
+      referenziata.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      <function>curl_multi_init</function> restituirà ora un oggetto <classname>CurlMultiHandle</classname>
+      invece di una &resource;. La funzione <function>curl_multi_close</function> non
+      ha più alcun effetto, invece l'istanza di <classname>CurlMultiHandle</classname> viene
+      distrutta automaticamente quando non è più referenziata.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      <function>curl_share_init</function> restituirà ora un oggetto <classname>CurlShareHandle</classname>
+      invece di una &resource;. La funzione <function>curl_share_close</function> non
+      ha più alcun effetto, invece l'istanza di <classname>CurlShareHandle</classname> viene
+      distrutta automaticamente quando non è più referenziata.
+     </para>
+    </listitem>
+   <listitem>
+    <para>
+     <function>enchant_broker_init</function> restituirà ora un oggetto <classname>EnchantBroker</classname>
+     invece di una &resource;.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>enchant_broker_request_dict</function> e
+     <function>enchant_broker_request_pwl_dict</function> restituiranno ora un oggetto
+     <classname>EnchantDictionary</classname> invece di una &resource;.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     L'estensione GD utilizza ora gli oggetti <classname>GdImage</classname> come struttura dati sottostante
+     per le immagini, invece delle &resource;.
+     La funzione <function>imagedestroy</function> non ha più alcun effetto; invece l'istanza di
+     <classname>GdImage</classname> viene distrutta automaticamente quando non è più referenziata.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>openssl_x509_read</function> e <function>openssl_csr_sign</function> restituiranno ora
+     un oggetto <classname>OpenSSLCertificate</classname> invece di una &resource;.
+     La funzione <function>openssl_x509_free</function> è deprecata e non ha più alcun effetto,
+     invece l'istanza di <classname>OpenSSLCertificate</classname> viene distrutta automaticamente quando
+     non è più referenziata.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>openssl_csr_new</function> restituirà ora un oggetto
+     <classname>OpenSSLCertificateSigningRequest</classname> invece di una &resource;.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>openssl_pkey_new</function> restituirà ora un oggetto
+     <classname>OpenSSLAsymmetricKey</classname> invece di una &resource;.
+     La funzione <function>openssl_pkey_free</function> è deprecata e non ha più alcun effetto,
+     invece l'istanza di <classname>OpenSSLAsymmetricKey</classname> viene distrutta automaticamente quando
+     non è più referenziata.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>shmop_open</function> restituirà ora un oggetto <classname>Shmop</classname> invece di
+     una &resource;. La funzione <function>shmop_close</function> non ha più alcun effetto, ed è
+     deprecata; invece l'istanza di <classname>Shmop</classname> viene distrutta automaticamente quando
+     non è più referenziata.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>socket_create</function>, <function>socket_create_listen</function>,
+     <function>socket_accept</function>, <function>socket_import_stream</function>,
+     <function>socket_addrinfo_connect</function>, <function>socket_addrinfo_bind</function> e
+     <function>socket_wsaprotocol_info_import</function> restituiranno ora un oggetto
+     <classname>Socket</classname> invece di una &resource;.
+     <function>socket_addrinfo_lookup</function> restituirà ora un array di oggetti
+     <classname>AddressInfo</classname> invece di &resource;.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>msg_get_queue</function> restituirà ora un oggetto <classname>SysvMessageQueue</classname>
+     invece di una &resource;.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>sem_get</function> restituirà ora un oggetto <classname>SysvSemaphore</classname>
+     invece di una &resource;.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>shm_attach</function> restituirà ora un oggetto <classname>SysvSharedMemory</classname>
+     invece di una &resource;.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>xml_parser_create</function> e <function>xml_parser_create_ns</function> restituiranno ora
+     un oggetto <classname>XMLParser</classname> invece di una &resource;. La
+     funzione <function>xml_parser_free</function> non ha più alcun effetto, invece l'istanza di
+     XMLParser viene distrutta automaticamente quando non è più referenziata.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Le funzioni <link linkend="book.xmlwriter">XMLWriter</link> ora accettano e restituiscono, rispettivamente,
+     oggetti <classname>XMLWriter</classname> invece di &resource;.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>inflate_init</function> restituirà ora un oggetto <classname>InflateContext</classname>
+     invece di una &resource;.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>deflate_init</function> restituirà ora un oggetto <classname>DeflateContext</classname>
+     invece di una &resource;.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.com">
+  <title>COM and .Net (Windows)</title>
+
+  <para>
+   La possibilità di importare costanti case-insensitive dalle librerie dei tipi è stata rimossa.
+   Il secondo argomento di <function>com_load_typelib</function> non può più essere false;
+   <link linkend="ini.com.autoregister-casesensitive">com.autoregister_casesensitive</link>
+   non può più essere disabilitata; i marcatori case-insensitive in
+   <link linkend="ini.com.typelib-file">com.typelib_file</link> vengono ignorati.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.curl">
+  <title>CURL</title>
+
+  <para>
+   <constant>CURLOPT_POSTFIELDS</constant> non accetta più oggetti come array. Per
+   interpretare un oggetto come array, effettuare un cast esplicito <code>(array)</code>. Lo
+   stesso vale anche per le altre opzioni che accettano array.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.datetime">
+  <title>Date and Time</title>
+
+  <para>
+   <function>mktime</function> e <function>gmmktime</function> richiedono ora almeno un
+   argomento. È possibile utilizzare <function>time</function> per ottenere il timestamp corrente.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.dom">
+  <title>DOM</title>
+
+  <para>
+   Le classi non implementate dell'estensione DOM che non avevano alcun comportamento e contenevano dati
+   di test sono state rimosse. Queste classi sono state rimosse anche nell'ultima versione dello
+   standard DOM:
+  </para>
+  <para>
+   <simplelist>
+    <member><classname>DOMNameList</classname></member>
+    <member><classname>DomImplementationList</classname></member>
+    <member><classname>DOMConfiguration</classname></member>
+    <member><classname>DomError</classname></member>
+    <member><classname>DomErrorHandler</classname></member>
+    <member><classname>DOMImplementationSource</classname></member>
+    <member><classname>DOMLocator</classname></member>
+    <member><classname>DOMUserDataHandler</classname></member>
+    <member><classname>DOMTypeInfo</classname></member>
+    <member><classname>DOMStringExtend</classname></member>
+   </simplelist>
+  </para>
+  <para>
+   I metodi non implementati dell'estensione DOM che non avevano alcun comportamento sono stati rimossi:
+  </para>
+  <para>
+   <simplelist>
+    <member><methodname>DOMNamedNodeMap::setNamedItem</methodname></member>
+    <member><methodname>DOMNamedNodeMap::removeNamedItem</methodname></member>
+    <member><methodname>DOMNamedNodeMap::setNamedItemNS</methodname></member>
+    <member><methodname>DOMNamedNodeMap::removeNamedItemNS</methodname></member>
+    <member><methodname>DOMText::replaceWholeText</methodname></member>
+    <member><methodname>DOMNode::compareDocumentPosition</methodname></member>
+    <member><methodname>DOMNode::isEqualNode</methodname></member>
+    <member><methodname>DOMNode::getFeature</methodname></member>
+    <member><methodname>DOMNode::setUserData</methodname></member>
+    <member><methodname>DOMNode::getUserData</methodname></member>
+    <member><methodname>DOMDocument::renameNode</methodname></member>
+   </simplelist>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.enchant">
+  <title>Enchant</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     <function>enchant_broker_list_dicts</function>, <function>enchant_broker_describe</function> e
+     <function>enchant_dict_suggest</function> restituiranno ora un array vuoto invece di &null;.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.exif">
+  <title>Exif</title>
+
+  <para>
+   <function>read_exif_data</function> è stata rimossa; al suo posto si dovrebbe utilizzare
+   <function>exif_read_data</function>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.filter">
+  <title>Filter</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     I flag <constant>FILTER_FLAG_SCHEME_REQUIRED</constant> e
+     <constant>FILTER_FLAG_HOST_REQUIRED</constant> per il filtro
+     <constant>FILTER_VALIDATE_URL</constant> sono stati rimossi. Lo <literal>scheme</literal>
+     e l'<literal>host</literal> sono (e sono sempre stati) sempre obbligatori.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Le sorgenti <constant>INPUT_REQUEST</constant> e <constant>INPUT_SESSION</constant> per
+     <function>filter_input</function> ecc. sono state rimosse. Non sono mai state implementate e il loro
+     utilizzo generava sempre un avviso.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.gd">
+  <title>GD</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     La funzione deprecata <function>image2wbmp</function> è stata rimossa.
+     <!-- RFC: https://wiki.php.net/rfc/image2wbmp -->
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Le funzioni deprecate <function>png2wbmp</function> e <function>jpeg2wbmp</function> sono
+     state rimosse.
+     <!-- RFC: https://wiki.php.net/rfc/deprecate-png-jpeg-2wbmp -->
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Il parametro <parameter>mode</parameter> predefinito di <function>imagecropauto</function> non
+     accetta più <literal>-1</literal>. Al suo posto si dovrebbe utilizzare <constant>IMG_CROP_DEFAULT</constant>.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Su Windows, <filename>php_gd2.dll</filename> è stato rinominato in <filename>php_gd.dll</filename>.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.gmp">
+  <title>GMP</title>
+
+  <para>
+   <function>gmp_random</function> è stata rimossa. Al suo posto si dovrebbe utilizzare <function>gmp_random_range</function> o
+   <function>gmp_random_bits</function>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.iconv">
+  <title>Iconv</title>
+
+  <para>
+   Le implementazioni di iconv che non impostano correttamente <varname>errno</varname> in caso di errori non sono
+   più supportate.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.imap">
+  <title>IMAP</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     L'argomento inutilizzato <parameter>default_host</parameter> di <function>imap_headerinfo</function>
+     è stato rimosso.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     La funzione <function>imap_header</function>, che è un alias di
+     <function>imap_headerinfo</function>, è stata rimossa.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.intl">
+  <title>Internationalization Functions</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     La costante deprecata <constant>INTL_IDNA_VARIANT_2003</constant> è stata rimossa.
+     <!-- RFC: https://wiki.php.net/rfc/deprecate-and-remove-intl_idna_variant_2003 -->
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     La costante deprecata <constant>Normalizer::NONE</constant> è stata rimossa.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.ldap">
+  <title>LDAP</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     Le funzioni deprecate <function>ldap_sort</function>,
+     <function>ldap_control_paged_result</function> e
+     <function>ldap_control_paged_result_response</function> sono state rimosse.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     L'interfaccia di <function>ldap_set_rebind_proc</function> è cambiata; il
+     parametro <parameter>callback</parameter> non accetta più stringhe vuote; al suo posto &null; dovrebbe
+     essere utilizzato.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.mbstring">
+  <title>MBString</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     La direttiva <link linkend="ini.mbstring.func-overload">mbstring.func_overload</link> è stata
+     rimossa. Anche le relative costanti <constant>MB_OVERLOAD_MAIL</constant>,
+     <constant>MB_OVERLOAD_STRING</constant> e <constant>MB_OVERLOAD_REGEX</constant>
+     sono state rimosse. Infine, le voci <literal>"func_overload"</literal> e
+     <literal>"func_overload_list"</literal> in <function>mb_get_info</function> sono state
+     rimosse.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>mb_parse_str</function> non può più essere utilizzata senza specificare un array per il risultato.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Numerosi alias mbregex deprecati sono stati rimossi. Si consulti il seguente
+     elenco per sapere quali funzioni utilizzare al loro posto:
+    </para>
+    <para>
+     <simplelist>
+      <member><function>mbregex_encoding</function> → <function>mb_regex_encoding</function></member>
+      <member><function>mbereg</function> → <function>mb_ereg</function></member>
+      <member><function>mberegi</function> → <function>mb_eregi</function></member>
+      <member><function>mbereg_replace</function> → <function>mb_ereg_replace</function></member>
+      <member><function>mberegi_replace</function> → <function>mb_eregi_replace</function></member>
+      <member><function>mbsplit</function> → <function>mb_split</function></member>
+      <member><function>mbereg_match</function> → <function>mb_ereg_match</function></member>
+      <member><function>mbereg_search</function> → <function>mb_ereg_search</function></member>
+      <member><function>mbereg_search_pos</function> → <function>mb_ereg_search_pos</function></member>
+      <member><function>mbereg_search_regs</function> → <function>mb_ereg_search_regs</function></member>
+      <member><function>mbereg_search_init</function> → <function>mb_ereg_search_init</function></member>
+      <member><function>mbereg_search_getregs</function> → <function>mb_ereg_search_getregs</function></member>
+      <member><function>mbereg_search_getpos</function> → <function>mb_ereg_search_getpos</function></member>
+      <member><function>mbereg_search_setpos</function> → <function>mb_ereg_search_setpos</function></member>
+     </simplelist>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Il modificatore <literal>e</literal> per <function>mb_ereg_replace</function> è stato rimosso.
+     Al suo posto si dovrebbe utilizzare <function>mb_ereg_replace_callback</function>.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Un argomento pattern non stringa passato a <function>mb_ereg_replace</function> verrà ora interpretato come
+     una stringa invece che come un codepoint ASCII. Il comportamento precedente può essere ripristinato con una chiamata
+     esplicita a <function>chr</function>.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     L'argomento <parameter>needle</parameter> di <function>mb_strpos</function>,
+     <function>mb_strrpos</function>, <function>mb_stripos</function>,
+     <function>mb_strripos</function>, <function>mb_strstr</function>,
+     <function>mb_stristr</function>, <function>mb_strrchr</function> e
+     <function>mb_strrichr</function> può ora essere vuoto.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Il parametro <parameter>is_hex</parameter>, che non veniva utilizzato internamente, è stato rimosso da
+     <function>mb_decode_numericentity</function>.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Il comportamento legacy di passare la codifica come terzo argomento invece di un offset per la
+     funzione <function>mb_strrpos</function> è stato rimosso; si dovrebbe invece fornire un offset
+     <literal>0</literal> esplicito con la codifica come quarto argomento.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Gli alias di codifica dei caratteri <literal>ISO_8859-*</literal> sono stati sostituiti dagli
+     alias <literal>ISO8859-*</literal> per una migliore interoperabilità con l'estensione iconv. Sono stati
+     rimossi anche gli alias ISO 8859 di mbregex con i trattini bassi (<literal>ISO_8859_*</literal> e
+     <literal>ISO8859_*</literal>).
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>mb_ereg</function> e <function>mb_eregi</function> restituiranno ora il booleano &true; in
+     caso di corrispondenza riuscita. In precedenza restituivano l'intero <literal>1</literal> se
+     <parameter>matches</parameter> non veniva passato, oppure <code>max(1, strlen($matches[0]))</code> se
+     <parameter>matches</parameter> veniva passato.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.oci8">
+  <title>OCI8</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     La classe <classname>OCI-Lob</classname> si chiama ora <classname>OCILob</classname>, e la
+     classe <classname>OCI-Collection</classname> si chiama ora <classname>OCICollection</classname>
+     per la conformità dei nomi imposta dagli strumenti di annotazione dei tipi arginfo di PHP 8.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Diverse funzioni alias sono state contrassegnate come deprecate.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>oci_internal_debug</function> e il suo alias <function>ociinternaldebug</function> sono
+     stati rimossi.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.odbc">
+  <title>ODBC</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     <function>odbc_connect</function> non riutilizza più le connessioni.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Il parametro inutilizzato <parameter>flags</parameter> di <function>odbc_exec</function> è stato
+     rimosso.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.openssl">
+  <title>OpenSSL</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     <function>openssl_seal</function> e <function>openssl_open</function> richiedono ora che venga passato
+     <parameter>method</parameter>, poiché il precedente valore predefinito <literal>"RC4"</literal>
+     è considerato insicuro.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.pcre">
+  <title>Espressioni Regolari (Perl-Compatible)</title>
+
+  <para>
+   Le sequenze di escape non valide passate non vengono più interpretate come letterali. Questo comportamento
+   in precedenza richiedeva il modificatore <literal>X</literal>, che ora viene ignorato.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.pdo">
+  <title>PHP Data Objects</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     La modalità predefinita di gestione degli errori è stata cambiata da "silent" a "exceptions". Vedere
+     <link linkend="pdo.error-handling">Errori e gestione degli errori</link> per i dettagli.
+     <!-- RFC: https://wiki.php.net/rfc/pdo_default_errmode -->
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Le firme di alcuni metodi PDO sono cambiate:
+    </para>
+    <para>
+     <simplelist>
+      <member><code>PDO::query(string $query, ?int $fetchMode  = null, mixed  ...$fetchModeArgs)</code></member>
+      <member><code>PDOStatement::setFetchMode(int $mode, mixed ...$args)</code></member>
+     </simplelist>
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.pdo-odbc">
+  <title>PDO ODBC</title>
+
+  <para>
+   La direttiva &php.ini;
+   <link linkend="ini.pdo-odbc.db2-instance-name">pdo_odbc.db2_instance_name</link> è stata
+   rimossa.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.pdo-mysql">
+  <title>PDO MySQL</title>
+
+  <para>
+   <methodname>PDO::inTransaction</methodname> riporta ora lo stato effettivo della transazione
+   della connessione, invece di un'approssimazione mantenuta da PDO. Se viene eseguita una query
+   soggetta a "commit implicito", <methodname>PDO::inTransaction</methodname>
+   restituirà successivamente &false;, poiché la transazione non è più attiva.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.pgsql">
+  <title>PostgreSQL</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     La sintassi deprecata di <function>pg_connect</function> che utilizza più parametri invece di una
+     stringa di connessione non è più supportata.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     La firma deprecata di <function>pg_lo_import</function> e <function>pg_lo_export</function>
+     che passa la connessione come ultimo argomento non è più supportata. La connessione dovrebbe invece essere
+     passata come primo argomento.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>pg_fetch_all</function> restituirà ora un array vuoto invece di &false; per i set di risultati
+     con zero righe.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.phar">
+  <title>Phar</title>
+
+  <para>
+   I metadati associati a un phar non verranno più deserializzati automaticamente, per correggere potenziali
+   vulnerabilità di sicurezza dovute all'istanziazione di oggetti, all'autoloading, ecc.
+   <!-- RFC: https://wiki.php.net/rfc/phar_stop_autoloading_metadata -->
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.reflection">
+  <title>Reflection</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     Le firme dei metodi
+    </para>
+    <para>
+     <simplelist>
+      <member><code>ReflectionClass::newInstance($args)</code></member>
+      <member><code>ReflectionFunction::invoke($args)</code></member>
+      <member><code>ReflectionMethod::invoke($object, $args)</code></member>
+     </simplelist>
+    </para>
+    <para>
+     sono state modificate in:
+    </para>
+    <para>
+     <simplelist>
+      <member><code>ReflectionClass::newInstance(...$args)</code></member>
+      <member><code>ReflectionFunction::invoke(...$args)</code></member>
+      <member><code>ReflectionMethod::invoke($object, ...$args)</code></member>
+     </simplelist>
+    </para>
+    <para>
+     Il codice che deve essere compatibile sia con PHP 7 che con PHP 8 può utilizzare le seguenti
+     firme per essere compatibile con entrambe le versioni:
+    </para>
+    <para>
+     <simplelist>
+      <member><code>ReflectionClass::newInstance($arg = null, ...$args)</code></member>
+      <member><code>ReflectionFunction::invoke($arg = null, ...$args)</code></member>
+      <member><code>ReflectionMethod::invoke($object, $arg = null, ...$args)</code></member>
+     </simplelist>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Il metodo <methodname>ReflectionType::__toString</methodname> restituirà ora una rappresentazione
+     di debug completa del tipo, e non è più deprecato. In particolare il risultato includerà un
+     indicatore di nullabilità per i tipi nullable. Il formato del valore restituito non è stabile e può
+     cambiare tra le versioni di PHP.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     I metodi export() di Reflection sono stati rimossi.
+     Al loro posto, gli oggetti reflection possono essere convertiti in stringa.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <methodname>ReflectionMethod::isConstructor</methodname> e
+     <methodname>ReflectionMethod::isDestructor</methodname> restituiscono ora &true; anche per i
+     metodi <link linkend="object.construct">__construct()</link> e
+     <link linkend="object.destruct">__destruct()</link> delle interfacce.
+     In precedenza, ciò valeva solo per i metodi delle classi e dei trait.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Il metodo <methodname>ReflectionType::isBuiltin</methodname> è stato spostato in
+     <classname>ReflectionNamedType</classname>. <classname>ReflectionUnionType</classname> non
+     lo possiede.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.sockets">
+  <title>Sockets</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     I <parameter>flags</parameter> deprecati <constant>AI_IDN_ALLOW_UNASSIGNED</constant> e
+     <constant>AI_IDN_USE_STD3_ASCII_RULES</constant> per
+     <function>socket_addrinfo_lookup</function> sono stati rimossi.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.spl">
+  <title>Standard PHP Library (SPL)</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     <methodname>SplFileObject::fgetss</methodname> è stato rimosso.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <methodname>SplFileObject::seek</methodname> si posiziona ora sempre all'inizio della riga.
+     In precedenza, le posizioni <literal>&gt;=1</literal> si posizionavano all'inizio della riga successiva.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <methodname>SplHeap::compare</methodname> specifica ora una firma del metodo. Le classi derivate
+     che implementano questo metodo dovranno ora utilizzare una firma del metodo compatibile.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <methodname>SplDoublyLinkedList::push</methodname>,
+     <methodname>SplDoublyLinkedList::unshift</methodname> e
+     <methodname>SplQueue::enqueue</methodname> restituiscono ora <type>void</type> invece di &true;.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>spl_autoload_register</function> lancerà ora sempre un
+     <classname>TypeError</classname> in caso di argomenti non validi, pertanto il secondo argomento
+     <parameter>do_throw</parameter> viene ignorato e verrà emessa una notifica se è impostato a &false;.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <classname>SplFixedArray</classname> è ora un <interfacename>IteratorAggregate</interfacename>
+     e non un <interfacename>Iterator</interfacename>.
+     <methodname>SplFixedArray::rewind</methodname>, <methodname>SplFixedArray::current</methodname>,
+     <methodname>SplFixedArray::key</methodname>, <methodname>SplFixedArray::next</methodname> e
+     <methodname>SplFixedArray::valid</methodname> sono stati rimossi. Al loro posto è stato aggiunto
+     <methodname>SplFixedArray::getIterator</methodname>. Qualsiasi codice che utilizza un'iterazione
+     esplicita su SplFixedArray deve ora ottenere un
+     <interfacename>Iterator</interfacename> tramite
+     <methodname>SplFixedArray::getIterator</methodname>. Ciò significa che
+     <classname>SplFixedArray</classname> può ora essere utilizzata in sicurezza nei cicli annidati.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.standard">
+  <title>Libreria Standard</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     <function>assert</function> non valuterà più gli argomenti stringa, che verranno invece
+     trattati come qualsiasi altro argomento. Si dovrebbe utilizzare <code>assert($a == $b)</code> invece di
+     <code>assert('$a == $b')</code>. Anche la direttiva ini <link
+     linkend="ini.assert.quiet-eval">assert.quiet_eval</link> e la costante
+     <constant>ASSERT_QUIET_EVAL</constant> sono state rimosse, poiché non avrebbero più
+     alcun effetto.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>parse_str</function> non può più essere utilizzata senza specificare un array per il risultato.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Il filtro <link linkend="filters.string.strip_tags">string.strip_tags</link> è stato rimosso.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     L'argomento <parameter>needle</parameter> di <function>strpos</function>,
+     <function>strrpos</function>, <function>stripos</function>, <function>strripos</function>,
+     <function>strstr</function>, <function>strchr</function>, <function>strrchr</function> e
+     <function>stristr</function> verrà ora sempre interpretato come stringa. In precedenza gli argomenti needle
+     non stringa venivano interpretati come un codepoint ASCII. Per ripristinare il comportamento precedente è possibile
+     utilizzare una chiamata esplicita a <function>chr</function>.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     L'argomento <parameter>needle</parameter> di <function>strpos</function>,
+     <function>strrpos</function>, <function>stripos</function>, <function>strripos</function>,
+     <function>strstr</function>, <function>stristr</function> e <function>strrchr</function> può
+     ora essere vuoto.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     L'argomento <parameter>length</parameter> di <function>substr</function>,
+     <function>substr_count</function>, <function>substr_compare</function> e
+     <function>iconv_substr</function> può ora essere &null;. I valori &null; si comporteranno come se non fosse stato
+     fornito alcun argomento length e restituiranno quindi il resto della stringa invece di una stringa
+     vuota.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     L'argomento <parameter>length</parameter> di <function>array_splice</function> può ora essere
+     &null;. I valori &null; si comporteranno esattamente come se l'argomento fosse omesso, rimuovendo quindi tutto
+     da <parameter>offset</parameter> fino alla fine dell'array.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     L'argomento <parameter>args</parameter> di <function>vsprintf</function>,
+     <function>vfprintf</function> e <function>vprintf</function> deve ora essere un array. In precedenza
+     era accettato qualsiasi tipo.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     L'opzione <literal>'salt'</literal> di <function>password_hash</function> non è più
+     supportata. Se si utilizza l'opzione <literal>'salt'</literal> viene generato un avviso, il salt
+     fornito viene ignorato, e al suo posto viene utilizzato un salt generato.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     La funzione <function>quotemeta</function> restituirà ora una stringa vuota se è stata passata una stringa
+     vuota. In precedenza veniva restituito &false;.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Le seguenti funzioni sono state rimosse:
+    </para>
+    <para>
+     <simplelist>
+      <member><function>hebrevc</function></member>
+      <member><function>convert_cyr_string</function></member>
+      <member><function>money_format</function></member>
+      <member><function>ezmlm_hash</function></member>
+      <member><function>restore_include_path</function></member>
+      <member><function>get_magic_quotes_gpc</function></member>
+      <member><function>get_magic_quotes_runtime</function></member>
+      <member><function>fgetss</function></member>
+     </simplelist>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <constant>FILTER_SANITIZE_MAGIC_QUOTES</constant> è stata rimossa.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Chiamare <function>implode</function> con i parametri in ordine inverso <code>($pieces,
+     $glue)</code> non è più supportato.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>parse_url</function> distinguerà ora tra query e frammenti assenti e vuoti:
+    </para>
+    <para>
+     <simplelist>
+      <member><code>http://example.com/foo → query = null, fragment = null</code></member>
+      <member><code>http://example.com/foo? → query = "",   fragment = null</code></member>
+      <member><code>http://example.com/foo# → query = null, fragment = ""</code></member>
+      <member><code>http://example.com/foo?# → query = "",   fragment = ""</code></member>
+     </simplelist>
+      In precedenza tutti i casi producevano query e frammento con valore &null;.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <function>var_dump</function> e <function>debug_zval_dump</function> stamperanno ora
+     i numeri in virgola mobile utilizzando <link linkend="ini.serialize-precision">serialize_precision</link>
+     invece di <link linkend="ini.precision">precision</link>. In una configurazione predefinita, ciò
+     significa che i numeri in virgola mobile vengono ora stampati con precisione completa da queste funzioni
+     di debug.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Se l'array restituito da <link linkend="object.sleep">__sleep()</link> contiene proprietà
+     inesistenti, queste vengono ora ignorate silenziosamente. In precedenza, tali proprietà sarebbero state
+     serializzate come se avessero il valore &null;.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     La localizzazione predefinita all'avvio è ora sempre <literal>"C"</literal>. Per impostazione predefinita nessuna localizzazione viene ereditata
+     dall'ambiente. In precedenza, <constant>LC_ALL</constant> veniva impostata a
+     <literal>"C"</literal>, mentre <constant>LC_CTYPE</constant> veniva ereditata dall'ambiente.
+     Tuttavia, alcune funzioni non rispettavano la localizzazione ereditata senza una chiamata esplicita a
+     <function>setlocale</function>. Una chiamata esplicita a <function>setlocale</function> è ora
+     sempre necessaria se un componente della localizzazione deve essere modificato rispetto a quello predefinito.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Il fallback deprecato a DES in <function>crypt</function> è stato rimosso. Se a <function>crypt</function>
+     viene passato un formato di salt sconosciuto, la funzione fallirà con <literal>*0</literal>
+     invece di ripiegare ora su un debole hash DES.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Specificare un numero di round fuori dall'intervallo per <function>crypt</function> SHA256/SHA512 ora fallirà con
+     <literal>*0</literal> invece di limitarlo al valore limite più vicino. Ciò corrisponde al comportamento di glibc.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Il risultato delle funzioni di ordinamento potrebbe essere cambiato, se l'array contiene elementi che risultano
+     uguali nel confronto.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Tutte le funzioni che accettano callback per cui non è esplicitamente specificato che accettano parametri per
+     riferimento emetteranno ora un avviso se viene utilizzata una callback con parametri per riferimento. Tra gli esempi figurano
+     <function>array_filter</function> e <function>array_reduce</function>. In precedenza ciò avveniva già
+     per la maggior parte delle funzioni, ma non per tutte.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Lo stream wrapper HTTP, utilizzato da funzioni come <function>file_get_contents</function>,
+     dichiara ora HTTP/1.1 invece di HTTP/1.0 per impostazione predefinita. Ciò non modifica il comportamento del
+     client, ma può far sì che i server rispondano in modo diverso. Per mantenere il vecchio comportamento, impostare
+     l'opzione di contesto dello stream <literal>'protocol_version'</literal>, ad es.
+    </para>
+    <para>
+     <programlisting role="php">
+<![CDATA[
+<?php
+$ctx = stream_context_create(['http' => ['protocol_version' => '1.0']]);
+echo file_get_contents('http://example.org', false, $ctx);
+?>
+]]>
+     </programlisting>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Chiamare <function>crypt</function> senza un salt esplicito non è più supportato. Se si desidera
+     produrre un hash robusto con un salt generato automaticamente, utilizzare invece
+     <function>password_hash</function>.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+    <function>substr</function>, <function>mb_substr</function>, <function>iconv_substr</function> e
+    <function>grapheme_substr</function> limitano ora in modo coerente gli offset fuori dai limiti al confine
+    della stringa. In precedenza, in alcuni casi veniva restituito &false; invece della stringa vuota.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Su Windows, le funzioni di esecuzione dei programmi (<function>proc_open</function>, <function>exec</function>,
+     <function>popen</function> ecc.) che utilizzano la shell, eseguono ora in modo coerente <command>%comspec% /s
+     /c "$commandline"</command>, che ha lo stesso effetto dell'esecuzione di
+     <command>$commandline</command> (senza virgolette aggiuntive).
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.sysvsem">
+  <title>Sysvsem</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     Il parametro <parameter>auto_release</parameter> di <function>sem_get</function> è stato modificato per
+     accettare valori bool invece di int.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.tidy">
+  <title>Tidy</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     Il parametro <parameter>use_include_path</parameter>, che non veniva utilizzato internamente, è stato
+     rimosso da <function>tidy_repair_string</function>.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <methodname>tidy::repairString</methodname> e <methodname>tidy::repairFile</methodname> sono diventati
+     metodi statici.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.tokenizer">
+  <title>Tokenizer</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     I token <constant>T_COMMENT</constant> non includeranno più un carattere di nuova riga finale. Il carattere di nuova riga
+     farà invece parte del token <constant>T_WHITESPACE</constant> successivo. Va notato che
+     <constant>T_COMMENT</constant> non è sempre seguito da spazi, ma può anche essere seguito da
+     <constant>T_CLOSE_TAG</constant> o dalla fine del file.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     I nomi con namespace sono ora rappresentati utilizzando i token <constant>T_NAME_QUALIFIED</constant>
+     (<code>Foo\Bar</code>), <constant>T_NAME_FULLY_QUALIFIED</constant> (<code>\Foo\Bar</code>) e
+     <constant>T_NAME_RELATIVE</constant> (<code>namespace\Foo\Bar</code>).
+     <constant>T_NS_SEPARATOR</constant> è utilizzato solo per i separatori di namespace isolati, ed è
+     sintatticamente valido solo in combinazione con le dichiarazioni use di gruppo.
+     <!-- RFC: https://wiki.php.net/rfc/namespaced_names_as_token -->
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.xmlreader">
+  <title>XMLReader</title>
+
+  <para>
+   <methodname>XMLReader::open</methodname> e <methodname>XMLReader::XML</methodname> sono ora
+   metodi statici. Possono ancora essere chiamati come metodi di istanza, ma le classi derivate devono dichiararli
+   come statici se sovrascrivono questi metodi.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.xmlrpc">
+  <title>XML-RPC</title>
+
+  <para>
+   L'estensione XML-RPC è stata spostata in PECL e non fa più parte della
+   distribuzione di PHP.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.zip">
+  <title>Zip</title>
+
+  <para>
+   <constant>ZipArchive::OPSYS_Z_CPM</constant> è stata rimossa (questo nome era un errore di battitura). Utilizzare invece
+   <constant>ZipArchive::OPSYS_CPM</constant>.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.zlib">
+  <title>Zlib</title>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     <function>gzgetss</function> è stata rimossa.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <link linkend="ini.zlib.output-compression">zlib.output_compression</link> non viene più
+     disabilitata automaticamente per <literal>Content-Type: image/*</literal>.
+    </para>
+   </listitem>
+  </itemizedlist>
+ </sect2>
+
+ <sect2 xml:id="migration80.incompatible.php-test-packs">
+  <title>Pacchetti di Test PHP per Windows</title>
+
+  <para>
+   Lo script di esecuzione dei test è stato rinominato da <filename>run-test.php</filename> a
+   <filename>run-tests.php</filename>, per corrispondere al suo nome in php-src.
+  </para>
+ </sect2>
+</sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

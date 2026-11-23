@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 4de6272a1f15efc9e3df21d255965fd890da0d6f Maintainer: pastore Status: ready -->
+<sect1 xml:id="migration83.incompatible" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>Modifiche Incompatibili con le versioni precedenti</title>
+
+ <sect2 xml:id="migration83.incompatible.core">
+  <title>PHP Core</title>
+
+  <sect3 xml:id="migration83.incompatible.core.overflowing-call-stack">
+
+   <title>Programmi molto vicini all'overflow dello stack delle chiamate</title>
+   <para>
+    I programmi molto vicini all'overflow dello stack delle chiamate possono ora lanciare un
+    <classname>Error</classname> quando utilizzano più di
+    <!-- link linkend="zend.max_allowed_stack_size-zend.reserved_stack_size" -->zend.max_allowed_stack_size-zend.reserved_stack_size<!-- </link>--> byte di stack
+    (<!-- link linkend="fiber.stack_size-zend.reserved_stack_size" -->fiber.stack_size-zend.reserved_stack_size<!-- </link>--> per le fiber).
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration83.incompatible.core.proc-get-status-multiple-times">
+   <title>Esecuzione di proc_get_status() più volte</title>
+   <para>
+    L'esecuzione di <function>proc_get_status</function> più volte ora restituirà sempre
+    il valore corretto sui sistemi POSIX. In precedenza, solo la prima chiamata
+    della funzione restituiva il valore corretto. Anche l'esecuzione di
+    <function>proc_close</function> dopo <function>proc_get_status</function>
+    ora restituirà il codice di uscita corretto. In precedenza veniva restituito
+    <literal>-1</literal>.
+    Internamente, ciò funziona memorizzando nella cache il risultato sui sistemi POSIX.
+    Se è necessario il comportamento precedente, è possibile controllare la chiave
+    <literal>"cached"</literal> nell'array restituito da
+    <function>proc_get_status</function> per verificare se il risultato proviene dalla cache.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration83.incompatible.core.zend-max-execution-timers">
+   <title>Zend Max Execution Timers</title>
+   <para>
+    Zend Max Execution Timers è ora abilitato per impostazione predefinita per le build ZTS su
+    Linux.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration83.incompatible.core.traits-with-static-properties">
+   <title>Utilizzo di trait con proprietà statiche</title>
+   <para>
+    L'utilizzo di trait con proprietà statiche ora ridichiarerà le proprietà statiche
+    ereditate dalla classe genitore. Ciò creerà uno spazio di memorizzazione separato
+    per la proprietà statica della classe corrente. Ciò è analogo ad aggiungere la
+    proprietà statica direttamente alla classe senza trait.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration83.incompatible.core.negative-index-to-empty-array">
+   <title>Assegnazione di un indice negativo a un array vuoto</title>
+   <para>
+    L'assegnazione di un indice negativo <varname>$n</varname> a un array vuoto ora garantirà che il
+    successivo indice sia <code>$n+1</code> invece di <literal>0</literal>.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration83.incompatible.core.class-constant-visibility-check">
+   <title>Controllo della varianza della visibilità delle costanti di classe</title>
+   <para>
+    La varianza della visibilità delle costanti di classe è ora verificata correttamente quando sono ereditate
+    dalle interfacce.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration83.incompatible.core.weakmap-entries-maps-to-itself">
+   <title>Voci di WeakMap la cui chiave punta a se stessa</title>
+   <para>
+    Le voci di <classname>WeakMap</classname> la cui chiave punta a se stessa (eventualmente
+    in modo transitivo) possono ora essere rimosse durante la raccolta dei cicli se la chiave non è
+    raggiungibile se non iterando sulla WeakMap (la raggiungibilità tramite iterazione è
+    considerata debole).
+    In precedenza, tali voci non venivano mai rimosse automaticamente.
+   </para>
+  </sect3>
+ </sect2>
+
+ <sect2 xml:id="migration83.incompatible.date">
+  <title>Date</title>
+
+  <para>
+   L'estensione DateTime ha introdotto eccezioni ed errori specifici dell'estensione Date
+   nelle gerarchie <classname>DateError</classname> e
+   <classname>DateException</classname>, invece di avvisi ed
+   eccezioni generiche. Ciò migliora la gestione degli errori, a costo
+   di dover controllare errori ed eccezioni.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration83.incompatible.dom">
+  <title>DOM</title>
+
+  <para>
+   Chiamare <methodname>DOMChildNode::after</methodname>,
+   <methodname>DOMChildNode::before</methodname>,
+   <methodname>DOMChildNode::replaceWith</methodname>
+   su un nodo che non ha un genitore è ora un'operazione nulla invece di un'eccezione
+   di gerarchia, che è il comportamento richiesto dalla specifica DOM.
+  </para>
+
+  <para>
+   L'utilizzo dei metodi di <classname>DOMParentNode</classname>
+   e <classname>DOMChildNode</classname> senza un documento ora
+   funziona invece di lanciare una <classname>DOMException</classname>
+   <constant>DOM_HIERARCHY_REQUEST_ERR</constant>.
+   Ciò è in linea con il comportamento richiesto dalla specifica DOM.
+  </para>
+
+  <para>
+   Chiamare <methodname>DOMDocument::createAttributeNS</methodname> senza specificare
+   un prefisso creava erroneamente un namespace predefinito, inserendo l'elemento
+   all'interno del namespace invece dell'attributo. Questo bug è ora corretto.
+  </para>
+
+  <para>
+   <methodname>DOMDocument::createAttributeNS</methodname> in precedenza
+   lanciava erroneamente una <classname>DOMException</classname>
+   <constant>DOM_NAMESPACE_ERRNAMESPACE_ERR</constant> quando il prefisso era già utilizzato per un
+   URI diverso. Ora sceglie correttamente un prefisso diverso quando c'è un
+   conflitto di nomi di prefisso.
+  </para>
+
+  <para>
+   Sono stati aggiunti nuovi metodi e proprietà ad alcune classi DOM.
+   Se una classe utente eredita da queste classi e dichiara un metodo o una proprietà
+   con lo stesso nome, le dichiarazioni devono essere compatibili. Altrimenti, verrà lanciato il tipico
+   errore di compilazione relativo a dichiarazioni incompatibili.
+   Si consulti l'<link linkend="migration83.new-features.dom">elenco delle nuove funzionalità</link>
+   e delle <link linkend="migration83.new-functions.dom">nuove funzioni</link> per
+   un elenco dei metodi e delle proprietà implementati di recente.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration83.incompatible.ffi">
+  <title>FFI</title>
+
+  <para>
+   Le funzioni C che hanno un tipo di ritorno <type>void</type> ora restituiscono &null; invece di
+   restituire il seguente oggetto <literal>object(FFI\CData:void) { }</literal>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration83.incompatible.opcache">
+  <title>Opcache</title>
+
+  <para>
+   La direttiva INI <link linkend="ini.opcache.consistency-checks">opcache.consistency_checks</link>
+   è stata rimossa. Questa funzionalità non funzionava con il JIT tracing,
+   né con la cache dell'ereditarietà, ed è stata disabilitata senza alcun modo di
+   abilitarla a partire da PHP 8.1.18 e PHP 8.2.5.
+   Sia il JIT tracing sia la cache dell'ereditarietà possono modificare la shm dopo che lo script
+   è stato reso persistente, invalidandone il checksum. La correzione tentata saltava
+   i puntatori modificabili, ma è stata rifiutata a causa della complessità. Per questo
+   motivo, si è deciso invece di rimuovere la funzionalità.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration83.incompatible.phar">
+  <title>Phar</title>
+
+  <para>
+   Il tipo delle costanti della classe <classname>Phar</classname> è ora dichiarato.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration83.incompatible.standard">
+  <title>Standard</title>
+
+  <para>
+   La funzione <function>range</function> ha subito diverse modifiche:
+   <simplelist>
+    <member>Viene ora lanciato un <exceptionname>TypeError</exceptionname> quando si passano <type>object</type>,
+    <type>resource</type> o <type>array</type> come limiti dell'intervallo.</member>
+    <member>Viene lanciato un <exceptionname>ValueError</exceptionname> più descrittivo quando
+    si passa <literal>0</literal> per <parameter>step</parameter>.</member>
+    <member>Viene ora lanciato un <exceptionname>ValueError</exceptionname> quando si utilizza uno
+    <parameter>step</parameter> negativo per intervalli crescenti.</member>
+    <member>Se <parameter>step</parameter> è un float che può essere interpretato
+    come int, ora viene interpretato come tale.</member>
+    <member>Viene ora lanciato un <exceptionname>ValueError</exceptionname> se un qualsiasi argomento
+    è infinito o NAN.</member>
+    <member>Viene ora emesso un <constant>E_WARNING</constant> se
+    <parameter>start</parameter> o <parameter>end</parameter> è la stringa
+    vuota. Il valore continua a essere convertito nel valore <literal>0</literal>.</member>
+    <member>Viene ora emesso un <constant>E_WARNING</constant> se
+    <parameter>start</parameter> o <parameter>end</parameter> ha più di
+    un byte, solo se si tratta di una stringa non numerica.</member>
+    <member>Viene ora emesso un <constant>E_WARNING</constant> se
+    <parameter>start</parameter> o <parameter>end</parameter> viene convertito in
+    intero perché l'altro limite dell'intervallo è un numero.
+    (ad es. <code>range(5, 'z');</code>).</member>
+    <member>Viene ora emesso un <constant>E_WARNING</constant> se
+    <parameter>step</parameter> è un float quando si tenta di generare un intervallo di
+    caratteri, tranne nel caso in cui entrambi i limiti dell'intervallo siano stringhe numeriche (ad es.
+    <code>range('5', '9', 0.5);</code> non produce un avviso).</member>
+    <member><function>range</function> ora produce un elenco di caratteri se uno
+    dei limiti dell'intervallo è una stringa contenente una cifra, invece di convertire l'altro limite
+    in int (ad es. <code>range('9', 'A');</code>).</member>
+   </simplelist>
+
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+range('9', 'A');  // ["9", ":", ";", "<", "=", ">", "?", "@", "A"], a partire da PHP 8.3.0
+range('9', 'A');  // [9, 8, 7, 6, 5, 4, 3, 2, 1, 0], prima di PHP 8.3.0
+?>
+]]>
+    </programlisting>
+   </informalexample>
+  </para>
+
+  <para>
+   <function>number_format</function> ora gestisce i valori negativi di
+   <parameter>decimals</parameter> arrotondando
+   <parameter>num</parameter> a <code>abs($decimals)</code> cifre prima della
+   virgola decimale. In precedenza, i valori negativi di <parameter>decimals</parameter>
+   venivano ignorati.
+  </para>
+
+  <para>
+   Il controllo degli errori sui flag di <function>file</function> ora intercetta tutti i flag non validi.
+   In particolare, <constant>FILE_APPEND</constant> in precedenza veniva accettato silenziosamente.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration83.incompatible.SNMP">
+  <title>SNMP</title>
+
+  <para>
+   Il tipo delle costanti della classe <classname>SNMP</classname> è ora dichiarato.
+  </para>
+ </sect2>
+
+</sect1>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: e35fbbaa52702ebf45c5e7284351e136ed67f3bb Maintainer: pastore Status: ready -->
+<!-- EN-Revision: da15b6674ac1900c7d065bd746a04b53d7e963bf Maintainer: pastore Status: ready -->
 <!-- CREDITS: darvina -->
 <refentry xml:id="function.parse-str" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>parse_str</refname>
-  <refpurpose>Effettua il parsing della stringa in variabili</refpurpose>
+  <refpurpose>Analizza una stringa come query string di un URL</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
@@ -16,8 +16,9 @@
   </methodsynopsis>
   <para>
    Suddivide la stringa <parameter>string</parameter> come se fosse una query string
-   passata via URL ed imposta le variabili nell'ambito corrente (o nell'array
-   se è fornito il parametro <parameter>result</parameter>).
+   passata via URL e imposta le chiavi nell'array <parameter>result</parameter>
+   fornito. Se <parameter>result</parameter> non viene passato, i valori vengono invece
+   impostati come variabili nell'ambito corrente.
   </para>
  </refsect1>
 
@@ -37,8 +38,10 @@
      <term><parameter>result</parameter></term>
      <listitem>
       <para>
-       Se è presente il secondo parametro <parameter>result</parameter>,
-       le variabili vengono invece memorizzate in questa variabile come elementi dell'array.
+       Una variabile passata per riferimento, che verrà impostata a un array
+       contenente le coppie chiave-valore estratte da <parameter>string</parameter>.
+       Se il parametro <parameter>result</parameter> non viene passato,
+       viene impostata una variabile separata nell'ambito locale per ciascuna chiave.
       </para>
 
       <warning>
@@ -104,33 +107,25 @@ $str = "first=value&arr[]=foo+bar&arr[]=baz";
 
 // Consigliato
 parse_str($str, $output);
-echo $output['first'];  // value
-echo $output['arr'][0]; // foo bar
-echo $output['arr'][1]; // baz
-
-// NON CONSIGLIATO
-parse_str($str);
-echo $first;  // value
-echo $arr[0]; // foo bar
-echo $arr[1]; // baz
+echo $output['first'], PHP_EOL;  // value
+echo $output['arr'][0], PHP_EOL; // foo bar
+echo $output['arr'][1], PHP_EOL; // baz
 ?>
 ]]>
     </programlisting>
    </example>
   </para>
   <para>
-   Poiché le variabili in PHP non possono contenere punti e spazi nei loro nomi,
-   questi vengono convertiti in underscore. Lo stesso vale per la denominazione delle
-   rispettive chiavi nell'array quando si usa questa funzione con il
-   parametro <parameter>result</parameter>.   
+   Gli spazi e i punti nei nomi dei parametri vengono convertiti in underscore
+   durante la creazione delle chiavi dell'array o delle variabili locali.
+   Questo perché i nomi delle variabili in PHP non possono contenere spazi
+   o punti, ma si applica anche quando si usa questa funzione con il parametro consigliato
+   <parameter>result</parameter>.   
    <example>
-    <title><function>parse_str</function> name mangling</title>
+    <title>Alterazione dei nomi con <function>parse_str</function></title>
     <programlisting role="php">
 <![CDATA[
 <?php
-parse_str("My Value=Something");
-echo $My_Value; // Something
-
 parse_str("My Value=Something", $output);
 echo $output['My_Value']; // Something
 ?>
@@ -145,13 +140,23 @@ echo $output['My_Value']; // Something
 
   <note>
    <para>
-    Su tutte le variabili create (o i valori restituiti nell'array se è impostato il secondo parametro)
-    sarà già eseguita la funzione <function>urldecode</function>.
+    <function>parse_str</function> è influenzata dalla direttiva <link linkend="ini.max-input-vars">max_input_vars</link>.
+    Il superamento di questo limite genera un <constant>E_WARNING</constant>
+    e le variabili oltre il limite non vengono aggiunte all'array risultante.
+    Il valore predefinito è 1000; modificare <link linkend="ini.max-input-vars">max_input_vars</link> secondo necessità.
+   </para>
+  </note>
+
+  <note>
+   <para>
+    Tutti i valori inseriti nell'array <parameter>result</parameter>
+    (o le variabili create se il secondo parametro non è impostato)
+    sono già decodificati dall'URL con le stesse regole di <function>urldecode</function>.
    </para>
   </note>
   <note>
    <para>
-    Per ottenere la <literal>QUERY_STRING</literal> corrente, puoi usare la variabile
+    Per ottenere la query string della richiesta corrente, è possibile usare la variabile
     <varname>$_SERVER['QUERY_STRING']</varname>.
     Inoltre, potrebbe essere utile leggere la sezione su
     <link linkend="language.variables.external">variabili da fonti

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 513913468bfc339440bab5553e39d8ec74023254 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: bb54309eff8a7d75ead0fdf48cc6dae99dd00367 Maintainer: pastore Status: ready -->
 <!-- CREDITS: darvina -->
-<refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.parse-ini-file">
+<refentry xml:id="function.parse-ini-file" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>parse_ini_file</refname>
   <refpurpose>Legge un file di configurazione</refpurpose>
@@ -10,10 +10,10 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type>array</type><methodname>parse_ini_file</methodname>
+   <type class="union"><type>array</type><type>false</type></type><methodname>parse_ini_file</methodname>
    <methodparam><type>string</type><parameter>filename</parameter></methodparam>
    <methodparam choice="opt"><type>bool</type><parameter>process_sections</parameter><initializer>&false;</initializer></methodparam>
-   <methodparam choice="opt"><type>int</type><parameter>scanner_mode</parameter><initializer>INI_SCANNER_NORMAL</initializer></methodparam>
+   <methodparam choice="opt"><type>int</type><parameter>scanner_mode</parameter><initializer><constant>INI_SCANNER_NORMAL</constant></initializer></methodparam>
   </methodsynopsis>
   <para>
    <function>parse_ini_file</function> carica il
@@ -23,6 +23,14 @@
   <para>
    La struttura del file ini è la stessa del &php.ini;.
   </para>
+  <warning>
+   <simpara>
+    Questa funzione non deve essere usata con input non attendibili, a meno che
+    <parameter>scanner_mode</parameter> non sia <constant>INI_SCANNER_RAW</constant>,
+    poiché il risultato dell'analisi potrebbe contenere i valori di costanti
+    sensibili, come le costanti che contengono la password di un database.
+   </simpara>
+  </warning>
  </refsect1>
 
  <refsect1 role="parameters">
@@ -34,8 +42,8 @@
      <listitem>
       <para>
        Il nome del file ini da processare. Se viene utilizzato un percorso relativo,
-       viene valutato rispetto alla directory di lavoro corrente, quindi l'
-       <link linkend="ini.include-path">include_path</link>.
+       viene valutato rispetto alla directory di lavoro corrente, quindi
+       l'<link linkend="ini.include-path">include_path</link>.
       </para>
      </listitem>
     </varlistentry>
@@ -204,14 +212,13 @@ function yesno($expression)
     return($expression ? 'Yes' : 'No');
 }
 
-// Ottieni il percorso per php.ini usando la funzione
-// php_ini_loaded_file() disponibile da PHP 5.2.4
+// Ottiene il percorso di php.ini usando la funzione php_ini_loaded_file()
 $ini_path = php_ini_loaded_file();
 
 // Legge il file php.ini
 $ini = parse_ini_file($ini_path);
 
-// Stampa e confronta i valori, nota che l'uso di get_cfg_var()
+// Stampa e confronta i valori, si noti che l'uso di get_cfg_var()
 // darà gli stessi risultati per la lettura ed il caricamento qui
 echo '(parsed) magic_quotes_gpc = ' . yesno($ini['magic_quotes_gpc']) . PHP_EOL;
 echo '(loaded) magic_quotes_gpc = ' . yesno(get_cfg_var('magic_quotes_gpc')) . PHP_EOL;
@@ -229,10 +236,10 @@ echo '(loaded) magic_quotes_gpc = ' . yesno(get_cfg_var('magic_quotes_gpc')) . P
   </para>
   <para>
    <example>
-    <title>interpolazione di valori</title>
+    <title>Interpolazione dei valori</title>
     <para>
      Oltre a valutare le costanti, alcuni caratteri hanno un significato speciale in un valore ini.
-     Inoltre, le variabili di ambiente e i valori definiti in precedenza possono essere letti utilizzando
+     Inoltre, le variabili di ambiente e le opzioni di configurazione definite in precedenza (si veda <function>get_cfg_var</function>) possono essere lette utilizzando
      la sintassi <code>${}</code>.
     </para>
     <programlisting>
@@ -252,22 +259,67 @@ negative_two = ~1
 ; () viene utilizzato per il raggruppamento
 seven = (8|7)&(6|5)
 
-; \ viene utilizzato per effettuare l'escape di un valore.
-newline_is = "\\n" ; Restituisce la stringa "\n", non un carattere di nuova riga.
-with quotes = "She said \"Exactly my point\"." ; Restituisce una stringa con virgolette.
-
+; Interpola la variabile d'ambiente PATH
 path = ${PATH}
-also_five = ${five}
+
+; Interpola l'opzione di configurazione 'memory_limit'
+configured_memory_limit = ${memory_limit}
 
 ]]>
     </programlisting>
-    &example.outputs.similar;
-    <screen>
+   </example>
+  </para>
+  <para>
+   <example>
+    <title>Escape dei Caratteri</title>
+    <para>
+     Alcuni caratteri hanno un significato speciale nelle stringhe tra virgolette doppie e devono essere preceduti dal carattere di escape backslash.
+     Innanzitutto si tratta delle virgolette doppie <code>"</code>, usate come delimitatore, e del backslash <code>\</code> stesso
+     (se seguito da uno dei caratteri speciali):
+    </para>
+    <programlisting>
 <![CDATA[
-(parsed) magic_quotes_gpc = Yes
-(loaded) magic_quotes_gpc = Yes
+quoted = "She said \"Exactly my point\"." ; Restituisce una stringa contenente delle virgolette.
+hint = "Usare \\\" per l'escape delle virgolette doppie" ; Restituisce: Usare \" per l'escape delle virgolette doppie
 ]]>
-    </screen>
+    </programlisting>
+    <para>
+     È prevista un'eccezione per i percorsi in stile Windows: è possibile non effettuare l'escape del backslash finale
+     se la stringa tra virgolette è seguita direttamente da un a capo:
+    </para>
+    <programlisting>
+<![CDATA[
+save_path = "C:\Temp\"
+]]>
+    </programlisting>
+    <para>
+     Se è necessario effettuare l'escape delle virgolette doppie seguite da un a capo in un valore su più righe,
+     è possibile usare la concatenazione dei valori nel modo seguente
+     (c'è una stringa tra virgolette doppie seguita direttamente da un'altra):
+    </para>
+    <programlisting>
+<![CDATA[
+long_text = "Lorem \"ipsum\"""
+ dolor" ; Restituisce: Lorem "ipsum"\n dolor
+]]>
+    </programlisting>
+    <para>
+     Un altro carattere con un significato speciale è <code>$</code> (il simbolo del dollaro).
+     Deve essere preceduto dal carattere di escape se seguito dalla parentesi graffa aperta:
+    </para>
+    <programlisting>
+<![CDATA[
+code = "\${test}"
+]]>
+    </programlisting>
+    <para>
+     L'escape dei caratteri non è supportato nella modalità <constant>INI_SCANNER_RAW</constant>
+     (in questa modalità tutti i caratteri vengono elaborati "così come sono").
+    </para>
+    <para>
+     Si noti che il parser ini non supporta le sequenze di escape standard (<code>\n</code>, <code>\t</code>, ecc.).
+     Se necessario, il risultato di <function>parse_ini_file</function> può essere post-elaborato con la funzione <function>stripcslashes</function>.
+    </para>
    </example>
   </para>
  </refsect1>
@@ -297,7 +349,7 @@ also_five = ${five}
     I valori <literal>null</literal>, <literal>off</literal>, <literal>no</literal> e
     <literal>false</literal> producono <literal>""</literal>, e i valori
     <literal>on</literal>, <literal>yes</literal> e <literal>true</literal> producono
-    <literal>"1"</literal>, salvo che non venga usata la modalità <constant>INI_SCANNER_TYPED</constant> (a partire da PHP 5.6.1).
+    <literal>"1"</literal>, salvo che non venga usata la modalità <constant>INI_SCANNER_TYPED</constant>.
     I caratteri <literal>?{}|&amp;~!()^"</literal> non devono essere utilizzati da nessuna parte
     nella chiave e hanno un significato speciale nel valore.
    </simpara>
@@ -330,7 +382,6 @@ also_five = ${five}
  </refsect1>
 
 </refentry>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

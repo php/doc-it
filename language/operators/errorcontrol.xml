@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 52407313885d27a4e891e08dd2e2481bcc39e244 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 16934048f79c6e117cd16a23c09c1b2ea502e284 Maintainer: pastore Status: ready -->
 <!-- CREDITS: cucinato -->
 <sect1 xml:id="language.operators.errorcontrol">
- <title>Operatori di controllo errori</title>
+ <title>Operatori di Controllo degli errori</title>
+ <titleabbrev>Controllo degli errori</titleabbrev>
  <simpara>
-  PHP supporta un operatore di controllo dell'errore: il carattere at (<literal>@</literal>).
+  PHP supporta un operatore di controllo degli errori: il carattere at (<literal>@</literal>).
   Quando viene anteposto ad una espressione in PHP, qualunque messaggio di errore che possa
   essere generato da quella espressione sarà soppresso.
  </simpara>
@@ -18,7 +19,8 @@
   <para>
    Prima di PHP 8.0.0, la funzione <function>error_reporting</function> chiamata all'interno del gestore di errori personalizzato
    restituiva sempre <literal>0</literal> se l'errore veniva soppresso dall'operatore <literal>@</literal>.
-   A partire da PHP 8.0.0, restituisce il valore <literal>E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_PARSE</literal>.
+   A partire da PHP 8.0.0, restituisce il valore di questa espressione (bit a bit):
+   <literal>E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_PARSE</literal>.
   </para>
  </warning>
  
@@ -28,26 +30,35 @@
   Il risultato di quella funzione cambierà ad ogni errore, quindi deve essere controllato in anticipo.
  </simpara>
  <para>
-  <informalexample>
+  <example>
+   <title>Errore di file intenzionale</title>
    <programlisting role="php">
 <![CDATA[
 <?php
-/* Errore di file intenzionale */
 $my_file = @file ('file_inesistente') or
-  die ("Apertura del file fallita: l'errore è stato '" . error_get_last()['message'] . "'");
-
-// questo funziona per qualsiasi espressione, non solo funzioni:
-$value = @$cache[$key];
-// non verrà generata una notifica se l'indice $key non esiste.
-
+    die ("Apertura del file fallita: l'errore è stato '" . error_get_last()['message'] . "'");
 ?>
 ]]>
    </programlisting>
-  </informalexample>
+  </example>
+ </para>
+ <para>
+  <example>
+   <title>Soppressione di Espressioni</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+// questo funziona per qualsiasi espressione, non solo funzioni:
+$value = @$cache[$key];
+// non verrà generata una notifica se l'indice $key non esiste.
+?>
+]]>
+   </programlisting>
+  </example>
  </para>
  <note>
   <simpara>
-   L'operatore <literal>@</literal> funziona solo sulle 
+   L'operatore <literal>@</literal> funziona solo sulle
    <link linkend="language.expressions">espressioni</link>.
    Una semplice regola è: se si può ottenere il valore di qualcosa,
    allora si può anteporre ad esso l'operatore <literal>@</literal>.
@@ -56,7 +67,7 @@ $value = @$cache[$key];
    e così via.
    Non si può anteporre a definizioni di funzioni o classi,
    o strutture condizionali come <literal>if</literal> e
-   <literal>foreach</literal>, e così via.
+   &foreach;, e così via.
   </simpara>
  </note>
  <warning>

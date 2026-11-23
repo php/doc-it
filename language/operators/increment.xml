@@ -1,20 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 52407313885d27a4e891e08dd2e2481bcc39e244 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 4bf52f20bcb7f0f7dee5e8e1f6e8afc7126f06ce Maintainer: pastore Status: ready -->
 <!-- CREDITS: cucinato -->
 <sect1 xml:id="language.operators.increment">
  <title>Operatori di incremento/decremento</title>
+ <titleabbrev>Incremento e Decremento</titleabbrev>
  <para>
-  PHP supporta lo stile C degli operatori di pre- e post-incremento
-  e decremento.
+  PHP supporta gli operatori di pre- e post-incremento e decremento.
+  Questi operatori unari permettono di incrementare o decrementare il valore di uno.
  </para>
- <note>
-  <simpara>
-   Gli operatori di incremento e decremento agiscono solo su numeri e stringhe.
-   Array, oggetti, booleani e risorse non ne sono interessati.
-   Anche decrementare il valore &null; non ha effetti, ma incrementarlo
-   darà come risultato <literal>1</literal>.
-  </simpara>
- </note>
  <table>
   <title>Operatori di incremento/decremento</title>
   <tgroup cols="3">
@@ -49,65 +42,128 @@
    </tbody>
   </tgroup>
  </table>
+
  <para>
-  Un semplice script di esempio:
-  <informalexample>
+  <example>
+   <title>Esempi di Incremento/Decremento</title>
    <programlisting role="php">
 <![CDATA[
 <?php
-echo "<h3>Postincrement</h3>";
+echo 'Post-incremento:', PHP_EOL;
 $a = 5;
-echo "Dovrebbe essere 5: " . $a++ . "<br />\n";
-echo "Dovrebbe essere 6: " . $a . "<br />\n";
+var_dump($a++);
+var_dump($a);
 
-echo "<h3>Pre-incremento</h3>";
+echo 'Pre-incremento:', PHP_EOL;
 $a = 5;
-echo "Dovrebbe essere 6: " . ++$a . "<br />\n";
-echo "Dovrebbe essere 6: " . $a . "<br />\n";
+var_dump(++$a);
+var_dump($a);
 
-echo "<h3>Post-decremento</h3>";
+echo 'Post-decremento:', PHP_EOL;
 $a = 5;
-echo "Dovrebbe essere 5: " . $a-- . "<br />\n";
-echo "Dovrebbe essere 4: " . $a . "<br />\n";
+var_dump($a--);
+var_dump($a);
 
-echo "<h3>Pre-decremento</h3>";
+echo 'Pre-decremento:', PHP_EOL;
 $a = 5;
-echo "Dovrebbe essere 4: " . --$a . "<br />\n";
-echo "Dovrebbe essere 4: " . $a . "<br />\n";
+var_dump(--$a);
+var_dump($a);
 ?>
 ]]>
    </programlisting>
-  </informalexample>
+   &example.outputs;
+   <screen>
+<![CDATA[
+Post-incremento:
+int(5)
+int(6)
+Pre-incremento:
+int(6)
+int(6)
+Post-decremento:
+int(5)
+int(4)
+Pre-decremento:
+int(4)
+int(4)
+]]>
+   </screen>
+  </example>
+
+  <warning>
+   <para>
+    Gli operatori di incremento e decremento non hanno effetto sui valori
+    di tipo <type>bool</type>.
+    A partire da PHP 8.3.0 viene emesso un <constant>E_WARNING</constant>,
+    perché in futuro il valore verrà convertito implicitamente in <type>int</type>.
+   </para>
+   <para>
+    L'operatore di decremento non ha effetto sui valori
+    di tipo <type>null</type>.
+    A partire da PHP 8.3.0 viene emesso un <constant>E_WARNING</constant>,
+    perché in futuro il valore verrà convertito implicitamente in <type>int</type>.
+   </para>
+   <simpara>
+    L'operatore di decremento non ha effetto sulle stringhe non
+    <link linkend="language.types.numeric-strings">numeriche</link>,
+    eccetto la stringa vuota, che diventa <literal>-1</literal>.
+    A partire da PHP 8.3.0 viene emesso un <constant>E_DEPRECATED</constant>,
+    perché in futuro verrà lanciato un <classname>TypeError</classname>.
+   </simpara>
+  </warning>
+  <note>
+   <para>
+    Gli oggetti interni che supportano l'overloading dell'addizione e/o della sottrazione
+    possono anche essere incrementati e/o decrementati.
+    Uno di questi oggetti interni è <classname>GMP</classname>.
+   </para>
+  </note>
  </para>
- <para>
-  Il PHP segue le convenzioni di Perl e non del C quando tratta le operazioni matematiche
-  sui caratteri. Ad esempio, in PHP e Perl
-  <literal>$a = 'Z'; $a++;</literal> modifica <literal>$a</literal> in <literal>'AA'</literal>, mentre in C
-  <literal>a = 'Z'; a++;</literal> modifica <literal>a</literal> in <literal>'['</literal>
-  (il valore ASCII di <literal>'Z'</literal> è 90, quello di <literal>'['</literal> è 91).
-  Si noti che le variabili carattere possono essere incrementate ma non decrementate e
-  anche in questo caso solo i caratteri e i numeri ASCII (a-z, A-Z e 0-9) sono supportati.
-  Incrementare/decrementare altre variabili di carattere non ha effetto, la
-  stringa originale non viene modificata.
+
+ <sect2 xml:id="language.operators.increment.string">
+  <title>Funzionalità di incremento delle stringhe PERL</title>
+  <warning>
+   <simpara>
+    Questa funzionalità è deprecata in modo soft a partire da PHP 8.3.0.
+    Al suo posto si dovrebbe usare la funzione <function>str_increment</function>.
+    A partire da PHP 8.5.0, l'incremento di stringhe non numeriche emette un avviso di deprecazione.
+   </simpara>
+  </warning>
+
+  <para>
+   In PHP è possibile incrementare una stringa non
+   <link linkend="language.types.numeric-strings">numerica</link>.
+   La stringa deve essere una stringa ASCII alfanumerica.
+   Le lettere vengono incrementate fino alla lettera successiva; quando si raggiunge la lettera
+   <literal>Z</literal> il riporto passa al valore alla sua sinistra.
+   Per esempio, <code>$a = 'Z'; $a++;</code> trasforma <varname>$a</varname>
+   in <literal>'AA'</literal>.
+  </para>
+  <simpara>
+   A partire da PHP 8.3.0, l'incremento di stringhe vuote o non alfanumeriche
+   emette un <constant>E_DEPRECATED</constant>.
+   A partire da PHP 8.5.0, questo vale per tutte le stringhe non numeriche.
+  </simpara>
+
   <example>
-   <title>Operazioni aritmetiche su variabili carattere</title>
+   <title>Esempio di incremento delle stringhe PERL</title>
    <programlisting role="php">
 <![CDATA[
 <?php
-echo '== Alphabets ==' . PHP_EOL;
+echo '== Stringhe alfabetiche ==' . PHP_EOL;
 $s = 'W';
 for ($n=0; $n<6; $n++) {
-  echo ++$s . PHP_EOL;
+    echo ++$s . PHP_EOL;
 }
-// I caratteri numerici si comportano diversamente
-echo '== Digits ==' . PHP_EOL;
+// Le stringhe alfanumeriche si comportano diversamente
+echo '== Stringhe alfanumeriche ==' . PHP_EOL;
 $d = 'A8';
 for ($n=0; $n<6; $n++) {
-  echo ++$d . PHP_EOL;
+    echo ++$d . PHP_EOL;
 }
 $d = 'A08';
 for ($n=0; $n<6; $n++) {
-  echo ++$d . PHP_EOL;
+    echo ++$d . PHP_EOL;
 }
 ?>
 ]]>
@@ -115,14 +171,14 @@ for ($n=0; $n<6; $n++) {
    &example.outputs;
    <screen>
 <![CDATA[
-== Characters ==
+== Stringhe alfabetiche ==
 X
 Y
 Z
 AA
 AB
 AC
-== Digits ==
+== Stringhe alfanumeriche ==
 A9
 B0
 B1
@@ -138,8 +194,41 @@ A14
 ]]>
    </screen>
   </example>
- </para>
- <para>
-  Incrementare o decrementare valori booleani non ha effetto.
- </para>
+
+  <warning>
+   <para>
+    Se la stringa alfanumerica può essere interpretata come una
+    <link linkend="language.types.numeric-strings">stringa numerica</link>
+    verrà convertita in un <type>int</type> o in un <type>float</type>.
+    Questo è un problema in particolare con le stringhe che sembrano numeri
+    in virgola mobile scritti in notazione esponenziale.
+    La funzione <function>str_increment</function> non soffre di
+    queste conversioni di tipo implicite.
+   </para>
+   <example>
+    <title>Stringa alfanumerica convertita in float</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$s = "5d9";
+var_dump(++$s);
+var_dump(++$s);
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+string(3) "5e0"
+float(6)
+]]>
+    </screen>
+    <para>
+     Questo perché il valore <literal>"5e0"</literal> viene interpretato
+     come un <type>float</type> e convertito nel valore <literal>5.0</literal>
+     prima di essere incrementato.
+    </para>
+   </example>
+  </warning>
+ </sect2>
 </sect1>

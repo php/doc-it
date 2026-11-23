@@ -1,38 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: d494ffa4d9f83b60fe66972ec2c0cf0301513b4a Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 1385c4175bb058d306e2064ea6e6ad84c43c81bc Maintainer: pastore Status: ready -->
 <!-- CREDITS: cucinato -->
 <sect1 xml:id="language.types.integer">
  <title>Interi</title>
 
- <simpara>
-  Un <type>int</type> è un numero che appartiene all'insieme
-  &#8484; = {..., -2, -1, 0, 1, 2, ...}.
- </simpara>
+<simpara>
+  Un <type>int</type> è un intero con segno con un intervallo finito, dipendente dalla piattaforma,
+  che va da <constant>PHP_INT_MIN</constant> a
+  <constant>PHP_INT_MAX</constant>.
+</simpara>
 
- <para>
-  Vedere anche:
- </para>
-
- <itemizedlist>
-  <listitem>
-   <simpara>
-    <link linkend="book.gmp">Interi a lungezza arbitraria / GMP</link>
-   </simpara>
-  </listitem>
-  <listitem>
-   <simpara>
-    <link linkend="language.types.float">Numeri in virgola mobile</link>
-   </simpara>
-  </listitem>
-  <listitem>
-   <simpara>
-    <link linkend="book.bc">Precisione arbitraria / BCMath</link>
-   </simpara>
-  </listitem>
- </itemizedlist>
+ <sect2 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><link linkend="language.types.float">Numeri floating point</link></member>
+    <member><link linkend="book.bc">Precisione arbitraria / BCMath</link></member>
+    <member><link linkend="book.gmp">Interi a lunghezza arbitraria / GMP</link></member>
+   </simplelist>
+  </para>
+ </sect2>
 
  <sect2 xml:id="language.types.integer.syntax">
-  <title>Syntax</title>
+  <title>Sintassi</title>
 
   <simpara>
    Gli <type>int</type> possono essere specificati nella notazione decimale (base 10),
@@ -41,11 +31,12 @@
    può essere utilizzato per indicare un <type>int</type> negativo.
   </simpara>
 
-  <para>
+  <simpara>
    Per usare la notazione ottale, anteporre uno <literal>0</literal> (zero) al numero.
-   Per usare la notazione esadecimale, anteporre <literal>0x</literal>.
-   Per usare la notazione binaria, anteporre <literal>0b</literal>.
-  </para>
+   A partire da PHP 8.1.0, la notazione ottale può anche essere preceduta da <literal>0o</literal> o <literal>0O</literal>.
+   Per usare la notazione esadecimale, anteporre <literal>0x</literal> al numero.
+   Per usare la notazione binaria, anteporre <literal>0b</literal> al numero.
+  </simpara>
 
   <para>
    A partire da PHP 7.4.0, gli interi letterali possono contenere trattini bassi (<literal>_</literal>) tra le cifre,
@@ -54,22 +45,25 @@
 
   <example>
    <title>Interi letterali</title>
-   <programlisting role="php">
+   <programlisting role="php" annotations="non-interactive">
 <![CDATA[
 <?php
 $a = 1234; // numero decimale
 $a = 0123; // numero ottale (equivalente a 83 decimale)
+$a = 0o123; // numero ottale (a partire da PHP 8.1.0)
 $a = 0x1A; // numero esadecimale (equivalente a 26 decimale)
-$a = 0b11111111; // binary number (equivalent to 255 decimal)
-$a = 1_234_567; // decimal number (a partire da PHP 7.4.0)
+$a = 0b11111111; // numero binario (equivalente a 255 decimale)
+$a = 1_234_567; // numero decimale (a partire da PHP 7.4.0)
 ?>
 ]]>
    </programlisting>
   </example>
 
   <para>
-   Formalmente, la struttura per gli <type>int</type> letterali è a partire da PHP 7.4.0
-   (in precedenza, i trattini bassi non erano consentiti):
+   Formalmente, la struttura per gli <type>int</type> letterali è a partire da PHP 8.1.0
+   (in precedenza, i prefissi ottali <literal>0o</literal> o <literal>0O</literal>
+   non erano consentiti, e prima di PHP 7.4.0 i trattini bassi non
+   erano consentiti):
   </para>
 
   <informalexample>
@@ -80,7 +74,7 @@ decimal     : [1-9][0-9]*(_[0-9]+)*
 
 hexadecimal : 0[xX][0-9a-fA-F]+(_[0-9a-fA-F]+)*
 
-octal       : 0[0-7]+(_[0-7]+)*
+octal       : 0[oO]?[0-7]+(_[0-7]+)*
 
 binary      : 0[bB][01]+(_[01]+)*
 
@@ -105,62 +99,72 @@ integer     : decimal
  </sect2>
 
  <sect2 xml:id="language.types.integer.overflow">
-  <title>Integer overflow</title>
+  <title>Overflow di interi</title>
 
   <para>
    Se PHP incontra un numero oltre i limiti del tipo <type>int</type>,
-   questo verrà interpretato con un <type>float</type>. Allo stesso modo,
+   questo verrà interpretato come un <type>float</type>. Allo stesso modo,
    un'operazione che restituisce un numero oltre i limiti del tipo
    <type>int</type> restituirà invece un <type>float</type>.
   </para>
 
   <example>
-   <title>Overflow di interi in un sistema a 32 bit</title>
+   <title>Overflow di interi</title>
    <programlisting role="php">
 <![CDATA[
 <?php
-$large_number = 2147483647;
-var_dump($large_number);                     // int(2147483647)
+$large_number = 50000000000000000000;
+var_dump($large_number);         // float(5.0E+19)
 
-$large_number = 2147483648;
-var_dump($large_number);                     // float(2147483648)
-
-$million = 1000000;
-$large_number =  50000 * $million;
-var_dump($large_number);                     // float(50000000000)
+var_dump(PHP_INT_MAX + 1);       // sistema a 32 bit: float(2147483648)
+                                 // sistema a 64 bit: float(9.2233720368548E+18)
 ?>
 ]]>
    </programlisting>
   </example>
+
+  <simpara>
+   Un <type>int</type> letterale negativo è un letterale positivo a cui viene applicato
+   l'<link linkend="language.operators.arithmetic">operatore di negazione</link>.
+   Ciò significa che <constant>PHP_INT_MIN</constant> non può essere
+   scritto come letterale: in <literal>-9223372036854775808</literal>, il
+   letterale <literal>9223372036854775808</literal> è oltre i limiti del tipo
+   <type>int</type> sui sistemi a 64 bit, quindi viene interpretato come un
+   <type>float</type> prima di essere negato.
+   Lo stesso vale per <literal>-2147483648</literal> sui sistemi a 32 bit.
+   Utilizzare invece <constant>PHP_INT_MIN</constant>, oppure un'espressione come
+   <literal>-9223372036854775807 - 1</literal>.
+  </simpara>
 
   <example>
-   <title>Overflow di interi in un sistema a 64 bit</title>
+   <title>Il più piccolo <type>int</type></title>
    <programlisting role="php">
 <![CDATA[
 <?php
-$large_number = 9223372036854775807;
-var_dump($large_number);                     // int(9223372036854775807)
+var_dump(-9223372036854775808);     // sistema a 64 bit: float(-9.223372036854776E+18)
+var_dump(-9223372036854775807 - 1); // sistema a 64 bit: int(-9223372036854775808)
 
-$large_number = 9223372036854775808;
-var_dump($large_number);                     // float(9.2233720368548E+18)
-
-$million = 1000000;
-$large_number =  50000000000000 * $million;
-var_dump($large_number);                     // float(5.0E+19)
+var_dump(PHP_INT_MIN);              // sistema a 32 bit: int(-2147483648)
+                                    // sistema a 64 bit: int(-9223372036854775808)
 ?>
 ]]>
    </programlisting>
   </example>
+ </sect2>
 
-  <para>
-   Non esiste un operatore di divisione <type>int</type> in PHP, per ottenere ciò
+ <sect2 xml:id="language.types.integer.division">
+  <title>Divisione di interi</title>
+
+  <simpara>
+   Non esiste un operatore di divisione <type>int</type> in PHP. Per ottenere ciò,
    utilizzare la funzione <function>intdiv</function>.
    <literal>1/2</literal> produce il <type>float</type> <literal>0.5</literal>.
    Il valore può essere convertito in un <type>int</type> per arrotondarlo verso lo zero, oppure
    la funzione <function>round</function> fornisce un controllo più preciso sull'arrotondamento.
-  </para>
+  </simpara>
 
-  <informalexample>
+  <example>
+   <title>Divisioni</title>
    <programlisting role="php">
 <![CDATA[
 <?php
@@ -170,17 +174,16 @@ var_dump(round(25/7));  // float(4)
 ?>
 ]]>
    </programlisting>
-  </informalexample>
+  </example>
  </sect2>
 
  <sect2 xml:id="language.types.integer.casting">
   <title>Convertire in intero</title>
 
   <simpara>
-   Per convertire esplicitamente un valore in <type>int</type>, usare o
-   <literal>(int)</literal> oppure <literal>(integer)</literal>. Comunque, nella
-   maggior parte dei case questo non è necessario, in quanto un valore verrà automaticamente
-   convertito se un operatore, fuinzione o struttura di controllo richiede un 
+   Per convertire esplicitamente un valore in <type>int</type>, usare il cast <literal>(int)</literal>.
+   Tuttavia, nella maggior parte dei casi il cast non è necessario, in quanto un valore verrà automaticamente
+   convertito se un operatore, una funzione o una struttura di controllo richiede un
    argomento <type>int</type>. Un valore può essere convertito in
    <type>int</type> anche con la funzione <function>intval</function>.
   </simpara>
@@ -190,11 +193,11 @@ var_dump(round(25/7));  // float(4)
    il risultato sarà il numero unico di risorsa assegnato al
    <type>resource</type> da PHP a runtime.
   </simpara>
-  
+
   <simpara>
    Vedere anche: <link linkend="language.types.type-juggling">manipolazione dei tipi</link>.
   </simpara>
-   
+
   <sect3 xml:id="language.types.integer.casting.from-boolean">
    <title>Dai <link linkend="language.types.boolean">booleani</link></title>
 
@@ -206,33 +209,61 @@ var_dump(round(25/7));  // float(4)
 
   <sect3 xml:id="language.types.integer.casting.from-float">
    <title>
-    Da <link linkend="language.types.float">numeri in floating point</link>
-   </title> 
+    Da <link linkend="language.types.float">numeri floating point</link>
+   </title>
 
    <simpara>
     Quando si converte da <type>float</type> a <type>int</type>, il numero
-    verrà arrotondato <emphasis>towards zero</emphasis>.
+    verrà arrotondato <emphasis>verso lo zero</emphasis>.
+    A partire da PHP 8.1.0, viene emesso un avviso di deprecazione quando si converte implicitamente
+    un &float; non intero in un &integer; con perdita di precisione.
    </simpara>
 
-   <para>
+   <example>
+    <title>Conversione da Float</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+function foo($value): int {
+  return $value;
+}
+
+var_dump(foo(8.1)); // "Deprecated: Implicit conversion from float 8.1 to int loses precision" a partire da PHP 8.1.0
+var_dump(foo(8.1)); // 8 prima di PHP 8.1.0
+var_dump(foo(8.0)); // 8 in entrambi i casi
+
+var_dump((int) 8.1); // 8 in entrambi i casi
+var_dump(intval(8.1)); // 8 in entrambi i casi
+?>
+]]>
+    </programlisting>
+   </example>
+
+   <simpara>
     Se il float è oltre i limiti di <type>int</type> (di solito
     <literal>+/- 2.15e+9 = 2^31</literal> sulle piattaforme 32-bit e
     <literal>+/- 9.22e+18 = 2^63</literal> sulle piattaforme 64-bit),
     il risultato non è definito, dal momento che <type>float</type> non
     ha abbastanza precisione per dare un risultato <type>int</type> esatto.
-    Nessun allarme, neanche un avvertimento viene generato quando questo avviene!
-   </para>
+    A partire da PHP 8.5.0, viene emesso un <constant>E_WARNING</constant> quando un
+    <type>float</type> che non è rappresentabile come <type>int</type> viene
+    convertito in esso. Prima di PHP 8.5.0, non veniva emessa alcuna diagnostica.
+   </simpara>
 
    <note>
-    <para>
-     NaN e Infinity saranno sempre zero quando convertiti in <type>int</type>.
-    </para>
+    <simpara>
+     <literal>NaN</literal>, <literal>Inf</literal> e <literal>-Inf</literal> saranno sempre zero quando convertiti in <type>int</type>.
+     A partire da PHP 8.5.0, convertirli in <type>int</type> emette un
+     <constant>E_WARNING</constant>, così come la conversione di <constant>NAN</constant>
+     in qualsiasi altro tipo.
+    </simpara>
    </note>
 
    <warning>
     <para>
-     Non effettuare mai un cast di una frazione sconosciuta a <type>int</type>, dal momento che questo a volte
-     può portare a risultati inattesi.
+     Non effettuare mai il cast di una frazione sconosciuta a <type>int</type>, dal momento che questo
+     a volte può portare a risultati inattesi.
     </para>
 
     <informalexample>
@@ -286,7 +317,7 @@ echo (int) ( (0.1+0.7) * 10 ); // stampa 7!
 
  </sect2>
 </sect1>
- 
+
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml

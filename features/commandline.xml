@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 8e732e84a1425cf0ab3a5b0da8fe113c7a6da85e Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 5e6ca803fc284739a7b1e7fba58b6b8466d5006f Maintainer: pastore Status: ready -->
 <!-- CREDITS: darvina -->
 <chapter xml:id="features.commandline" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <title>Utilizzo di PHP da linea di comando</title>
  <titleabbrev>Command line usage</titleabbrev>
  
- <!--Introduction: {{{-->
- <section xml:id="features.commandline.introduction">
+ <section xml:id="features.commandline.introduction" annotations="chunk:false">
   <title>Introduzione</title>
   
   <para>
@@ -31,14 +30,14 @@
    default quando si esegue il <command>make</command>, si compila sia la versione <acronym>CGI</acronym>
    sia la versione &cli; e saranno poste rispettivamente in <filename>sapi/cgi/php-cgi</filename> e
    <filename>sapi/cli/php</filename> a partire dalla directory dei sorgenti.
-   Occorre notare che entrambi gli eseguibili sono chiamati <literal>php</literal>. Ciò che accade durante
+   Occorre notare che entrambi gli eseguibili sono chiamati <filename>php</filename>. Ciò che accade durante
    l'esecuzione di <command>make install</command> dipende dalla linea di configurazione. Se durante
    la configurazione si è scelto un modulo <acronym>SAPI</acronym>, tipo apxs, o si è attivato
    <option role="configure">--disable-cgi</option>, l'eseguibile &cli; viene
    copiato in <filename>{PREFIX}/bin/php</filename>
    durante <command>make install</command>, altrimenti in questa cartella sarà posto l'eseguibile
    <acronym>CGI</acronym>. Così, per esempio, se si ha come parametro di configurazione
-   <option role="configure">--with--apxs</option> allora l'eseguibile &cli; sarà copiato in <filename>{PREFIX}/bin/php
+   <option role="configure">--with-apxs</option> allora l'eseguibile &cli; sarà copiato in <filename>{PREFIX}/bin/php
    </filename> durante <command>make install</command>. Se si vuole evitare
    l'installazione dell'eseguibile <acronym>CGI</acronym>, utilizzare <command>make
    install-cli</command> dopo <command>make install</command>. In alternativa
@@ -83,9 +82,7 @@
    </para>
   </note>
  </section>
- <!--}}}-->
- 
- <!--Differences: {{{-->
+
  <section xml:id="features.commandline.differences">
   <title>Differenze con gli altri <acronym>SAPI</acronym></title>
   
@@ -99,9 +96,9 @@
       delle intestazioni.
      </para>
      <para>
-      Mentre nella <acronym>CGI</acronym> <acronym>SAPI</acronym> esiste un modo per sopprimere
-      le intestazioni HTTP, nella &cli.sapi; non si ha una opzione
-      per abilitare le intestazioni.
+      Mentre la <acronym>CGI</acronym> <acronym>SAPI</acronym> fornisce un modo
+      per sopprimere le intestazioni HTTP, non esiste un'opzione equivalente per abilitarle nella
+      &cli.sapi;.
      </para>
      <para>
       Per default &cli; parte in modalità silenziosa, si è mantenuto, comunque,
@@ -181,8 +178,30 @@
            e <varname>$argv</varname> sono automaticamente impostate ai valori
            appropriati quando si usa la &cli; <acronym>SAPI</acronym>. Questi valori possono
            anche essere trovati nell'array <varname>$_SERVER</varname>, per esempio: 
-           <varname>$_SERVER['argv']</varname>
+           <varname>$_SERVER['argv']</varname>.
           </para>
+          <warning>
+           <para>
+            La presenza di <varname>$argv</varname> o <varname>$_SERVER['argv']</varname>
+            non è un'indicazione affidabile del fatto che uno script sia eseguito dalla
+            linea di comando, poiché possono essere impostate in altri contesti quando
+            <link linkend="ini.register-argc-argv">register_argc_argv</link> è abilitato.
+            Si dovrebbe invece controllare il valore restituito da
+            <function>php_sapi_name</function>.
+            <informalexample>
+             <programlisting role="php">
+<![CDATA[
+<?php
+
+if (php_sapi_name() === 'cli') {
+    echo "Questo script viene eseguito dalla linea di comando!\n";
+}
+]]>
+             </programlisting>
+            </informalexample>
+           </para>
+          </warning>
+          &warn.deprecated.feature-8-5-0;
           </entry>
          </row>
          <row>
@@ -221,10 +240,10 @@
      </note>
      <note>
       <para>
-       It is recommended to set
-       <link linkend="ini.ignore-user-abort">ignore_user_abort</link> for
-       command line scripts. See <function>ignore_user_abort</function> for
-       more information.
+       Si raccomanda di impostare
+       <link linkend="ini.ignore-user-abort">ignore_user_abort</link> per
+       gli script da linea di comando. Vedere <function>ignore_user_abort</function> per
+       maggiori informazioni.
       </para>
      </note>
     </listitem>
@@ -288,19 +307,17 @@ $ php -f another_directory/test.php
       </para>
      </example>
      <note>
-      <para>
-       La <acronym>CGI</acronym> <acronym>SAPI</acronym> supporta il comportamento 
+      <simpara>
+       La <acronym>CGI</acronym> <acronym>SAPI</acronym> supporta il comportamento
        della &cli.sapi; attivando l'opzione <option>-C</option>
        quando viene eseguito da linea di comando.
-      </para>
+      </simpara>
      </note>
     </listitem>
    </itemizedlist>
   </para>
  </section>
- <!--}}}-->
- 
- <!--Options: {{{-->
+
  <section xml:id="features.commandline.options">
   <title>Opzioni della linea di comando</title>
   <titleabbrev>Opzioni</titleabbrev>
@@ -338,7 +355,6 @@ Usage: php [options] [-f] <file> [--] [args...]
   -s               Output HTML syntax highlighted source.
   -v               Version number
   -w               Output source with stripped comments and whitespace.
-  -z <file>        Load Zend extension <file>.
 
   args...          Arguments passed to script. Use -- args when first argument
                    starts with - or script is read from stdin
@@ -371,9 +387,9 @@ Usage: php [options] [-f] <file> [--] [args...]
        <entry>--interactive</entry>
        <entry>
         <para>
-         Esegue il PHP in modo interattivo. Per maggiori informazioni, vedere la sezione <link
-         linkend="features.commandline.interactive">Shell interattiva</link>
-         .
+         Esegue il PHP in modo interattivo. Per maggiori informazioni, si consulti la <link
+         linkend="features.commandline.interactive">sezione Shell interattiva</link>
+         dedicata.
         </para>
        </entry>
       </row>
@@ -435,7 +451,7 @@ $ php -c /custom/directory/custom-file.ini my_script.php
          </screen>
         </informalexample></para>
         <para>
-         Se non si specifica questa opzione, il file viene ricercato nelle
+         Se non si specifica questa opzione, &php.ini; viene ricercato nelle
          <link linkend="configuration.file">directory di default</link>.
         </para>
        </entry>
@@ -463,7 +479,7 @@ $ php -c /custom/directory/custom-file.ini my_script.php
          </screen>
         </para>
         <para><example>
-         <title>Example of using <literal>-d</literal> to set an INI setting</title>
+         <title>Esempio di utilizzo di <literal>-d</literal> per impostare una direttiva INI</title>
          <screen>
 <![CDATA[
 # Omettendo il valore si imposta la direttiva data a "1"
@@ -508,13 +524,6 @@ string(15) "doesntmakesense"
          Questo parametro è opzionale e può essere omesso. Basta fornire il
          nome del file da eseguire.
         </para>
-        <note>
-         <para>
-          Al fine di passare argomenti ad uno script, il primo argomento deve essere
-          <literal>--</literal>, altrimenti PHP li interpreterà come opzioni
-          del PHP.
-         </para>
-        </note>
        </entry>
       </row>
       <row>
@@ -542,19 +551,28 @@ string(15) "doesntmakesense"
        <entry>--syntax-check</entry>
        <entry>
         <para>
-         Questa opzione fornisce un metodo pratico per eseguire un controllo sintattico
-         di un dato codice PHP. Se il controllo ha successo, verrà visualizzato il testo
-         <literal>No syntax errors detected in &lt;filename&gt;</literal> 
-         e alla shell sarà restituito il codice
-         <literal>0</literal>. Se si rilevano errori si avrà il testo <literal>Errors parsing
-         &lt;filename&gt;</literal>, inoltre si avranno anche i messaggi di errore del parser
-         ed alla shell sarà restituito il codice
-         <literal>-1</literal>.
+         Esegue il controllo sintattico del codice PHP indicato, senza eseguirlo.
+         Se non vengono specificati nomi di file, viene elaborato l'input dallo standard input,
+         altrimenti viene controllato ciascun file.
+         Se il controllo ha successo, il testo
+         <literal>No syntax errors detected in &lt;filename&gt;</literal> viene
+         scritto sullo standard output.
+         Se si rilevano errori, il testo <literal>Errors parsing &lt;filename&gt;</literal>
+         viene scritto sullo standard output insieme al messaggio di errore interno del parser.
+         Se vengono rilevati errori nei file specificati (o nello standard input),
+         alla shell viene restituito il codice <literal>-1</literal>, altrimenti
+         alla shell viene restituito il codice <literal>0</literal>.
         </para>
         <para>
-         Questa opzione non rileva errori fatali (tipo funzioni non definite). Occorre
-         utilizzare l'opzione <option>-f</option> se si desidera rilevare gli errori fatali.
+         Questa opzione non rileva gli errori fatali (tipo funzioni non definite) che
+         richiedono l'esecuzione del codice.
         </para>
+        <note>
+         <para>
+          Prima di PHP 8.3.0, era possibile specificare un solo nome di file da
+          controllare.
+         </para>
+        </note>
         <note>
          <para>
           Questa opzione non è abbinabile all'opzione
@@ -663,7 +681,7 @@ array(370) {
           <link xlink:href="&url.php.bugs;">&url.php.bugs;</link>.
           Si può facilmente incorrere in problemi utilizzando variabili
           (shell o PHP) nel codice command-line, o utilizzando le barre rovesciate (backslash) per
-          l'escape, quindi occorre essere molto prudenti. Siete avvertiti.
+          l'escape, quindi occorre essere molto prudenti. Uomo avvisato, mezzo salvato!
          </para>
         </note>
         <note>
@@ -812,26 +830,13 @@ Zend Engine v2.3.0, Copyright (c) 1998-2009 Zend Technologies
        </entry>
       </row>
       <row>
-       <entry>-z</entry>
-       <entry>--zend-extension</entry>
-       <entry>
-        <para>
-         Carica l'estensione Zend. Soltano se si fornisce un nome di file, il PHP tenta
-         di caricare l'estensione dal corrente percorso di default delle librerie
-         (solitamente, sui sistemi Linux, <filename>/etc/ld.so.conf</filename>).
-         Se si fornisce un nome di file con percorso assoluto, ls libreria non
-         sarà cercata nella directory di default. Un nome di file con percorso relativo
-         indica al PHP di tentare di caricare l'estensione con 
-         percorso relativo alla directory corrente.
-        </para>
-       </entry>
-      </row>
-      <row>
        <entry></entry>
        <entry>--ini</entry>
        <entry>
         <para>
-         Visualizza i nomi dei file di configurazione e le cartelle scansionate.
+         Visualizza i nomi dei file di configurazione e le cartelle scansionate. Opzionalmente,
+         si può passare <literal>--ini=diff</literal> per mostrare le differenze tra
+         i file di configurazione caricati e la configurazione predefinita.
          <example>
           <title>Esempio di uso di <literal>--ini</literal></title>
           <programlisting role="shell">
@@ -844,6 +849,11 @@ Additional .ini files parsed:      (none)
 ]]>
           </programlisting>
          </example>
+         <note>
+          <simpara>
+           L'opzione <literal>--ini=diff</literal> non è disponibile prima di PHP 8.5.0.
+          </simpara>
+         </note>
         </para>
        </entry>
       </row>
@@ -1018,11 +1028,9 @@ date.sunrise_zenith => 90.583333 => 90.583333
    </para>
   </note>
  </section>
- <!--}}}-->
- 
- <!--Usage: {{{-->
+
  <section xml:id="features.commandline.usage">
-  <title>Executing PHP files</title>
+  <title>Esecuzione di file PHP</title>
   <titleabbrev>Usage</titleabbrev>
   
   <para>
@@ -1042,18 +1050,12 @@ $ php -f my_script.php
 ]]>
       </screen>
      </informalexample>
-     <para>
+     <simpara>
       Entrambi i metodi (con o senza l'opzione <option>-f</option>) eseguono il
       file <filename>my_script.php</filename>. Si può scegliere qualsiasi nome per lo
       script da eseguire - non è obbligatorio che gli script PHP finiscano
       con l'estensione <literal>.php</literal>.
-     </para>
-     <note>
-      <para>
-       Se si ha la necessità di passare degli argomenti allo script quando si usa l'opzione
-       <option>-f</option>, il primo argomento deve essere <literal>--</literal>.
-      </para>
-     </note>
+     </simpara>
     </listitem>
     <listitem>
      <para>
@@ -1109,8 +1111,8 @@ $ some_application | some_filter | php | sort -u > final_output.txt
    zero contiene sempre il nome dello script come è stato chiamato dalla
    linea di comando. Si noti che se il codice è eseguito in-line usando l'opzione
    <option>-r</option> il valore dei <varname>$argv[0]</varname>
-   sarà un trattino (<literal>-</literal>). Lo stesso avviene se il codice è
-   eseguito attraverso un pipe dallo <literal>STDIN</literal>.
+   sarà <literal>"Standard input code"</literal>; prima di PHP 7.2.0, era invece un trattino (<literal>"-"</literal>). Lo stesso avviene se il codice è
+   eseguito attraverso un pipe dallo <constant>STDIN</constant>.
   </para>
 
   <para>
@@ -1151,11 +1153,11 @@ array(2) {
   </informalexample>
   
   <para>
-   Tuttavia esiste un'altro modo per eseguire gli script PHP.
-   Si può scrivere uno script la cui prima riga inizi con
-   <literal>#!/usr/bin/php</literal>. Seguendo questa regola si può posizionare
-   il normale codice PHP tra i tag di apertura e chiusura
-   del PHP. Una volta impostati correttamente gli attributi
+   Tuttavia, sui sistemi Unix esiste un altro modo per usare PHP per gli script
+   di shell: si può scrivere uno script la cui prima riga inizi con
+   <literal>#!/usr/bin/php</literal> (o il percorso dell'eseguibile &cli; di PHP,
+   se diverso). Il resto del file deve contenere il normale codice PHP
+   tra i consueti tag di apertura e chiusura di PHP. Una volta impostati correttamente gli attributi
    del file (ad esempio <command>chmod +x test</command>) lo script può essere eseguito
    come una normale shell o script perl:
   </para>
@@ -1202,8 +1204,8 @@ array(4) {
    dal server web. Se ci si trova su sistemi Unix, si deve aggiungere allo script una prima linea
    contentente lo "shebang" <literal>#!</literal> in modo che il sistema
    sappia quale programma deve interpretare lo script. Sui sistemi Windows si può
-   associare <filename>php.exe</filename> all'estensione 
-   <filename>.php</filename>, o si può scrivere un batch per eseguire
+   associare <filename>php.exe</filename> all'opzione di doppio
+   clic dell'estensione <literal>.php</literal>, o si può scrivere un batch per eseguire
    gli script tramite PHP. La prima riga inserita per i sistemi Unix non crea
    problemi in Windows (dal momento che è formattata com un commento PHP), in questo modo
    si possono scrivere batch multi-piattaforma. Qui sotto è mostrato
@@ -1266,7 +1268,7 @@ Questo è uno script PHP da linea di comando con una opzione.
   <para>
    <example>
     <title>File batch per eseguire uno script PHP da linea di comando (script.bat)</title>
-    <programlisting role="shell">
+    <programlisting role="winbat">
 <![CDATA[
 @echo OFF
 "C:\php\php.exe" script.php %*
@@ -1303,9 +1305,7 @@ Questo è uno script PHP da linea di comando con una opzione.
    </para>
   </note>
  </section>
- <!--}}}-->
- 
- <!--I/O Streams: {{{-->
+
  <section xml:id="features.commandline.io-streams">
   <title>Flussi Input/output</title>
   <titleabbrev>Flussi I/O</titleabbrev>
@@ -1405,9 +1405,7 @@ php -r 'fwrite(STDERR, "stderr\n");'
    </para>
   </note>
  </section>
- <!--}}}-->
 
- <!--Interactive shell: {{{-->
  <section xml:id="features.commandline.interactive">
   <title>Shell interattiva</title>
 
@@ -1484,11 +1482,13 @@ php > $foo[TAB]ThisIsAReallyLongVariableName
    </programlisting>
   </example>
 
-  <para>
-   La shell interattiva archiva lo storico che può essere consultato usando i
+  <simpara>
+   La shell interattiva archivia lo storico che può essere consultato usando i
    tasti su e giù. Lo storico è salvato nel file
    <filename>~/.php_history</filename>.
-  </para>
+   A partire da PHP 8.4.0, il percorso del file dello storico può essere impostato usando la
+   variabile d'ambiente <envar>PHP_HISTFILE</envar>.
+  </simpara>
 
   <para>
    La &cli.sapi; mette a disposizione
@@ -1596,10 +1596,34 @@ php >
     definite prima della chiamata.
    </para>
   </note>
- </section>
- <!--}}}-->
 
- <!--Built-in CLI Web Server: {{{-->
+  <section xml:id="features.commandline.interactive.mode">
+   <title>Modalità interattiva</title>
+   <para>
+    Se l'estensione readline non è disponibile, prima di PHP 8.1.0, invocare la &cli.sapi; con
+    l'opzione <option>-a</option> forniva la modalità interattiva. In questa modalità, si suppone
+    che venga fornito uno script PHP completo tramite STDIN, e dopo la terminazione
+    con
+    <keycombo action='simul'>
+     <keycap>CTRL</keycap>
+     <keycap>D</keycap>
+    </keycombo>
+    (POSIX) o
+    <keycombo action='simul'>
+     <keycap>CTRL</keycap>
+     <keycap>Z</keycap>
+    </keycombo>
+    seguito da <keycap>INVIO</keycap> (Windows), lo script viene valutato.
+    Questo è sostanzialmente equivalente a invocare la &cli.sapi; senza l'opzione
+    <option>-a</option>.
+   </para>
+   <para>
+    A partire da PHP 8.1.0, invocare la &cli.sapi; con l'opzione <option>-a</option>
+    fallisce, se l'estensione readline non è disponibile.
+   </para>
+  </section>
+ </section>
+
  <section xml:id="features.commandline.webserver">
   <title>Web server interno</title>
 
@@ -1633,12 +1657,21 @@ php >
     dell'URI. In caso contrario viene restituita una risposta con il codice 404.
   </para>
 
+  <note>
+   <simpara>
+    A partire da PHP 8.4.0, questa ricerca del file index viene eseguita anche quando il
+    percorso richiesto sembra un file, cioè il suo ultimo componente contiene un
+    punto, ma non può essere trovato. In precedenza, tali richieste saltavano la
+    ricerca e restituivano immediatamente una risposta 404.
+   </simpara>
+  </note>
+
   <para>
     Se un file PHP viene specificato sulla linea di comando quando viene attivato il web server,
-    viene trattato come script "router"  per il web server.
-    Lo script è eseguito all'inizio di ogni richiesta HTTP. Se
-    restituisce &false;, la risorsa richiesta viene ritornata
-    così com'è. altrimenti viene restituito al browser il risultato dello script.
+    viene trattato come script "router" per il web server. Lo script è eseguito
+    all'inizio di ogni richiesta HTTP. Se questo script restituisce &false;,
+    la risorsa richiesta viene restituita così com'è. Altrimenti
+    viene restituito al browser l'output dello script.
   </para>
 
   <para>
@@ -1702,20 +1735,27 @@ php >
   </para>
 
   <simpara>
-   As of PHP 7.4.0, the built-in webserver can be configured to fork multiple
-   workers in order to test code that requires multiple concurrent requests
-   to the built-in webserver.
-   Set the <envar>PHP_CLI_SERVER_WORKERS</envar> environment variable to the
-   number of desired workers before starting the server.
+   A partire da PHP 7.4.0, il web server interno può essere configurato per eseguire il fork di più
+   worker al fine di testare codice che richiede più richieste concorrenti
+   al web server interno.
+   Impostare la variabile d'ambiente <envar>PHP_CLI_SERVER_WORKERS</envar> al
+   numero di worker desiderati prima di avviare il server.
   </simpara>
   <note>
-   <simpara>This feature is not supported on Windows.</simpara>
+   <simpara>I worker multipli non sono supportati su Windows.</simpara>
+  </note>
+  <note>
+   <simpara>
+    Per informazioni sull'uso e sulle opzioni di PHP da linea di comando, eseguire
+    <command>php --help</command> o <command>man php</command>. Non tutte
+    le opzioni si applicano quando si esegue il web server.
+   </simpara>
   </note>
   <warning>
    <para>
-    This <emphasis>experimental</emphasis> feature is <emphasis>not</emphasis>
-    intended for production usage. Generally, the built-in Web Server is
-    <emphasis>not</emphasis> intended for production usage.
+    Questa funzionalità <emphasis>sperimentale</emphasis> <emphasis>non</emphasis> è
+    destinata all'uso in produzione. In generale, il web server interno <emphasis>non</emphasis> è
+    destinato all'uso in produzione.
    </para>
   </warning>
 
@@ -1872,10 +1912,9 @@ $ php -S 0.0.0.0:8000
   </example>
   
  </section>
- <!--}}}-->
 
   <section xml:id="features.commandline.ini">
-   <title>INI settings</title>
+   <title>Impostazioni INI</title>
    <para>
     <table>
      <title>Opzioni di configurazione di CLI SAPI</title>

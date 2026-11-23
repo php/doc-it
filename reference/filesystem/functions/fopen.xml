@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: e41806c30bf6975e452c0d4ce35ab0984c2fa68c Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 18bac8389b98d513c89e965000086acfcdfdd0a9 Maintainer: pastore Status: ready -->
 <!-- CREDITS: cortesi,fernando -->
 <refentry xmlns="http://docbook.org/ns/docbook" xml:id="function.fopen">
  <refnamediv>
@@ -10,11 +10,11 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type>resource</type><methodname>fopen</methodname>
+   <type class="union"><type>resource</type><type>false</type></type><methodname>fopen</methodname>
    <methodparam><type>string</type><parameter>filename</parameter></methodparam>
    <methodparam><type>string</type><parameter>mode</parameter></methodparam>
    <methodparam choice="opt"><type>bool</type><parameter>use_include_path</parameter><initializer>&false;</initializer></methodparam>
-   <methodparam choice="opt"><type>resource</type><parameter>context</parameter></methodparam>
+   <methodparam choice="opt"><type class="union"><type>resource</type><type>null</type></type><parameter>context</parameter><initializer>&null;</initializer></methodparam>
   </methodsynopsis>
   <para>
     La funzione <function>fopen</function> apre un collegamento tra una risorsa, indicata
@@ -52,7 +52,7 @@
        URL di rete, PHP verificherà che
        <link linkend="ini.allow-url-fopen">allow_url_fopen</link> sia
        abilitato. Se fosse disabilitato, PHP genererà un avviso e
-       la chiamata ad fopen fallirà.
+       la chiamata a <function>fopen</function> fallirà.
       </para>
       <note>
        <para>
@@ -124,9 +124,8 @@ $handle = fopen("c:\\folder\\resource.txt", "r");
           <row>
            <entry><literal>'w+'</literal></entry>
            <entry>
-            Apre in lettura e scrittura; posiziona il puntatore
-            all'inizio del file e tronca il file alla lunghezza
-            zero. Se il file non esiste, tenta di crearlo.
+            Apre in lettura e scrittura; per il resto ha lo stesso
+            comportamento di <literal>'w'</literal>.
            </entry>
           </row>
           <row>
@@ -195,6 +194,13 @@ $handle = fopen("c:\\folder\\resource.txt", "r");
             solo per PHP compilato su sistemi conformi a POSIX.1-2008.
            </entry>
           </row>
+          <row>
+           <entry><literal>'n'</literal></entry>
+           <entry>
+            Imposta il flag non bloccante sul descrittore del file aperto. Disponibile
+            solo per PHP compilato su sistemi conformi a POSIX.1-2008.
+           </entry>
+          </row>
          </tbody>
         </tgroup>
        </table>
@@ -240,10 +246,18 @@ $handle = fopen("c:\\folder\\resource.txt", "r");
       <note>
        <para>
         Per la portabilità, è fortemente raccomandato di
-        riscrivere il codice che utilizza o che si avvale del mode
-        <literal>'t'</literal>, così da utilizzare il corretto terminatore di linea invece del
-        <literal>'b'</literal> mode.
+        riscrivere il codice che utilizza o che si avvale della modalità
+        <literal>'t'</literal>, così da utilizzare il corretto terminatore di linea invece della
+        modalità <literal>'b'</literal>.
        </para>
+      </note>
+      <note>
+       <simpara>
+        Il parametro <parameter>mode</parameter> viene ignorato per i wrapper di flusso <filename>php://output</filename>,
+        <filename>php://input</filename>, <filename>php://stdin</filename>,
+        <filename>php://stdout</filename>, <filename>php://stderr</filename> e
+        <filename>php://fd</filename>.
+       </simpara>
       </note>
      </listitem>
     </varlistentry>
@@ -252,7 +266,7 @@ $handle = fopen("c:\\folder\\resource.txt", "r");
      <listitem>
       <para>
        Il terzo parametro opzionale <parameter>use_include_path</parameter>
-       può essere impostato a '1' oppure a &true; se si desidera cercare il file anche
+       può essere impostato a &true; se si desidera cercare il file anche
        in <link linkend="ini.include-path">include_path</link>.
       </para>
      </listitem>

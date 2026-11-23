@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: f7800a7c1d2940cd986e86b76a46f6718a277853 Maintainer: pastore Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 3a0bf5e678f1023de7cd2148f2c5a70ffdff4a59 Maintainer: pastore Status: ready -->
 <!-- CREDITS: darvina -->
 <refentry xml:id="function.empty" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>empty</refname>
-  <refpurpose>Determina se una variabile è valorizzata</refpurpose>
+  <refpurpose>Determina se una variabile è vuota</refpurpose>
  </refnamediv>
  <refsect1 role="description">
   &reftitle.description;
@@ -26,18 +26,11 @@
       <para>
        Variabile da controllare
       </para>
-      <note>
-       <para>
-        Prima di PHP 5.5, <function>empty</function> supporta solo variabili;
-        qualsiasi altra cosa si traduce in un errore di analisi. In altre parole, il
-        seguente comando non funziona: <command>empty(trim($name))</command>.
-        Invece, utilizzare <command>trim($name) == false</command>.
-       </para>
-      </note>
       <para>
        Se la variabile non esiste, nessun avviso verrà generato.
        Questo significa che <function>empty</function> è essenzialmente l'equivalente
        conciso di <command>!isset($var) || $var == false</command>.
+       Questo vale anche per le strutture annidate, come un array multidimensionale o le proprietà concatenate.
       </para>
      </listitem>
     </varlistentry>
@@ -47,54 +40,9 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce &false; se <parameter>var</parameter> esiste e ha un valore non vuoto e diverso da zero.
-   Altrimenti restituisce &true;.
-  </para>
-  <para>
-   I seguenti valori sono considerati vuoti:
-   <simplelist>
-    <member><literal>""</literal> (una stringa vuota)</member>
-    <member><literal>0</literal> (0 come intero)</member>
-    <member><literal>0.0</literal> (0 come numero decimale)</member>
-    <member><literal>"0"</literal> (0 come stringa)</member>
-    <member>&null;</member>
-    <member>&false;</member>
-    <member><literal>array()</literal> (un array vuoto)</member>
-   </simplelist>
-  </para>
- </refsect1>
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>5.5.0</entry>
-       <entry>
-        <para>
-         <function>empty</function> ora supporta le espressioni, piuttosto che solo
-         variabili.
-        </para>
-       </entry>
-      </row>
-      <row>
-       <entry>5.4.0</entry>
-       <entry>
-        <para>
-         Il controllo su offset non numerici di stringhe restituisce &true;.
-        </para>
-       </entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </informaltable>
+   Restituisce &true; se <parameter>var</parameter> non esiste o ha un valore vuoto o uguale a zero,
+   ovvero falsy, vedere la <link linkend="language.types.boolean.casting">conversione in booleano</link>.
+   Altrimenti restituisce &false;.
   </para>
  </refsect1>
  <refsect1 role="examples">
@@ -102,8 +50,8 @@
   <para>
    <example>
     <title>
-     Semplici confronti 
-     <function>empty</function> / <function>isset</function>.
+     Un semplice confronto tra <function>empty</function> e
+     <function>isset</function>.
     </title>  
     <programlisting role="php">
 <![CDATA[
@@ -112,12 +60,12 @@ $var = 0;
 
 // Valutata come true perché $var è vuota
 if (empty($var)) {
-    echo '$var is either 0, empty, or not set at all';
+    echo '$var vale 0, è vuota oppure non è impostata';
 }
 
-// Valutata come vera perché $var è impostata
+// Valutata come true perché $var è impostata
 if (isset($var)) {
-    echo '$var is set even though it is empty';
+    echo '$var è impostata anche se è vuota';
 }
 ?>
 ]]>
@@ -125,11 +73,7 @@ if (isset($var)) {
    </example>
   </para>
   <example>
-   <title><function>empty</function> on String Offsets</title>
-   <para>
-    PHP 5.4 cambia il comportamento di <function>empty</function>
-    quando vengono passati offset di stringhe.
-   </para>
+   <title><function>empty</function> sugli Offset di Stringa</title>
    <programlisting role="php">
 <![CDATA[
 <?php
@@ -137,32 +81,51 @@ $expected_array_got_string = 'somestring';
 var_dump(empty($expected_array_got_string['some_key']));
 var_dump(empty($expected_array_got_string[0]));
 var_dump(empty($expected_array_got_string['0']));
-var_dump(empty($expected_array_got_string[0.5]));
 var_dump(empty($expected_array_got_string['0.5']));
 var_dump(empty($expected_array_got_string['0 Mostel']));
 ?>
 ]]>
    </programlisting>
-   &example.outputs.53;
+   &example.outputs;
    <screen>
 <![CDATA[
+bool(true)
 bool(false)
 bool(false)
-bool(false)
-bool(false)
-bool(false)
-bool(false)
+bool(true)
+bool(true)
 ]]>
    </screen>
-   &example.outputs.54;
+  </example>
+  <example>
+   <title><function>empty</function> sugli array multidimensionali</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$multidimensional = [
+    'some' => [
+        'deep' => [
+            'nested' => 'value'
+        ]
+    ]
+];
+
+if (!empty($multidimensional['some']['some']['nested'])) {
+    $someVariable = $multidimensional['some']['deep']['nested'];
+}
+
+var_dump(empty($multidimensional['some-undefined-key']));
+var_dump(empty($multidimensional['some']['deep']['unknown']));
+var_dump(empty($multidimensional['some']['deep']['nested']));
+?>
+]]>
+   </programlisting>
+   &example.outputs;
    <screen>
 <![CDATA[
 bool(true)
-bool(false)
-bool(false)
-bool(false)
 bool(true)
-bool(true)
+bool(false)
 ]]>
    </screen>
   </example>
@@ -177,6 +140,15 @@ bool(true)
     sarà chiamato, se dichiarato.
    </para>
   </note>
+  <note>
+   <simpara>
+    Quando viene utilizzata <function>empty</function> su una proprietà che ha un
+    hook <literal>get</literal>, viene chiamato l'hook e viene controllato il valore
+    che esso restituisce. Vedere gli
+    <link linkend="language.oop5.property-hooks.isset-unset">hook di proprietà</link>
+    per i dettagli.
+   </simpara>
+  </note>
  </refsect1>
  <refsect1 role="seealso">
   &reftitle.seealso;
@@ -188,7 +160,7 @@ bool(true)
     <member><function>array_key_exists</function></member>
     <member><function>count</function></member> 
     <member><function>strlen</function></member>
-    <member><link linkend="types.comparisons">la tabella di comparazione dei tipi</link></member>
+    <member><link linkend="types.comparisons">La tabella di comparazione dei tipi</link></member>
    </simplelist>
   </para>
  </refsect1>

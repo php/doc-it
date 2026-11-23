@@ -1,26 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: b9a867f215c6a902c349f40f7436348e866554d1 Maintainer: pastore Status: ready -->
+<!-- EN-Revision: 09c650422aec6f59dca08d1c65eaa633d391a525 Maintainer: pastore Status: ready -->
 <!-- CREDITS: butera -->
  <sect1 xml:id="language.oop5.cloning" xmlns="http://docbook.org/ns/docbook">
   <title>Clonazione di oggetti</title>
   
-  <para>
+  <simpara>
    Creare una copia di un oggetto con tutte le proprietà replicate non è
    sempre il comportamento desiderato. Un esempio della necessità di
-   costruttori per la copia, è che quando si ha un oggetto che rappresenta una finestra GTK e
+   costruttori per la copia è quando si ha un oggetto che rappresenta una finestra GTK e
    l'oggetto detiene le risorse di questa finestra GTK, quando si crea un duplicato
    si può voler creare una nuova finestra con le stesse proprietà e fare in modo che il
    nuovo oggetto detenga le risorse della nuova finestra. Un ulteriore esempio è il caso in cui un
    oggetto ha un riferimento ad un altro oggetto che utilizza e quando si 
-   replica il l'oggetto padre si vuole creare una nuova istanza di questo altro
+   replica l'oggetto padre si vuole creare una nuova istanza di questo altro
    oggetto in modo che la replica ne abbia una propria copia separata dall'originale.
-  </para>
+  </simpara>
 
   <para>
-   La copia di un oggetto viene creata utilizzando la parola chiave <emphasis>clone</emphasis> (che chiama se possibile
-   il metodo <link linkend="object.clone">__clone()</link> dell'oggetto).
-   Il metodo <link linkend="object.clone">__clone()</link> di un oggetto
-   non può essere invocato direttamente.
+   La copia di un oggetto viene creata utilizzando la parola chiave <literal>clone</literal>
+   (che chiama se possibile il metodo <link linkend="object.clone">__clone()</link>
+   dell'oggetto).
   </para>
 
   <informalexample>
@@ -32,7 +31,7 @@ $copy_of_object = clone $object;
   </informalexample>
 
   <para>
-   Quando un oggetto viene clonato, PHP 5 esegue una copia superficiale di tutte le
+   Quando un oggetto viene clonato, PHP esegue una copia superficiale di tutte le
    proprietà dell'oggetto. Ogni proprietà che sia un riferimento ad altre variabili
    rimarrà un riferimento.
   </para>
@@ -42,11 +41,11 @@ $copy_of_object = clone $object;
    <void/>
   </methodsynopsis>
 
-  <para>
+  <simpara>
    Completata la clonazione, se esiste un metodo <link linkend="object.clone">__clone()</link>, 
    viene chiamato il metodo <link linkend="object.clone">__clone()</link> dell'oggetto appena creato per consentire
    l'aggiornamento di tutte le proprietà che necessitano di essere modificate.
-  </para>
+  </simpara>
 
   <example>
    <title>Clonazione di un oggetto</title>
@@ -88,10 +87,10 @@ $obj->object2 = new SubObject();
 $obj2 = clone $obj;
 
 
-print("Oggetto originale:\n");
+print "Oggetto originale:\n";
 print_r($obj);
 
-print("Oggetto clonato:\n");
+print "Oggetto clonato:\n";
 print_r($obj2);
 
 ?> 
@@ -100,7 +99,7 @@ print_r($obj2);
    &example.outputs;
    <screen role="php">
 <![CDATA[
-Oggetto orginale:
+Oggetto originale:
 MyCloneable Object
 (
     [object1] => SubObject Object
@@ -133,6 +132,82 @@ MyCloneable Object
    </screen>
 
   </example>
+
+  <para>
+   È possibile accedere a un membro di un oggetto appena clonato
+   in una singola espressione:
+  </para>
+  <example>
+   <title>Accesso a un membro di un oggetto appena clonato</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$dateTime = new DateTime();
+echo (clone $dateTime)->format('Y');
+?>
+]]>
+   </programlisting>
+   &example.outputs.similar;
+   <screen>
+<![CDATA[
+2016
+]]>
+   </screen>
+  </example>
+
+  <sect2 xml:id="language.oop5.cloning.with-properties">
+   <title>Clonazione con sovrascrittura delle proprietà</title>
+
+   <simpara>
+    A partire da PHP 8.5.0, <literal>clone</literal> è disponibile anche come funzione,
+    il cui secondo parametro <parameter>withProperties</parameter> accetta un array
+    che associa i nomi delle proprietà ai valori che la copia riceve. Vengono sovrascritte solo le
+    proprietà elencate, ogni altra proprietà mantiene il valore con cui è stata
+    copiata.
+   </simpara>
+
+   <simpara>
+    Le sovrascritture vengono applicate dopo l'esecuzione di
+    <link linkend="object.clone">__clone()</link>, e rispettano la
+    visibilità di tutte le proprietà.
+    Le proprietà <link linkend="language.oop5.properties.readonly-properties">readonly</link>
+    possono essere aggiornate sulla copia anche se erano già state impostate
+    sull'oggetto originale, il che rende la funzione adatta ai metodi che restituiscono una
+    copia modificata.
+   </simpara>
+
+   <example>
+    <title>Clonazione di un oggetto con sovrascrittura delle proprietà</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class Point {
+    public function __construct(
+        public readonly int $x,
+        public readonly int $y,
+    ) {}
+
+    public function withX(int $x): static
+    {
+        return clone($this, ['x' => $x]);
+    }
+}
+
+$p = new Point(1, 2);
+$q = $p->withX(10);
+
+echo $q->x, ' ', $q->y;
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+10 2
+]]>
+    </screen>
+   </example>
+  </sect2>
 
  </sect1>
  

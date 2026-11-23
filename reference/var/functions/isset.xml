@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- EN-Revision: a44a1e0b7918846659a3c91013855d2c3d674fb9 Maintainer: pastore Status: ready -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 3a0bf5e678f1023de7cd2148f2c5a70ffdff4a59 Maintainer: pastore Status: ready -->
 <!-- CREDITS: darvina -->
 <refentry xml:id="function.isset" xmlns="http://docbook.org/ns/docbook">
  <refnamediv>
   <refname>isset</refname>
-  <refpurpose>Verifica se una variabile è definita e non è &null;</refpurpose>
+  <refpurpose>Verifica se una variabile è dichiarata ed è diversa da &null;</refpurpose>
  </refnamediv>
  
  <refsect1 role="description">
@@ -12,21 +12,27 @@
   <methodsynopsis>
    <type>bool</type><methodname>isset</methodname>
    <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
-   <methodparam choice="opt"><type>mixed</type><parameter>...</parameter></methodparam>
+   <methodparam rep="repeat"><type>mixed</type><parameter>vars</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Verifica se una variabile è definita e non è &null;.
+   Verifica se una variabile è considerata definita,
+   ovvero se una variabile è dichiarata ed è diversa da &null;.
   </para>
   <para>
-   Se una variabile è stata distrutta con <function>unset</function>, essa non sarà
-   più definita. <function>isset</function> restituirà &false; se si testa
-   una variabile che è stata impostata a &null;. Da notare anche che un byte null
-   (<literal>"\0"</literal>) non è equivalente alla costante &null; di PHP.
+   Se una variabile è stata distrutta con la funzione
+   <function>unset</function>, essa non è più considerata definita.
+  </para>
+  <para>
+   <function>isset</function> restituirà &false; quando si controlla una
+   variabile a cui è stato assegnato &null;.
+   Da notare anche che un byte null (<literal>"\0"</literal>) non è
+   equivalente alla costante &null; di PHP.
   </para>
   <para>
    Se vengono forniti parametri multipli allora <function>isset</function>
-   restituirà &true; solo se tutti i parametri sono definiti. La valuazione va da
-   sinistra verso destra e si ferma appena si incontra una variabile non definita.
+   restituirà &true; solo se tutti i parametri sono considerati definiti.
+   La valutazione va da sinistra verso destra e si ferma appena si incontra una
+   variabile non definita.
   </para>
  </refsect1>
 
@@ -43,10 +49,10 @@
      </listitem>
     </varlistentry>
     <varlistentry>
-     <term><parameter>...</parameter></term>
+     <term><parameter>vars</parameter></term>
      <listitem>
       <para>
-       Un'altra variabile ...
+       Ulteriori variabili.
       </para>
      </listitem>
     </varlistentry>
@@ -57,34 +63,8 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Restituisce &true; se <parameter>var</parameter> esiste e ha un valore diverso
-   da &null;, &false; in caso contrario.
-  </para>
- </refsect1>
-
- <refsect1 role="changelog">
-  &reftitle.changelog;
-  <para>
-   <informaltable>
-    <tgroup cols="2">
-     <thead>
-      <row>
-       <entry>&Version;</entry>
-       <entry>&Description;</entry>
-      </row>
-     </thead>
-     <tbody>
-      <row>
-       <entry>5.4.0</entry>
-       <entry>
-        <para>
-         Il controllo su offset di stringhe non numerici ora restituisce &false;.
-        </para>
-       </entry>
-      </row>
-     </tbody>
-    </tgroup>
-   </informaltable>
+   Restituisce &true; se <parameter>var</parameter> esiste e ha
+   un qualsiasi valore diverso da &null;. &false; in caso contrario.
   </para>
  </refsect1>
 
@@ -101,7 +81,7 @@ $var = '';
 
 // Questo verrà valutato come TRUE quindi il testo sarà stampato.
 if (isset($var)) {
-    echo "This var is set so I will print.";
+    echo "Questa variabile è impostata quindi verrà stampata.", PHP_EOL;
 }
 
 // Nei prossimi esempi si userà var_dump per stampare
@@ -128,7 +108,8 @@ var_dump(isset($foo));   // FALSE
   </para>
   <para>
    Questo funziona anche per gli elementi negli array:
-   <informalexample>
+   <example>
+    <title>Esempio di <function>isset</function> con elementi di array</title>
     <programlisting role="php">
 <![CDATA[
 <?php
@@ -140,10 +121,10 @@ var_dump(isset($a['foo']));             // FALSE
 var_dump(isset($a['hello']));           // FALSE
 
 // La chiave 'hello' è uguale a NULL e quindi è considerata indefinita
-// Se si vogliono controllare i valori delle chiavi NULL allora si deve provare: 
+// Se si vogliono controllare i valori delle chiavi NULL allora si provi: 
 var_dump(array_key_exists('hello', $a)); // TRUE
 
-// Checking deeper array values
+// Controllo di valori più profondi dell'array
 var_dump(isset($a['pie']['a']));        // TRUE
 var_dump(isset($a['pie']['b']));        // FALSE
 var_dump(isset($a['cake']['a']['b']));  // FALSE
@@ -151,14 +132,10 @@ var_dump(isset($a['cake']['a']['b']));  // FALSE
 ?>
 ]]>
     </programlisting>
-   </informalexample>
+   </example>
   </para>
   <example>
    <title><function>isset</function> su Offset di Stringhe</title>
-   <para>
-    PHP 5.4 ha cambiato il comportamtento di <function>isset</function>
-    quando vengono passati offset ti stringhe.
-   </para>
    <programlisting role="php">
 <![CDATA[
 <?php
@@ -172,18 +149,7 @@ var_dump(isset($expected_array_got_string['0 Mostel']));
 ?>
 ]]>
    </programlisting>
-   &example.outputs.53;
-   <screen>
-<![CDATA[
-bool(true)
-bool(true)
-bool(true)
-bool(true)
-bool(true)
-bool(true)
-]]>
-   </screen>
-   &example.outputs.54;
+   &example.outputs;
    <screen>
 <![CDATA[
 bool(false)
@@ -210,10 +176,19 @@ bool(false)
   &note.language-construct;
   <note>
    <para>
-    Quando si usa <function>isset</function> su proprietà di oggetti inaccessibili
+    Quando si usa <function>isset</function> su proprietà di oggetti inaccessibili,
     il metodo di overloading <link linkend="object.isset">__isset()</link>
     verrà richiamato, se dichiarato.
    </para>
+  </note>
+  <note>
+   <simpara>
+    Quando viene utilizzata <function>isset</function> su una proprietà che ha un
+    hook <literal>get</literal>, viene chiamato l'hook e viene controllato il valore
+    che esso restituisce. Vedere gli
+    <link linkend="language.oop5.property-hooks.isset-unset">hook di proprietà</link>
+    per i dettagli.
+   </simpara>
   </note>
  </refsect1>
 

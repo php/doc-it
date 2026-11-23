@@ -1,23 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: 1634a886415d0ab4df195fe49d18a1c150b70758 Maintainer: pastore Status: ready -->
- 
+<!-- EN-Revision: c7e83fbbbcde9f54affc09424d032c38492a3ff4 Maintainer: pastore Status: ready -->
+
 <book xml:id="book.bc" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <?phpdoc extension-membership="bundled" ?>
  <title>Matematica di Precisione Arbitraria BCMath</title>
  <titleabbrev>BC Math</titleabbrev>
- 
+
  <!-- {{{ preface -->
  <preface xml:id="intro.bc">
   &reftitle.intro;
   <para>
-    Per la matematica di precisione arbitraria PHP offre il Binary Calculator che
-    supporta numeri di qualsiasi dimensione e precisione, rappresentandoli come stringhe.
+   Per la matematica di precisione arbitraria PHP offre BCMath che
+   supporta numeri di qualsiasi dimensione e precisione fino a <literal>2147483647</literal> (o <literal>0x7FFFFFFF</literal>) cifre decimali,
+   se c'è memoria sufficiente, rappresentandoli come stringhe.
   </para>
+  <para>
+   I numeri BCMath validi (ovvero ben formati) sono stringhe che corrispondono all'espressione regolare
+   <literal>/^[+-]?[0-9]*(\.[0-9]*)?$/</literal>.
+  </para>
+  <caution>
+   <para>
+    Passare valori di tipo <type>float</type> a una funzione BCMath che si aspetta
+    una <type>string</type> come operando potrebbe non avere l'effetto desiderato a causa del
+    modo in cui PHP converte i valori <type>float</type> in <type>string</type>, ovvero
+    che la <type>string</type> potrebbe essere in notazione esponenziale (che non è
+    supportata da BCMath) e che, prima di PHP 8.0.0, il separatore decimale dipende dal locale
+    (mentre BCMath si aspetta sempre un punto decimale).
+   </para>
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+$num1 = 0; // (string) 0 => '0'
+$num2 = -0.000005; // (string) -0.000005 => '-5.05E-6'
+echo bcadd($num1, $num2, 6); // => '0.000000'
+
+setlocale(LC_NUMERIC, 'de_DE'); // usa la virgola come separatore decimale
+$num2 = 1.2; // (string) 1.2 => '1,2'
+echo bcsub($num1, $num2, 1); // => '0.0'
+?>
+]]>
+    </programlisting>
+   </informalexample>
+  </caution>
  </preface>
  <!-- }}} -->
- 
+
  &reference.bc.setup;
  &reference.bc.reference;
+ &reference.bc.bcmath.number;
 
 </book>
 

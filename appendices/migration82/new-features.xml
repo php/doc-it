@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 681fd84dbdef6c0f8fe92848677d95a993b66143 Maintainer: pastore Status: ready -->
+<sect1 xml:id="migration82.new-features" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>Nuove Funzionalità</title>
+
+ <sect2 xml:id="migration82.new-features.core">
+  <title>PHP Core</title>
+
+  <sect3 xml:id="migration82.new-features.core.sensitiveparameter">
+   <title>Attributo SensitiveParameter</title>
+
+   <para>
+    Aggiunto l'attributo <code>#[\SensitiveParameter]</code> per oscurare
+    i dati sensibili nei backtrace.
+    <!-- RFC: https://wiki.php.net/rfc/redact_parameters_in_back_traces -->
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration82.new-features.core.error-log-mode-ini">
+   <title>Direttiva INI error_log_mode</title>
+
+   <para>
+    È stata aggiunta la direttiva INI <link linkend="ini.error-log-mode">error_log_mode</link>, che consente di impostare
+    i permessi del file di log degli errori.
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration82.new-features.core.enums-property-constant-expression">
+   <title>Proprietà delle enumerazioni nelle espressioni costanti</title>
+
+   <para>
+    È ora possibile ottenere le proprietà delle
+    <link linkend="language.enumerations">enumerazioni</link>
+    nelle espressioni costanti.
+    <!-- RFC: https://wiki.php.net/rfc/fetch_property_in_const_expressions -->
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration82.new-features.core.type-system">
+   <title>Miglioramenti al Sistema dei Tipi</title>
+
+   <para>
+    È ora possibile utilizzare <type>null</type> e <type>false</type>
+    come tipi autonomi.
+    <!-- RFC: https://wiki.php.net/rfc/null-false-standalone-types -->
+   </para>
+
+   <para>
+    È stato aggiunto il tipo <type>true</type>.
+    <!-- RFC: https://wiki.php.net/rfc/true-type -->
+   </para>
+
+   <para>
+    È ora possibile combinare tipi intersezione e tipi union.
+    Il tipo deve essere scritto in <acronym>DNF</acronym>.
+    <!-- TODO Add an example -->
+   </para>
+  </sect3>
+
+  <sect3 xml:id="migration82.new-features.core.constant-in-traits">
+   <title>Costanti nei Trait</title>
+
+   <para>
+    È ora possibile definire costanti nei trait.
+    <!-- TODO Add an example -->
+   </para>
+   <!-- RFC: https://wiki.php.net/rfc/constants_in_traits -->
+  </sect3>
+
+  <sect3 xml:id="migration82.new-features.core.readonly-classes">
+   <title>Classi Readonly</title>
+
+   <para>
+    È stato aggiunto il supporto per <link linkend="language.oop5.basic.class.readonly">readonly
+    sulle classi</link>.
+    <!-- RFC: https://wiki.php.net/rfc/readonly_classes -->
+   </para>
+  </sect3>
+
+ </sect2>
+
+ <sect2 xml:id="migration82.new-features.curl">
+  <title>cURL</title>
+
+  <para>
+   Aggiunta l'opzione <constant>CURLINFO_EFFECTIVE_METHOD</constant>,
+   che restituisce il metodo <acronym>HTTP</acronym> effettivo nel valore restituito da
+   <function>curl_getinfo</function>.
+  </para>
+
+  <para>
+   Rese disponibili <link linkend="migration82.constants.curl">diverse nuove costanti</link> da libcurl 7.62 a 7.80.
+  </para>
+
+  <para>
+   Aggiunta la funzione <function>curl_upkeep</function> per effettuare i controlli di mantenimento delle connessioni.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration82.new-features.dba">
+  <title>DBA</title>
+
+  <para>
+   Il driver LMDB accetta ora i flag <constant>DBA_LMDB_USE_SUB_DIR</constant> o
+   <constant>DBA_LMDB_NO_SUB_DIR</constant> per determinare se debba
+   creare o meno una sottodirectory durante la creazione di un file di database.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration82.new-features.oci8">
+  <title>OCI8</title>
+
+  <para>
+   Aggiunte la direttiva INI <link linkend="ini.oci8.prefetch-lob-size">oci8.prefetch_lob_size</link> e
+   la funzione <function>oci_set_prefetch_lob</function> per ottimizzare le prestazioni
+   delle query LOB riducendo il numero di round-trip tra PHP e
+   i database Oracle durante il recupero dei LOB.
+   Ciò è utilizzabile con Oracle Database 12.2 o successivo.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration82.new-features.openssl">
+  <title>OpenSSL</title>
+
+  <para>
+   Aggiunto il supporto AEAD per l'algoritmo chacha20-poly1305.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration82.new-features.odbc">
+  <title>ODBC</title>
+
+  <para>
+   Aggiunte le funzioni <function>odbc_connection_string_is_quoted</function>,
+   <function>odbc_connection_string_should_quote</function> e
+   <function>odbc_connection_string_quote</function>.
+   Sono utilizzate principalmente dietro le quinte nelle estensioni ODBC e PDO_ODBC,
+   ma sono esposte allo userland per facilitare i test unitari, e per consentire alle
+   applicazioni e alle librerie degli utenti di effettuare autonomamente il quoting.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration82.new-features.pcre">
+  <title>PCRE</title>
+
+  <para>
+   Aggiunto il supporto per il modificatore <literal>n</literal> (NO_AUTO_CAPTURE),
+   che rende i semplici gruppi <code>(xyz)</code> non catturanti.
+   Solo i gruppi con nome come <code>(?&lt;name&gt;xyz)</code> sono catturanti.
+   Ciò riguarda solo quali gruppi sono catturanti, è ancora possibile utilizzare
+   i riferimenti numerati ai sottopattern, e l'array delle corrispondenze conterrà ancora
+   risultati numerati.
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration82.new-features.random">
+  <title>Random</title>
+
+  <para>
+   Si tratta di una nuova estensione che organizza e consolida le implementazioni
+   esistenti relative ai generatori di numeri casuali.
+   Sono disponibili RNG nuovi e migliori, con l'eliminazione dei problemi di ambito.
+   <!-- RFC: https://wiki.php.net/rfc/rng_extension -->
+   <!-- RFC: https://wiki.php.net/rfc/random_extension_improvement -->
+  </para>
+ </sect2>
+
+</sect1>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

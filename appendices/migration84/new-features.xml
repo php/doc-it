@@ -1,0 +1,616 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: d7efc67559999c1dda0f65c90617b60c6872a61b Maintainer: pastore Status: ready -->
+<sect1 xml:id="migration84.new-features">
+ <title>Nuove Funzionalità</title>
+
+ <!-- TODO: Core features for 8.4 -->
+ <sect2 xml:id="migration84.new-features.core">
+  <title>PHP Core</title>
+
+  <!-- RFC: https://wiki.php.net/rfc/property-hooks -->
+  <sect3 xml:id="migration84.new-features.core.property-hooks">
+   <title>Hook delle proprietà</title>
+
+   <simpara>
+    Le proprietà degli oggetti possono ora avere una logica aggiuntiva associata alle loro
+    operazioni <literal>get</literal> e <literal>set</literal>.
+    A seconda dell'utilizzo, ciò può rendere o meno la proprietà virtuale,
+    ovvero priva di qualsiasi valore sottostante.
+   </simpara>
+
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class Person
+{
+    // Una proprietà "virtuale". Non può essere impostata esplicitamente.
+    public string $fullName {
+        get => $this->firstName . ' ' . $this->lastName;
+    }
+
+    // Tutte le operazioni di scrittura passano per questo hook, e il risultato è ciò che viene scritto.
+    // L'accesso in lettura avviene normalmente.
+    public string $firstName {
+        set => ucfirst(strtolower($value));
+    }
+
+    // Tutte le operazioni di scrittura passano per questo hook, che deve scrivere da sé il valore sottostante.
+    // L'accesso in lettura avviene normalmente.
+    public string $lastName {
+        set {
+            if (strlen($value) < 2) {
+                throw new \InvalidArgumentException('Troppo corto');
+            }
+            $this->lastName = $value;
+        }
+    }
+}
+
+$p = new Person();
+
+$p->firstName = 'peter';
+print $p->firstName; // Stampa "Peter"
+$p->lastName = 'Peterson';
+print $p->fullName; // Stampa "Peter Peterson"
+
+$p->fullName = "Peter 'Pete' Peterson"; // Lancia Error: "Property Person::$fullName is read-only"
+]]>
+    </programlisting>
+   </informalexample>
+  </sect3>
+
+  <!-- RFC: https://wiki.php.net/rfc/asymmetric-visibility-v2 -->
+  <sect3 xml:id="migration84.new-features.core.asymmetric-property-visibility">
+   <title>Visibilità asimmetrica delle Proprietà</title>
+
+   <simpara>
+    Le proprietà degli oggetti possono ora avere la visibilità di <literal>set</literal>
+    controllata separatamente dalla visibilità di <literal>get</literal>.
+   </simpara>
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class Example
+{
+    // Il primo modificatore di visibilità controlla la visibilità in lettura (get), e il secondo modificatore
+    // controlla la visibilità in scrittura (set). La visibilità get non deve essere più ristretta della visibilità set.
+    public protected(set) string $name;
+
+    public function __construct(string $name)
+    {
+        $this->name = $name;
+    }
+}
+]]>
+    </programlisting>
+   </informalexample>
+  </sect3>
+
+  <!-- RFC: https://wiki.php.net/rfc/lazy-objects -->
+  <sect3 xml:id="migration84.new-features.core.lazy-objects">
+   <title>Oggetti lazy</title>
+   <simpara>
+    È ora possibile creare oggetti la cui inizializzazione è differita fino a quando
+    non vi si accede. Librerie e framework possono sfruttare questi oggetti lazy
+    per differire il recupero di dati o dipendenze necessari all'inizializzazione.
+   </simpara>
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class Example
+{
+    public function __construct(private int $data)
+    {
+    }
+
+    // ...
+}
+
+$initializer = static function (Example $ghost): void {
+    // Recupera dati o dipendenze
+    $data = getData();
+    // Inizializza
+    $ghost->__construct($data);
+};
+
+$reflector = new ReflectionClass(Example::class);
+$object = $reflector->newLazyGhost($initializer);
+]]>
+    </programlisting>
+   </informalexample>
+  </sect3>
+
+  <!-- RFC: https://wiki.php.net/rfc/deprecated_attribute -->
+  <sect3 xml:id="migration84.new-features.core.deprecated-attribute">
+   <title>Attributo <code>#[\Deprecated]</code></title>
+
+   <simpara>
+    Il nuovo attributo <classname>Deprecated</classname> può essere utilizzato per contrassegnare funzioni, metodi
+    e costanti di classe come deprecati. Il comportamento delle funzionalità deprecate con questo
+    attributo corrisponde al comportamento del meccanismo di deprecazione esistente per le funzionalità
+    fornite da PHP stesso. L'unica eccezione è che il codice di errore emesso è
+    <constant>E_USER_DEPRECATED</constant> invece di <constant>E_DEPRECATED</constant>.
+   </simpara>
+
+   <simpara>
+    Le deprecazioni esistenti nelle funzionalità fornite da PHP stesso sono state aggiornate per utilizzare
+    l'attributo, migliorando i messaggi di errore emessi con l'aggiunta di una breve spiegazione.
+   </simpara>
+  </sect3>
+
+  <!-- RFC: https://wiki.php.net/rfc/rfc1867-non-post -->
+  <sect3 xml:id="migration84.new-features.core.rfc1867">
+   <title>Analisi delle richieste RFC1867 (multipart) nelle richieste HTTP non POST</title>
+
+   <!-- TODO: expand? -->
+   <simpara>
+    Aggiunta la funzione <function>request_parse_body</function>, che consente di analizzare
+    le richieste RFC1867 (multipart) nelle richieste HTTP non POST.
+   </simpara>
+  </sect3>
+
+  <!-- RFC: https://wiki.php.net/rfc/new_without_parentheses -->
+  <sect3 xml:id="migration84.new-features.core.new-chaining">
+   <title>Concatenazione di espressioni &new; senza parentesi</title>
+
+   <!-- TODO: expand and examples? -->
+   <simpara>
+    Le espressioni new con argomenti del costruttore sono ora dereferenziabili, ovvero
+    consentono di concatenare chiamate a metodi, accessi a proprietà, ecc. senza racchiudere
+    l'espressione tra parentesi.
+   </simpara>
+  </sect3>
+
+  <sect3 xml:id="migration84.new-features.core.debug-weakref">
+   <title>Informazioni di Debug migliorate per <classname>WeakReference</classname></title>
+
+   <!-- TODO: expand and examples? -->
+   <simpara>
+    Le informazioni di debug di <classname>WeakReference</classname> ora
+    mostrano anche l'oggetto a cui fa riferimento, oppure &null; se il riferimento non è
+    più valido.
+   </simpara>
+  </sect3>
+
+  <sect3 xml:id="migration84.new-features.core.debug-closure">
+   <title>Informazioni di Debug migliorate per <classname>Closure</classname></title>
+
+   <!-- TODO: expand and examples? -->
+   <simpara>
+    L'output di <methodname>Closure::__debugInfo</methodname> include ora
+    il nome, il file e la riga della <classname>Closure</classname>.
+   </simpara>
+  </sect3>
+
+  <!-- Is this really a feature? Should this be moved to other changes? -->
+  <sect3 xml:id="migration84.new-features.core.multiple-namespaces-symbols">
+   <title>Definizione di Simboli Identici in Blocchi Namespace Diversi</title>
+
+   <!-- TODO: expand and examples? -->
+   <simpara>
+    L'uscita da un namespace ora azzera i simboli già incontrati.
+    Ciò consente di utilizzare un simbolo in un blocco namespace, anche se un precedente
+    blocco namespace ha dichiarato un simbolo con lo stesso nome.
+    <!-- See Zend/tests/use_function/ns_end_resets_seen_symbols_1.phpt. -->
+   </simpara>
+  </sect3>
+
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.curl">
+  <title>cURL</title>
+
+  <simpara>
+   <function>curl_version</function> restituisce un valore aggiuntivo
+   <literal>feature_list</literal>, che è un array associativo
+   di tutte le funzionalità di cURL conosciute, con l'indicazione se sono supportate (&true;)
+   o meno (&false;).
+  </simpara>
+
+  <simpara>
+   Aggiunte le costanti <constant>CURL_HTTP_VERSION_3</constant> e
+   <constant>CURL_HTTP_VERSION_3ONLY</constant> (disponibili
+   a partire da libcurl 7.66 e 7.88) come opzioni disponibili per
+   <constant>CURLOPT_HTTP_VERSION</constant>.
+  </simpara>
+
+  <simpara>
+   Aggiunta <constant>CURLOPT_PREREQFUNCTION</constant> come opzione di cURL che
+   accetta una <type>callable</type> da chiamare dopo che la connessione è stata stabilita,
+   ma prima che la richiesta venga inviata.
+   Questa callable deve restituire <constant>CURL_PREREQFUNC_OK</constant> oppure
+   <constant>CURL_PREREQFUNC_ABORT</constant> per consentire o interrompere la richiesta.
+  </simpara>
+
+  <simpara>
+   Aggiunta <constant>CURLOPT_SERVER_RESPONSE_TIMEOUT</constant>,
+   precedentemente nota come <constant>CURLOPT_FTP_RESPONSE_TIMEOUT</constant>.
+   Entrambe le costanti hanno lo stesso valore.
+  </simpara>
+
+  <para>
+   Aggiunta <constant>CURLOPT_DEBUGFUNCTION</constant> come opzione di cURL che
+   accetta una <type>callable</type> che viene chiamata durante il ciclo di vita della richiesta
+   con l'oggetto <classname>CurlHandle</classname>,
+   un intero contenente il tipo di messaggio di debug e una stringa contenente il
+   messaggio di debug.
+   Il tipo di messaggio di debug è una delle seguenti costanti:
+   <simplelist>
+    <member><constant>CURLINFO_TEXT</constant></member>
+    <member><constant>CURLINFO_HEADER_IN</constant></member>
+    <member><constant>CURLINFO_HEADER_OUT</constant></member>
+    <member><constant>CURLINFO_DATA_IN</constant></member>
+    <member><constant>CURLINFO_DATA_OUT</constant></member>
+    <member><constant>CURLINFO_SSL_DATA_IN</constant></member>
+    <member><constant>CURLINFO_SSL_DATA_OUT</constant></member>
+   </simplelist>
+   Una volta impostata questa opzione, <constant>CURLINFO_HEADER_OUT</constant>
+   non deve essere impostata, poiché utilizza la stessa funzionalità di libcurl.
+  </para>
+
+  <simpara>
+   <function>curl_getinfo</function> restituisce ora una chiave aggiuntiva
+   <literal>posttransfer_time_us</literal>, contenente il numero di
+   microsecondi dall'inizio fino all'invio dell'ultimo byte.
+   Quando viene seguito un reindirizzamento, i tempi di ciascuna richiesta vengono sommati.
+   Questo valore può essere ottenuto anche passando
+   <constant>CURLINFO_POSTTRANSFER_TIME_T</constant> al
+   parametro <parameter>option</parameter> di <function>curl_getinfo</function>.
+   Ciò richiede libcurl 8.10.0 o successivo.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.dom">
+  <title>DOM</title>
+
+  <!-- RFC: https://wiki.php.net/rfc/domdocument_html5_parser -->
+  <!-- RFC: https://wiki.php.net/rfc/opt_in_dom_spec_compliance -->
+  <simpara>
+   Aggiunto il namespace <package>Dom</package> con nuove classi come controparti
+   delle classi DOM esistenti (ad es. <classname>Dom\Node</classname> è il nuovo
+   <classname>DOMNode</classname>).
+   Queste classi sono compatibili con HTML 5 e conformi alle specifiche WHATWG,
+   risolvendo bug di lunga data dell'estensione DOM.
+   Le vecchie classi DOM rimangono disponibili per retrocompatibilità.
+  </simpara>
+
+  <para>
+   Aggiunto il metodo <methodname>DOMNode::compareDocumentPosition</methodname>
+   con le relative costanti:
+   <simplelist>
+    <member><constant>DOMNode::DOCUMENT_POSITION_DISCONNECTED</constant></member>
+    <member><constant>DOMNode::DOCUMENT_POSITION_PRECEDING</constant></member>
+    <member><constant>DOMNode::DOCUMENT_POSITION_FOLLOWING</constant></member>
+    <member><constant>DOMNode::DOCUMENT_POSITION_CONTAINS</constant></member>
+    <member><constant>DOMNode::DOCUMENT_POSITION_CONTAINED_BY</constant></member>
+    <member><constant>DOMNode::DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC</constant></member>
+   </simplelist>
+  </para>
+
+  <!-- RFC: https://wiki.php.net/rfc/improve_callbacks_dom_and_xsl -->
+  <simpara>
+   È ora possibile passare qualsiasi callable a
+   <methodname>DOMXPath::registerPhpFunctions</methodname>.
+
+   Inoltre, con <methodname>DOMXPath::registerPhpFunctionNs</methodname>,
+   è ora possibile registrare callback che utilizzeranno la sintassi nativa di chiamata di funzione
+   invece di <code>php:function('name')</code>.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.intl">
+  <title>Intl</title>
+
+  <simpara>
+   Aggiunta la costante <constant>NumberFormatter::ROUND_HALFODD</constant> per
+   completare la funzionalità esistente di
+   <constant>NumberFormatter::ROUND_HALFEVEN</constant>.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.openssl">
+  <title>OpenSSL</title>
+
+  <simpara>
+   Aggiunto il supporto per le chiavi basate su Curve25519 + Curve448.
+   In particolare, i campi x25519, ed25519, x448 ed ed448 sono supportati in
+   <function>openssl_pkey_new</function> e
+   <function>openssl_pkey_get_details</function>, mentre
+   <function>openssl_sign</function> e
+   <function>openssl_verify</function> sono state estese per supportare tali chiavi.
+  </simpara>
+
+  <simpara>
+   Implementato l'hashing delle password PASSWORD_ARGON2.
+   Richiede OpenSSL 3.2 e una build NTS.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.pcre">
+  <title>PCRE</title>
+
+  <simpara>
+   La libreria pcre2lib inclusa è stata aggiornata alla versione 10.44.
+   Di conseguenza, è stato aggiunto il supporto JIT per LoongArch, gli spazi
+   sono ora consentiti tra le parentesi graffe negli elementi compatibili con Perl e
+   sono ora supportate le asserzioni lookbehind a lunghezza variabile.
+  </simpara>
+
+  <simpara>
+   Con la versione 10.44 di pcre2lib, la lunghezza massima dei gruppi di cattura con nome
+   è passata da <literal>32</literal> a <literal>128</literal>.
+  </simpara>
+
+  <simpara>
+   Aggiunto il supporto per il modificatore <literal>r</literal> (PCRE2_EXTRA_CASELESS_RESTRICT),
+   nonché per il modificatore di modalità <literal>(?r)</literal>.
+   Quando è abilitato insieme al modificatore case-insensitive (<literal>i</literal>),
+   l'espressione impedisce la corrispondenza mista tra caratteri ASCII e non ASCII.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.pdo">
+  <title>PDO</title>
+
+  <!-- RFC: https://wiki.php.net/rfc/pdo_driver_specific_subclasses -->
+  <simpara>
+   Aggiunto il supporto per sottoclassi specifiche per driver, al fine di supportare meglio
+   le funzionalità specifiche dei database.
+   Le nuove classi sono istanziabili chiamando il
+   metodo <methodname>PDO::connect</methodname> oppure istanziando direttamente una
+   delle sottoclassi specifiche per driver.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/pdo_driver_specific_parsers -->
+  <para>
+   Aggiunto il supporto per parser SQL specifici per driver.
+   Quando un parser specifico per il driver non è disponibile, viene utilizzato il parser predefinito.
+   Il parser predefinito supporta:
+   <simplelist>
+    <member>
+     letterali tra apici singoli e doppi, con il raddoppio come meccanismo di escape
+    </member>
+    <member>
+     commenti con due trattini e commenti in stile C non annidati
+    </member>
+   </simplelist>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.pdo-mysql">
+  <title>PDO_MYSQL</title>
+
+  <!-- RFC: https://wiki.php.net/rfc/pdo_driver_specific_parsers -->
+  <para>
+   Aggiunto un parser personalizzato che supporta:
+   <simplelist>
+    <member>
+     letterali tra apici singoli e doppi, con il raddoppio e il backslash come meccanismo
+     di escape
+    </member>
+    <member>
+     identificatori letterali tra backtick, con il raddoppio come meccanismo di escape
+    </member>
+    <member>
+     due trattini seguiti da almeno 1 spazio, commenti in stile C non annidati
+     e commenti con cancelletto
+    </member>
+   </simplelist>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.pdo-pgsql">
+  <title>PDO_PGSQL</title>
+
+  <!-- RFC: https://wiki.php.net/rfc/pdo_driver_specific_parsers -->
+  <para>
+   Aggiunto un parser personalizzato che supporta:
+   <simplelist>
+    <member>
+     letterali tra apici singoli e doppi, con il raddoppio come meccanismo di escape
+    </member>
+    <member>
+     letterali stringa "escape" in stile C (<literal>E'string'</literal>)
+    </member>
+    <member>
+     letterali stringa dollar-quoted
+    </member>
+    <member>
+     commenti con due trattini e commenti in stile C (non annidati)
+    </member>
+    <member>
+     supporto per <literal>??</literal> come sequenza di escape per
+     l'operatore <literal>?</literal>
+    </member>
+   </simplelist>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.pdo-sqlite">
+  <title>PDO_SQLITE</title>
+
+  <!-- RFC: https://wiki.php.net/rfc/pdo_driver_specific_parsers -->
+  <para>
+   Aggiunto un parser personalizzato che supporta:
+   <simplelist>
+    <member>
+     letterali tra apici singoli, doppi e backtick, con il raddoppio come
+     meccanismo di escape
+    </member>
+    <member>
+     quoting degli identificatori tra parentesi quadre
+    </member>
+    <member>
+     commenti con due trattini e commenti in stile C (non annidati)
+    </member>
+   </simplelist>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.phar">
+  <title>Phar</title>
+
+  <simpara>
+   Aggiunto il supporto per l'estensione Unix timestamp per gli archivi Zip.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.readline">
+  <title>Readline</title>
+
+  <simpara>
+   Aggiunta la possibilità di modificare il percorso di <literal>.php_history</literal> tramite
+   la variabile d'ambiente <envar>PHP_HISTFILE</envar>.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.reflection">
+  <title>Reflection</title>
+
+  <simpara>
+   <classname>ReflectionAttribute</classname> contiene ora una
+   proprietà <property>name</property> per migliorare l'esperienza di debug.
+  </simpara>
+
+  <simpara>
+   <methodname>ReflectionClassConstant::__toString</methodname> e
+   <methodname>ReflectionProperty::__toString</methodname> restituiscono ora i
+   doc comment associati.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/lazy-objects -->
+  <para>
+   Sono stati aggiunti diversi nuovi metodi e costanti relativi alla funzionalità
+   degli oggetti lazy:
+
+   <simplelist>
+    <member>
+     <methodname>ReflectionClass::newLazyGhost</methodname>
+    </member>
+    <member>
+     <methodname>ReflectionClass::newLazyProxy</methodname>
+    </member>
+    <member>
+     <methodname>ReflectionClass::resetAsLazyGhost</methodname>
+    </member>
+    <member>
+     <methodname>ReflectionClass::resetAsLazyProxy</methodname>
+    </member>
+    <member>
+     <methodname>ReflectionClass::isUninitializedLazyObject</methodname>
+    </member>
+    <member>
+     <methodname>ReflectionClass::initializeLazyObject</methodname>
+    </member>
+    <member>
+     <methodname>ReflectionClass::markLazyObjectAsInitialized</methodname>
+    </member>
+    <member>
+     <methodname>ReflectionClass::getLazyInitializer</methodname>
+    </member>
+    <member>
+     <methodname>ReflectionProperty::skipLazyInitialization</methodname>
+    </member>
+    <member>
+     <methodname>ReflectionProperty::setRawValueWithoutLazyInitialization</methodname>
+    </member>
+    <member>
+     <constant>ReflectionClass::SKIP_INITIALIZATION_ON_SERIALIZE</constant>
+    </member>
+    <member>
+     <constant>ReflectionClass::SKIP_DESTRUCTOR</constant>
+    </member>
+   </simplelist>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.soap">
+  <title>SOAP</title>
+
+  <simpara>
+   Aggiunto il supporto per la notazione di Clark per i namespace nella class map.
+   È ora possibile specificare voci in una class map con la notazione di Clark
+   per risolvere un tipo con uno specifico namespace in una specifica classe.
+   Ad esempio: <code>'{http://example.com}foo' => 'FooClass'</code>.
+  </simpara>
+
+  <simpara>
+   Le istanze di <interfacename>DateTimeInterface</interfacename> che vengono
+   passate a <literal>xsd:datetime</literal> o a elementi simili vengono ora
+   serializzate come tali, invece di essere serializzate come stringa vuota.
+  </simpara>
+
+  <simpara>
+   La persistenza della sessione funziona ora con un modulo di sessione condiviso.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.standard">
+  <title>Standard</title>
+
+  <!-- RFC: https://wiki.php.net/rfc/correctly_name_the_rounding_mode_and_make_it_an_enum -->
+  <simpara>
+   <!-- Should this use <enumname> -->
+   Aggiunta una nuova enum <classname>RoundingMode</classname> con nomi più chiari
+   e una migliore reperibilità rispetto alle
+   costanti <constant>PHP_ROUND_<replaceable>*</replaceable></constant>.
+   Inoltre, sono state aggiunte quattro nuove modalità di arrotondamento, disponibili solo tramite
+   la nuova enum <classname>RoundingMode</classname>.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.xsl">
+  <title>XSL</title>
+
+  <simpara>
+   È ora possibile utilizzare parametri che contengono sia apici singoli sia apici
+   doppi.
+  </simpara>
+
+  <!-- RFC: https://wiki.php.net/rfc/improve_callbacks_dom_and_xsl -->
+  <simpara>
+   È ora possibile passare qualsiasi callable a
+   <methodname>XSLTProcessor::registerPhpFunctions</methodname>.
+   <!-- TODO Mention XSLTProcessor::registerPHPFunctionNS ? -->
+  </simpara>
+
+  <simpara>
+   Aggiunte <property>XSLTProcessor::$maxTemplateDepth</property> e
+   <property>XSLTProcessor::$maxTemplateVars</property>
+   per controllare la profondità di ricorsione della valutazione dei template XSL.
+  </simpara>
+ </sect2>
+
+ <sect2 xml:id="migration84.new-features.zip">
+  <title>Zip</title>
+
+  <simpara>
+   Aggiunta la costante <constant>ZipArchive::ER_TRUNCATED_ZIP</constant>,
+   introdotta in libzip 1.11.
+  </simpara>
+ </sect2>
+
+</sect1>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

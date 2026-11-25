@@ -1,359 +1,399 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EN-Revision: a89c6d71c7b65e3de84f26230fbf72c9b8948adf Maintainer: fabiosal Status: ready -->
-<!-- Reviewed: yes -->
-   <sect1 xml:id="install.unix.apache2" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>Apache 2.x su sistemi Unix</title>
-    <para>
-     Questa sezione contiene appunti e suggerimenti specifici per l'installazione di Apache 2.x
-     con PHP su sistemi Unix.
-    </para>
-   
-    &warn.apache2.compat;
-    
-    <para>
-     La <link xlink:href="&url.apache2.docs;">documentazione di Apache</link> 
-     è la principale fonte di informazioni per il server Apache 2.x.
-     Più informazioni riguardanti l'installazione di Apache possono essere trovate
-     nella documentazione ufficiale. 
-    </para>
+<!-- EN-Revision: ee7185a089f266a9475b069aa199314811fad8a8 Maintainer: pastore Status: ready -->
+<!-- CREDITS: fabiosal -->
+<sect1 xml:id="install.unix.apache2" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>Apache httpd 2.x su sistemi Unix</title>
 
-    <para>
-     La versione più recente di Apache HTTP Server può essere ottenuta dal
-     <link xlink:href="&url.apache;">sito di download di Apache</link>,
-     e una versione di PHP compatibile dai siti menzionati in precedenza.
-     Questa guida rapida fornisce solo le informazioni base per iniziare ad 
-     utilizzare Apache 2.x e PHP. Per maggiori informazioni si legga la 
-     <link xlink:href="&url.apache2.docs;">documentazione di Apache</link>.
-     I numeri di versione sono omessi per assicurare che le
-     istruzioni non siano incorrette. Nell'esempio sotto, 'NN' dovrebbe essere
-     sostituito con la specifica versione di Apache che si sta utilizzando.
-    </para>
+ <simpara>
+  Questa sezione contiene note e suggerimenti specifici per l'installazione di PHP con Apache HTTP Server
+  2.x su Linux e sistemi di tipo Unix.
+ </simpara>
 
-    <para>
-     Ci sono attualmente 2 versioni di Apache 2.x - la 2.4 e la 2.2.
-     Ci possono essere varie ragioni per scegliere una o l'altra versione, ma la 2.4 è 
-     attualmente l'ultima e quella raccomandata, se quella opzione
-     è disponibile. In ogni caso le istruzioni qui presentate sono utilizzabili sia con
-     la versione 2.4 che con la 2.2. Da notare che Apache httpd 2.2 è ufficialmente End of Life,
-     e nessun nuovo sviluppo o patch sarà effettuato.
-    </para>
+ <warning>
+  <title>Utilizzare invece PHP-FPM</title>
+  <simpara>
+   <emphasis role="strong">Non utilizzare <literal>mod_php</literal> per le nuove
+   installazioni.</emphasis> Le istruzioni in questa pagina sono mantenute
+   come riferimento storico e per i rari casi in cui è espressamente necessario incorporare PHP
+   direttamente nel processo di Apache httpd.
+  </simpara>
+  <simpara>
+   Per tutte le installazioni moderne, utilizzare
+   <link linkend="install.fpm">PHP-FPM</link> (FastCGI Process Manager)
+   con il modulo <literal>mod_proxy_fcgi</literal> di Apache httpd. PHP-FPM
+   offre una migliore gestione delle risorse, l'isolamento dei processi, il riavvio indipendente
+   di PHP senza riavviare Apache httpd e la compatibilità con
+   l'MPM <literal>event</literal> di Apache httpd (predefinito a partire da Apache httpd 2.4).
+   Le principali distribuzioni Linux adottano questa configurazione come predefinita.
+  </simpara>
+  <simpara>
+   L'approccio <literal>mod_php</literal> incorpora PHP direttamente in ogni
+   processo worker di Apache httpd. A meno che PHP non sia compilato con la thread safety
+   (<literal>--enable-zts</literal>), <literal>mod_php</literal> richiede
+   l'MPM <literal>prefork</literal>, che limita in modo significativo la
+   concorrenza. Se si procede con <literal>mod_php</literal>, è
+   necessario comprendere appieno le implicazioni in termini di prestazioni e sicurezza.
+  </simpara>
+ </warning>
 
-     <orderedlist>
-     <listitem>
-      <para>Scarica Apache HTTP Server da uno dei collegamenti menzionati 
-      precedentemente ed estrailo:</para>
+ <simpara>
+  La <link xlink:href="&url.apache2.docs;">documentazione di Apache</link>
+  è la fonte di informazioni più autorevole sul server Apache httpd 2.x.
+  Ulteriori informazioni sulle opzioni di installazione di Apache httpd sono disponibili
+  in tale documentazione.
+ </simpara>
 
-     <informalexample>
-     <screen>
+ <simpara>
+  La versione più recente di Apache httpd può essere ottenuta dal
+  <link xlink:href="&url.apache;">sito di download di Apache</link>,
+  e una versione di PHP adatta dai siti menzionati in precedenza.
+  Questa guida rapida tratta solo le informazioni di base per iniziare a utilizzare Apache httpd 2.x
+  e PHP. Per maggiori informazioni si legga la
+  <link xlink:href="&url.apache2.docs;">documentazione di Apache</link>.
+  I numeri di versione sono stati omessi, per assicurare che le
+  istruzioni non siano errate. Negli esempi seguenti, 'NN' deve essere
+  sostituito con la specifica versione di Apache httpd in uso.
+ </simpara>
+
+ <simpara>
+  Queste istruzioni si applicano ad Apache httpd 2.4, che è l'unico ramo di rilascio
+  supportato di Apache httpd. Le versioni precedenti (2.2 e inferiori) hanno
+  raggiunto la fine del ciclo di vita e non dovrebbero essere utilizzate.
+ </simpara>
+
+ <note>
+  <simpara>
+   A partire da PHP 8.4.0, la SAPI apache2handler richiede almeno Apache 2.4;
+   il supporto per Apache 2.0 e 2.2, giunti a fine ciclo di vita, è stato rimosso.
+  </simpara>
+ </note>
+
+ <orderedlist>
+  <listitem>
+   <simpara>
+    Scaricare Apache httpd dalla posizione indicata sopra
+    ed estrarlo:
+   </simpara>
+
+   <informalexample>
+    <screen>
 <![CDATA[
 tar -xzf httpd-2.x.NN.tar.gz
 ]]>
-     </screen>
-     </informalexample>
-     </listitem>
+    </screen>
+   </informalexample>
+  </listitem>
 
-     <listitem>
-     <para>Allo stesso modo, scarica ed estrai il codice sorgente di PHP:</para>
+  <listitem>
+   <simpara>
+    Allo stesso modo, scaricare ed estrarre il codice sorgente di PHP:
+   </simpara>
 
-     <informalexample>
-     <screen>
+   <informalexample>
+    <screen>
 <![CDATA[
 tar -xzf php-NN.tar.gz
 ]]>
-     </screen>
-     </informalexample>
-     </listitem>
-   
-     <listitem>
-     <para>
-     Compila ed installa Apache. Consulta la documentazione di Apache 
-     per maggiori dettagli.
-     </para>
+    </screen>
+   </informalexample>
+  </listitem>
 
-     <informalexample>
-     <screen>
+  <listitem>
+   <simpara>
+    Compilare e installare Apache httpd. Consultare la documentazione di installazione di Apache httpd per
+    maggiori dettagli sulla compilazione di Apache httpd. Si noti che <literal>mod_php</literal>
+    richiede l'MPM <literal>prefork</literal> a meno che PHP non sia stato compilato
+    con la thread safety (<literal>--enable-zts</literal>). Se si intende
+    utilizzare invece PHP-FPM (consigliato), è possibile utilizzare l'MPM
+    <literal>event</literal> predefinito e passare direttamente alle
+    <link linkend="install.fpm">istruzioni di installazione di PHP-FPM</link>.
+   </simpara>
+
+   <informalexample>
+    <screen>
 <![CDATA[
 cd httpd-2_x_NN
-./configure --enable-so
+./configure --enable-so --with-mpm=prefork
 make
 make install
 ]]>
-     </screen>
-     </informalexample>
-     </listitem>
+    </screen>
+   </informalexample>
+  </listitem>
 
-     <listitem>
- <para>
-    Ora Apache2.x.NN è disponibile in /usr/local/apache2,
-    configurato con il supporto per il caricamento di moduli e il MPM prefork standard.
-    Per testare l'installazione usa la normale procedura per eseguire
-    il server Apache, es.: 
+  <listitem>
+   <para>
+    Ora Apache httpd 2.x.NN è disponibile in /usr/local/apache2,
+    configurato con il supporto per il caricamento di moduli e l'MPM prefork.
+    Per verificare l'installazione, utilizzare la normale procedura per avviare
+    il server Apache httpd, ad es.:
 
     <informalexample>
-    <screen>
+     <screen>
 <![CDATA[
 /usr/local/apache2/bin/apachectl start
 ]]>
-    </screen>
+     </screen>
     </informalexample>
 
-    e termina l'esecuzione del server per proseguire con la configurazione di PHP:
+    e arrestare il server per proseguire con la configurazione di PHP:
 
     <informalexample>
-    <screen>
+     <screen>
 <![CDATA[
 /usr/local/apache2/bin/apachectl stop
 ]]>
-    </screen>
+     </screen>
     </informalexample>
- </para>
- </listitem>
+   </para>
+  </listitem>
 
- <listitem>
+  <listitem>
+   <simpara>
+    Ora, configurare e compilare PHP. In questa fase è possibile personalizzare PHP
+    con varie opzioni, come le estensioni da abilitare. Eseguire
+    <command>./configure --help</command> per un elenco delle opzioni disponibili. Nell'esempio
+    verrà eseguita una semplice configurazione con il supporto per Apache httpd e MySQL.
+   </simpara>
 
-<para>
-Ora, configura e compila PHP.  In questa fase è possibile personalizzare
-PHP con varie opzioni, come le estensioni da abilitare. Esegui
-./configure --help per una lista completa delle possibili opzioni. Nell'esempio
-seguente PHP sarà configurato per supportare Apache 2 e MySQL.
-</para>
+   <simpara>
+    Se Apache httpd è stato compilato dal codice sorgente, come descritto sopra, l'esempio seguente
+    corrisponderà al percorso di <command>apxs</command>, ma se Apache httpd è stato installato in qualche altro modo,
+    sarà necessario correggere di conseguenza il percorso di <command>apxs</command>. Si noti che alcune distribuzioni potrebbero rinominare
+    <command>apxs</command> in <command>apxs2</command>.
+   </simpara>
 
-<para>
-Se si compila Apache dal codice sorgente, come descritto in precedenza, il percorso per apxs
-sarà uguale a quello dell'esempio seguente, ma se Apache viene installato in qualche altro modo, si
-dovrà eventualmente correggere il percorso di apxs. Da ricordare che alcune distribuzioni potrebbero rinominare
-apxs in apxs2.
- </para>
-     <informalexample>
-     <screen>
+   <informalexample>
+    <screen>
 <![CDATA[
 cd ../php-NN
 ./configure --with-apxs2=/usr/local/apache2/bin/apxs --with-pdo-mysql
 make
 make install
 ]]>
-      </screen>
-     </informalexample>
+    </screen>
+   </informalexample>
 
-     <para>
-    Per riconfigurare le opzioni dopo l'installazione,
-    è necessario eseguire nuovamente i passaggi di configurazione, compilazione ed installazione.
-    Sarà poi necessario
-    riavviare Apache per utilizzare il nuovo modulo. Non è necessario
-    compilare Apache nuovamente.
-    </para>
+   <simpara>
+    Se si decide di modificare le opzioni di configurazione dopo l'installazione,
+    sarà necessario eseguire nuovamente i passaggi <command>configure</command>, <command>make</command>
+    e <command>make install</command>.
+    Sarà poi sufficiente riavviare apache affinché il nuovo modulo abbia effetto.
+    Non è necessario ricompilare Apache httpd.
+   </simpara>
 
-    <para>
-    Nota che se non indicato diversamente, 'make install' installerà anche PEAR,
-    strumenti di PHP come phpize, PHP CLI ed altri.
-    </para>
-
-    </listitem>
+   <para>
+    Si noti che, se non indicato diversamente, <command>make install</command> installerà anche
+    <link xlink:href="&url.php.pear;">PEAR</link>,
+    vari strumenti di PHP come <link linkend="install.pecl.phpize">phpize</link>,
+    la CLI di PHP e altro ancora.
+   </para>
+  </listitem>
 
   <listitem>
-  <para>
-  Configurazione di php.ini 
-  </para>
-    
-     <informalexample>
-     <screen>
+   <simpara>
+    Configurare il file <filename>php.ini</filename>.
+   </simpara>
+
+   <informalexample>
+    <screen>
 <![CDATA[
 cp php.ini-development /usr/local/lib/php.ini
 ]]>
-      </screen>
-     </informalexample>
+    </screen>
+   </informalexample>
 
-    <para>
-    È possibile modificare il file .ini per impostare le opzioni di PHP. Se si desidera
-    spostare il file php.ini in un'altra poizione, utilizzare l'opzione --with-config-file-path=/some/path al
-    punto 5.
-    </para>
-   
-    <para>
-    Nel caso venga utilizzato il file php.ini-production, assicurarsi di leggere la lista
-    dei cambiamenti al suo interno, perché modificano il comportamento di PHP.
-    </para>
+   <simpara>
+    È possibile modificare il file <literal>.ini</literal> per impostare le opzioni di PHP. Se si preferisce avere
+    il file <filename>php.ini</filename> in un'altra posizione,
+    utilizzare <literal>--with-config-file-path=/some/path</literal> al punto 5.
+   </simpara>
 
-    </listitem>
+   <simpara>
+    Se invece si sceglie <filename>php.ini-production</filename>, assicurarsi di leggere l'elenco
+    delle modifiche al suo interno, poiché influiscono sul comportamento di PHP.
+   </simpara>
+  </listitem>
 
-    <listitem>
+  <listitem>
+   <simpara>
+    Modificare il file <filename>httpd.conf</filename> per caricare il modulo PHP. Il percorso nella parte
+    destra dell'istruzione <literal>LoadModule</literal> deve puntare al percorso del modulo
+    PHP sul proprio sistema. Il precedente comando <command>make install</command> potrebbe averlo già
+    aggiunto, ma si verifichi per sicurezza.
+   </simpara>
 
-     <para>
-      Modifica il file httpd.conf per caricare il modulo PHP.  Il percorso nella parte
-      destra della dichiarazione di LoadModule deve puntare al percorso del modulo
-      PHP sul proprio sistema.  Il precedente comando make install potrebbe averlo già
-      aggiunto, ma si verifichi per sicurezza. 
-     </para>
-
-     <informalexample>
-       <para>
-        Per PHP 8:
-       </para>
-       <programlisting role="apache-conf">
+   <informalexample>
+    <programlisting role="apache-conf">
 <![CDATA[
 LoadModule php_module modules/libphp.so
 ]]>
-      </programlisting>
-     </informalexample>
+    </programlisting>
+   </informalexample>
+  </listitem>
 
-     <informalexample>
-       <para>
-        Per PHP 7:
-       </para>
-       <programlisting role="apache-conf">
-<![CDATA[
-LoadModule php7_module modules/libphp7.so
-]]>
-       </programlisting>
-     </informalexample>
+  <listitem>
+   <simpara>
+    Configurare Apache httpd per analizzare determinate estensioni come PHP. Ad esempio, si faccia in modo che
+    Apache httpd analizzi i file <literal>.php</literal> come PHP. Invece di utilizzare solamente la direttiva <literal>AddType</literal>,
+    si vuole evitare che upload e file creati potenzialmente pericolosi,
+    come <filename>exploit.php.jpg</filename>, vengano eseguiti come PHP. Con questo
+    esempio, è possibile far analizzare come PHP qualsiasi estensione semplicemente
+    aggiungendola. Di seguito verrà aggiunta <literal>.php</literal> come dimostrazione.
+   </simpara>
 
-    </listitem>
-
-    <listitem>
-
-    <para>
-    Configurare Apache per analizzare certe estensioni di file con PHP. Per esempio, facciamo
-    in modo che Apache analizzi i file .php con PHP.  Invece di utilizzare solamente la direttiva
-    AddType, si vuole evitare di caricare e creare file potenzialmente pericolosi
-    come exploit.php.jpg ed evitarne l'esecuzione con PHP.  Usando il seguente
-    esempio, è possibile eseguire file con qualsiasi estensione con PHP semplicemente aggiungendola 
-    alla direttiva. Di seguito verrà aggiunta l'estensione .php come esempio.
-    </para>
-
-
-      <informalexample>
-        <programlisting role="apache-conf">
+   <informalexample>
+    <programlisting role="apache-conf">
 <![CDATA[
 <FilesMatch \.php$>
     SetHandler application/x-httpd-php
 </FilesMatch>
 ]]>
-       </programlisting>
-      </informalexample>
+    </programlisting>
+   </informalexample>
 
-    <para>
-    O se si vuole far eseguire a PHP solamente i file con estensione .php, .php2, .php3, .php4, .php5,
-    .php6, e .phtml, ma nient'altro, useremmo questo:
-    </para>
+   <simpara>
+    Oppure, se si volesse consentire che i file <literal>.php</literal>, <literal>.php2</literal>,
+    <literal>.php3</literal>, <literal>.php4</literal>, <literal>.php5</literal>,
+    <literal>.php6</literal> e <literal>.phtml</literal> vengano
+    eseguiti come PHP, ma nient'altro, si utilizzerebbe questo:
+   </simpara>
 
-      <informalexample>
-        <programlisting role="apache-conf">
+   <informalexample>
+    <programlisting role="apache-conf">
 <![CDATA[
-<FilesMatch "\.ph(p[2-6]?|tml)$">
+<FilesMatch "\.(php[2-6]?|phtml)$">
     SetHandler application/x-httpd-php
 </FilesMatch>
 ]]>
-       </programlisting>
-      </informalexample>
+    </programlisting>
+   </informalexample>
 
-    <para>
-    E per permettere ai file .phps di essere gestiti dal filtro per sorgenti php, ed
-    utilizzare la colorazione della sintassi per il codice sorgente, utilizzare: 
-    </para>
+   <para>
+    E per consentire che i file <literal>.phps</literal> vengano gestiti dal filtro per sorgenti php e
+    visualizzati come codice sorgente con evidenziazione della sintassi, utilizzare questo:
+   </para>
 
-      <informalexample>
-        <programlisting role="apache-conf">
+   <informalexample>
+    <programlisting role="apache-conf">
 <![CDATA[
 <FilesMatch "\.phps$">
     SetHandler application/x-httpd-php-source
 </FilesMatch>
 ]]>
-       </programlisting>
-      </informalexample>
+    </programlisting>
+   </informalexample>
 
-    <para>
-    mod_rewrite può essere utilizzato per permettere che ogni file .php disponga
-    della colorazione della sintassi per il codice sorgente, evitando di rinominare o copiare il file
-    in un file .phps:
+   <simpara>
+    Per utilizzare un file PHP come gestore predefinito se non viene trovato nessun altro gestore,
+    ad esempio quando si utilizza un motore di routing, è possibile utilizzare la direttiva <literal>FallbackResource</literal>.
+   </simpara>
+
+   <simpara>
+    Poiché la direttiva <literal>SetHandler</literal> viene applicata indipendentemente dall'esistenza del file, e la direttiva
+    <literal>FallbackResource</literal> viene applicata solo se non è già stato impostato un gestore,
+    potrebbe essere necessario utilizzare la direttiva <literal>If</literal> per assicurarsi che il gestore venga
+    applicato solo se il file esiste.
+    Ciò consente a <literal>FallbackResource</literal> di gestire i percorsi che terminano in <literal>.php</literal>
+    ma che non esistono, il che può essere utile per la gestione degli errori e il routing.
+   </simpara>
+
+   <informalexample>
+    <programlisting role="apache-conf">
+<![CDATA[
+<FilesMatch "\.php$">
+    <If "-f %{REQUEST_FILENAME}">
+        SetHandler application/x-httpd-php
+    </If>
+</FilesMatch>
+FallbackResource /index.php
+]]>
+    </programlisting>
+   </informalexample>
+
+   <para>
+    <literal>mod_rewrite</literal> può essere utilizzato per consentire che qualsiasi file <literal>.php</literal> venga visualizzato
+    come codice sorgente con evidenziazione della sintassi, senza doverlo rinominare o copiare
+    in un file <literal>.phps</literal>:
    </para>
 
-      <informalexample>
-        <programlisting role="apache-conf">
+   <informalexample>
+    <programlisting role="apache-conf">
 <![CDATA[
 RewriteEngine On
 RewriteRule (.*\.php)s$ $1 [H=application/x-httpd-php-source]
 ]]>
-       </programlisting>
-      </informalexample>
+    </programlisting>
+   </informalexample>
 
-    <para>
-    Il filtro per sorgenti php non dovrebbe essere abilitato in sistemi in produzione, dove
-    potrebbe esporre informazioni confidenziali o sensibili incorporate nel
-    codice sorgente.
-    </para>
-
-    </listitem>
-
-    <listitem>
    <para>
-   Utilizzare la normale procedura per avviare il server Apache, es. :
+    Il filtro per sorgenti php non dovrebbe essere abilitato sui sistemi in produzione, dove
+    potrebbe esporre informazioni riservate o comunque sensibili incorporate nel
+    codice sorgente.
    </para>
-  
+  </listitem>
+
+  <listitem>
+   <simpara>
+    Utilizzare la normale procedura per avviare Apache httpd, ad es.:
+   </simpara>
+
    <informalexample>
-   <screen>
+    <screen>
 <![CDATA[
 /usr/local/apache2/bin/apachectl start
 ]]>
-       </screen>
-      </informalexample>
+    </screen>
+   </informalexample>
 
-          <para>o</para>
+   <para>OPPURE</para>
 
    <informalexample>
-   <screen>
+    <screen>
 <![CDATA[
 service httpd restart
 ]]>
-       </screen>
-      </informalexample>
-
-   </listitem>
-     </orderedlist>
-
-    <para>
-     Seguendo i passi sopra indicati si avrà un server web Apache2 con il
-     supporto per PHP come modulo <literal>SAPI</literal>.  Ovviamente ci sono
-     molte altre opzioni configurabili per Apache e per PHP.  Per altre
-     informazioni digita <command>./configure --help</command> nella
-     cartella corrispondente.
-    </para>
-    <para>
-     Apache può essere compilato per utilizzare il multithread selezionando il
-     <filename>worker</filename> MPM, invece del <filename>prefork</filename> 
-     MPM standard, quando Apache viene compilato. Questo è possibile
-     aggiungendo la seguente opzione all'argomento passato al comando ./configure, nel
-     passo 3 precedente:
-    </para>
-    <informalexample>
-    <screen>
-<![CDATA[
---with-mpm=worker
-]]>
     </screen>
-    </informalexample>
-    <para>
-     Questa modifica non dovrebbe essere fatta senza essere consapevoli delle conseguenze di
-     questa decisione e senza avere almeno una discreta comprensione
-     delle sue implicazioni. La documentazione di Apache 
-     riguardante <link xlink:href="&url.apache2.mpm;">MPM-Modules</link> tratta 
-     l'argomento MPM in modo molto più dettagliato.
-    </para>
-    <note>
-     <para>
-      Le <link linkend="faq.installation.apache.multiviews">Apache MultiViews 
-      FAQ</link> trattano l'utilizzo delle multiviews con PHP.
-     </para>
-    </note>
-    <note>
-     <para>
-      Per compilare una versione multithread di Apache, il sistema di destinazione deve supportare i thread.
-      In questo caso, PHP può anche essere compilato con
-      Zend Thread Safety (ZTS). Con questa configurazione, non tutte le estensioni saranno disponibili.
-      La configurazione consigliata è quella di compilare Apache usando l'MPM-Module
-      <filename>prefork</filename> come di default.
-     </para>
-    </note>
-   </sect1>
+   </informalexample>
+  </listitem>
+ </orderedlist>
+
+ <simpara>
+  Seguendo i passaggi precedenti si avrà un server web Apache httpd funzionante con
+  il supporto per PHP come modulo <literal>SAPI</literal>. Sono disponibili
+  molte altre opzioni di configurazione per Apache httpd e PHP. Per maggiori
+  informazioni digitare <command>./configure --help</command> nel corrispondente
+  albero dei sorgenti.
+ </simpara>
+
+ <note>
+  <title>Compatibilità MPM</title>
+  <simpara>
+   A meno che PHP non sia stato compilato con la Zend Thread Safety
+   (<literal>--enable-zts</literal>), <literal>mod_php</literal> richiede
+   l'MPM <literal>prefork</literal>.
+   Per conoscerne il motivo, leggere la relativa voce delle FAQ sull'utilizzo di
+   <link linkend="faq.installation.apache2">Apache httpd con un MPM
+   multithread</link>.
+  </simpara>
+
+  <simpara>
+   La maggior parte dei pacchetti delle distribuzioni di
+   <literal>mod_php</literal> non è compilata con ZTS, quindi
+   l'MPM <literal>prefork</literal> è in genere richiesto. Se occorre un
+   MPM multithread (consigliato per prestazioni migliori sotto carico), utilizzare
+   <link linkend="install.fpm">PHP-FPM</link> con
+   <literal>mod_proxy_fcgi</literal> al suo posto.
+  </simpara>
+ </note>
+
+ <note>
+  <simpara>
+   Le <link linkend="faq.installation.apache.multiviews">Apache MultiViews
+   FAQ</link> trattano l'utilizzo delle multiviews con PHP.
+  </simpara>
+ </note>
+</sect1>
 
 <!-- Keep this comment at the end of the file
 Local variables:
@@ -375,3 +415,4 @@ vim600: syn=xml fen fdm=syntax fdl=2 si
 vim: et tw=78 syn=sgml
 vi: ts=1 sw=1
 -->
+

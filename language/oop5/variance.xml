@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EN-Revision: 4fc9f9ea7ba36a383613ede343a0820f5cc46aa2 Maintainer: DavideFarina2010 Status: ready -->
+<!-- Reviewed: no -->
+<sect1 xml:id="language.oop5.variance" xmlns="http://docbook.org/ns/docbook">
+ <title>Covarianza e Controvarianza</title>
+
+ <para>
+  In PHP 7.2.0 è stata introdotta la controvarianza parziale, rimuovendo le restrizioni di tipo
+  sui parametri in un metodo figlio. A partire da PHP 7.4.0 è stato aggiunto il supporto
+  completo a covarianza e controvarianza.
+ </para>
+ <para>
+  La covarianza permette a un metodo figlio di restituire un tipo più specifico del tipo di ritorno
+  del metodo del padre. La controvarianza permette a un tipo di parametro di essere meno
+  specifico in un metodo figlio rispetto a quello del padre.
+ </para>
+ <para>
+  Una dichiarazione di tipo è considerata più specifica nei seguenti casi:
+  <itemizedlist>
+   <listitem>
+    <simpara>
+     Un tipo viene rimosso da un
+     <link linkend="language.types.type-system.composite.union">tipo unione</link>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     Un tipo viene aggiunto a un
+     <link linkend="language.types.type-system.composite.intersection">tipo intersezione</link>
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     Un tipo classe viene sostituito con il tipo di una classe figlia
+    </simpara>
+   </listitem>
+   <listitem>
+    <simpara>
+     <type>iterable</type> viene sostituito con <type>array</type> o <classname>Traversable</classname>
+    </simpara>
+   </listitem>
+  </itemizedlist>
+
+  Una dichiarazione di tipo è considerata meno specifica se vale il contrario.
+ </para>
+
+ <sect2 xml:id="language.oop5.variance.covariance">
+  <title>Covarianza</title>
+
+  <simpara>
+   Per illustrare il funzionamento della covarianza, viene creata una semplice classe padre astratta, <varname>Animal</varname>.
+   <varname>Animal</varname> sarà estesa dalle classi figlie
+   <varname>Cat</varname> e <varname>Dog</varname>.
+  </simpara>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+abstract class Animal
+{
+    protected string $name;
+
+    public function __construct(string $name)
+    {
+        $this->name = $name;
+    }
+
+    abstract public function speak();
+}
+
+class Dog extends Animal
+{
+    public function speak()
+    {
+        echo $this->name . " barks";
+    }
+}
+
+class Cat extends Animal
+{
+    public function speak()
+    {
+        echo $this->name . " meows";
+    }
+}
+]]>
+   </programlisting>
+  </informalexample>
+
+  <para>
+   Si noti che in questo esempio non ci sono metodi che restituiscono valori. Verranno aggiunte alcune factory
+   che restituiscono un nuovo oggetto del tipo di classe <varname>Animal</varname>,
+   <varname>Cat</varname> o <varname>Dog</varname>.
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+interface AnimalShelter
+{
+    public function adopt(string $name): Animal;
+}
+
+class CatShelter implements AnimalShelter
+{
+    public function adopt(string $name): Cat // invece di restituire il tipo di classe Animal, può restituire il tipo di classe Cat
+    {
+        return new Cat($name);
+    }
+}
+
+class DogShelter implements AnimalShelter
+{
+    public function adopt(string $name): Dog // invece di restituire il tipo di classe Animal, può restituire il tipo di classe Dog
+    {
+        return new Dog($name);
+    }
+}
+
+$kitty = (new CatShelter)->adopt("Ricky");
+$kitty->speak();
+echo "\n";
+
+$doggy = (new DogShelter)->adopt("Mavrick");
+$doggy->speak();
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+Ricky meows
+Mavrick barks
+]]>
+   </screen>
+  </informalexample>
+  <note>
+   <simpara>
+    A partire da PHP 8.5.0, quando un metodo del padre dichiara <type>static</type> come
+    tipo di ritorno, un metodo che lo sovrascrive in una classe <modifier>final</modifier> può
+    dichiarare invece <type>self</type> o il tipo della classe stessa come tipo di ritorno,
+    poiché in una classe che non può essere ulteriormente estesa sono equivalenti a
+    <type>static</type>. Per i dettagli vedere
+    <link linkend="migration85.incompatible.core.substitute-final-subclasses">la
+    guida alla migrazione</link>.
+   </simpara>
+  </note>
+ </sect2>
+
+ <sect2 xml:id="language.oop5.variance.contravariance">
+  <title>Controvarianza</title>
+
+  <para>
+   Proseguendo con l'esempio precedente con le classi <varname>Animal</varname>,
+   <varname>Cat</varname> e <varname>Dog</varname>, verranno incluse le classi
+   <varname>Food</varname> e <varname>AnimalFood</varname> e verrà aggiunto
+   un metodo <varname>eat(AnimalFood $food)</varname> alla classe astratta
+   <varname>Animal</varname>.
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+class Food {}
+
+class AnimalFood extends Food {}
+
+abstract class Animal
+{
+    protected string $name;
+
+    public function __construct(string $name)
+    {
+        $this->name = $name;
+    }
+
+    public function eat(AnimalFood $food)
+    {
+        echo $this->name . " eats " . get_class($food);
+    }
+}
+]]>
+   </programlisting>
+  </informalexample>
+
+  <para>
+   Per vedere il comportamento della controvarianza, il metodo
+   <varname>eat</varname> viene sovrascritto nella classe <varname>Dog</varname> per accettare
+   qualsiasi oggetto di tipo <varname>Food</varname>. La classe <varname>Cat</varname> rimane invariata.
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+class Dog extends Animal
+{
+    public function eat(Food $food) {
+        echo $this->name . " eats " . get_class($food);
+    }
+}
+]]>
+   </programlisting>
+  </informalexample>
+
+  <para>
+   Il prossimo esempio mostrerà il comportamento della controvarianza.
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+$kitty = (new CatShelter)->adopt("Ricky");
+$catFood = new AnimalFood();
+$kitty->eat($catFood);
+echo "\n";
+
+$doggy = (new DogShelter)->adopt("Mavrick");
+$banana = new Food();
+$doggy->eat($banana);
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+Ricky eats AnimalFood
+Mavrick eats Food
+]]>
+   </screen>
+
+   <para>
+    Ma cosa succede se <varname>$kitty</varname> prova a <methodname>eat</methodname> (mangiare)
+    <varname>$banana</varname>?
+   </para>
+
+   <programlisting role="php">
+<![CDATA[
+$kitty->eat($banana);
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+Fatal error: Uncaught TypeError: Argument 1 passed to Animal::eat() must be an instance of AnimalFood, instance of Food given
+]]>
+   </screen>
+  </informalexample>
+ </sect2>
+ <sect2>
+  <title>Varianza delle proprietà</title>
+  <simpara>
+   Per impostazione predefinita, le proprietà non sono né covarianti né controvarianti, quindi sono invarianti.
+   Cioè, il loro tipo non può cambiare affatto in una classe figlia.
+   Il motivo è che le operazioni "get" devono essere covarianti
+   e le operazioni "set" devono essere controvarianti.
+   L'unico modo in cui una proprietà può soddisfare entrambi i requisiti è essere invariante.
+  </simpara>
+  <simpara>
+   A partire da PHP 8.4.0, con l'aggiunta delle proprietà astratte (in un'interfaccia o in una classe astratta) e delle
+   <link linkend="language.oop5.property-hooks.virtual">proprietà virtuali</link>,
+   è possibile dichiarare una proprietà che ha solo un'operazione get o set.
+   Di conseguenza, le proprietà astratte o virtuali per cui è richiesta solo un'operazione "get" possono essere covarianti.
+   Analogamente, una proprietà astratta o virtuale per cui è richiesta solo un'operazione "set" può essere controvariante.
+  </simpara>
+  <simpara>
+   Tuttavia, una volta che una proprietà ha sia l'operazione get sia quella set,
+   non è più covariante né controvariante per ulteriori estensioni.
+   Cioè, diventa invariante.
+  </simpara>
+  <example>
+   <title>Varianza del tipo di una proprietà</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+class Animal {}
+class Dog extends Animal {}
+class Poodle extends Dog {}
+
+interface PetOwner
+{
+    // È richiesta solo un'operazione get, quindi può essere covariante.
+    public Animal $pet { get; }
+}
+
+class DogOwner implements PetOwner
+{
+    // Può essere un tipo più restrittivo, dato che il lato "get"
+    // restituisce comunque un Animal. Tuttavia, trattandosi di una proprietà nativa,
+    // le classi figlie non possono più cambiarne il tipo.
+    public Dog $pet;
+}
+
+class PoodleOwner extends DogOwner
+{
+    // Questo NON è CONSENTITO, perché DogOwner::$pet ha sia
+    // l'operazione get sia quella set definite e richieste.
+    public Poodle $pet;
+}
+?>
+]]>
+   </programlisting>
+  </example>
+ </sect2>
+</sect1>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->
